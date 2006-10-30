@@ -1,0 +1,265 @@
+GAMS Rev 145  x86/Linux                                                                            10/02/06 16:27:43 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  *  MINLP written by GAMS Convert at 04/17/01 16:38:00
+   2  *
+   3  *  Equation counts
+   4  *     Total       E       G       L       N       X
+   5  *        44      23       0      21       0       0
+   6  *
+   7  *  Variable counts
+   8  *                 x       b       i     s1s     s2s      sc      si
+   9  *     Total    cont  binary integer    sos1    sos2   scont    sint
+  10  *        40      25      15       0       0       0       0       0
+  11  *  FX     0       0       0       0       0       0       0       0
+  12  *
+  13  *  Nonzero counts
+  14  *     Total   const      NL     DLL
+  15  *       118      82      36       0
+  16  *
+  17  *  Solve m using MINLP minimizing objvar;
+  18   
+  19   
+  20  Variables  x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15,x16,x17,x18,b19
+  21            ,b20,b21,b22,b23,b24,x25,x26,x27,b28,b29,b30,b31,b32,b33,x34,x35,x36
+  22            ,b37,b38,b39,objvar;
+  23   
+  24  Positive Variables x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15,x16,x17
+  25            ,x18,x25,x26,x27,x34,x35,x36;
+  26   
+  27  Binary Variables b19,b20,b21,b22,b23,b24,b28,b29,b30,b31,b32,b33,b37,b38,b39;
+  28   
+  29  Equations  e1,e2,e3,e4,e5,e6,e7,e8,e9,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19
+  30            ,e20,e21,e22,e23,e24,e25,e26,e27,e28,e29,e30,e31,e32,e33,e34,e35,e36
+  31            ,e37,e38,e39,e40,e41,e42,e43,e44;
+  32   
+  33   
+  34  e1..  - ((6329.03 + 1800*x1)*x16*x25*x34 + (2489.31 + 1800*x2)*x17*x26*x35 + (
+  35       3270.27 + 1800*x3)*x18*x27*x36) + objvar =E= 0;
+  36   
+  37  e2.. (-19.9*POWER(0.000338983050847458*x4,3)) - 0.161*sqr(0.000338983050847458*
+  38       x4)*x10 + 1.90169491525424e-7*x4*sqr(x10) + x1 =E= 0;
+  39   
+  40  e3.. (-1.21*POWER(0.000338983050847458*x5,3)) - 0.0644*sqr(0.000338983050847458
+  41       *x5)*x11 + 1.91186440677966e-7*x5*sqr(x11) + x2 =E= 0;
+  42   
+  43  e4.. (-6.52*POWER(0.000338983050847458*x6,3)) - 0.102*sqr(0.000338983050847458*
+  44       x6)*x12 + 7.86440677966102e-8*x6*sqr(x12) + x3 =E= 0;
+  45   
+  46  e5.. (-0.00023593220338983*x4*x10) - 629*sqr(0.000338983050847458*x4) + 0.0116*
+  47       sqr(x10) + x7 =E= 0;
+  48   
+  49  e6.. (-0.001*x5*x11) - 215*sqr(0.000338983050847458*x5) + 0.115*sqr(x11) + x8
+  50        =E= 0;
+  51   
+  52  e7.. (-0.000179661016949153*x6*x12) - 361*sqr(0.000338983050847458*x6) +
+  53       0.00946*sqr(x12) + x9 =E= 0;
+  54   
+  55  e8..    x13 + x14 + x15 =E= 1;
+  56   
+  57  e9.. 0.00285714285714286*x10*x16 - x13 =E= 0;
+  58   
+  59  e10.. 0.00285714285714286*x11*x17 - x14 =E= 0;
+  60   
+  61  e11.. 0.00285714285714286*x12*x18 - x15 =E= 0;
+  62   
+  63  e12.. 0.0025*x7*x25 - x34 =E= 0;
+  64   
+  65  e13.. 0.0025*x8*x26 - x35 =E= 0;
+  66   
+  67  e14.. 0.0025*x9*x27 - x36 =E= 0;
+  68   
+  69  e15..    0.000338983050847458*x4 - x34 =L= 0;
+  70   
+  71  e16..    0.000338983050847458*x5 - x35 =L= 0;
+  72   
+  73  e17..    0.000338983050847458*x6 - x36 =L= 0;
+GAMS Rev 145  x86/Linux                                                                            10/02/06 16:27:43 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+  74   
+  75  e18..    0.0125*x1 - x34 =L= 0;
+  76   
+  77  e19..    0.04*x2 - x35 =L= 0;
+  78   
+  79  e20..    0.0222222222222222*x3 - x36 =L= 0;
+  80   
+  81  e21..    0.0025*x7 - x34 =L= 0;
+  82   
+  83  e22..    0.0025*x8 - x35 =L= 0;
+  84   
+  85  e23..    0.0025*x9 - x36 =L= 0;
+  86   
+  87  e24..    0.00285714285714286*x10 - x34 =L= 0;
+  88   
+  89  e25..    0.00285714285714286*x11 - x35 =L= 0;
+  90   
+  91  e26..    0.00285714285714286*x12 - x36 =L= 0;
+  92   
+  93  e27..    x13 - x34 =L= 0;
+  94   
+  95  e28..    x14 - x35 =L= 0;
+  96   
+  97  e29..    x15 - x36 =L= 0;
+  98   
+  99  e30..    x16 - 3*x34 =L= 0;
+ 100   
+ 101  e31..    x17 - 3*x35 =L= 0;
+ 102   
+ 103  e32..    x18 - 3*x36 =L= 0;
+ 104   
+ 105  e33..    x25 - 3*x34 =L= 0;
+ 106   
+ 107  e34..    x26 - 3*x35 =L= 0;
+ 108   
+ 109  e35..    x27 - 3*x36 =L= 0;
+ 110   
+ 111  e36..    x16 - b19 - 2*b20 =E= 0;
+ 112   
+ 113  e37..    x17 - b21 - 2*b22 =E= 0;
+ 114   
+ 115  e38..    x18 - b23 - 2*b24 =E= 0;
+ 116   
+ 117  e39..    x25 - b28 - 2*b29 =E= 0;
+ 118   
+ 119  e40..    x26 - b30 - 2*b31 =E= 0;
+ 120   
+ 121  e41..    x27 - b32 - 2*b33 =E= 0;
+ 122   
+ 123  e42..    x34 - b37 =E= 0;
+ 124   
+ 125  e43..    x35 - b38 =E= 0;
+ 126   
+ 127  e44..    x36 - b39 =E= 0;
+ 128   
+ 129  * set non default bounds
+ 130   
+ 131  x1.up = 80;
+ 132  x2.up = 25;
+ 133  x3.up = 45;
+ 134  x4.up = 2950;
+ 135  x5.up = 2950;
+ 136  x6.up = 2950;
+ 137  x7.up = 400;
+ 138  x8.up = 400;
+ 139  x9.up = 400;
+ 140  x10.up = 350;
+ 141  x11.up = 350;
+ 142  x12.up = 350;
+ 143  x13.up = 1;
+ 144  x14.up = 1;
+ 145  x15.up = 1;
+ 146  x16.up = 3;
+GAMS Rev 145  x86/Linux                                                                            10/02/06 16:27:43 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+ 147  x17.up = 3;
+ 148  x18.up = 3;
+ 149  x25.up = 3;
+ 150  x26.up = 3;
+ 151  x27.up = 3;
+ 152  x34.up = 1;
+ 153  x35.up = 1;
+ 154  x36.up = 1;
+ 155   
+ 156  * set non default levels
+ 157   
+ 158  x4.l = 983.333333333333;
+ 159  x5.l = 983.333333333333;
+ 160  x6.l = 983.333333333333;
+ 161  x7.l = 133.333333333333;
+ 162  x8.l = 133.333333333333;
+ 163  x9.l = 133.333333333333;
+ 164  x10.l = 116.666666666667;
+ 165  x11.l = 116.666666666667;
+ 166  x12.l = 116.666666666667;
+ 167  x13.l = 0.333333333333333;
+ 168  x14.l = 0.333333333333333;
+ 169  x15.l = 0.333333333333333;
+ 170  x16.l = 1;
+ 171  x17.l = 1;
+ 172  x18.l = 1;
+ 173  x25.l = 1;
+ 174  x26.l = 1;
+ 175  x27.l = 1;
+ 176  x34.l = 0.333333333333333;
+ 177  x35.l = 0.333333333333333;
+ 178  x36.l = 0.333333333333333;
+ 179   
+ 180  * set non default marginals
+ 181   
+ 182   
+ 183  Model m / all /;
+ 184   
+ 185  m.limrow=0; m.limcol=0;
+ 186   
+ 188   
+ 189  Solve m using MINLP minimizing objvar;
+
+
+COMPILATION TIME     =        0.004 SECONDS      2 Mb  LNX222-145 Apr 19, 2006
+GAMS Rev 145  x86/Linux                                                                            10/02/06 16:27:43 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE m Using MINLP From line 189
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          44     SINGLE EQUATIONS           44
+BLOCKS OF VARIABLES          40     SINGLE VARIABLES           40
+NON ZERO ELEMENTS           118     NON LINEAR N-Z             36
+DERIVATIVE POOL              18     CONSTANT POOL              40
+CODE LENGTH                 381     DISCRETE VARIABLES         15
+
+
+GENERATION TIME      =        0.150 SECONDS      3 Mb  LNX222-145 Apr 19, 2006
+
+
+EXECUTION TIME       =        0.152 SECONDS      3 Mb  LNX222-145 Apr 19, 2006
+GAMS Rev 145  x86/Linux                                                                            10/02/06 16:27:43 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE m Using MINLP From line 189
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   m                   OBJECTIVE  objvar
+     TYPE    MINLP               DIRECTION  MINIMIZE
+     SOLVER  CONVERT             FROM LINE  189
+
+**** SOLVER STATUS     1 NORMAL COMPLETION         
+**** MODEL STATUS      14 NO SOLUTION RETURNED     
+**** OBJECTIVE VALUE               NA
+
+ RESOURCE USAGE, LIMIT         NA          1000.000
+ ITERATION COUNT, LIMIT        NA         10000
+ EVALUATION ERRORS             NA             0
+
+Convert 1.8   Apr 21, 2006 LNX.FR.NA 22.2 018.000.000.LX3 P3PC             
+
+Using option file /home/stefan/globopt/LaGO/mod/convert.opt
+    > AMPL
+
+Ampl      : ampl.mod
+
+
+No solution returned
+
+
+EXECUTION TIME       =        0.001 SECONDS      2 Mb  LNX222-145 Apr 19, 2006
+
+
+USER: Stefan Vigerske                                S060614:0302CN-LNX
+      Humboldt University Berlin, Numerical Mathematics          DC5918
+
+
+**** FILE SUMMARY
+
+Input      /home/eopt/Examples/MinlpLib/ex1252/ex1252.gms
+Output     /home/stefan/globopt/LaGO/mod/ex1252.lst

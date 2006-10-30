@@ -1,0 +1,149 @@
+\documentclass[11pt]{article}
+\usepackage{a4wide}
+\usepackage{url}
+\begin{document}
+
+\section{LaGO}
+
+LaGO ({\bf La}grangian {\bf G}lobal {\bf O}ptimizer) \cite{No05,lago} is a solver for nonconvex mixed-integer nonlinear problems (MINLPs).
+The most developed exact solution algorithm in LaGO is a branch and cut algorithm based on a convex relaxation of the nonconvex MINLP.
+Details on this branch and cut algorithm can also be found in the slides to a talk at the EURO 2006 conference (download at \cite{lago}) and in the recent paper \cite{NoVi06}.
+
+\subsection{Branch and Cut}
+
+The algorithmic steps of this branch and cut algorithm are as follows:
+\begin{enumerate}
+\item Read the MINLP formulation from a GAMS model.
+\item Determine the sparsity structure of the MINLP and compute a block-separable reformulation.
+\item Determine quadratic functions. Analyse convexity and concavity of functions.
+\item Apply boxreduction techniques. Determine bounds for unbounded variables.
+\item Replace nonconvex nonquadratic functions by quadratic underestimators (this is done by a sampling technique).
+Hence, all nonconvex functions are now quadratic.
+\item Construct a convex relaxation by convexification of nonconvex (quadratic) functions (using $\alpha$-underestimators as proposed by Adjiman and Floudas \cite{AdFl97}).
+\item Construct an initial linear relaxation by linearization of the convex relaxation.
+\item Solve the MINLP by Branch and Cut:
+\begin{itemize}
+\item Lower bounds are computed by solving the linear relaxation.
+\item Upper bounds are computed by local minimization of the MINLP with a fixation of the binary variables.
+\item Branching is performed primarily on the binary variables, and secondarily on the continuous variables.
+\item The linear relaxation is updated by further linearizations of the constraints of the convex relaxation.
+Additionally, cuts from the COIN Cut Generator Library can be used. Currently, we use the mixed-integer-rounding cuts \cite{GoLa05}.
+\item The $\alpha$-underestimators in the convex relaxation are updated after a branching operation or boxreduction.
+\item Box reduction techniques are applied after a branching operation.
+\end{itemize}
+\end{enumerate}
+
+Two box reduction algorithms are currently implemented in LaGO:
+The first technique applies interval arithmetic on the constraints of the original MINLP formulation.
+The second technique minimizes or maximizes a single variable over the feasible set of the linear relaxation.
+
+Next to the above mentioned cuts (linearization of convex relaxation and use of COIN Cut Generator Library), we have also started to implement so-called interval-gradient cuts. These cuts can be applied to the original formulation of the MINLP and can be used to approximate the nonconvex behavior of the constraints. For this, new binary variables have to be introduced.
+
+The Branch and Cut algorithm has been applied to examples from the GAMS MINLPLib and GlobalLib.
+Test results can be found on the LaGO webpage \cite{lago}.
+Due to the sampling technique applied to obtain quadratic underestimators of nonconvex nonquadratic functions, the Branch and Cut algorithm can only be seen as a heuristic algorithm.
+However, our computational results show that it performs well on many problems.
+
+\subsection{Branch Cut and Price}
+
+We have further started to implement a Branch Cut and Price algorithm in LaGO \cite{No05}.
+This algorithm constructs additionally a linear inner approximation of the MINLP by column generation.
+For that purpose the blockseparable reformulation is used to construct a Lagrangian relaxation of the MINLP.
+This relaxation is obtained by dualization of those (linear) constraints that couple different blocks in the MINLP.
+Then the relaxed problem decomposes into several subproblems, each one building a small MINLP.
+Global solution points of these subproblems are used to form the inner approximation.
+Further, they yield Lagrangian Cuts that are added to the linear outer-approximation of the MINLP.
+
+The Branch Cut and Price algorithm has been successfully applied for MaxCut problems with an almost blockseparable structure \cite{No05}.
+(Here the objective function is a nonconvex quadratic function, and the linear constraints come from the integration of new variables which make the problem fully blockseparable. All variables are integer-valued.)
+
+\subsection{Problems with the current implementation}
+
+The main weakness of the implemented Branch and Cut algorithm is that the quadratic underestimators in step 5 are computed by a sampling technique which is failing in some cases.
+Further on, these underestimators are not updated after a branching or boxreduction step, which prohibits the computation of a tight outer-approximation.
+
+The Branch Cut and Price algorithm can currently be applied only to problems where LaGO can solve the MINLP subproblems easily.
+Furtheron, an efficient initialization procedure for the inner approximation is missing.
+
+Another point that should be improved is the computation of missing bounds on variables in step 4.
+Application of the interval-arithmetic-based boxreduction technique does not yield bounds in any case.
+Also the minimization or maximization of one variable over the linear or convex constraints of the MINLP is not always sufficient.
+
+\section{Potentials for an integration of LaGO into COIN-OR}
+
+Currently, LaGO uses COIN-OR algorithm to solve the linear relaxation (COIN/CLP), to generate cuts that cut off nonintegral solutions of the linear relaxation (COIN/CGL) \cite{GoLa05}, and to perform local minimization of NLP-subproblems (IPOPT \cite{WaBi06}).
+
+We see the following points for a further integration between LaGO and COIN-OR and an extension of LaGO:
+\begin{itemize}
+\item Sharing of classes to store the MINLP formulation.
+Here the IPOPT-classes that store an MINLP as it is used by Bonmin could be used.\\
+Further, classes to integrate information about the algebraic formulation of functions (if available) should be designed.
+They could be used for reformulation (esp. convexification) algorithms.
+\item The linear outer-approximation in LaGO could be extended to a mixed-integer linear outer-approximation. This allows the efficient use of the above mentioned interval-gradient-cuts (since they introduce new binary variables).\\
+The mixed-integer linear outer-approximation can be solved by COIN/CBC or using other solvers that can be accessed using COIN/OSI.
+\item MINLP subproblems that appear in the Branch Cut and Price algorithm or when Lagrangian Cuts are generated could be solved by other COIN MINLP-solvers, e.g. Bonmin \cite{BBCCGLLLMSW}.
+\item NLP subproblems can be solved by IPOPT \cite{WaBi06}. These subproblems appear when a nonlinear convex relaxation has to be solved or a local minimizer of the MINLP has to be computed.
+\item Open interfaces for solvers of MINLP and NLP subproblems offer the ability that users attach their own efficient problem specific algorithms.
+\item The Feasibility Pump \cite{BoCoLoMa06} as integrated in COIN/Bonmin could be used to improve the starting points for the local search.
+%there is also a feasibility pump article in Mathematical Progamming: http://www.springerlink.com/content/nt353518591u0171/?p=51f3beababf04d409abfe9b49556774b&pi=0
+\item Finally, parallelization algorithms similar to those in COIN/BCP can be used to speed up the search on multiprocessor machines or distributed computing environments. The search in the branch and bound tree and the solution of a series of MINLP subproblems are very good suited for parallelization.
+\end{itemize}
+It might be that some of these points will be developed in a DFG-project that is currently  applied.
+
+\bibliographystyle{plain}
+\begin{thebibliography}{1}
+
+\bibitem{AdFl97}
+C.~S. Adjiman and C.~A. Floudas.
+\newblock Rigorous convex underestimators for general twice-differentiable
+  problems.
+\newblock {\em Journal of Global Optimization}, 9:23--40, 1997.
+
+\bibitem{BBCCGLLLMSW}
+P.~Bonami, L.T. Biegler, A.R. Conn, G.~Cornu\'ejols, I.E. Grossmann, C.D.
+  Laird, J.~Lee, A.~Lodi, F.~Margot, N.~Sawaya, and A.~W\"achter.
+\newblock An algorithmic framework for convex mixed integer nonlinear programs.
+\newblock Technical report, Carnegie Mellon University, IBM Research Division,
+  Facult\'e des Sciences du Luminy, University of Bologna, 2005.
+\newblock IBM Research Report RC23771.
+
+\bibitem{BoCoLoMa06}
+P.~Bonami, G.~Cornu\'ejols, A.~Lodi, and F.~Margot.
+\newblock A feasibility pump for mixed integer nonlinear programs.
+\newblock {\em submitted for publication}, 2006.
+
+\bibitem{GoLa05}
+J.P.M. Gon\c{c}alves and L.~Ladanyi.
+\newblock An implementation of a separation procedure for mixed integer
+  rounding inequalities.
+\newblock Research Report RC23686, IBM Research Division, August 2005.
+
+\bibitem{No05}
+I.~Nowak.
+\newblock {\em Relaxation and {D}ecomposition {M}ethods for {M}ixed {I}nteger
+  {N}onlinear {P}rogramming}.
+\newblock Birkh\"auser, 2005.
+
+\bibitem{lago}
+I.~Nowak, H.~Alperin, and S.~Vigerske.
+\newblock {\em \textsc{LaGO} Documentation}.
+\newblock \url{http://www.math.hu-berlin.de/~eopt/LaGO}.
+
+\bibitem{NoVi06}
+I.~Nowak and S.~Vigerske.
+\newblock {LaGO} - a (heuristic) branch and cut algorithm for nonconvex
+  {MINLPs}.
+\newblock Humboldt-Universit\"at zu Berlin, Institut f\"ur Mathematik, Preprint
+  06-24, 2006.
+\newblock \url{http://www.mathematik.hu-berlin.de/publ/pre/2006/P-06-24.ps}
+
+\bibitem{WaBi06}
+A.~W\"achter and L.~T. Biegler.
+\newblock On the implementation of a primal-dual interior point filter line
+  search algorithm for large-scale nonlinear programming.
+\newblock {\em Mathematical Programming}, 106(1):25--57, 2006.
+\newblock \url{http://projects.coin-or.org/Ipopt}.
+
+\end{thebibliography}
+
+\end{document}

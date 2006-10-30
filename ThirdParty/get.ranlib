@@ -1,0 +1,9 @@
+#!/bin/bash
+
+wget http://www.netlib.org/random/ranlib.c.tar.gz
+
+tar xzf ranlib.c.tar.gz
+cd ranlib.c
+gcc -c linpack/*.c src/*.c
+ar -r libranlib.a *.o
+ranlib libranlib.a

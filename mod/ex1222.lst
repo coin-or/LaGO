@@ -1,0 +1,118 @@
+GAMS Rev 145  x86/Linux                                                                            10/02/06 16:21:20 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  *  MINLP written by GAMS Convert at 04/17/01 16:37:44
+   2  *
+   3  *  Equation counts
+   4  *     Total       E       G       L       N       X
+   5  *         4       1       0       3       0       0
+   6  *
+   7  *  Variable counts
+   8  *                 x       b       i     s1s     s2s      sc      si
+   9  *     Total    cont  binary integer    sos1    sos2   scont    sint
+  10  *         4       3       1       0       0       0       0       0
+  11  *  FX     0       0       0       0       0       0       0       0
+  12  *
+  13  *  Nonzero counts
+  14  *     Total   const      NL     DLL
+  15  *         9       7       2       0
+  16  *
+  17  *  Solve m using MINLP minimizing objvar;
+  18   
+  19   
+  20  Variables  x1,x2,b3,objvar;
+  21   
+  22  Binary Variables b3;
+  23   
+  24  Equations  e1,e2,e3,e4;
+  25   
+  26   
+  27  e1..  - exp(x1 - 0.2) - x2 =L= 0;
+  28   
+  29  e2..    x2 + 1.1*b3 =L= -1;
+  30   
+  31  e3..    x1 - 1.2*b3 =L= 0;
+  32   
+  33  e4..  - 5*sqr(x1 - 0.5) + 0.7*b3 + objvar =E= 0.8;
+  34   
+  35  * set non default bounds
+  36   
+  37  x1.lo = 0.2; x1.up = 1;
+  38  x2.lo = -2.22554; x2.up = -1;
+  39   
+  40  * set non default levels
+  41   
+  42   
+  43  * set non default marginals
+  44   
+  45   
+  46  Model m / all /;
+  47   
+  48  m.limrow=0; m.limcol=0;
+  49   
+  51   
+  52  Solve m using MINLP minimizing objvar;
+
+
+COMPILATION TIME     =        0.001 SECONDS      2 Mb  LNX222-145 Apr 19, 2006
+GAMS Rev 145  x86/Linux                                                                            10/02/06 16:21:20 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE m Using MINLP From line 52
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS           4     SINGLE EQUATIONS            4
+BLOCKS OF VARIABLES           4     SINGLE VARIABLES            4
+NON ZERO ELEMENTS             9     NON LINEAR N-Z              2
+DERIVATIVE POOL               7     CONSTANT POOL              17
+CODE LENGTH                  22     DISCRETE VARIABLES          1
+
+
+GENERATION TIME      =        0.119 SECONDS      3 Mb  LNX222-145 Apr 19, 2006
+
+
+EXECUTION TIME       =        0.120 SECONDS      3 Mb  LNX222-145 Apr 19, 2006
+GAMS Rev 145  x86/Linux                                                                            10/02/06 16:21:20 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE m Using MINLP From line 52
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   m                   OBJECTIVE  objvar
+     TYPE    MINLP               DIRECTION  MINIMIZE
+     SOLVER  CONVERT             FROM LINE  52
+
+**** SOLVER STATUS     1 NORMAL COMPLETION         
+**** MODEL STATUS      14 NO SOLUTION RETURNED     
+**** OBJECTIVE VALUE               NA
+
+ RESOURCE USAGE, LIMIT         NA          1000.000
+ ITERATION COUNT, LIMIT        NA         10000
+ EVALUATION ERRORS             NA             0
+
+Convert 1.8   Apr 21, 2006 LNX.FR.NA 22.2 018.000.000.LX3 P3PC             
+
+Using option file /home/stefan/globopt/LaGO/mod/convert.opt
+    > AMPL
+
+Ampl      : ampl.mod
+
+
+No solution returned
+
+
+EXECUTION TIME       =        0.001 SECONDS      2 Mb  LNX222-145 Apr 19, 2006
+
+
+USER: Stefan Vigerske                                S060614:0302CN-LNX
+      Humboldt University Berlin, Numerical Mathematics          DC5918
+
+
+**** FILE SUMMARY
+
+Input      /home/eopt/Examples/MinlpLib/ex1222/ex1222.gms
+Output     /home/stefan/globopt/LaGO/mod/ex1222.lst
