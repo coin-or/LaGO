@@ -1,5 +1,5 @@
 
-Welcome, this is a first draft of a LaGO distribution.
+Welcome to LaGO.
 
 For installation instructions and required third party packages see INSTALL.
 
@@ -34,29 +34,6 @@ In the footer of this webpage you'll find the parameter documentation.
 
 A small overview over the LaGO Branch and Cut algorithm and some proposals for an integration of LaGO into COIN-OR can be found in COINintegration.tex in doc.
 A recent paper describing the Branch and Cut algorithm implemented in LaGO can be found at http://www.mathematik.hu-berlin.de/publ/pre/2006/P-06-24.ps
-
-
-***** Roadmap:
-Here some points that should be done next:
-1. Build system
-Currently, there is only one makefile, that has to be adjusted by the user.
-The build system should integrate LaGO into COIN-OR, and so automatically detect the location of codes like Clp and IpOpt.
-
-2. Documentation
-For the user, the installation instructions have to be detailed and the parameter documentation has to be made more clear.
-For the developers, the class design should be explained.
-
-3. Tests
-Test have to be written.
-
-4. Remaining points needed to let LaGO achive the status of a COIN-OR production project...
-
-5. Cleaning and structuring the code.
-Having a look at the current code, it is obvious that it has been grown over the last years without taking much care of readability.
-To attract other developers for contributions, the code has to become better readable.
-
-6. Less dependence of third-party packages.
-Some packages like TNT and METIS should be replaced by COIN-OR projects (like CoinUtils), or made optional.
 
 
 **** Correspondence:
