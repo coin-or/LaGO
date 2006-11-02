@@ -419,6 +419,15 @@ class MIPSolver {
 		/** Gives the reduced costs for a specific column.
 		*/
 		virtual double get_reducedcosts(const ColItem& colitem)=0;
+		
+		/** Gives the row activities for the rows.
+		    @param rowact To store the row activities of the first rowact.dim() rows.
+		*/
+		virtual void get_rowactivity(UserVector<double>& rowact)=0;
+		/** Gives the row activities for a specific row.
+		*/
+		virtual double get_rowactivity(const RowItem& rowitem)=0;
+		
 
 		/** The last optimal value.
 		*/

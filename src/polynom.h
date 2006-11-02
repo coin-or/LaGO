@@ -176,6 +176,11 @@ class PolynomialUnderestimator2 {
 		void new_multiindices(const SparsityInfo& si, int n);
 		void polynomial_underestimator(SparseMatrix2& A, SparseVector<double>& b, double& c, Func& f, ivector& indices);
 
+		/** new quadratic underestimator, based on A. Neumaiers idea
+		
+		*/
+		void quadratic_underestimator(SparseMatrix2& A, SparseVector<double>& b, double& c, const Pointer<Func>& f, ivector& indices, const Pointer<dvector>& lower, const Pointer<dvector>& upper);
+		
 	public:
 		SparseVector<double> c_add1, c_add2;
 
