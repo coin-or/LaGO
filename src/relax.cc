@@ -122,10 +122,7 @@ void Convexify::get_decomposed_functions(pair<Pointer<SepQcFunc>, Pointer<SepQcF
 			}
 
 			if (A->nonzeros())
-				if (f.first->A[k]) {
-					si->add(*f.first->A[k]);
-					f.first->A[k]=new SumMatrix(&*f.first->A[k], &*A);
-				}
+				if (f.first->A[k]) f.first->A[k]=new SumMatrix(&*f.first->A[k], &*A);
 				else f.first->A[k]=A;
 			if (f.first->A[k]) si->add(*f.first->A[k]);
 

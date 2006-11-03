@@ -91,6 +91,9 @@ class OSISolver : public MIPSolver {
 		void get_reducedcosts(UserVector<double>& rc);
 		double get_reducedcosts(const MIPSolver::ColItem& colitem);
 
+		void get_rowactivity(UserVector<double>& rowact);
+		double get_rowactivity(const MIPSolver::RowItem& rowitem);
+
 		double get_optval();
 
 		int get_iter();

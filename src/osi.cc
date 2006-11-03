@@ -139,7 +139,7 @@ MIPSolver::SolutionStatus OSISolver::solve() {
 	else {
 		osisolver->resolve();
 #ifndef CPLEX_AVAILABLE
-		if (osisolver->isProvenPrimalInfeasible()) { 
+		if (osisolver->isProvenPrimalInfeasible() || osisolver->isProvenDualInfeasible()) { 
 			osisolver->initialSolve();
 			if (osisolver->isProvenOptimal())
 				out_log << "Resolve reported infeasible, initialSolve says feasible...";
@@ -283,6 +283,15 @@ void OSISolver::get_reducedcosts(UserVector<double>& rc) {
 }
 double OSISolver::get_reducedcosts(const MIPSolver::ColItem& colitem) {
 	return osisolver->getReducedCost()[((const ColItem&)colitem).index];
+}
+
+void OSISolver::get_rowactivity(UserVector<double>& rowact) {
+	assert(rowact.dim()<=nr_row());
+	rowact.set(osisolver->getRowActivity());
+}
+
+double OSISolver::get_rowactivity(const MIPSolver::RowItem& rowitem) {
+	return osisolver->getRowActivity()[((const RowItem&)rowitem).index];
 }
 
 double OSISolver::get_optval() { return osisolver->getObjValue(); }

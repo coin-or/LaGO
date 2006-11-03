@@ -162,18 +162,29 @@ void IpOptProblem::set_hessian(const SepQcFunc& func, int blocknr, Number* value
 
 	map<pair<int,int>, SparsityInfo::NonlinearConnection>::const_iterator it_spall(spall.begin());
 	map<pair<int,int>, SparsityInfo::NonlinearConnection>::const_iterator it_spfunc(spfunc.begin());
+	VariableIterator it_nonlinvar(*sparsity[blocknr], false);
 	Number* diagval=values+spall.size();
 	while (it_spfunc!=spfunc.end()) {
 		int col=it_spfunc->first.first;
-		while (it_spall->first.first<col) { // skip columns not in spfunc
+		while (it_spall->first.first<col) { // skip columns in sp_all but not in spfunc
 			int spallcol=it_spall->first.first;
 			while (it_spall->first.first==spallcol) {
 				if (!add) *values=0.;
 				++values;
 				++it_spall; //assert(it_spall!=spall.end());
 			}
-			if (!add) *diagval=0.;
+		}
+		while (it_nonlinvar()<col) { // handle nonlinear columns not in spfunc (diagonal elements)
+			if (func.get_sparsity(blocknr).nonlinear->count(it_nonlinvar())) {
+				z[it_nonlinvar()]=1.;
+				func.HessMult(y, xx, z, blocknr);
+				out_log << "set diagonal element " << it_nonlinvar() << " to " << y[it_nonlinvar()] << endl;
+				if (add) *diagval+=factor*y[it_nonlinvar()]; else *diagval=factor*y[it_nonlinvar()]; // diagonal values
+			} else {
+				if (!add) *diagval=0.;
+			}
 			++diagval;
+			++it_nonlinvar;
 		}
 		z[col]=1.;
 		func.HessMult(y, xx, z, blocknr);
@@ -188,10 +199,21 @@ void IpOptProblem::set_hessian(const SepQcFunc& func, int blocknr, Number* value
 		}
 		z[col]=0.;
 		++diagval;
+		++it_nonlinvar;
+	}
+	while (it_nonlinvar) { // handle nonlinear columns not in spfunc (diagonal elements)
+		if (func.get_sparsity(blocknr).nonlinear->count(it_nonlinvar())) {
+			z[it_nonlinvar()]=1.;
+			func.HessMult(y, xx, z, blocknr);
+			if (add) *diagval+=factor*y[it_nonlinvar()]; else *diagval=factor*y[it_nonlinvar()]; // diagonal values
+		} else {
+			if (!add) *diagval=0.;
+		}
+		++diagval;
+		++it_nonlinvar;
 	}
 	if (!add) {
 		while (it_spall!=spall.end()) { *(values++)=0.; ++it_spall; }
-		while (diagval<values+sparsity[blocknr]->nr_var(false)) *(diagval++)=0.;
 	}
 }
 
@@ -209,8 +231,9 @@ void IpOptProblem::set_hessianquad(const SepQcFunc& func, int blocknr, Number* v
 			++it_spall; //assert(it_spall!=spall.end());
 			if (!add) *values=0.; ++values;
 		}
-		if (add) *values+=2*factor*it_spfunc->second.coeff;
-		else *values=2*factor*it_spfunc->second.coeff;
+		// ipopt copies these elements to the upper right part; so set only to half values
+		if (add) *values+=factor*it_spfunc->second.coeff; 
+		else *values=factor*it_spfunc->second.coeff;
 		++it_spfunc; ++it_spall; ++values;
 	}
 	if (!add) while (it_spall!=spall.end()) { *(values++)=0.; ++it_spall; }
@@ -249,12 +272,13 @@ bool IpOptProblem::eval_h(Index n, const Number* x, bool new_x,
 //					out_log << prob->var_names[prob->block[k][it()]] << ' ';
 				}
 //				out_log << endl;
-			}	else
+			}	else {
 				for (int i=0; i<prob->block[k].size(); ++i)
 					for (int j=0; j<prob->block[k].size(); ++j, ++count) {
 						jCol[count]=prob->block[k][i];
 						iRow[count]=prob->block[k][j];
 					}
+			}
 		}
 		assert(count==nele_hess);
 //		out_log << "jCol: " << ivector(jCol, count) << "iRow: " << ivector(iRow, count);
@@ -264,7 +288,7 @@ bool IpOptProblem::eval_h(Index n, const Number* x, bool new_x,
 			if (sparsity[k] && sparsity[k]->sparsity_pattern) {
 				if (obj_factor && (prob->obj->A[k] || prob->obj->s[k])) {
 					if (prob->obj->s[k]) {
-						if (!xx) { 
+						if (!xx) {
 							xx=new dvector(prob->block[k].size());
 							for (int i=xx->dim()-1; i>=0; --i) (*xx)[i]=x[prob->block[k][i]];
 							z=new dvector(xx->dim());
@@ -295,14 +319,19 @@ bool IpOptProblem::eval_h(Index n, const Number* x, bool new_x,
 				if (obj_factor && (prob->obj->A[k] || prob->obj->s[k])) {
 					if (!xx) { 
 						xx=new dvector(prob->block[k].size());
-						for (int i=xx->dim()-1; i>=0; --i) (*xx)[i]=x[prob->block[k][i]];
+						for (int i=xx->dim()-1; i>=0; --i) {
+							(*xx)[i]=x[prob->block[k][i]];
+						}
 						z=new dvector(xx->dim());
 						y=new dvector(xx->dim());
 					}
 					for (int i=0; i<xx->dim(); ++i) {
 						(*z)[i]=1.;
 						prob->obj->HessMult(*y, *xx, *z, k);
-						for (int j=0; j<xx->dim(); ++j, ++count) values[count]=obj_factor*(*y)(j);
+						for (int j=0; j<xx->dim(); ++j, ++count) {
+							if (j!=i) values[count]=.5*obj_factor*(*y)(j); // looks light IPOPT do not like hessians with lower left and upper right part set :-(
+							else values[count]=obj_factor*(*y)(j);
+						}
 						(*z)[i]=0.;
 					}
 				} else {
@@ -324,7 +353,10 @@ bool IpOptProblem::eval_h(Index n, const Number* x, bool new_x,
 						for (int i=0; i<xx->dim(); ++i) {
 							(*z)[i]=1.;
 							prob->con[c]->HessMult(*y, *xx, *z, k);
-							for (int j=0; j<xx->dim(); ++j, ++count) values[count]+=lambda[c]*(*y)(j);
+							for (int j=0; j<xx->dim(); ++j, ++count) {
+								if (i==j) values[count]+=lambda[c]*(*y)(j);
+								else values[count]+=.5*lambda[c]*(*y)(j);
+							}
 							(*z)[i]=0.;
 						}
 						count=oldcount;
@@ -347,6 +379,16 @@ void IpOptProblem::finalize_solution(SolverReturn status,
 {
 	ipopt.sol_point.set(x, n);
 	ipopt.lambda.set(lambda,m);
+
+	switch (status) {
+		case DIVERGING_ITERATES:
+		case INVALID_NUMBER_DETECTED:
+			ipopt.opt_val_=INFINITY;
+			break;
+		default:
+			ipopt.opt_val_=prob->obj->eval(ipopt.sol_point);
+	}
+
 }
 
 // ---------------------------------- IpOpt -------------------------------------
@@ -402,7 +444,7 @@ int IpOpt::solve() {
 	out_solver << "IPOPT returned " << status;
 	if (status==Solve_Succeeded) {
 		iter_=ipopt->Statistics()->IterationCount();
-		opt_val_=ipopt->Statistics()->FinalObjective();
+// 		opt_val_=ipopt->Statistics()->FinalObjective();
 		out_solver << "\t iter: " << iter() << "\t optval " << opt_val() << endl;
 	} else out_solver << endl;
 
