@@ -178,7 +178,6 @@ void IpOptProblem::set_hessian(const SepQcFunc& func, int blocknr, Number* value
 			if (func.get_sparsity(blocknr).nonlinear->count(it_nonlinvar())) {
 				z[it_nonlinvar()]=1.;
 				func.HessMult(y, xx, z, blocknr);
-				out_log << "set diagonal element " << it_nonlinvar() << " to " << y[it_nonlinvar()] << endl;
 				if (add) *diagval+=factor*y[it_nonlinvar()]; else *diagval=factor*y[it_nonlinvar()]; // diagonal values
 			} else {
 				if (!add) *diagval=0.;
