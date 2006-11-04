@@ -11,8 +11,7 @@
 #include "snopt.h"
 #include "ipopt2.h"
 #include "osi.h"
-
-extern bool snoptlicenceok;
+#include "gams.h"
 
 // ----------------------------- LocOpt ----------------------------------------
 
@@ -28,12 +27,12 @@ bool LocOpt::nlp_solver_available() {
 }
 
 Pointer<LocOpt> LocOpt::get_solver(const Pointer<MinlpProblem> prob, Pointer<Param> param, char* param_prefix, Pointer<ostream> out_solver_p_, Pointer<ostream> out_solver_log_p_) {
+#ifdef IPOPT_AVAILABLE
+	return new IpOpt(prob, param, out_solver_p_, out_solver_log_p_);
+#endif
 #ifdef SNOPT_AVAILABLE
 	if (snoptlicenceok)
 		return new SnOpt(prob, param, param_prefix, out_solver_p_, out_solver_log_p_);
-#endif
-#ifdef IPOPT_AVAILABLE
-	return new IpOpt(prob, param, out_solver_p_, out_solver_log_p_);
 #endif
 	out_err << "Sorry, no Solver for local optimization available. Aborting." << endl;
 	exit(-1);
@@ -49,6 +48,9 @@ Pointer<LocOpt> LocOpt::get_lp_solver(const Pointer<MinlpProblem> prob, Pointer<
 #endif
 #if defined(SNOPT_AVAILABLE)
 	return new SnOpt(prob, param, param_prefix, out_solver_p_, out_solver_log_p_);
+#endif
+#ifdef IPOPT_AVAILABLE
+	return new IpOpt(prob, param, out_solver_p_, out_solver_log_p_);
 #endif
   out_err << "Sorry, no LP Solver available. Aborting." << endl;
 	exit(-1);

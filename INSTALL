@@ -17,15 +17,20 @@ Use the script get.ranlib in ThirdParty.
 http://glaros.dtc.umn.edu/gkhome/metis/metis/overview
 Use the script get.METIS in ThirdParty.
 
-4. AMPL interface (ASL)
-http://www.netlib.org/ampl/
-Use the script get.ASL in ThirdParty.
+4. AMPL interface (ASL) or GAMS interface
+If you want to interface LaGO by AMPL, then start the script get.ASL in ThirdParty.
+It downloads and compiles the AMPL Solver Library from http://www.netlib.org/ampl/.
+
+If you want to interface LaGO by GAMS, then start the script get.GAMS_IO in ThirdParty.
+It downloads and unpacks the GAMS I/O libraries.
+Then uncomment the block corresponding to GAMS in src/Makefile and comment the block corresponding to AMPL.
+Point the variable GAMSDIR to the location of your GAMS distribution.
 
 5. COIN-OR components: Osi, Clp, Cgl, Ipopt
 http://www.coin-or.org
 Currently there is no tool to download and install these components.
 Please get your own COIN-distribution and compile the packages Cgl, Clp, Osi, OsiClp, CoinUtils, and Ipopt.
-Then point the COINDIR variable in src/makefile to your location of COIN.
+Then point the variable COINDIR in src/makefile to your location of COIN.
 The makefile assumes to find the libraries at $COINDIR/lib and the include files at $COINDIR/include.
 
 6. optional: Interval arithmetic library FILIB++
@@ -40,3 +45,11 @@ If you have a SNOPT distribution, uncomment the corresponding lines in src/makef
 After installation of the required third party packages, go to the directory src.
 There you find a makefile, which is still quite manageable. Please adjust it to your system.
 Then call make. This should compile and link a binary called LaGO.
+
+
+**** Making LaGO known to GAMS:
+In the ThirdParty directory you find the file gmsla_.zip.
+Copy this file in the directory of your GAMS distribution. Then call the program gamsinst of your GAMS distribution.
+This program will find the file gmsla_.zip and make GAMS known of LaGO.
+Finally, you have to tell GAMS where to find LaGO. For doing so, adjust the variable LAGODIR in the file gmsla_ux.run in your GAMS distribution.
+

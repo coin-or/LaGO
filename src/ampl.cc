@@ -6,8 +6,6 @@
 
 #include "ampl.h"
 
-bool snoptlicenceok=true;
-
 #include <setjmp.h>
 
 ASL *asl;

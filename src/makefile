@@ -6,11 +6,11 @@
 
 CPP = g++
 
-CPPFLAGS    = -DNO_NULLPOINTER_CHECK -DTNT_NO_BOUNDS_CHECK -DNO_SPARSEMATRIX_ASSERTS -DNDEBUG -O3
-#CPPFLAGS	= -g
+# CPPFLAGS    = -DNO_NULLPOINTER_CHECK -DTNT_NO_BOUNDS_CHECK -DNO_SPARSEMATRIX_ASSERTS -DNDEBUG -O3
+# CPPFLAGS	= -g
 
 ################ LaGO objects
-OBJ		= tools.o func.o usermatrix.o problem.o opt.o param.o MINLPData.o MINLPView.o MINLP.o relaxopt.o relax.o linrelax.o cuts.o boxfind.o decomp.o polynom.o sampling.o minlpopt.o node.o bcp.o column.o rmp.o lagheu.o
+OBJ		= tools.o func.o usermatrix.o problem.o opt.o param.o MINLPData.o MINLPView.o MINLP.o relaxopt.o relax.o linrelax.o cuts.o boxfind.o decomp.o polynom.o quaduest.o sampling.o minlpopt.o node.o bcp.o column.o rmp.o lagheu.o
 #subgradopt.o dualqqp.o 
 
 ################ Third Party codes
@@ -28,25 +28,34 @@ INC		+= -I../ThirdParty/solvers
 LIBS	+= -ldl ../ThirdParty/solvers/amplsolver.a
 OBJ		+= ampl.o
 
+# CPPFLAGS += -DGAMS_AVAILABLE -DGDX_AVAILABLE
+# GAMSIODIR = ../ThirdParty/GAMS_IO
+# GAMSDIR  = 
+# LIBS	+= -L$(GAMSIODIR) $(GAMSIODIR)/iolib.a $(GAMSIODIR)/nliolib.a $(GAMSIODIR)/clicelib.a $(GAMSIODIR)/gclib.a -lg2d $(GAMSIODIR)/gdxwrap.o -ldl $(GAMSDIR)/libifcore.so.5 $(GAMSDIR)/libimf.so
+# INC		+= -I$(GAMSIODIR)
+# OBJ		+= gams.o
+
 CPPFLAGS	+= -DCOIN_AVAILABLE
-COINDIR = /home/stefan/soft/COIN/debug
+COINDIR = 
 INC		+= -I$(COINDIR)/include
 LIBS	+= -L$(COINDIR)/lib -lCgl -lOsiClp -lClp -lOsi -lCoinUtils
 OBJ		+= osi.o
 
 CPPFLAGS	+= -DIPOPT_AVAILABLE
-LIBS	+= -lgfortranbegin -lgfortran -lg2c -lipopt
+#LIBS	+= -lgfortranbegin -lgfortran -lg2c -lipopt
+LIBS	+= -lg2c -lipopt -lcoinlapack -lcoinblas
 OBJ		+= ipopt2.o
 
-#CPPFLAGS	+= -DFILIB_AVAILABLE
-#FILIBDIR =
-#LIBS	+= -L$(FILIBDIR)/lib -lprim
-#INC		+= -I$(FILIBDIR)/include
+# CPPFLAGS	+= -DFILIB_AVAILABLE
+# FILIBDIR = 
+# LIBS	+= -L$(FILIBDIR)/lib -lprim
+# INC		+= -I$(FILIBDIR)/include
 
-#CPPFLAGS	+= -DSNOPT_AVAILABLE
-#SNOPTDIR =
-#LIBS	+= -L$(SNOPTDIR) -lsnopt
-#OBJ		+= snopt.o f77files.o f77filehandle.o -lg2c
+# CPPFLAGS	+= -DSNOPT_AVAILABLE
+# SNOPTDIR = 
+# LIBS	+= -L$(SNOPTDIR) -lsnopt
+# OBJ		+= snopt.o f77files.o f77filehandle.o -lg2c
+
 
 ################ targets
 
