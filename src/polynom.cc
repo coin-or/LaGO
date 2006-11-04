@@ -167,21 +167,21 @@ Pointer<SepQcFunc> PolynomialUnderestimator2::polynomial_underestimator(Pointer<
 			if (!fk->s[l]) continue;
 			if ((fk->s[l]->get_curvature()&Func::CONVEX) && (!eq || (fkm->s[l]->get_curvature()&Func::CONVEX))) continue;
 
-			Pointer<dvector> low=new dvector(fk->block[l].size());
-			Pointer<dvector> up=new dvector(low->dim());
+			dvector low(fk->block[l].size());
+			dvector up(low.dim());
 			int i0;
-			for (int i=0; i<low->dim(); ++i) {
+			for (int i=0; i<low.dim(); ++i) {
 				i0=f->block[k][fk->block[l][i]];
-				(*low)[i]=lower(i0);
-				(*up)[i]=upper(i0);
+				low[i]=lower(i0);
+				up[i]=upper(i0);
 			}
 
-			out_log << 'B' << low->dim() << ' ';
+			out_log << 'B' << low.dim() << ' ';
 
-			new_sampleset(*low, *up);
+			new_sampleset(low, up);
 			check_for_nan(*fk->s[l]);
 			add_point_to_sampleset(prim(fk->block[l]));
-			bool min_added=add_minimizer_to_sample(fk->s[l], *low, *up);
+			bool min_added=add_minimizer_to_sample(fk->s[l], low, up);
 
 			out_log << "SS" << ss_size[0] << ',' << ss_size[1] << ',' << ss_size[2] << ' ';
 
@@ -190,14 +190,12 @@ Pointer<SepQcFunc> PolynomialUnderestimator2::polynomial_underestimator(Pointer<
 
 			if (!(fk->s[l]->get_curvature()&Func::CONVEX)) {
  				polynomial_underestimator(*A, *b, c, *fk->s[l], fk->block[l]);
-// 				quadratic_underestimator(*A, *b, c, fk->s[l], fk->block[l], low, up);
 				fk->s[l]=NULL;
 			}
 			if (eq && !(fkm->s[l]->get_curvature()&Func::CONVEX)) {
 			  if (min_added) remove_last_point_from_sample();
-			  add_minimizer_to_sample(fkm->s[l], *low, *up);
+			  add_minimizer_to_sample(fkm->s[l], low, up);
  				polynomial_underestimator(*Am, *bm, cm, *fkm->s[l], fkm->block[l]);
-//  				quadratic_underestimator(*Am, *bm, cm, fkm->s[l], fkm->block[l], low, up);
 				fkm->s[l]=NULL;
 			}
 		}
@@ -409,7 +407,7 @@ void PolynomialUnderestimator2::polynomial_underestimator(SparseMatrix2& A, Spar
 		it_monom++;
 	}
 
-	while (it_mind->size()==2) {
+	while (it_mind!=multiindices.end() && it_mind->size()==2) {
 		int second=*(++it_mind->begin());
 		if (*it_mind->begin()!=second) {
 		  A.AddToElement(indices(*it_mind->begin()), indices(second), .5*coeff[i]);
@@ -550,166 +548,4 @@ void PolynomialUnderestimator2::check(MinlpProblem& prob, MinlpProblem& quad, iv
 		}
 	}
 	out_log << "PolynomialUnderestimator check: " << errors << " errors" << endl;
-}
-
-
-void PolynomialUnderestimator2::quadratic_underestimator(SparseMatrix2& A, SparseVector<double>& b, double& c, const Pointer<Func>& f, ivector& indices, const Pointer<dvector>& lower, const Pointer<dvector>& upper) {
-// somehow we need to know which points from sample_set should be used in the objective function of the auxilary LP; let's take the last 3 points (primal point, minimizer, one random point)
-
-// create auxiliary LP with initial sample set
-
-	int multiindices_size=multiindices.size(); // sparsity of p(x)
-	int connr=ss_size[0]; // number of constraints = number of sample points
-
-	int varnr=multiindices_size;
-
-	MipProblem lp(varnr, connr);
-
-	Pointer<UserVector<double> > obj=new dvector(varnr);
-	dvector b1(varnr);
-	vector<double> rhs(ss_size[0]);
-	double obj_const=0;
-
-	for (int j=0; j<ss_size[0]; j++) {
-		double f_val=f->eval(sample_set[j]);
-		assert(f_val==f_val);
-
-		double scale=max(1., fabs(f_val));
-		int i=0; // number of multiindex alpha
-		for (list<Monom>::iterator it_monom(monoms.begin()); it_monom!=monoms.end(); it_monom++, i++)
-			b1[i]=it_monom->eval(sample_set[j])/scale;
-		assert(i==multiindices_size);
-
-		rhs[j]=f_val/scale;
-		lp.setRow(j, b1, -INFINITY, rhs[j]);
-		
-		if (j>=ss_size[0]-2*f->dim()) {
-			*obj-=b1;
-			obj_const+=rhs[j];
-// 			out_log << sample_set[j];
-		}
-	}
-
-	lp.setObj(obj, obj_const);
-	lp.finish();
-	Pointer<MIPSolver> solver=MIPSolver::get_solver(lp, param);
-//	solver->set_maxiter(10*varnr);
-	
-	dvector coeff(multiindices_size);
-	
-	bool finished;
-	int iter=0;
-	do {
-		MIPSolver::SolutionStatus ret=solver->solve();
-	
-		if (ret!=MIPSolver::SOLVED && ret!=MIPSolver::FEASIBLE) {
-			out_err << "U3 returned " << ret << ". Aborting" << endl;
-			exit(-1);
-		}
-		out_log << "U3:" << solver->get_optval() << ' ';
-		if (ret==MIPSolver::FEASIBLE) out_log << ret << ' ';
-	
-		solver->get_primal(coeff);
-		
-		// setup f(x)-p(x) as SepQcFunc
-		SepQcFunc fpdiff(f->dim());
-		fpdiff.s[0]=f;
-		fpdiff.b[0]=new dvector(f->dim());
-		Pointer<SparseMatrix2> A1=new SparseMatrix2(f->dim());
-		int i=0;
-		for (list<MultiIndex>::iterator it_mind(multiindices.begin()); it_mind!=multiindices.end(); ++it_mind, ++i) {
-			switch(it_mind->size()) {
-				case 0: fpdiff.c-=coeff[i]; break;
-				case 1:	(*fpdiff.b[0])[*it_mind->begin()]-=.5*coeff[i]; break;
-				case 2: int second=*(++it_mind->begin());
-					if (*it_mind->begin()!=second) {
-						A1->AddToElement(*it_mind->begin(), second, -.5*coeff[i]);
-						A1->AddToElement(second, *it_mind->begin(), -.5*coeff[i]);
-					} else {
-						A1->AddToElement(second, second, -coeff[i]);
-					}
-			}
-		}
-		A1->finish();
-		fpdiff.A[0]=A1;
-//  		out_log << fpdiff;
-		
-		BoxLocOpt locminsolver(fpdiff, lower, upper);
-		
-		dvector rowact(solver->nr_row());
-		solver->get_rowactivity(rowact);
-		
-		double tol=1e-3;
-	
-		finished=true;
-		double maxviol=0;
-		int nr_viol=0;
-		// check active constraints to determine ''active'' sample points
-		// and start local minimization of f-p from active sample points
-		for (int j=0; j<rowact.size() && nr_viol<5; ++j) {
-			if (rowact(j)-rhs[j]<-tol) continue;
-// 			out_log << "U3 constraint active " << rowact(j)-rhs[j] << " for sample point " << sample_set[j];
-			int ret=locminsolver.solve(sample_set[j]);
-			double f_val=f->eval(locminsolver.sol_point);
-			double optval=locminsolver.opt_val();
-			double viol=optval/max(1.,fabs(f_val));
-			
-// 			out_log << "\tLocMin from sample point returns " << ret << " and value " << optval << " scaled " << viol << " in point " << locminsolver.sol_point;
-			if (ret) out_log << "M" << ret;
-			if (!(viol==viol)) continue;
-			if (viol>=INFINITY) continue;
-			
-			if (maxviol>viol) maxviol=viol; // here, everything is negative...
-		
-			if (viol<-1E-4) { // too large, add point to sample set and LP and loop
-				double scale=max(1., fabs(f_val));
-		
-				int i=0; // number of multiindex alpha
-				for (list<Monom>::iterator it_monom(monoms.begin()); it_monom!=monoms.end(); it_monom++, i++)
-					b1[i]=it_monom->eval(locminsolver.sol_point)/scale;
-
-				rhs.push_back(f_val/scale);
-				solver->add_row(b1, -INFINITY, rhs.back());
-				
-				sample_set.push_back(locminsolver.sol_point);
-				++ss_size[0];
-				
-				finished=false;
-				++nr_viol;
-			}
-		}
-		out_log << "v:" << maxviol << ' ';
-
-		if (iter>=100) finished=true;
-		
-		if (finished) c+=maxviol; // lower underestimator by maximum known violation
-		
-		++iter;
-	} while (!finished);
-
-	// set A, b, and c.
-	int i=0;
-	list<MultiIndex>::iterator it_mind(multiindices.begin());
-	if (it_mind->size()==0) {
-		c+=coeff[i++];
-		it_mind++;
-	}
-
-	while (it_mind->size()==1) {
-		b[indices(*it_mind->begin())]+=.5*coeff[i++];
-		it_mind++;
-	}
-
-	while (it_mind->size()==2) {
-		int second=*(++it_mind->begin());
-		if (*it_mind->begin()!=second) {
-		  A.AddToElement(indices(*it_mind->begin()), indices(second), .5*coeff[i]);
-		  A.AddToElement(indices(second), indices(*it_mind->begin()), .5*coeff[i]);
-		} else {
-		  A.AddToElement(indices(second), indices(second), coeff[i]);
-		}
-		it_mind++;
-		i++;
-	}
-
 }

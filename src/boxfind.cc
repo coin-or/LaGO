@@ -119,7 +119,8 @@ pair<int,int> BoundsFinder::compute_bounds_expensive(MinlpProblem& conv_prob, dv
 					if (conv_prob.lower[index]<=-INFINITY) {
 						++guessed;
 						guessed_lower=true;
-						new_lower[index]=MIN(10*min_lower, newlow);
+						if (newlow>-1E+10) new_lower[index]=MIN(10*min_lower, newlow);
+						else new_lower[index]=10*min_lower;
 					}
 					++ret;
 				}
@@ -137,7 +138,8 @@ pair<int,int> BoundsFinder::compute_bounds_expensive(MinlpProblem& conv_prob, dv
 				} else {
 					if (conv_prob.upper[index]>=INFINITY) {
 						if (!guessed_lower) ++guessed; // do not count twice
-						new_upper[index]=MAX(newup, 10*max_upper);
+						if (newup<1E+10) new_upper[index]=MAX(newup, 10*max_upper);
+						else newup=10*max_upper;
 					}
 					++ret;
 				}

@@ -25,6 +25,8 @@
 #define FUNOBJ funobj_
 #endif
 
+extern bool snoptlicenceok;
+
 /** Subroutine, that computes the obj fn and its gradient.
     This function is called by SNOPT.
     @param mode The mode: 0 to evaluate, 1 to compute the gradient and 2 to evaluate and compute

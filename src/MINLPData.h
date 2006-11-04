@@ -19,6 +19,7 @@ class MinlpOpt;
 class Reformulation;
 class LinearizedConCutGenerator;
 class PolynomialUnderestimator2;
+class QuadraticUnderestimator;
 
 /** Storage for the data of a MINLP.
  */
@@ -28,6 +29,7 @@ class MINLPData {
 	friend class Reformulation;
 	friend class LinearizedConCutGenerator;
 	friend class PolynomialUnderestimator2;
+	friend class QuadraticUnderestimator;
 private:
 	/** Storage for the data of an objective function or constraint.
 	 */

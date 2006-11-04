@@ -11,6 +11,7 @@
 #include "linrelax.h"
 #include "cuts.h"
 #include "polynom.h"
+#include "quaduest.h"
 
 // --------------------------------- Reformulation -----------------------------
 
@@ -603,41 +604,59 @@ void MinlpOpt::quad_relax() {
 //	for (int c=0; c<quad_prob->con.size(); c++) quad_prob->con[c]=new SepQcFunc(*quad_prob->con[c]);
 
 	Timer t;
-	if (!param->get("Polynomial Underestimator K0 sample set Monte Carlo"))
-		param->add("Polynomial Underestimator K0 sample set Monte Carlo", "200");
-	if (!param->get("Polynomial Underestimator K0 sample set mid point"))
-		param->add("Polynomial Underestimator K0 sample set mid point", "0");
-	if (!param->get("Polynomial Underestimator K0 sample set box ends"))
-		param->add("Polynomial Underestimator K0 sample set box ends", "0");
-	if (!param->get("Polynomial Underestimator K0 sample set vertices2"))
-		param->add("Polynomial Underestimator K0 sample set vertices2", "200");
-	if (!param->get("Polynomial Underestimator K0 sample set minimizer"))
-		param->add("Polynomial Underestimator K0 sample set minimizer", LocOpt::nlp_solver_available() ? "1" : "0");
-	if (!param->get("Polynomial Underestimator K1 sample set Monte Carlo"))
-		param->add("Polynomial Underestimator K1 sample set Monte Carlo", "10");
-	if (!param->get("Polynomial Underestimator K1 sample set mid point"))
-		param->add("Polynomial Underestimator K1 sample set mid point", "1");
-	if (!param->get("Polynomial Underestimator K1 sample set box ends"))
-		param->add("Polynomial Underestimator K1 sample set box ends", "0");
-	if (!param->get("Polynomial Underestimator K1 sample set vertices"))
-		param->add("Polynomial Underestimator K1 sample set vertices", "0");
-	if (!param->get("Polynomial Underestimator K2 sample set Monte Carlo"))
-		param->add("Polynomial Underestimator K2 sample set Monte Carlo", "10");
-	if (!param->get("Polynomial Underestimator K2 sample set mid point"))
-		param->add("Polynomial Underestimator K2 sample set mid point", "0");
-	if (!param->get("Polynomial Underestimator K2 sample set box ends"))
-		param->add("Polynomial Underestimator K2 sample set box ends", "0");
-	if (!param->get("Polynomial Underestimator K2 sample set vertices"))
-		param->add("Polynomial Underestimator K2 sample set vertices", "0");
-	PolynomialUnderestimator2 polyuest(param);
-	polyuest.polynomial_underestimator(*quad_prob, *minlpdata, ineq_index, quad_obj_c_add, quad_con_c_add);
-	out_log << "Time for polynomial underestimator: " << t.stop() << endl;
+	if (param->get("Quadratic Underestimator adaptive", 0)) {
+		if (!param->get("Quadratic Underestimator sample set Monte Carlo"))
+			param->add("Quadratic Underestimator sample set Monte Carlo", "200");
+		if (!param->get("Quadratic Underestimator sample set mid point"))
+			param->add("Quadratic Underestimator sample set mid point", "0");
+		if (!param->get("Quadratic Underestimator sample set box ends"))
+			param->add("Quadratic Underestimator sample set box ends", "0");
+		if (!param->get("Quadratic Underestimator sample set vertices2"))
+			param->add("Quadratic Underestimator sample set vertices2", "200");
+		if (!param->get("Quadratic Underestimator sample set minimizer"))
+			param->add("Quadratic Underestimator sample set minimizer", LocOpt::nlp_solver_available() ? "1" : "0");	
+	
+		QuadraticUnderestimator quaduest(param);
+		quaduest.quadratic_underestimator(*quad_prob, *minlpdata, ineq_index, quad_obj_c_add, quad_con_c_add);
+	} else {
+		if (!param->get("Polynomial Underestimator K0 sample set Monte Carlo"))
+			param->add("Polynomial Underestimator K0 sample set Monte Carlo", "200");
+		if (!param->get("Polynomial Underestimator K0 sample set mid point"))
+			param->add("Polynomial Underestimator K0 sample set mid point", "0");
+		if (!param->get("Polynomial Underestimator K0 sample set box ends"))
+			param->add("Polynomial Underestimator K0 sample set box ends", "0");
+		if (!param->get("Polynomial Underestimator K0 sample set vertices2"))
+			param->add("Polynomial Underestimator K0 sample set vertices2", "200");
+		if (!param->get("Polynomial Underestimator K0 sample set minimizer"))
+			param->add("Polynomial Underestimator K0 sample set minimizer", LocOpt::nlp_solver_available() ? "1" : "0");
+		if (!param->get("Polynomial Underestimator K1 sample set Monte Carlo"))
+			param->add("Polynomial Underestimator K1 sample set Monte Carlo", "10");
+		if (!param->get("Polynomial Underestimator K1 sample set mid point"))
+			param->add("Polynomial Underestimator K1 sample set mid point", "1");
+		if (!param->get("Polynomial Underestimator K1 sample set box ends"))
+			param->add("Polynomial Underestimator K1 sample set box ends", "0");
+		if (!param->get("Polynomial Underestimator K1 sample set vertices"))
+			param->add("Polynomial Underestimator K1 sample set vertices", "0");
+		if (!param->get("Polynomial Underestimator K2 sample set Monte Carlo"))
+			param->add("Polynomial Underestimator K2 sample set Monte Carlo", "10");
+		if (!param->get("Polynomial Underestimator K2 sample set mid point"))
+			param->add("Polynomial Underestimator K2 sample set mid point", "0");
+		if (!param->get("Polynomial Underestimator K2 sample set box ends"))
+			param->add("Polynomial Underestimator K2 sample set box ends", "0");
+		if (!param->get("Polynomial Underestimator K2 sample set vertices"))
+			param->add("Polynomial Underestimator K2 sample set vertices", "0");
+			
+		PolynomialUnderestimator2 polyuest(param);
+		polyuest.polynomial_underestimator(*quad_prob, *minlpdata, ineq_index, quad_obj_c_add, quad_con_c_add);
+	
+		if (param->get_i("Check polynomial underestimator", 0))
+			polyuest.check(*split_prob, *quad_prob, ineq_index);
+	}
+	out_log << "Time for quadratic underestimators: " << t.stop() << endl;
 
 	conv_obj_c_add=quad_obj_c_add;
 	conv_con_c_add=quad_con_c_add;
 
-	if (param->get_i("Check polynomial underestimator", 0))
-		polyuest.check(*split_prob, *quad_prob, ineq_index);
 
 	for (int c=0; c<ineq_index.size(); c++) {
 		if (ineq_index[c]) {
@@ -1151,6 +1170,9 @@ void MinlpOpt::init() {
 	minlpdata=new MINLPData(*split_prob);
 	MINLP minlp(*minlpdata);
 //	out_log << minlp;
+
+/*	for (int i=0; i<split_prob->dim(); ++i)
+		out_log << split_prob->var_names[i] << ": \t" << split_prob->lower[i] << '\t' << split_prob->upper[i] << endl;*/
 	
 	quad_relax();
 

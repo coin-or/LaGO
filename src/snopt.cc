@@ -21,7 +21,7 @@
 #define SNOPT snopt_
 #endif
 
-extern bool snoptlicenceok;
+bool snoptlicenceok=false;
 
 /** Initialize SNOPT.
     @param specsfile The name of a SPECS-file with SNOPT-options.
