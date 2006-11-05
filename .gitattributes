@@ -38,6 +38,7 @@ LaGO/mod/ex1252.mod -text
 LaGO/mod/ex1252.nl -text
 LaGO/mod/ex1252.row -text
 LaGO/src/LaGO.cc -text
+LaGO/src/LaGOConfig.h -text
 LaGO/src/MINLP.cc -text
 LaGO/src/MINLP.h -text
 LaGO/src/MINLPData.cc -text
