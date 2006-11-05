@@ -1,4 +1,5 @@
 * text=auto !eol
+/Externals -text
 LaGO/AUTHORS -text
 LaGO/INSTALL -text
 LaGO/LICENSE -text
@@ -103,9 +104,18 @@ LaGO/src/tools.h -text
 LaGO/src/usermatrix.cc -text
 LaGO/src/usermatrix.h -text
 LaGO/src/uservector.h -text
-ThirdParty/get.ASL -text
-ThirdParty/get.GAMS_IO -text
-ThirdParty/get.METIS -text
-ThirdParty/get.TNT -text
-ThirdParty/get.ranlib -text
-ThirdParty/gmsla_.zip -text
+/Makefile.am -text
+/Makefile.in -text
+ThirdParty/GAMS_IO/get.GAMS_IO -text
+ThirdParty/GAMS_IO/gmsla_.zip -text
+ThirdParty/METIS/get.METIS -text
+ThirdParty/TNT/get.TNT -text
+ThirdParty/ranlib/get.ranlib -text
+/config.guess -text
+/config.sub -text
+/configure -text
+/configure.ac -text
+/depcomp -text
+/install-sh -text
+/ltmain.sh -text
+/missing -text

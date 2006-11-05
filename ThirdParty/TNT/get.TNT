@@ -3,6 +3,4 @@
 
 wget http://math.nist.gov/tnt/tnt_126.zip
 
-mkdir TNT
-cd TNT
-unzip ../tnt_126.zip
+unzip tnt_126.zip
