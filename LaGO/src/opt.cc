@@ -40,25 +40,11 @@ Pointer<LocOpt> LocOpt::get_solver(const Pointer<MinlpProblem> prob, Pointer<Par
 }
 
 Pointer<LocOpt> LocOpt::get_lp_solver(const Pointer<MinlpProblem> prob, Pointer<Param> param, char* param_prefix, Pointer<ostream> out_solver_p_, Pointer<ostream> out_solver_log_p_) {
-#if defined(CPLEX_AVAILABLE) && defined(CONCERT_AVAILABLE)
-	return new Cplex(prob, param, out_solver_p_, out_solver_log_p_);
-#endif
-#if defined(COIN_AVAILABLE)
 	return new LPSolver(prob);
-#endif
-#if defined(SNOPT_AVAILABLE)
-	return new SnOpt(prob, param, param_prefix, out_solver_p_, out_solver_log_p_);
-#endif
-#ifdef IPOPT_AVAILABLE
-	return new IpOpt(prob, param, out_solver_p_, out_solver_log_p_);
-#endif
-  out_err << "Sorry, no LP Solver available. Aborting." << endl;
-	exit(-1);
-	return NULL;
 }
 
 Pointer<LocOpt> LocOpt::get_solver_origprob(const Pointer<MinlpProblem> prob, Pointer<Param> param, char* param_prefix, Pointer<ostream> out_solver_p_, Pointer<ostream> out_solver_log_p_) {
-#ifdef GAMS_AVAILABLE
+#ifdef COIN_HAS_GAMSIO
 	if (gamsptr)
 		return new gamsLocOpt(prob, param, out_solver_p_, out_solver_log_p_);
 #endif
@@ -68,12 +54,7 @@ Pointer<LocOpt> LocOpt::get_solver_origprob(const Pointer<MinlpProblem> prob, Po
 // ----------------------------- MIPSolver ----------------------------------------
 
 Pointer<MIPSolver> MIPSolver::get_solver(const MipProblem& mip, Pointer<Param> param) {
-#ifdef COIN_AVAILABLE
 	return new OSISolver(mip);
-#endif
-  out_err << "Sorry, no MIPSolver available. Aborting." << endl;
-	exit(-1);
-	return NULL;
 }
 
 
@@ -140,11 +121,7 @@ int DualSolver::check(double val) {
 
 void LPSolver::initmip() {
 	mipsolver=NULL;
-#ifdef COIN_AVAILABLE
 	mipsolver=new OSISolver(MipProblem(*prob));
-#else
-	out_err << "Sorry, no MIP Solver available." << endl;
-#endif
 //	mipsolver->set_tol(tol);
 	mipsolver->set_maxiter(iter_max);
 }

@@ -6,6 +6,7 @@
 
 #include "ampl.h"
 
+#ifdef COIN_HAS_ASL
 #include <setjmp.h>
 
 ASL *asl;
@@ -180,3 +181,5 @@ Pointer<MinlpProblem> ampl::get_problem() {
 
   return prob;
 };
+
+#endif // COIN_HAS_ASL

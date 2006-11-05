@@ -21,10 +21,10 @@ int main(int argc, char** argv) {
 
 	out_out << "LaGO very-early-version" << endl;
 	if (argc<2) {
-#ifdef AMPL_AVAILABLE		
+#ifdef COIN_HAS_ASL
 		out_out << "usage: " << argv[0] << " stubfile (without .nl) [<parameter-file>]" << endl;
 #else
-#ifdef GAMS_AVAILABLE
+#ifdef COIN_HAS_GAMSIO
 		out_out << "usage: " << argv[0] << " <gams-file> [<parameter-file>]" << endl;
 #else
 		out_out << "No AMPL or GAMS interface available." << endl;
@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
 	}
 	
 // 	cout << "Reading problem-file " << argv[1] << endl;
-#ifdef AMPL_AVAILABLE
+#ifdef COIN_HAS_ASL
 	ampl interface(argv[1]);
 	Pointer<MinlpProblem> prob(interface.get_problem());
 #else
@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
 
 	cout << "Time: " << t.stop() << endl;
 
-#ifdef AMPL_AVAILABLE
+#ifdef COIN_HAS_ASL
   interface.write_sol_file(solver->sol_point);
 #else
 	int model_status=ret ? 11 : 1;

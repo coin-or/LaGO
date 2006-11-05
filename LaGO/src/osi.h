@@ -4,7 +4,6 @@
 //
 // Author: Stefan Vigerske
 
-#ifdef COIN_AVAILABLE
 #ifndef OSI_H
 #define OSI_H
 
@@ -126,5 +125,4 @@ class OSISolver : public MIPSolver {
 //		void print();
 };
 
-#endif
 #endif

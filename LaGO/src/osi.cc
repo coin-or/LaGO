@@ -4,11 +4,13 @@
 //
 // Author: Stefan Vigerske
 
-#ifdef COIN_AVAILABLE
-
 #include "osi.h"
 
 #define COIN_BIG_INDEX 0
+
+#ifdef COIN_HAS_CPX
+#define CPLEX_AVAILABLE
+#endif
 
 #include "OsiSolverInterface.hpp"
 #ifdef CPLEX_AVAILABLE
@@ -504,8 +506,8 @@ double OSISolver::get_colup(int index) {
 	return osisolver->getColUpper()[index];
 }
 
-#include "CglGomory.hpp"
-#include "CglMixedIntegerRounding.hpp"
+// #include "CglGomory.hpp"
+#include "CglMixedIntegerRounding/CglMixedIntegerRounding.hpp"
 #include "cuts.h"
 
 int OSISolver::generate_cuts(list<Pointer<SimpleCut> >& rowcuts) {
@@ -553,5 +555,3 @@ int OSISolver::generate_cuts(list<Pointer<SimpleCut> >& rowcuts) {
 }
 
 //void OSISolver::print() { osisolver->writeMps("lp"); }
-
-#endif

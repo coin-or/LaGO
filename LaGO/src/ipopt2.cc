@@ -4,8 +4,8 @@
 //
 // Author: Stefan Vigerske
 
-#ifdef IPOPT_AVAILABLE
 #include "ipopt2.h"
+#ifdef IPOPT_AVAILABLE
 
 IpOptProblem::IpOptProblem(const Pointer<MinlpProblem> prob_, IpOpt& ipopt_)
 : prob(prob_), ipopt(ipopt_), nnz_jac_g(0), nnz_h_lag(0)

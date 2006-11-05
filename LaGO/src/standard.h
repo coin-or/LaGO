@@ -8,19 +8,24 @@
 #ifndef STANDARD_H
 #define STANDARD_H
 
+#include "LaGOConfig.h"
+
 #ifndef __INTEL_COMPILER
 #include <ansidecl.h> // to get GCC_VERSION
 #endif
 #include <cstdlib>
 #include <cstdio>
 #include <cmath>
-#ifdef _WIN32
+#ifdef HAVE_CFLOAT
 #include <cfloat>
-#define finite _finite
 #endif
-#ifdef __sun
+#ifdef HAVE_IEEEFP_H
 #include <ieeefp.h>
 #endif
+// #ifndef finite
+// #define finite MY_C_FINITE
+// #endif
+
 
 inline double sqrt(int x) { return sqrt((double)x); }
 #ifndef _WIN32

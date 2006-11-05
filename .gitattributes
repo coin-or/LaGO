@@ -3,7 +3,11 @@
 LaGO/AUTHORS -text
 LaGO/INSTALL -text
 LaGO/LICENSE -text
+LaGO/Makefile.am -text
+LaGO/Makefile.in -text
 LaGO/README -text
+LaGO/configure -text
+LaGO/configure.ac -text
 LaGO/doc/COINintegration.tex -text
 LaGO/doc/doxygen.conf -text
 LaGO/doc/footer.html -text
@@ -40,6 +44,8 @@ LaGO/src/MINLPData.cc -text
 LaGO/src/MINLPData.h -text
 LaGO/src/MINLPView.cc -text
 LaGO/src/MINLPView.h -text
+LaGO/src/Makefile.am -text
+LaGO/src/Makefile.in -text
 LaGO/src/ampl.cc -text
 LaGO/src/ampl.h -text
 LaGO/src/bcp.cc -text

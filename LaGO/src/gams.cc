@@ -5,6 +5,9 @@
 // Author: Stefan Vigerske
 
 #include "gams.h"
+
+#ifdef COIN_HAS_GAMSIO
+
 #include "minlpopt.h"
 #include <dlfcn.h>
 
@@ -1166,3 +1169,4 @@ dvector gamsLocOpt::get_lag_multipliers() {
 	return lag_mult;
 }
 
+#endif // COIN_HAS_GAMSIO

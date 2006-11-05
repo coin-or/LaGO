@@ -4,11 +4,13 @@
 //
 // Author: Stefan Vigerske
 
-#ifdef GAMS_AVAILABLE
 #ifndef GAMS_H
 #define GAMS_H
 
 #include "standard.h"
+#ifdef COIN_HAS_GAMSIO
+#define GDX_AVAILABLE
+
 #include "param.h"
 #include "problem.h"
 #include "opt.h"
@@ -331,5 +333,5 @@ class gamsLocOpt : public LocOpt {
 		dvector get_lag_multipliers();
 };
 
-#endif
+#endif // COIN_HAS_GAMSIO
 #endif

@@ -4,6 +4,7 @@
 //
 // Author: Stefan Vigerske
 
+#define IPOPT_AVAILABLE
 #ifdef IPOPT_AVAILABLE
 #ifndef IPOPT_H
 #define IPOPT_H
@@ -13,9 +14,9 @@
 #include "problem.h"
 #include "param.h"
 
-#include "ipopt/IpIpoptApplication.hpp"
-#include "ipopt/IpTNLP.hpp"
-#include "ipopt/IpSolveStatistics.hpp"
+#include "IpIpoptApplication.hpp"
+#include "IpTNLP.hpp"
+#include "IpSolveStatistics.hpp"
 
 using namespace Ipopt;
 

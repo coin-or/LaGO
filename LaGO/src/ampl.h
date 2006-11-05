@@ -5,11 +5,13 @@
 // Author: Stefan Vigerske
 
 
-#ifdef AMPL_AVAILABLE
 #ifndef AMPL_H
 #define AMPL_H
 
 #include "standard.h"
+
+#ifdef COIN_HAS_ASL
+
 #include "func.h"
 #include "problem.h"
 
@@ -289,5 +291,5 @@ public:
 };
 
 
+#endif // COIN_HAS_ASL
 #endif // AMPL_H
-#endif // AMPL_AVAILABLE

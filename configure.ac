@@ -45,10 +45,10 @@ AC_COIN_INIT_AUTOMAKE
 #############################################################################
 
 AC_COIN_THIRDPARTY_SUBDIRS([ASL],[ThirdParty/ASL],[solvers/asl.h])
-AC_COIN_THIRDPARTY_SUBDIRS([TNT],[ThirdParty/TNT],[tnt.h])
-AC_COIN_THIRDPARTY_SUBDIRS([RANLIB],[ThirdParty/ranlib],[ranlib.c/src/ranlib.h])
-AC_COIN_THIRDPARTY_SUBDIRS([METIS],[ThirdParty/METIS],[metis-4.0/Lib/metis.h])
-AC_COIN_THIRDPARTY_SUBDIRS([GAMSIO],[ThirdParty/GAMS_IO],[GAMS_IO/iolib.h])
+#AC_COIN_THIRDPARTY_SUBDIRS([TNT],[ThirdParty/TNT],[tnt.h])
+#AC_COIN_THIRDPARTY_SUBDIRS([RANLIB],[ThirdParty/ranlib],[ranlib.c/src/ranlib.h])
+#AC_COIN_THIRDPARTY_SUBDIRS([METIS],[ThirdParty/METIS],[metis-4.0/Lib/metis.h])
+#AC_COIN_THIRDPARTY_SUBDIRS([GAMSIO],[ThirdParty/GAMS_IO],[GAMS_IO/iolib.h])
 
 #############################################################################
 #                  Check which subprojects are there                        #

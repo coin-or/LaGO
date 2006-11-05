@@ -6,6 +6,7 @@
 
 #include "decomp.h"
 
+#define METIS_AVAILABLE
 #ifdef METIS_AVAILABLE
 namespace metis {
 extern "C" {
