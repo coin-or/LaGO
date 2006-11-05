@@ -23,32 +23,24 @@ It downloads and compiles the AMPL Solver Library from http://www.netlib.org/amp
 
 If you want to interface LaGO by GAMS, then start the script get.GAMS_IO in ThirdParty.
 It downloads and unpacks the GAMS I/O libraries.
-Then uncomment the block corresponding to GAMS in src/Makefile and comment the block corresponding to AMPL.
-Point the variable GAMSDIR to the location of your GAMS distribution.
-
-5. COIN-OR components: Osi, Clp, Cgl, Ipopt
-http://www.coin-or.org
-Currently there is no tool to download and install these components.
-Please get your own COIN-distribution and compile the packages Cgl, Clp, Osi, OsiClp, CoinUtils, and Ipopt.
-Then point the variable COINDIR in src/makefile to your location of COIN.
-The makefile assumes to find the libraries at $COINDIR/lib and the include files at $COINDIR/include.
+You will further need to have a GAMS system installed in your system.
 
 6. optional: Interval arithmetic library FILIB++
 You can get it from http://www.math.uni-wuppertal.de/wrswt/software/filib.html.
 But the installation seem to be a bit tricky. Details will be added later.
 
 7. optional: SNOPT
-If you have a SNOPT distribution, uncomment the corresponding lines in src/makefile and set the SNOPTDIR variable to the place of your SNOPT library (libsnopt.a).
+Detection of an installed SNOPT library will be added to the configure script later.
 
 
 **** Compilation of LaGO:
-After installation of the required third party packages, go to the directory src.
-There you find a makefile, which is still quite manageable. Please adjust it to your system.
-Then call make. This should compile and link a binary called LaGO.
-
+After installation of the required third party packages, run the script configure in the main directory of your COIN/LaGO package.
+This should configure all packages, including LaGO, and generate the required makefiles.
+Then call make and make install. Now you should find a LaGO binary in the bin directory.
+If possible, LaGO uses it's GAMS interface. If this is not available, the AMPL interface will be created.
 
 **** Making LaGO known to GAMS:
-In the ThirdParty directory you find the file gmsla_.zip.
+In the ThirdParty/GAMS_IO directory you find the file gmsla_.zip.
 Copy this file in the directory of your GAMS distribution. Then call the program gamsinst of your GAMS distribution.
 This program will find the file gmsla_.zip and make GAMS known of LaGO.
 Finally, you have to tell GAMS where to find LaGO. For doing so, adjust the variable LAGODIR in the file gmsla_ux.run in your GAMS distribution.
