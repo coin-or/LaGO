@@ -304,10 +304,11 @@ Pointer<SepQcFunc> QuadraticUnderestimator::quadratic_underestimator(Pointer<Sep
 void QuadraticUnderestimator::quadratic_underestimator(SparseMatrix2& A, SparseVector<double>& b, double& c, const Pointer<Func>& f, ivector& indices, const Pointer<dvector>& lower, const Pointer<dvector>& upper) {
 // create auxiliary LP with initial sample set
 	int multiindices_size=multiindices.size(); // sparsity of p(x)
-	MipProblem lp(multiindices_size, sample_set.size());
+	int aux_vars=3;
+	MipProblem lp(multiindices_size+aux_vars, sample_set.size());
 
-	Pointer<UserVector<double> > obj=new dvector(multiindices_size);
-	dvector b1(multiindices_size);
+	Pointer<UserVector<double> > obj=new dvector(multiindices_size+aux_vars);
+	dvector b1(multiindices_size+aux_vars);
 	list<double> rhs;
 	double obj_const=0;
 
@@ -323,15 +324,35 @@ void QuadraticUnderestimator::quadratic_underestimator(SparseMatrix2& A, SparseV
 			if (fabs(b1[i])>scale) scale=fabs(b1[i]);
 		}
 		b1/=scale;
-
 		rhs.push_back(f_val/scale);
-		if (it_sample_point==enforce_tightness) lp.setRow(j, b1, rhs.back()-eps*fabs(rhs.back()), rhs.back());
-		else lp.setRow(j, b1, -INFINITY, rhs.back());
-		
-		if (j==0 || j==sample_set.size()-1 || it_sample_point==enforce_tightness) {
+
+/*		if (j==0 || j==sample_set.size()-1 || it_sample_point==enforce_tightness) {
 			*obj-=b1;
 			obj_const+=rhs.back();
+		}*/
+		double lhs=-INFINITY;
+		if (j==0) {
+			b1[multiindices_size]=1.;
+			(*obj)[multiindices_size]=1.;
+			lhs=rhs.back();
+			lp.setColBounds(multiindices_size, 0, INFINITY);
+		} else if (j==sample_set.size()-1) {
+			b1[multiindices_size+1]=1.;
+			(*obj)[multiindices_size+1]=1.;
+			lhs=rhs.back();
+			lp.setColBounds(multiindices_size+1, 0, INFINITY);
+		} else if (it_sample_point==enforce_tightness) {
+			b1[multiindices_size+2]=1.;
+			(*obj)[multiindices_size+2]=1.;
+			lhs=rhs.back();
+			lp.setColBounds(multiindices_size+2, 0, eps*fabs(rhs.back()));
 		}
+		lp.setRow(j, b1, lhs, rhs.back());
+		
+		b1=0.;
+		
+/*		if (it_sample_point==enforce_tightness) lp.setRow(j, b1, rhs.back()-eps*fabs(rhs.back()), rhs.back());
+		else lp.setRow(j, b1, -INFINITY, rhs.back());*/
 	}
 
 	lp.setObj(obj, obj_const);
