@@ -55,6 +55,7 @@ LaGO/src/boxfind.cc -text
 LaGO/src/boxfind.h -text
 LaGO/src/column.cc -text
 LaGO/src/column.h -text
+LaGO/src/config_lago.h.in -text
 LaGO/src/cuts.cc -text
 LaGO/src/cuts.h -text
 LaGO/src/decomp.cc -text
