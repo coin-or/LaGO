@@ -210,10 +210,18 @@ fi
 # will hick-up
 LIBS_without_ADDLIBS="$LIBS"
 
-AC_COIN_HAS_USER_LIBRARY([Cplex],[CPX],[cplex.h],[CPXgetstat])
-
 #get absolute path of $srcdir
 abssrcdir=`cd $srcdir; pwd`
+
+
+#################
+# CPLEX Library #
+#################
+
+AC_LANG_PUSH(C)
+AC_COIN_HAS_USER_LIBRARY([Cplex],[CPX],[cplex.h],[CPXgetstat])
+AC_LANG_POP(C)
+
 
 ###############
 # TNT Library #
@@ -343,6 +351,32 @@ else
             [If defined, the GAMS I/O Library is available.])
 fi
 
+#check for libgamscplexlice
+if test x"$coin_has_gamsio" = xyes; then
+	if test x"$coin_has_cpx" = xtrue; then
+		AC_LANG_PUSH(C)						
+	
+		AC_MSG_CHECKING([whether GAMS/CPLEX licence library is present and working])
+		LIBS="-lgamscplexlice $LIBS $CPXLIB"
+		AC_TRY_LINK([#include "gamscplexlice.h"], [gamscplexlice(0,0,0,0,0,0,0,0,0,0,0,0,0)],
+	  	          [AC_MSG_RESULT([yes])
+                 coin_has_gamscplexlice=yes],
+      	        [AC_MSG_RESULT([no])
+                 coin_has_gamscplexlice=no]);
+
+		AC_LANG_POP(C)
+		
+	  AC_DEFINE([COIN_HAS_GAMSCPLEXLICE],[1],
+  	          [If defined, the GAMS/CPLEX licence library is available.])
+	else
+		coin_has_gamscplexlice=no
+	fi
+else
+	coin_has_gamscplexlice=no
+fi
+
+AM_CONDITIONAL([COIN_HAS_GAMSCPLEXLICE],[test "$coin_has_gamscplexlice" = yes])
+
 
 #######################
 # AMPL SOLVER LIBRARY #
@@ -360,16 +394,16 @@ if test "$coin_has_gamsio" = "no"; then
 	LIBS="$ASLLIB $LIBS"
 	ADDLIBS="$ASLLIB $ADDLIBS"
 else
-  AC_MSG_NOTICE([skip test for AMPL solver library because GAMS I/O libaries are working])
+  AC_MSG_NOTICE([skip test for AMPL solver library because GAMS I/O libraries are working])
 
 	AM_CONDITIONAL([COIN_HAS_ASL],[test a=b])
 fi
 
-# AC_LANG_POP(C++)
-
 ############
 # END PART #
 ############
+
+AC_LANG_POP(C++)
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile])

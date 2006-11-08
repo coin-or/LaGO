@@ -47,8 +47,8 @@ extern "C" {
 void G2D_CALLCONV G2DINTERVAL0X(double xmin[], double xmax[], double* gmin, double* gmax, double vmin[], double vmax[], unsigned int instr[], const int *numIns, double nlCons[]);
 void G2D_CALLCONV G2DINTERVAL1X(double xmin[], double xmax[], double dfdxmin[], double dfdxmax[], double vmin[], double vmax[], double vbarmin[], double vbarmax[], unsigned int instr[], const int *numIns, double nlCons[]);
 
-#ifdef CPLEX_AVAILABLE
-#include "gams/gamscplexlice.h"
+#ifdef COIN_HAS_GAMSCPLEXLICE
+#include "gamscplexlice.h"
 #endif
 
 //GDX client
@@ -168,7 +168,7 @@ char* gams::getColName (int gj, char *name, int bufLen) {
 gams* gamsptr=NULL;
 
 void gams::init_cplex_licence(int connr, int varnr, int nnz, int nlnz, int ndisc) {
-#ifdef CPLEX_AVAILABLE
+#ifdef COIN_HAS_GAMSCPLEXLICE
 	licenseInit_t initType;
 	if (gamscplexlice(connr, varnr, nnz, nlnz, ndisc, 1, &initType, NULL, NULL, NULL, NULL, NULL, NULL)) {
 		out_err << "Could not initialize CPLEX license" << endl;

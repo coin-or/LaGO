@@ -15,6 +15,9 @@
 /* Define to 1 if the Cplex package is used */
 #undef COIN_HAS_CPX
 
+/* If defined, the GAMS/CPLEX licence library is available. */
+#undef COIN_HAS_GAMSCPLEXLICE
+
 /* If defined, the GAMS I/O Library is available. */
 #undef COIN_HAS_GAMSIO
 

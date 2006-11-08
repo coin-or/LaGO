@@ -76,7 +76,6 @@ LaGO/src/lagheu.cc -text
 LaGO/src/lagheu.h -text
 LaGO/src/linrelax.cc -text
 LaGO/src/linrelax.h -text
-LaGO/src/makefile -text
 LaGO/src/minlpopt.cc -text
 LaGO/src/minlpopt.h -text
 LaGO/src/node.cc -text
