@@ -292,6 +292,39 @@ AC_TRY_LINK([#include "metis.h"], [idxtype a],
 
 AC_LANG_POP(C)
 
+###########
+# FILIB++ #
+###########
+
+AC_ARG_WITH([filib],
+            AC_HELP_STRING([--with-filib],
+                           [specify directory of FILIB++]),
+            [use_filib=$withval],
+	          [use_filib=])
+
+if test x$use_filib	!= x; then
+	AC_MSG_CHECKING([whether FILIB++ library at $use_filib works])
+	coin_save_libs=$LIBS
+	coin_save_cppflags=$CPPFLAGS
+	LIBS="-L$use_filib/lib -lprim $LIBS"
+	CPPFLAGS="-I$use_filib/include $CPPFLAGS"
+	AC_TRY_LINK([#include "interval/interval.hpp"], [filib::fp_traits<double>::setup();],
+  	          [AC_MSG_RESULT([yes])
+    	         AC_DEFINE([COIN_HAS_FILIB],[1], [If defined, the FILIB++ is available.])
+      	       coin_has_filib=yes
+               ADDLIBS="-L$use_filib/lib -lprim $ADDLIBS"
+        	    ],
+          	  [AC_MSG_RESULT([no])
+            	 coin_has_filib=no
+            	 LIBS=$coin_save_libs
+            	 CPPFLAGS=$coin_save_cppflags
+            	])
+else
+	coin_has_filib=no
+fi
+
+AM_CONDITIONAL([COIN_HAS_FILIB],[test "$coin_has_filib" = yes])
+
 ####################
 # GAMS I/O LIBRARY #
 ####################
@@ -331,12 +364,12 @@ if test x"$use_gamsio" != x; then
 	AC_MSG_CHECKING([whether GAMS I/O libraries at $use_gamsio and $use_gamssys works])
 	GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/gdxwrap.o -L$use_gamsio -lg2d -ldl -L$use_gamssys -lifcore -limf"
   LIBS="$GAMSIO_LIBS $LIBS"
-#  ADDLIBS="$GAMSIO_LIBS $ADDLIBS"
 	CPPFLAGS="-I$use_gamsio $CPPFLAGS"
   AC_TRY_LINK([
 #include <cstdio>
 #include "iolib.h"], [gfinit()],
-                    [AC_MSG_RESULT([yes])],
+                    [AC_MSG_RESULT([yes])
+                     ADDLIBS="$GAMSIO_LIBS $ADDLIBS"],
                     [AC_MSG_RESULT([no])
                      AC_MSG_ERROR([GAMS I/O library $use_gamsio does not work])])
 fi
@@ -357,12 +390,15 @@ if test x"$coin_has_gamsio" = xyes; then
 		AC_LANG_PUSH(C)						
 	
 		AC_MSG_CHECKING([whether GAMS/CPLEX licence library is present and working])
+		coin_save_libs=$LIBS
 		LIBS="-lgamscplexlice $LIBS $CPXLIB"
 		AC_TRY_LINK([#include "gamscplexlice.h"], [gamscplexlice(0,0,0,0,0,0,0,0,0,0,0,0,0)],
 	  	          [AC_MSG_RESULT([yes])
-                 coin_has_gamscplexlice=yes],
+                 coin_has_gamscplexlice=yes
+                 ADDLIBS="-lgamscplexlice $ADDLIBS"],
       	        [AC_MSG_RESULT([no])
-                 coin_has_gamscplexlice=no]);
+                 coin_has_gamscplexlice=no
+	            	 LIBS=$coin_save_libs]);
 
 		AC_LANG_POP(C)
 		
@@ -382,8 +418,9 @@ AM_CONDITIONAL([COIN_HAS_GAMSCPLEXLICE],[test "$coin_has_gamscplexlice" = yes])
 # AMPL SOLVER LIBRARY #
 #######################
 
+LIBS="$LIBS_without_ADDLIBS"
+
 if test "$coin_has_gamsio" = "no"; then
-  LIBS="$LIBS_without_ADDLIBS"
   AC_COIN_HAS_ASL
 	
 	if test "$coin_has_asl" = "no"; then
@@ -391,7 +428,7 @@ if test "$coin_has_gamsio" = "no"; then
 	fi
 	
 	CPPFLAGS="$ASL_CPPFLAGS $CPPFLAGS"
-	LIBS="$ASLLIB $LIBS"
+#	LIBS="$ASLLIB $LIBS"
 	ADDLIBS="$ASLLIB $ADDLIBS"
 else
   AC_MSG_NOTICE([skip test for AMPL solver library because GAMS I/O libraries are working])

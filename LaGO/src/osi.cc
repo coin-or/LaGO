@@ -130,32 +130,31 @@ MIPSolver::SolutionStatus OSISolver::solve() {
 		osisolver->initialSolve();
 		cold_start=false;
 //		osisolver->resolve();
-#ifdef CPLEX_AVAILABLE
+/*#ifdef CPLEX_AVAILABLE
 		// OsiCPLEX initial solve (primal cplex) cannot distinguish between UNBOUNDED and INFEASIBLE, calling resolve (dual simplex) comes to a decision
-/*		OsiCpxSolverInterface* osicpx=(OsiCpxSolverInterface*)&*osisolver;
+		OsiCpxSolverInterface* osicpx=dynamic_cast<OsiCpxSolverInterface*>(&*osisolver);
 		if (CPXgetstat(osicpx->getEnvironmentPtr(), osicpx->getLpPtr(OsiCpxSolverInterface::FREECACHED_RESULTS))==CPX_STAT_INForUNBD)
 			osisolver->resolve();
-*/
-#endif
+#endif*/
 	}
 	else {
 		osisolver->resolve();
 #ifndef CPLEX_AVAILABLE
-		if (osisolver->isProvenPrimalInfeasible() || osisolver->isProvenDualInfeasible()) { 
+		if (osisolver->isProvenPrimalInfeasible() || osisolver->isProvenDualInfeasible()) {
 			osisolver->initialSolve();
 			if (osisolver->isProvenOptimal())
 				out_log << "Resolve reported infeasible, initialSolve says feasible...";
 		}
 #endif
 	}
-/*
-#ifdef CPLEX_AVAILABLE
-	if (osisolver->isProvenPrimalInfeasible()) {
-		OsiCpxSolverInterface* osicpx=(OsiCpxSolverInterface*)&*osisolver;
-		CPXiiswrite(osicpx->getEnvironmentPtr(), osicpx->getLpPtr(), "infeas.iis");
-	}
-#endif
-*/
+
+// #ifdef CPLEX_AVAILABLE
+// 	if (osisolver->isProvenPrimalInfeasible()) {
+// 		OsiCpxSolverInterface* osicpx=dynamic_cast<OsiCpxSolverInterface*>(&*osisolver);
+// 		CPXiiswrite(osicpx->getEnvironmentPtr(), osicpx->getLpPtr(), "infeas.iis");
+// 	}
+// #endif
+
 	if (osisolver->isAbandoned()) { cold_start=true; return ABORTED; }
 	if (osisolver->isProvenPrimalInfeasible()) return INFEASIBLE;
 	if (osisolver->isProvenDualInfeasible()) return UNBOUNDED;

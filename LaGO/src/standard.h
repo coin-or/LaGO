@@ -41,6 +41,10 @@ inline long pow(int a, int b) { return (long)pow((double)a, (double)b); }
 
 using namespace std;
 
+#ifdef COIN_HAS_FILIB
+#define FILIB_AVAILABLE
+#endif
+
 #ifdef FILIB_AVAILABLE
 // must be included before tools.h, because it has its own MIN and MAX routines
 #define FILIB_EXTENDED

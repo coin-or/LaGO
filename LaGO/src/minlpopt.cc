@@ -204,7 +204,7 @@ bool primal_feasible=false;
 #else
 			SepQcFunc& fc(c ? *opt.convex_prob->con[c-1] : *opt.convex_prob->obj);
 			if ((!fc.A[k]) && (!fc.b[k]) && (!fc.s[k])) {
-				out_log << "constant! --> lower bound = 0" << endl;
+				out_log << "Warning: Convex underestimator of block " << k << " of " << (c ? opt.split_prob->con_names[c-1] : " objective ") << " is a constant." << endl;
 				lower[c].SetElement(k, 0);
 			} else {
 				SepQcFunc fb(fc.A[k], fc.b[k], fc.s[k]);
