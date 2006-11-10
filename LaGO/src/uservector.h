@@ -1187,7 +1187,8 @@ class SparseVector : public UserVector<Type> {
         last->index=p->index;
         last->value=p->value;
       }
-      last->next=NULL;
+			if (last==head) last=NULL;
+			else last->next=NULL;
 /*      VectorElement* p=head;
       VectorElement* q=v.head->next;
       for (; p->next && q; )
@@ -1274,7 +1275,7 @@ class SparseVector : public UserVector<Type> {
           p->value=a*v(i);
         }
       p->next=NULL;
-      last=p;
+			if (p!=head) last=p;
       return *this;
     }
 

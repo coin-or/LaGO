@@ -415,7 +415,7 @@ void QuadraticUnderestimator::quadratic_underestimator(SparseMatrix2& A, SparseV
 	
 		finished=true;
 		double maxviol=0;
-		double maxviol_unscaled;
+		double maxviol_unscaled=0;
 		// check active constraints to determine ''active'' sample points
 		// and start local minimization of f-p from active sample points
 		multimap<double, dvector>::iterator it_sample_point(sample_set.begin()); 
