@@ -27,9 +27,17 @@ You will further need to have a GAMS system installed in your system.
 
 6. optional: Interval arithmetic library FILIB++
 You can get it from http://www.math.uni-wuppertal.de/wrswt/software/filib.html.
-But the installation seem to be a bit tricky. Details will be added later.
+After installation of the FILIB++ (by yourself), you have to provide the path of your FILIB++ installation to the configure script via --with-filib=...
+The presence of FILIB++ will enable some interval arithmetic based features in LaGO, like a boxreduction method.
+But note that these function require that the (nonquadratic) functions of the model can be evaluated over a box.
+This feature is not available with the AMPL interface, so that LaGO with FILIB++ will only work when you use the GAMS interface, or when you solve MIQQPs only.
 
-7. optional: SNOPT
+7. optional: CPLEX
+You can buy it from ILOG.
+Then you have to provide the linking flags via --with-cplex-lib and the path of cplex.h via --with-cplex-incdir to configure.
+If CPLEX is not available for LaGO, COIN/Clp is used to solve LPs.
+
+8. optional: SNOPT
 Detection of an installed SNOPT library will be added to the configure script later.
 
 
