@@ -34,7 +34,6 @@ MinlpBCP::MinlpBCP(Pointer<MinlpProblem> orig_prob_, Pointer<MinlpProblem> split
 	bool is_gams_prob, double closeval_tol_, Pointer<dvector> diam_, Pointer<Param> param_,
 	Pointer<ostream> out_solver_p_, Pointer<ostream> out_solver_log_p_)
 : RelaxationSolver(orig_prob_, is_gams_prob, closeval_tol_, diam_, param_, out_solver_p_, out_solver_log_p_),
-	block_prob(split_prob_->block.size()), block_convex_prob(split_prob_->block.size()),
 	intgrad_cutgen(split_prob_), linconcutgen(split_prob_), ExtremePoints(split_prob_->block.size()),
 	bound_impr_tol(.1), bound_failed(0), bound_computed(0), lagprob_solves(0), bound_time(0.), init_RMP_time(0), max_time(INFINITY),
 	find_solcand_time(0.), nr_solcand_found(0),
@@ -142,6 +141,9 @@ void MinlpBCP::init_block_problems() {
 	Pointer<MinlpProblem> prob(reform ? reform->ext_prob : split_prob);
 	Pointer<MinlpProblem> conv(reform ? reform->ext_convex_prob : convex_prob);
 	assert(prob->block.size()==conv->block.size());
+	
+	block_prob.resize(prob->block.size());
+	block_convex_prob.resize(prob->block.size());
 
 	for (int k=0; k<block_prob.size(); k++) {
 		block_prob[k]=new MinlpProblem(*prob, k);
@@ -149,7 +151,12 @@ void MinlpBCP::init_block_problems() {
 		for (int c=0; c<prob->con.size(); c++) {
 			if (prob->con[c]->A[k] || prob->con[c]->s[k]) {
 				block_prob[k]->add_con(new SepQcFunc(prob->con[c]->A[k], prob->con[c]->b[k], prob->con[c]->s[k], prob->con[c]->c), prob->con_eq[c], prob->con_names[c]);
-				block_convex_prob[k]->add_con(new SepQcFunc(conv->con[c]->A[k], conv->con[c]->b[k], conv->con[c]->s[k], conv->con[c]->c), conv->con_eq[c], conv->con_names[c]);
+				if (conv->con[c]->A[k] || conv->con[c]->s[k] || conv->con[c]->b[k])
+					block_convex_prob[k]->add_con(new SepQcFunc(conv->con[c]->A[k], conv->con[c]->b[k], conv->con[c]->s[k], conv->con[c]->c), conv->con_eq[c], conv->con_names[c]);
+				else {
+					block_convex_prob[k]->add_con(new SepQcFunc(prob->block[k].size()));
+					block_convex_prob[k]->con.back()->c=conv->con[c]->c;
+				}
 			}
 		}
 
@@ -1334,6 +1341,8 @@ void MinlpBCP::init_lag_problems(Pointer<MinlpNode> node) {
 	lag_problem.reserve(prob.block.size());
 	block_sub_convex_prob.clear();
 	block_sub_convex_prob.reserve(prob.block.size());
+	
+	if (!block_prob.size()) init_block_problems();
 
 	for (int k=0; k<prob.block.size(); k++) {
 		lag_problem.push_back(new MinlpProblem(*block_prob[k]));
@@ -1581,8 +1590,6 @@ int MinlpBCP::solve() {
 	iter_=0;
 //	timer->start();
 	double final_gap;
-
-	init_block_problems();
 
 	map<int, set<int> > fixed;
 	map<int, set<int> >::iterator it_block;
