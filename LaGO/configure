@@ -23552,9 +23552,9 @@ if test "${with_gamsio+set}" = set; then
   withval="$with_gamsio"
   use_gamsio=$withval
 else
-  as_ac_File=`echo "ac_cv_file_$coin_gamsioobjdir/GAMS_IO/iolib.h" | $as_tr_sh`
-echo "$as_me:$LINENO: checking for $coin_gamsioobjdir/GAMS_IO/iolib.h" >&5
-echo $ECHO_N "checking for $coin_gamsioobjdir/GAMS_IO/iolib.h... $ECHO_C" >&6
+  as_ac_File=`echo "ac_cv_file_$coin_gamsiosrcdir/GAMS_IO/iolib.h" | $as_tr_sh`
+echo "$as_me:$LINENO: checking for $coin_gamsiosrcdir/GAMS_IO/iolib.h" >&5
+echo $ECHO_N "checking for $coin_gamsiosrcdir/GAMS_IO/iolib.h... $ECHO_C" >&6
 if eval "test \"\${$as_ac_File+set}\" = set"; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
@@ -23562,7 +23562,7 @@ else
   { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
 echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
    { (exit 1); exit 1; }; }
-if test -r "$coin_gamsioobjdir/GAMS_IO/iolib.h"; then
+if test -r "$coin_gamsiosrcdir/GAMS_IO/iolib.h"; then
   eval "$as_ac_File=yes"
 else
   eval "$as_ac_File=no"

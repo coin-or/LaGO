@@ -342,7 +342,7 @@ AC_ARG_WITH([gamsio],
             AC_HELP_STRING([--with-gamsio],
                            [specify directory of GAMS I/O libraries and header files]),
             [use_gamsio=$withval],
-	          [AC_CHECK_FILE([$coin_gamsioobjdir/GAMS_IO/iolib.h],[use_gamsio=$coin_gamsiosrcdir/GAMS_IO],[use_gamsio=])]  )
+	          [AC_CHECK_FILE([$coin_gamsiosrcdir/GAMS_IO/iolib.h],[use_gamsio=$coin_gamsiosrcdir/GAMS_IO],[use_gamsio=])]  )
 						
 # Check if GAMS I/O libs work
 if test x"$use_gamsio" != x; then
