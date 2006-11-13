@@ -92,7 +92,8 @@ bool IpOptProblem::eval_g(Index n, const Number* x, bool new_x, Index m, Number*
 
 	for (int c=m-1; c>=0; --c) {
 		g[c]=prob->con[c]->eval(xx);
-//		out_log << c << ' ' << prob->con_names[c] << ": " << g[c] << endl;
+		if (!finite(g[c])) return false;
+// 		out_log << c << ' ' << prob->con_names[c] << ": " << g[c] << endl;
 	}
 
   return true;

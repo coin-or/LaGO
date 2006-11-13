@@ -214,7 +214,7 @@ void SparsityInfo::add(const UserMatrix& A) {
 				++row; ++val;
 			}
 			double coeff=0.;
-			if (*row==col) { coeff=*val; ++row; ++val; }
+			if (row<row_ind+col_ptr[col+1] && *row==col) { coeff=*val; ++row; ++val; }
 			add_quadratic(col, 0., coeff);
 			add_nonlinear(col);
 		}
@@ -1180,4 +1180,6 @@ void SepQcFunc::print(ostream& out, vector<Pointer<char> > var_names) const {
 //		if (A[k] && !dynamic_cast<ExtUserMatrix*>((UserMatrix*)A[k])) out << "  q" << k << " = " << *A[k];
 		if (s[k]) out << "  s" << k << " = " << *s[k];
 	}
+/*	for (int k=0; k<block.size(); k++)
+		if (sparsity_block[k] && (A[k] || s[k] || b[k])) out << "  sparsity" << k << " = " << *sparsity_block[k];*/
 }

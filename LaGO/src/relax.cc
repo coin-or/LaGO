@@ -125,15 +125,14 @@ void Convexify::get_decomposed_functions(pair<Pointer<SepQcFunc>, Pointer<SepQcF
 				if (f.first->A[k]) f.first->A[k]=new SumMatrix(&*f.first->A[k], &*A);
 				else f.first->A[k]=A;
 			if (f.first->A[k]) si->add(*f.first->A[k]);
-
-			if (!(*B==0)) {
+			
+			if (!(*B==0))
 				if (f.first->b[k]) {
 					f.first->b[k]=f.first->b[k]->getcopy();
 					*f.first->b[k]+=*B;
-				}
-				else f.first->b[k]=B;
-				si->add(*f.first->b[k]);
-			}
+				}	else f.first->b[k]=B;
+			if (f.first->b[k]) si->add(*f.first->b[k]);
+			
 			f.first->c+=convexify_c[k].first;
 
 			if (f.first->s[k]) si->add(((const Func*)(Func*)f.first->s[k])->get_sparsity());
@@ -162,15 +161,14 @@ void Convexify::get_decomposed_functions(pair<Pointer<SepQcFunc>, Pointer<SepQcF
 			if (A->nonzeros()) {
 				if (f.second->A[k]) f.second->A[k]=new SumMatrix(&*f.second->A[k], &*A, -1.);
 				else f.second->A[k]=A;
-			}
-			else if (f.second->A[k]) f.second->A[k]=new MinusMatrix(f.second->A[k]);
+			}	else if (f.second->A[k]) f.second->A[k]=new MinusMatrix(f.second->A[k]);
 			if (f.second->A[k]) si->add(*f.second->A[k]);
 
-			if (!(*B==0)) {
+			if (!(*B==0))
 				if (f.second->b[k]) *f.second->b[k]+=*B;
 				else f.second->b[k]=B;
-				if (f.second->b[k]) si->add(*f.second->b[k]);
-			}
+			if (f.second->b[k]) si->add(*f.second->b[k]);
+			
 			f.second->c+=convexify_c[k].second;
 
 			if (f.second->s[k]) si->add(((const Func*)(Func*)f.second->s[k])->get_sparsity());

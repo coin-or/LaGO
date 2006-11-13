@@ -604,7 +604,7 @@ void MinlpOpt::quad_relax() {
 //	for (int c=0; c<quad_prob->con.size(); c++) quad_prob->con[c]=new SepQcFunc(*quad_prob->con[c]);
 
 	Timer t;
-	if (param->get("Quadratic Underestimator adaptive", 0)) {
+	if (param->get_i("Quadratic Underestimator adaptive", 0)) {
 		if (!param->get("Quadratic Underestimator sample set Monte Carlo"))
 			param->add("Quadratic Underestimator sample set Monte Carlo", "200");
 		if (!param->get("Quadratic Underestimator sample set mid point"))
@@ -712,9 +712,9 @@ void MinlpOpt::convex_relax() {
 			Pointer<SepQcFunc> f(c ? convex_prob->con[c-1] : convex_prob->obj);
 			if ((f->get_curvature()&Func::CONVEX) && ((!c) || (!convex_prob->con_eq[c-1]) || (f->get_curvature()&Func::CONCAVE))) continue;
 
-//			if (c) { out_log << "Convexifying " << prob.con_names[c-1] << ": " << endl; }
-//			else out_log << "Convexifying objective: " << endl;
-			out_log << ".";
+/*			if (c) { out_log << "Convexifying " << prob.con_names[c-1] << ": " << endl; }
+			else out_log << "Convexifying objective: " << endl;*/
+ 			out_log << ".";
 
 			convexify.new_sampleset(prob.lower, prob.upper, *f);
 			double alpha_norm=convexify.convexify(*f, c ? convex_prob->con_eq[c-1] : false, min_eigval[c], max_eigval[c], prob.lower, prob.upper);
@@ -1013,8 +1013,8 @@ void MinlpOpt::box_reduce1() {
 		for (list<int>::iterator it(unbounded_var.begin()); it!=unbounded_var.end();)
 			if (split_prob->lower(*it)>-INFINITY && split_prob->upper(*it)<INFINITY) it=unbounded_var.erase(it);
 			else ++it;
-//		for (list<int>::iterator it(unbounded_var.begin()); it!=unbounded_var.end(); ++it)
-//			clog << split_prob->var_names[*it] << endl;
+		for (list<int>::iterator it(unbounded_var.begin()); it!=unbounded_var.end(); ++it)
+			clog << split_prob->var_names[*it] << endl;
 		assert(unbounded_var.empty());
 	}
 
@@ -1250,10 +1250,16 @@ void MinlpOpt::init2() {
 	}
 
 	if (LocOpt::nlp_solver_available()) {
+		out_out << "Solving extended convex problem (Cext): ";
 		Pointer<LocOpt> locopt=LocOpt::get_solver(reform->ext_convex_prob, param, "ConvexSolve", NULL, NULL);
 		int ret=locopt->solve(reform->ext_convex_prob->primal_point);
-		out_out << "Solving extended convex problem (Cext): return " << ret << "\t time: " << locopt->time() << "\t value: " << locopt->opt_val() << endl;
-	
+
+		out_out.setf(ios::fixed);
+		out_out.precision(20);
+		out_out << "return " << ret << "\t time: " << locopt->time() << "\t value: " << locopt->opt_val() << endl;
+		out_out.unsetf(ios::fixed);
+		out_out.precision(6);
+
 		if ((!ret) || (!reform->ext_convex_prob->feasible(locopt->sol_point, tol, out_log_p))) // feasible solution
 			sol_Cext=new dvector(locopt->sol_point);
 		sol_Cext_is_solution=(ret==0);

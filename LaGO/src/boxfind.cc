@@ -49,8 +49,8 @@ double BoundsFinder::compute_bound(MinlpProblem& conv_prob, int& ret, int index,
 pair<int,int> BoundsFinder::compute_bounds_guess(MinlpProblem& conv_prob) {
 	int guessed=0;
 	bool missing_bounds=false;
-	double min_lower=-1.;
-	double max_upper=1.;
+	double min_lower=-1000.; // so that unknown bounds are set to at least 10000
+	double max_upper=1000.;
 	for (int i=0; i<conv_prob.dim(); i++) {
 		if (conv_prob.lower[i]>-INFINITY) {
 			if (conv_prob.lower[i]<min_lower) min_lower=conv_prob.lower[i];
@@ -74,10 +74,11 @@ pair<int,int> BoundsFinder::compute_bounds_expensive(MinlpProblem& conv_prob, dv
 
 	int ret=0;
 	int guessed=0;
+	int success=0;
 	bool missing_bounds=false;
 	bool all_discr=true;
-	double min_lower=-1.;
-	double max_upper=1.;
+	double min_lower=-1000.; // so that unknown bounds are set to at least 10000
+	double max_upper=1000.;
 	for (int i=0; i<conv_prob.dim(); i++) {
 		if (conv_prob.lower[i]>-INFINITY) {
 			if (conv_prob.lower[i]<min_lower) min_lower=conv_prob.lower[i];
@@ -109,7 +110,10 @@ pair<int,int> BoundsFinder::compute_bounds_expensive(MinlpProblem& conv_prob, dv
 			if (low && (known || conv_prob.lower[index]<=-INFINITY)) {
 				double newlow=compute_bound(conv_prob, locopt_ret, i, k, true);
 				if (locopt_ret==0) { // good return from SnOpt
-					if (conv_prob.lower[index]<=-INFINITY) new_lower[index]=conv_prob.lower[index]=newlow;
+					if (conv_prob.lower[index]<=-INFINITY) {
+						new_lower[index]=conv_prob.lower[index]=newlow;
+						++success;
+					}
 					else if (newlow > conv_prob.lower[index]+rtol) {  // improved bound
 						if (newlow>conv_prob.upper[index]) newlow=conv_prob.upper[index];
 						if (discr[index]) newlow=newlow>conv_prob.lower[index]+1E-4 ? conv_prob.upper[index] : conv_prob.lower[index];
@@ -129,8 +133,10 @@ pair<int,int> BoundsFinder::compute_bounds_expensive(MinlpProblem& conv_prob, dv
 			if (up && (known || conv_prob.upper[index]>=INFINITY)) {
 				double newup=compute_bound(conv_prob, locopt_ret, i, k, false);
 				if (locopt_ret==0) { // good return from SnOpt
-					if (conv_prob.upper[index]>=INFINITY) new_upper[index]=conv_prob.upper[index]=newup;
-					else if (newup < conv_prob.upper[index]-rtol) { // improved bound
+					if (conv_prob.upper[index]>=INFINITY) {
+						new_upper[index]=conv_prob.upper[index]=newup;
+						++success;
+					} else if (newup < conv_prob.upper[index]-rtol) { // improved bound
 						if (newup<conv_prob.lower[index]) newup=conv_prob.lower[index];
 						if (discr[index]) newup=(newup<conv_prob.upper[index]-1E-4) ? conv_prob.lower[index] : conv_prob.upper[index];
 						new_upper[index]=conv_prob.upper[index]=newup;
@@ -147,6 +153,8 @@ pair<int,int> BoundsFinder::compute_bounds_expensive(MinlpProblem& conv_prob, dv
 		}
 
 	conv_prob.obj = orig_obj;
+	
+	out_log << "Number of infinite bounds eliminated: " << success << endl;
 
 	return pair<int,int>(ret, guessed);
 }
