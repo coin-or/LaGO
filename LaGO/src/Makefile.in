@@ -107,10 +107,10 @@ LaGO_OBJECTS = $(am_LaGO_OBJECTS)
 @COIN_HAS_CPX_TRUE@	$(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la
 @COIN_HAS_CPX_FALSE@am__DEPENDENCIES_2 = $(CLPOBJDIR)/src/libClp.la \
 @COIN_HAS_CPX_FALSE@	$(OSIOBJDIR)/src/OsiClp/libOsiClp.la
-LaGO_DEPENDENCIES = $(COINUTILSOBJDIR)/src/libCoinUtils.la \
-	$(CGLOBJDIR)/src/libCgl.la $(OSIOBJDIR)/src/libOsi.la \
-	$(IPOPTOBJDIR)/src/Interfaces/libipopt.la \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+LaGO_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2) \
+	$(OSIOBJDIR)/src/libOsi.la $(CGLOBJDIR)/src/libCgl.la \
+	$(COINUTILSOBJDIR)/src/libCoinUtils.la \
+	$(IPOPTOBJDIR)/src/Interfaces/libipopt.la
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -221,10 +221,10 @@ LAGOSRCDIR = @LAGOSRCDIR@
 LDFLAGS = @LDFLAGS@
 LIBEXT = @LIBEXT@
 LIBOBJS = @LIBOBJS@
-LIBS = @LIBS@ $(ADDLIBS) `cat $(COINUTILSOBJDIR)/coinutils_addlibs.txt \
+LIBS = @LIBS@ $(am__append_5) $(ADDLIBS) `cat \
+	$(COINUTILSOBJDIR)/coinutils_addlibs.txt \
 	$(CGLOBJDIR)/cgl_addlibs.txt $(OSIOBJDIR)/osi_addlibs.txt \
-	$(IPOPTOBJDIR)/src/Interfaces/ipopt_addlibs_cpp.txt` \
-	$(am__append_5)
+	$(IPOPTOBJDIR)/src/Interfaces/ipopt_addlibs_cpp.txt`
 LIBTOOL = @LIBTOOL@
 LIBTOOLM4 = @LIBTOOLM4@
 LN_S = @LN_S@
@@ -319,20 +319,20 @@ LaGO_SOURCES = bcp.cc bcp.h boxfind.cc boxfind.h column.cc column.h \
 	rmp.h sampling.cc sampling.h standard.h tools.cc tools.h \
 	usermatrix.cc usermatrix.h uservector.h $(am__append_6) \
 	$(am__append_7)
-LaGO_LDADD = $(COINUTILSOBJDIR)/src/libCoinUtils.la \
-	$(CGLOBJDIR)/src/libCgl.la $(OSIOBJDIR)/src/libOsi.la \
-	$(IPOPTOBJDIR)/src/Interfaces/libipopt.la $(am__append_2) \
-	$(am__append_4)
-LaGO_LDFLAGS = -rpath $(libdir)
 AM_CPPFLAGS = -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` -I`$(CYGPATH_W) \
-	$(COINUTILSSRCDIR)/inc` -I`$(CYGPATH_W) $(CGLSRCDIR)/src` \
-	-I`$(CYGPATH_W) $(CGLSRCDIR)/inc` -I`$(CYGPATH_W) \
-	$(OSISRCDIR)/src` -I`$(CYGPATH_W) $(OSISRCDIR)/inc` \
+	$(COINUTILSOBJDIR)/inc` -I`$(CYGPATH_W) $(CGLSRCDIR)/src` \
+	-I`$(CYGPATH_W) $(CGLOBJDIR)/inc` -I`$(CYGPATH_W) \
+	$(OSISRCDIR)/src` -I`$(CYGPATH_W) $(OSIOBJDIR)/inc` \
 	-I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Interfaces` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/Common` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/LinAlg` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/Algorithm` -I`$(CYGPATH_W) \
-	$(IPOPTSRCDIR)/inc` $(am__append_1) $(am__append_3)
+	$(IPOPTOBJDIR)/inc` $(am__append_1) $(am__append_3)
+LaGO_LDADD = $(am__append_2) $(am__append_4) \
+	$(OSIOBJDIR)/src/libOsi.la $(CGLOBJDIR)/src/libCgl.la \
+	$(COINUTILSOBJDIR)/src/libCoinUtils.la \
+	$(IPOPTOBJDIR)/src/Interfaces/libipopt.la
+LaGO_LDFLAGS = -rpath $(libdir)
 DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
 DISTCLEANFILES = $(am__append_9) $(VPATH_DISTCLEANFILES)
 all: config_lago.h
