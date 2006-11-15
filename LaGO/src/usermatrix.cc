@@ -347,7 +347,7 @@ int DenseMatrix::eig_ql(dvector &eig_vec, double &eig_val) const {
 /*     symmetric tridiagonal matrix using and accumulating */
 /*     orthogonal similarity transformations. */
 
-int DenseMatrix::tred2(int nm, int n, double* a, double *d, double *e, double *z) const {
+void DenseMatrix::tred2(int nm, int n, double* a, double *d, double *e, double *z) const {
     /* System generated locals */
     Integer a_dim1, a_offset, z_dim1, z_offset, i__1, i__2;
 
@@ -521,9 +521,6 @@ L510:
 
     z[n + n * z_dim1] = 1.;
     e[1] = 0.;
-    return 0;
-
-
 }
 
 // from Helmbergs SBmethod:
@@ -549,6 +546,7 @@ int DenseMatrix::imtql2(int nm, int n, double *d, double *e, double *z) const {
     static Integer ii, mml;
     static Real tst1, tst2;
     static Integer ierr;
+    Integer iter_max=max(30,n);
 
     /* Parameter adjustments */
     z_dim1 = nm;
@@ -594,7 +592,7 @@ L120:
 	if (m == l) {
 	    goto L240;
 	}
-	if (j == 30) {
+	if (j == iter_max) {
 	    goto L1000;
 	}
 	++j;

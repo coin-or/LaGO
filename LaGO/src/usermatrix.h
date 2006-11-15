@@ -814,9 +814,8 @@ class DenseMatrix : public ExtUserMatrix {
         @param d At end contains the diagonal elements of the tridiagonal matrix.
         @param e At end contains the subdiagonal elements of the tridiagonal matrix in its last n-1 positions. e(1) is set to zero.
         @param z At end contains the orthogonal transformation matrix produced in the reduction.
-        @return 0.
     */
-    int tred2(int nm, int n, double* a, double *d, double *e, double *z) const;
+    void tred2(int nm, int n, double* a, double *d, double *e, double *z) const;
 
     /** Finds the eigenvalues and eigenvectors of a symmetric tridiagonal matrix by the implicit ql-method.
         This subroutine finds the eigenvalues and eigenvectors of a symmetric tridiagonal matrix by the implicit ql method.

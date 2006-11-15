@@ -582,24 +582,26 @@ void Convexify::check_convex2(vector<double>& min_eigval, vector<double>& max_ei
 		if (!(f.get_curvature(k)&Func::UNKNOWN)) continue; // curvature already known
 		if ((!f.s[k]) && (!f.A[k])) { f.set_curvature(k, Func::LINEAR); continue; }
 
-		dvector eigvec(f.block[k].size());
-		if (!f.s[k]) { // quadratic function
-			ret=f.A[k]->eig(eigvec, min_eigval[k], param);
-			if (ret) {
-				out_err << "Convexify::check_convex(): Error " << ret << " computing minimum eigval for quad. func. block " << k << "! Aborting." << endl;
-				exit(-1);
-			}
-			min_eigval[k]*=2.;
-
-			eigvec=0; // using eigvec for mineig as approximation for maxeig gives trouble for some examples
-			MinusMatrix MinusA(f.A[k]);
-			ret=MinusA.eig(eigvec, max_eigval[k], param);
-			if (ret) {
-				out_err << "Convexify::check_convex(): Error " << ret << " computing maximum eigval for quad. func. block " << k << "! Aborting." << endl;
-				exit(-1);
-			}
-			max_eigval[k]*=-2.;
-		} else {
+//		dvector eigvec(f.block[k].size());
+//		if (!f.s[k]) { // quadratic function
+//			ret=f.A[k]->eig(eigvec, min_eigval[k], param);
+//			if (ret) {
+//				out_err << "Convexify::check_convex(): Error " << ret << " computing minimum eigval for quad. func. block " << k << "! Aborting." << endl;
+//				out_log << DenseMatrix(*f.A[k]); 
+//				exit(-1);
+//			}
+//			min_eigval[k]*=2.;
+//
+//			eigvec=0; // using eigvec for mineig as approximation for maxeig gives trouble for some examples
+//			MinusMatrix MinusA(f.A[k]);
+//			ret=MinusA.eig(eigvec, max_eigval[k], param);
+//			if (ret) {
+//				out_err << "Convexify::check_convex(): Error " << ret << " computing maximum eigval for quad. func. block " << k << "! Aborting." << endl;
+//				out_log << DenseMatrix(MinusA); 
+//				exit(-1);
+//			}
+//			max_eigval[k]*=-2.;
+//		} else {
 			Pointer<SepQcFunc> fk(new SepQcFunc(f.A[k], NULL, f.s[k], 0., new SparsityInfo(f.get_sparsity(k))));
 			Pointer<SepQcFunc> fkb(decomp.decompose((Pointer<Func>)fk, sample_set[k][0]));
 
@@ -614,6 +616,7 @@ void Convexify::check_convex2(vector<double>& min_eigval, vector<double>& max_ei
 					ret=fkb->A[l]->eig(eigvec, eigval, param);
 					if (ret) {
 						out_err << "Convexify::check_convex(): Error " << ret << " computing eigval for quad. func. block " << k << ',' << l << "! Aborting." << endl;
+//						out_log << DenseMatrix(*fkb->A[l]); 
 						exit(-1);
 					}
 					eigval*=2.;
@@ -623,6 +626,7 @@ void Convexify::check_convex2(vector<double>& min_eigval, vector<double>& max_ei
 					ret=MinusMatrix(fkb->A[l]).eig(eigvec, eigval, param);
 					if (ret) {
 						out_err << "Convexify::check_convex(): Error " << ret << " computing eigval for quad. func. block " << k << ',' << l << "! Aborting." << endl;
+//						out_log << DenseMatrix(MinusMatrix(fkb->A[l])); 
 						exit(-1);
 					}
 					eigval*=-2.;
@@ -656,7 +660,7 @@ void Convexify::check_convex2(vector<double>& min_eigval, vector<double>& max_ei
 					exit(-1);
 				}
 			}
-		}
+//		}
 
 		if (min_eigval[k]<-rtol && max_eigval[k]>rtol) f.set_curvature(k, Func::INDEFINITE);
 		else if (min_eigval[k]<-rtol) f.set_curvature(k, Func::CONCAVE); // so max_eigval<rtol
