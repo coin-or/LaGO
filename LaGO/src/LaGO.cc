@@ -65,24 +65,26 @@ int main(int argc, char** argv) {
 	cout << "Solving ..." << endl;
 	int ret=solver->solve();
 
-	cout << "Solved: " << ret << endl;
-	int ns=prob->feasible(solver->sol_point, 1.E-4, ret ? NULL : out_log_p);
-	cout << "Nonsatisfied constraints: " << ns << endl;
-	cout.setf(ios::fixed);
-	cout.precision(20);
-	cout << "Optimal value: " << prob->obj->eval(solver->sol_point) << endl;
-	cout.unsetf(ios::fixed);
-	cout.precision(6);
-
 	cout << "Time: " << t.stop() << endl;
 
+	cout << "Solved: " << ret << endl;
+	if (ret==0) {
+		int ns=prob->feasible(solver->sol_point, 1.E-4, ret ? NULL : out_log_p);
+		cout << "Nonsatisfied constraints: " << ns << endl;
+		cout.setf(ios::fixed);
+		cout.precision(20);
+		cout << "Optimal value: " << prob->obj->eval(solver->sol_point) << endl;
+		cout.unsetf(ios::fixed);
+		cout.precision(6);
+
 #ifdef COIN_HAS_ASL
-  interface.write_sol_file(solver->sol_point);
+  	interface.write_sol_file(solver->sol_point);
 #else
-	int model_status=ret ? 11 : 1;
-	int solver_status=1;
-	interface.write_sol_file(solver->sol_point, model_status, solver_status, solver->iter(), t, prob);
+		int model_status=ret ? 11 : 1;
+		int solver_status=1;
+		interface.write_sol_file(solver->sol_point, model_status, solver_status, solver->iter(), t, prob);
 #endif
+	}
 
 	cout << "LaGO finished." << endl;
 	return 0;
