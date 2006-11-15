@@ -681,7 +681,7 @@ bool Sampling_Minimizer::add_minimizer(vector<vector<dvector> >& sample_set, Poi
 	return false;
 }
 
-bool Sampling_Minimizer::add_minimizer(vector<dvector>& sample_set, Pointer<Func> f, const UserVector<double>& lower, const UserVector<double>& upper) {
+bool Sampling_Minimizer::add_minimizer(vector<dvector>& sample_set, Pointer<Func> f, const UserVector<double>& lower, const UserVector<double>& upper, dvector& start) {
 	if (!minimizer) return false;
 
 	Pointer<SepQcFunc> obj(new SepQcFunc(f->dim()));
@@ -689,17 +689,17 @@ bool Sampling_Minimizer::add_minimizer(vector<dvector>& sample_set, Pointer<Func
 	Pointer<MinlpProblem> prob=new MinlpProblem(obj, lower, upper);
 	Pointer<LocOpt> solver(LocOpt::get_solver(prob, param, "Sampling Minimizer", NULL, NULL));
 
-	int ret=solver->solve();
+	int ret=solver->solve(start);
 
-	if (!finite(solver->opt_val())) ret=-1;
+	if (!finite(solver->opt_val()) || solver->opt_val()>=INFINITY) ret=-1;
 
 	out_log << 'M' << ret << ' ';
-	if (ret==0 || ret==3 || ret==9) {
+	if (ret==0 || ret==2 || ret==3 || ret==4 || ret==9) {
 //		out_log << "Adding minimizer to sample set, LocOpt return = " << ret << " value= " << solver->opt_val() << endl;
 		sample_set.push_back(solver->sol_point);
 		return true;
 	}
 
-	out_log << "Cannot add minimizer. LocOpt return = " << ret << endl;
+//	out_log << "Cannot add minimizer. LocOpt return = " << ret << endl;
 	return false;
 }

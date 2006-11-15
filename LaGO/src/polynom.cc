@@ -175,13 +175,14 @@ Pointer<SepQcFunc> PolynomialUnderestimator2::polynomial_underestimator(Pointer<
 				low[i]=lower(i0);
 				up[i]=upper(i0);
 			}
+			dvector pr(prim, fk->block[l]);
 
 			out_log << 'B' << low.dim() << ' ';
 
 			new_sampleset(low, up);
 			check_for_nan(*fk->s[l]);
-			add_point_to_sampleset(prim(fk->block[l]));
-			bool min_added=add_minimizer_to_sample(fk->s[l], low, up);
+			add_point_to_sampleset(pr);
+			bool min_added=add_minimizer_to_sample(fk->s[l], low, up, pr);
 
 			out_log << "SS" << ss_size[0] << ',' << ss_size[1] << ',' << ss_size[2] << ' ';
 
@@ -194,7 +195,7 @@ Pointer<SepQcFunc> PolynomialUnderestimator2::polynomial_underestimator(Pointer<
 			}
 			if (eq && !(fkm->s[l]->get_curvature()&Func::CONVEX)) {
 			  if (min_added) remove_last_point_from_sample();
-			  add_minimizer_to_sample(fkm->s[l], low, up);
+			  add_minimizer_to_sample(fkm->s[l], low, up, pr);
  				polynomial_underestimator(*Am, *bm, cm, *fkm->s[l], fkm->block[l]);
 				fkm->s[l]=NULL;
 			}
@@ -501,8 +502,8 @@ bool PolynomialUnderestimator2::add_point_to_sampleset(const dvector& point) {
 	return true;
 }
 
-bool PolynomialUnderestimator2::add_minimizer_to_sample(Pointer<Func> f, const dvector& lower, const dvector& upper) {
-	if (sampling_minimizer.add_minimizer(sample_set, f, lower, upper)) {
+bool PolynomialUnderestimator2::add_minimizer_to_sample(Pointer<Func> f, const dvector& lower, const dvector& upper, dvector& start) {
+	if (sampling_minimizer.add_minimizer(sample_set, f, lower, upper, start)) {
 		++ss_size[0];
 		return true;
 	}

@@ -584,6 +584,7 @@ bool MinlpOpt::check_convex(MinlpProblem& prob) {
 	bool allconvex=true;
 	for (int c=0; c<=prob.con.size(); c++) {
 		out_solver_log << '.';
+//		if (c) out_solver_log << prob.con_names[c-1] << endl; 
 		convexify.check_convex2(min_eigval[c], max_eigval[c], c ? *prob.con[c-1] : *prob.obj, sample_set);
 		Func::CurvatureType ct=c ? prob.con[c-1]->get_curvature() : prob.obj->get_curvature();
 		if ((!(ct&Func::CONVEX)) || (c && prob.con_eq[c-1] && !(ct&Func::CONCAVE))) allconvex=false;
@@ -606,7 +607,7 @@ void MinlpOpt::quad_relax() {
 	Timer t;
 	if (param->get_i("Quadratic Underestimator adaptive", 0)) {
 		if (!param->get("Quadratic Underestimator sample set Monte Carlo"))
-			param->add("Quadratic Underestimator sample set Monte Carlo", "200");
+			param->add("Quadratic Underestimator sample set Monte Carlo", "20");
 		if (!param->get("Quadratic Underestimator sample set mid point"))
 			param->add("Quadratic Underestimator sample set mid point", "0");
 		if (!param->get("Quadratic Underestimator sample set box ends"))
@@ -618,6 +619,12 @@ void MinlpOpt::quad_relax() {
 	
 		QuadraticUnderestimator quaduest(param);
 		quaduest.quadratic_underestimator(*quad_prob, *minlpdata, ineq_index, quad_obj_c_add, quad_con_c_add);
+		if (t.stop()>rtol) {
+			out_log << "Time for U3: " << ((int)(1000*quaduest.U3_time/t))/10. << "\\%\t";
+			out_log << "Time for locopt: " << ((int)(1000*quaduest.locopt_time/t))/10. << "\\%\t";
+		}
+		out_log << "Maximal coefficient: " << quaduest.max_abscoeff << '\t';
+		out_log << "Maximal locmin: " << quaduest.max_locmin << endl;
 	} else {
 		if (!param->get("Polynomial Underestimator K0 sample set Monte Carlo"))
 			param->add("Polynomial Underestimator K0 sample set Monte Carlo", "200");
@@ -1238,7 +1245,7 @@ void MinlpOpt::init2() {
 		}
 	}
 
-//	out_log << *reform->ext_prob;
+//	out_log << *reform->ext_convex_prob;
 //	out_log << *reform->ext_quad_prob;
 //	out_log << minlpdata->obj;
 //	for (int c=0; c<minlpdata->con.size(); ++c)
@@ -1250,13 +1257,12 @@ void MinlpOpt::init2() {
 	}
 
 	if (LocOpt::nlp_solver_available()) {
-		out_out << "Solving extended convex problem (Cext): ";
 		Pointer<LocOpt> locopt=LocOpt::get_solver(reform->ext_convex_prob, param, "ConvexSolve", NULL, NULL);
 		int ret=locopt->solve(reform->ext_convex_prob->primal_point);
 
 		out_out.setf(ios::fixed);
 		out_out.precision(20);
-		out_out << "return " << ret << "\t time: " << locopt->time() << "\t value: " << locopt->opt_val() << endl;
+		out_out << "Solving extended convex problem (Cext): return " << ret << "\t time: " << locopt->time() << "\t value: " << locopt->opt_val() << endl;
 		out_out.unsetf(ios::fixed);
 		out_out.precision(6);
 
@@ -1264,6 +1270,17 @@ void MinlpOpt::init2() {
 			sol_Cext=new dvector(locopt->sol_point);
 		sol_Cext_is_solution=(ret==0);
 		if (sol_Cext_is_solution && low_bound<locopt->opt_val()) low_bound=locopt->opt_val();
+
+
+		locopt=NULL;		
+		locopt=LocOpt::get_solver(convex_prob, param, "ConvexSolve", NULL, NULL);
+		ret=locopt->solve(convex_prob->primal_point);
+
+		out_out.setf(ios::fixed);
+		out_out.precision(20);
+		out_out << "Solving convex problem (C): return " << ret << "\t time: " << locopt->time() << "\t value: " << locopt->opt_val() << endl;
+		out_out.unsetf(ios::fixed);
+		out_out.precision(6);
 	}
 
 	linear_relax=new LinearRelax(param);
@@ -1293,9 +1310,9 @@ int MinlpOpt::solve() {
 		out_out << "Starting Branch Cut and Price." << endl;
 		ret=start_bb();
 	} else if (!strcmp(param->get("MinlpOpt mode"), "off")) {
-		out_out << "Just preprocessing." << endl;
+		out_out << "Preprocessing only." << endl;
 		init2();
-		ret=0;
+		ret=1;
 	} else {
 		out_err << "Error: MinlpOpt mode not known." << endl;
 		exit(-1);

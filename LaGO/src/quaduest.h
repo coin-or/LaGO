@@ -63,14 +63,19 @@ class QuadraticUnderestimator {
 		void new_sampleset(const dvector& lower, const dvector& upper);
 		void check_for_nan(const Func& f);
 		multimap<double, dvector>::iterator add_point_to_sampleset(const dvector& point);
-		multimap<double, dvector>::iterator add_minimizer_to_sample(Pointer<Func> f, const dvector& lower, const dvector& upper);
+		multimap<double, dvector>::iterator add_minimizer_to_sample(Pointer<Func> f, const dvector& lower, const dvector& upper, dvector& start);
 		
 		/** new quadratic underestimator, based on A. Neumaiers idea
 		*/
 		void quadratic_underestimator(SparseMatrix2& A, SparseVector<double>& b, double& c, const Pointer<Func>& f, ivector& indices, const Pointer<dvector>& lower, const Pointer<dvector>& upper);
 		
+		bool do_locmin(BoxLocOpt& locminsolver, const Pointer<Func>& f, dvector& start, double& f_val, double& viol1, double& viol2, double& scale2, dvector& b1);
+		
 	public:
 		SparseVector<double> c_add1, c_add2;
+		
+		double U3_time, locopt_time, max_abscoeff;
+		int max_locmin;
 
 		QuadraticUnderestimator(Pointer<Param> param_=NULL);
 

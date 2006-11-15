@@ -630,7 +630,7 @@ Pointer<SepQcFunc> Decomposition::decompose(Pointer<Func> old_f, const dvector& 
 			f.set_curvature(new_k, Func::LINEAR);
 		else {
 			Func::CurvatureType oldcurv(old_f->get_curvature());
-			f.set_curvature(new_k, (oldcurv&Func::LINEAR) ? oldcurv : Func::UNKNOWN); // convex or concave or both
+			f.set_curvature(new_k, (oldcurv&Func::LINEAR) ? oldcurv : Func::INDEFINITE); // convex or concave or both
 		}
 		
 	return ret;

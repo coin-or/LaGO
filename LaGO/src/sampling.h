@@ -278,7 +278,7 @@ class Sampling_Minimizer {
 		*/
 		bool add_minimizer(vector<vector<dvector> >& sample_set, Pointer<SepQcFunc> f, const UserVector<double>& lower, const UserVector<double>& upper);
 
-		bool add_minimizer(vector<dvector>& sample_set, Pointer<Func> f, const UserVector<double>& lower, const UserVector<double>& upper);
+		bool add_minimizer(vector<dvector>& sample_set, Pointer<Func> f, const UserVector<double>& lower, const UserVector<double>& upper, dvector& start);
 };
 
 #endif

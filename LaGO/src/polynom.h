@@ -186,7 +186,7 @@ class PolynomialUnderestimator2 {
 		void new_sampleset(const dvector& lower, const dvector& upper);
 		void check_for_nan(const Func& f);
 		bool add_point_to_sampleset(const dvector& point);
-		bool add_minimizer_to_sample(Pointer<Func> f, const dvector& lower, const dvector& upper);
+		bool add_minimizer_to_sample(Pointer<Func> f, const dvector& lower, const dvector& upper, dvector& start);
 		void remove_last_point_from_sample();
 
 		void check(MinlpProblem& prob, MinlpProblem& quad, ivector& ineq_index);

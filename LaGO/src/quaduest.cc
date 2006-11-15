@@ -16,7 +16,8 @@ QuadraticUnderestimator::QuadraticUnderestimator(Pointer<Param> param_)
 	iter_max(param_->get_i("Quadratic Underestimator iteration limit", 100)),
 	sampling(param_, "Quadratic Underestimator"),
 	sampling_vertices(param_, "Quadratic Underestimator"), sampling_minimizer(param_, "Quadratic Underestimator"),
-	sampling_initial(param_->get_i("Quadratic Underestimator sample set initial", 1))
+	sampling_initial(param_->get_i("Quadratic Underestimator sample set initial", 1)),
+	U3_time(0.), locopt_time(0.), max_abscoeff(0), max_locmin(0)
 { }
 
 void QuadraticUnderestimator::new_multiindices(const SparsityInfo& si, int n) {
@@ -79,9 +80,11 @@ multimap<double, dvector>::iterator QuadraticUnderestimator::add_point_to_sample
 	return sample_set.insert(it, pair<double, dvector>(norm, point));
 }
 
-multimap<double, dvector>::iterator QuadraticUnderestimator::add_minimizer_to_sample(Pointer<Func> f, const dvector& lower, const dvector& upper) {
+multimap<double, dvector>::iterator QuadraticUnderestimator::add_minimizer_to_sample(Pointer<Func> f, const dvector& lower, const dvector& upper, dvector& start) {
 	vector<dvector> sample_set_;
-	bool ok=sampling_minimizer.add_minimizer(sample_set_, f, lower, upper);
+	Timer t;
+	bool ok=sampling_minimizer.add_minimizer(sample_set_, f, lower, upper, start);
+	locopt_time+=t.stop();
 	if (ok) return add_point_to_sampleset(sample_set_.front());
 	return sample_set.end();
 }
@@ -149,6 +152,7 @@ Pointer<SepQcFunc> QuadraticUnderestimator::quadratic_underestimator(Pointer<Sep
 		if (!f->s[k]) continue;
 		if ((f->get_curvature(k)&Func::CONVEX) && ((!eq) || f->get_curvature(k)&Func::CONCAVE)) continue;
 // 		out_log << 'C' << f->get_curvature(k) << ' ';
+ 		//TODO: actually only the curvature of f->s[k] is of interest; but this is not known for functions that are a sum of a quadratic and a nonquadratic function
 
 		dvector prim(primal, f->block[k]);
 
@@ -206,15 +210,16 @@ Pointer<SepQcFunc> QuadraticUnderestimator::quadratic_underestimator(Pointer<Sep
 			new_sampleset(*low, *up);
 			check_for_nan(*fk->s[l]);
 			multimap<double, dvector>::iterator initial=sample_set.end();
-			if (sampling_initial) initial=add_point_to_sampleset(prim(fk->block[l]));
-			multimap<double, dvector>::iterator minimizer=add_minimizer_to_sample(fk->s[l], *low, *up);
+			dvector pr(prim, fk->block[l]);
+			if (sampling_initial) initial=add_point_to_sampleset(pr);
+			multimap<double, dvector>::iterator minimizer=add_minimizer_to_sample(fk->s[l], *low, *up, pr);
 			
 			if (minimizer!=sample_set.end()) enforce_tightness=minimizer;
 			else if (initial!=sample_set.end()) enforce_tightness=initial;
 			else if (!sample_set.empty()) enforce_tightness=--sample_set.end(); // set to last element in sample set
 			else { out_err << "Empty sampleset. Aborting." << endl; exit(-1); }
 
-			out_log << "SS" << sample_set.size();
+			out_log << "SS" << sample_set.size() << ' ';
 
 			new_multiindices(((const Func*)(Func*)fk->s[l])->get_sparsity(), fk->s[l]->dim());
 			out_log << 'C' << fk->s[l]->get_curvature() << ' ';
@@ -228,7 +233,7 @@ Pointer<SepQcFunc> QuadraticUnderestimator::quadratic_underestimator(Pointer<Sep
 					sample_set.erase(minimizer);
 					minimizer=sample_set.end();
 				}
-				minimizer=add_minimizer_to_sample(fkm->s[l], *low, *up);
+				minimizer=add_minimizer_to_sample(fkm->s[l], *low, *up, pr);
 			
 				if (minimizer!=sample_set.end()) enforce_tightness=minimizer;
 				else if (initial!=sample_set.end()) enforce_tightness=initial;
@@ -301,16 +306,30 @@ Pointer<SepQcFunc> QuadraticUnderestimator::quadratic_underestimator(Pointer<Sep
 	return fm;
 }
 
+class sample_set_item {
+	public:
+		dvector& sample_point;
+		double sample_point_norm;
+		int rownr;
+		double rhs;
+		
+		sample_set_item(dvector& sample_point_, double sample_point_norm_, int rownr_, double rhs_)
+		: sample_point(sample_point_), sample_point_norm(sample_point_norm_), rownr(rownr_), rhs(rhs_)
+		{ }
+};
+
 void QuadraticUnderestimator::quadratic_underestimator(SparseMatrix2& A, SparseVector<double>& b, double& c, const Pointer<Func>& f, ivector& indices, const Pointer<dvector>& lower, const Pointer<dvector>& upper) {
 // create auxiliary LP with initial sample set
 	int multiindices_size=multiindices.size(); // sparsity of p(x)
-	int aux_vars=3;
+	int aux_vars=sample_set.size();
 	MipProblem lp(multiindices_size+aux_vars, sample_set.size());
 
 	Pointer<UserVector<double> > obj=new dvector(multiindices_size+aux_vars);
 	dvector b1(multiindices_size+aux_vars);
 	list<double> rhs;
 	double obj_const=0;
+	
+	list<sample_set_item> sample_set_newsort; 
 
 	int j=0;
 	for (multimap<double, dvector>::iterator it_sample_point(sample_set.begin()); it_sample_point!=sample_set.end(); ++it_sample_point, ++j) {
@@ -331,23 +350,35 @@ void QuadraticUnderestimator::quadratic_underestimator(SparseMatrix2& A, SparseV
 			obj_const+=rhs.back();
 		}*/
 		double lhs=-INFINITY;
-		if (j==0) {
-			b1[multiindices_size]=1.;
-			(*obj)[multiindices_size]=1.;
-			lhs=rhs.back();
-			lp.setColBounds(multiindices_size, 0, INFINITY);
-		} else if (j==sample_set.size()-1) {
-			b1[multiindices_size+1]=1.;
-			(*obj)[multiindices_size+1]=1.;
-			lhs=rhs.back();
-			lp.setColBounds(multiindices_size+1, 0, INFINITY);
-		} else if (it_sample_point==enforce_tightness) {
-			b1[multiindices_size+2]=1.;
-			(*obj)[multiindices_size+2]=1.;
-			lhs=rhs.back();
-			lp.setColBounds(multiindices_size+2, 0, eps*fabs(rhs.back()));
+		b1[multiindices_size+j]=1.;
+		(*obj)[multiindices_size+j]=1.;
+		lhs=rhs.back();
+		if (it_sample_point==enforce_tightness) {
+			lp.setColBounds(multiindices_size+j, 0, eps*fabs(rhs.back()));
+			sample_set_newsort.push_front(sample_set_item(it_sample_point->second, it_sample_point->first, j, rhs.back()));
+		} else {
+			lp.setColBounds(multiindices_size+j, 0, INFINITY);
+			sample_set_newsort.push_back(sample_set_item(it_sample_point->second, it_sample_point->first, j, rhs.back()));
 		}
+		
+//		if (j==0) {
+//			b1[multiindices_size]=1.;
+//			(*obj)[multiindices_size]=1.;
+//			lhs=rhs.back();
+//			lp.setColBounds(multiindices_size, 0, INFINITY);
+//		} else if (j==sample_set.size()-1) {
+//			b1[multiindices_size+1]=1.;
+//			(*obj)[multiindices_size+1]=1.;
+//			lhs=rhs.back();
+//			lp.setColBounds(multiindices_size+1, 0, INFINITY);
+//		} else if (it_sample_point==enforce_tightness) {
+//			b1[multiindices_size+2]=1.;
+//			(*obj)[multiindices_size+2]=1.;
+//			lhs=rhs.back();
+//			lp.setColBounds(multiindices_size+2, 0, eps*fabs(rhs.back()));
+//		}
 		lp.setRow(j, b1, lhs, rhs.back());
+		
 		
 		b1=0.;
 		
@@ -364,11 +395,15 @@ void QuadraticUnderestimator::quadratic_underestimator(SparseMatrix2& A, SparseV
 	dvector best_coeff(multiindices_size);
 	double best_violation=-INFINITY;
 	double best_U3_val;
+	Timer timer;
 	
+	int nr_locmin=0;
 	bool finished;
 	int iter=0;
 	do {
+		timer.start();
 		MIPSolver::SolutionStatus ret=solver->solve();
+		U3_time+=timer.stop();
 	
 		if (ret!=MIPSolver::SOLVED && ret!=MIPSolver::FEASIBLE) {
 			out_err << "U3 returned " << ret << '.';
@@ -383,8 +418,9 @@ void QuadraticUnderestimator::quadratic_underestimator(SparseMatrix2& A, SparseV
 		double U3_val=solver->get_optval();
 // 		if (ret==MIPSolver::FEASIBLE) out_log << ret << ' ';
 	
-		dvector coeff(multiindices_size);
-		solver->get_primal(coeff);
+		dvector U3sol(solver->nr_col());
+		solver->get_primal(U3sol);
+		dvector coeff(U3sol, 0, multiindices_size-1);
 		
 		dvector rowact(solver->nr_row());
 		solver->get_rowactivity(rowact);
@@ -410,52 +446,71 @@ void QuadraticUnderestimator::quadratic_underestimator(SparseMatrix2& A, SparseV
 		}
 		A1->finish();
 		fpdiff.A[0]=A1;
-//  		out_log << fpdiff;
+//		Pointer<SparsityInfo> si(new SparsityInfo(2));
+//		si->add(*A1);
+//		si->add(*fpdiff.b[0]);
+//		si->add(((const Func*)(Func*)f)->get_sparsity());
+//		fpdiff.set_sparsity(0, si);
+//		out_log << fpdiff;
 		BoxLocOpt locminsolver(fpdiff, lower, upper);
+//		locminsolver.iter_max=f->dim()*10;
 	
 		finished=true;
 		double maxviol=0;
 		double maxviol_unscaled=0;
 		// check active constraints to determine ''active'' sample points
 		// and start local minimization of f-p from active sample points
-		multimap<double, dvector>::iterator it_sample_point(sample_set.begin()); 
-		list<double>::iterator it_rhs(rhs.begin());
-		for (int j=0; j<rowact.size(); ++j, ++it_sample_point, ++it_rhs) {
-			if (rowact(j)-*it_rhs<-1E-4) continue;
+//		multimap<double, dvector>::iterator it_sample_point(sample_set.begin()); 
+//		list<double>::iterator it_rhs(rhs.begin());
+//		for (int j=0; j<rowact.size(); ++j, ++it_sample_point, ++it_rhs) {
+		for (list<sample_set_item>::iterator it(sample_set_newsort.begin()); it!=sample_set_newsort.end() && finished; ++it) {
+			int j=it->rownr;
+			if (j<aux_vars && U3sol(multiindices_size+j)>1E-4) continue;
+			if (j>=aux_vars && rowact(j)-it->rhs<-1E-4) continue;
 // 			out_log << "U3 constraint active " << rowact(j)-*it_rhs << " for sample point " << it_sample_point->second;
-			if (!finished) continue;
+//			if (!finished) continue;
 			
-			int ret=locminsolver.solve(it_sample_point->second);
-			if (ret) out_log << 'm' << ret;
-			double optval=locminsolver.opt_val();
-			if (!(optval==optval) || optval>=INFINITY) continue; // locmin give no useful result
+			double viol1, viol2, scale2, f_val;
+			++nr_locmin;
+			if (!do_locmin(locminsolver, f, it->sample_point, f_val, viol1, viol2, scale2, b1)) continue;
 			
-			double f_val=f->eval(locminsolver.sol_point);
-			double viol=optval/max(1.,fabs(f_val));
-			if (maxviol>viol) { maxviol=viol; maxviol_unscaled=optval; }
+//			timer.start();
+//			int ret=locminsolver.solve(it_sample_point->second);
+//			locopt_time+=timer.stop();
+//
+//			if (ret) { out_log << 'm' << ret; }
+//			else out_log << ret;
+//			double optval=locminsolver.opt_val();
+//			if (!(optval==optval) || optval>=INFINITY) continue; // locmin give no useful result
 			
-			double viol2=0.;
-			double scale2=1.;
-			if (viol<-1E-4) { // compute violation according to second (LP) scaling
-				int i=0; // number of multiindex alpha
-				for (list<Monom>::iterator it_monom(monoms.begin()); it_monom!=monoms.end(); it_monom++, i++) {
-					b1[i]=it_monom->eval(locminsolver.sol_point);
-					if (fabs(b1[i])>scale2) scale2=fabs(b1[i]);
-				}
-				viol2=optval/scale2;
-			}
+//			double f_val=f->eval(locminsolver.sol_point);
+			
+//			double viol=optval/max(1.,fabs(f_val));
+			if (maxviol>viol1) { maxviol=viol1; maxviol_unscaled=locminsolver.opt_val(); }
+			
+//			double viol2=0.;
+//			double scale2=1.;
+//			if (viol<-1E-4) { // compute violation according to second (LP) scaling
+//				int i=0; // number of multiindex alpha
+//				for (list<Monom>::iterator it_monom(monoms.begin()); it_monom!=monoms.end(); it_monom++, i++) {
+//					b1[i]=it_monom->eval(locminsolver.sol_point);
+//					if (fabs(b1[i])>scale2) scale2=fabs(b1[i]);
+//				}
+//				viol2=optval/scale2;
+//			}
 
 // 			out_log << "\tLocMin from sample point returns " << ret << " and value " << optval << " scaled " << viol << ' ' << viol2 << " in point " << locminsolver.sol_point;
 
-			if (viol<-1E-4 && viol2<-1E-4) { // too large, add point to sample set and LP and restart
+			if (viol1<-1E-2 && viol2<-1E-2) { // too large, add point to sample set and LP and restart
 				multimap<double, dvector>::iterator newpoint(add_point_to_sampleset(locminsolver.sol_point));
 				if (newpoint!=sample_set.end()) {
 					b1/=scale2;
-					double buffer=eps*MIN(1, sqrt(locminsolver.sol_point.dist(it_sample_point->second)/MAX(1, it_sample_point->first)))*fabs(f_val/scale2);
+					double buffer=eps*MIN(1, sqrt(locminsolver.sol_point.dist(it->sample_point)/MAX(1, it->sample_point_norm)))*fabs(f_val/scale2);
 					rhs.push_back(f_val/scale2-buffer);
 					solver->add_row(b1, -INFINITY, rhs.back());
 					finished=false;
 // 	 				out_log << "\tadded row with rhs " << rhs.back() << " and coeff " << b1;
+					sample_set_newsort.push_front(sample_set_item(newpoint->second, newpoint->first, solver->nr_row()-1, rhs.back()));
 				} else {
 					out_log << "Local minimizer already in sample set, not adding again." << endl;
 				}
@@ -484,16 +539,21 @@ void QuadraticUnderestimator::quadratic_underestimator(SparseMatrix2& A, SparseV
 	int i=0;
 	list<MultiIndex>::iterator it_mind(multiindices.begin());
 	if (it_mind!=multiindices.end() && it_mind->size()==0) {
-		c+=best_coeff[i++];
+		if (fabs(best_coeff[i])>max_abscoeff) max_abscoeff=fabs(best_coeff[i]);
+		c+=best_coeff[i];
 		it_mind++;
+		i++;
 	}
 
 	while (it_mind!=multiindices.end() && it_mind->size()==1) {
-		b[indices(*it_mind->begin())]+=.5*best_coeff[i++];
+		if (fabs(best_coeff[i])>max_abscoeff) max_abscoeff=fabs(best_coeff[i]);
+		b[indices(*it_mind->begin())]+=.5*best_coeff[i];
 		it_mind++;
+		i++;
 	}
 
 	while (it_mind!=multiindices.end()) {
+		if (fabs(best_coeff[i])>max_abscoeff) max_abscoeff=fabs(best_coeff[i]);
 		int second=*(++it_mind->begin());
 		if (*it_mind->begin()!=second) {
 		  A.AddToElement(indices(*it_mind->begin()), indices(second), .5*best_coeff[i]);
@@ -504,5 +564,58 @@ void QuadraticUnderestimator::quadratic_underestimator(SparseMatrix2& A, SparseV
 		it_mind++;
 		i++;
 	}
+	
+	if (nr_locmin>max_locmin) max_locmin=nr_locmin;
 
 }
+
+bool QuadraticUnderestimator::do_locmin(BoxLocOpt& locminsolver, const Pointer<Func>& f, dvector& start, double& f_val, double& viol1, double& viol2, double& scale2, dvector& b1) {
+	Timer timer;
+	
+//	dvector mystart(start);
+	
+	bool finished=false;
+	do {
+		int ret=locminsolver.solve(start);
+	
+		if (ret) { out_log << 'm' << ret; }
+//		else out_log << ret;
+		double optval=locminsolver.opt_val();
+		if (!(optval==optval) || optval>=INFINITY) {
+			locopt_time+=timer.stop();
+			return false; // locmin give no useful result
+		}
+		
+		f_val=f->eval(locminsolver.sol_point);
+		
+		viol1=optval/max(1.,fabs(f_val));
+		
+		viol2=0.;
+		scale2=1.;
+		if (viol1<-1E-4) { // compute violation according to second (LP) scaling
+			int i=0; // number of multiindex alpha
+			for (list<Monom>::iterator it_monom(monoms.begin()); it_monom!=monoms.end(); it_monom++, i++) {
+				b1[i]=it_monom->eval(locminsolver.sol_point);
+				if (fabs(b1[i])>scale2) scale2=fabs(b1[i]);
+			}
+			viol2=optval/scale2;
+		}
+		
+		break;
+//		
+//		if (ret!=3) break; // not stopped because iteration limit exceeded
+//		if (viol1<-1E-2 && viol2<-1E-2) {
+//			out_log << 'a';
+//			break; // violation already big enough
+//		}
+//		
+//		out_log << optval << ' ';
+//		mystart=locminsolver.sol_point;
+
+	} while (!finished);
+	
+	locopt_time+=timer.stop();
+
+	return true;
+}
+
