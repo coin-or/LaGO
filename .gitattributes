@@ -9,8 +9,6 @@ LaGO/README -text
 LaGO/configure -text
 LaGO/configure.ac -text
 LaGO/doc/COINintegration.tex -text
-LaGO/doc/doxygen.conf -text
-LaGO/doc/footer.html -text
 LaGO/doc/makefile -text
 LaGO/doc/paramdochtml.lex -text
 LaGO/mod/alan.col -text

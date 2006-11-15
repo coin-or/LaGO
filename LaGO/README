@@ -32,9 +32,9 @@ If you use GAMS, then first follow the instructions in INSTALL. After that you c
 usage: gams <GAMS-modelfile> MINLP=LAGO
 
 **** Documentation:
-The directory doc contains a makefile which calls doxygen to generate a LaGO-class description and a parameter documentation.
-The easiest is to call make in the doc directory. Then point your webbrower to the file doc/html/index.html in your LaGO distribution.
-In the footer of this webpage you'll find the parameter documentation.
+The directory doc contains a makefile which calls flex to generate a program that generates a parameter documentation.
+The easiest is to call make in the doc directory. Then point your webbrower to one of the files doc/paramdoc.html, doc/shortparamdoc.html, doc/veryshortparamdoc.html.
+These parameter differ in the amount of LaGO parameters that are listed.
 
 A small overview over the LaGO Branch and Cut algorithm and some proposals for an integration of LaGO into COIN-OR can be found in COINintegration.tex in doc.
 A recent paper describing the Branch and Cut algorithm implemented in LaGO can be found at http://www.mathematik.hu-berlin.de/publ/pre/2006/P-06-24.ps
