@@ -12,13 +12,11 @@ INSTALL	   - instructions for the compilation of LaGO and how to make LaGO known
 
 LICENCE    - Common Public Licence 1.0
 
-ThirdParty - a directory for third party packages needed by LaGO, including also scripts to download them (cf. INSTALL).
-
-src        - LaGO source code, also build-directory, and finally directory of LaGO binary
+src        - LaGO source code
 
 mod        - a few MINLP examples from GAMS/MINLPLib, translated to AMPL format and compiled to .nl format
 
-doc        - a small documentation
+doc        - a small parameter documentation
 
 
 **** Usage:
@@ -31,10 +29,11 @@ example (assuming that you are in src): LaGO ../mod/alan
 If you use GAMS, then first follow the instructions in INSTALL. After that you can use LaGO as any MINLP-solver in GAMS. If you have not choosen LaGO as your default MINLP solver, you have to add the parameter MINLP=LAGO to your GAMS call.
 usage: gams <GAMS-modelfile> MINLP=LAGO
 
+
 **** Documentation:
 The directory doc contains a makefile which calls flex to generate a program that generates a parameter documentation.
 The easiest is to call make in the doc directory. Then point your webbrower to one of the files doc/paramdoc.html, doc/shortparamdoc.html, doc/veryshortparamdoc.html.
-These parameter differ in the amount of LaGO parameters that are listed.
+These files differ in the amount of LaGO parameters that are listed.
 
 A small overview over the LaGO Branch and Cut algorithm and some proposals for an integration of LaGO into COIN-OR can be found in COINintegration.tex in doc.
 A recent paper describing the Branch and Cut algorithm implemented in LaGO can be found at http://www.mathematik.hu-berlin.de/publ/pre/2006/P-06-24.ps
