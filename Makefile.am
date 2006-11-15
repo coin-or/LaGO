@@ -9,8 +9,7 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-EXTRA_DIST = 
-#EXTRA_DIST = doxydoc/doxygen.conf
+EXTRA_DIST = doxydoc/doxygen.conf
 
 ########################################################################
 #                          Subdirectories                              #
@@ -24,10 +23,10 @@ SUBDIRS = $(subdirs)
 #                           Extra Targets                              #
 ########################################################################
 
-# doxydoc:
-# 	cd $(srcdir); doxygen doxydoc/doxygen.conf
+doxydoc:
+	cd $(srcdir); doxygen doxydoc/doxygen.conf
 
-# .PHONY: doxydoc
+.PHONY: doxydoc
 
 ########################################################################
 #                         Maintainer Stuff                             #

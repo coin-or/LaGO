@@ -165,8 +165,7 @@ subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
-EXTRA_DIST = $(am__append_1)
-#EXTRA_DIST = doxydoc/doxygen.conf
+EXTRA_DIST = doxydoc/doxygen.conf $(am__append_1)
 
 ########################################################################
 #                          Subdirectories                              #
@@ -175,15 +174,6 @@ EXTRA_DIST = $(am__append_1)
 # subdirs is set by configure as the list of all subdirectories to recurse
 # into
 SUBDIRS = $(subdirs)
-
-########################################################################
-#                           Extra Targets                              #
-########################################################################
-
-# doxydoc:
-# 	cd $(srcdir); doxygen doxydoc/doxygen.conf
-
-# .PHONY: doxydoc
 
 ########################################################################
 #                         Maintainer Stuff                             #
@@ -364,7 +354,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/BuildTools
+	$(mkdir_p) $(distdir)/BuildTools $(distdir)/doxydoc
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -598,6 +588,15 @@ uninstall-info: uninstall-info-recursive
 	mostlyclean-recursive pdf pdf-am ps ps-am tags tags-recursive \
 	uninstall uninstall-am uninstall-info-am
 
+
+########################################################################
+#                           Extra Targets                              #
+########################################################################
+
+doxydoc:
+	cd $(srcdir); doxygen doxydoc/doxygen.conf
+
+.PHONY: doxydoc
 
 # Make sure acinclude is using most recent coin.m4
 @MAINTAINER_MODE_TRUE@$(srcdir)/acinclude.m4: $(BUILDTOOLSDIR)/coin.m4
