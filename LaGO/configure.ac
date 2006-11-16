@@ -51,14 +51,14 @@ AC_COIN_DEBUG_COMPILE(Ipopt)
 #AC_PROG_EGREP
 #AC_PROG_LN_S
 
+# disable warning messages to make LaGO compiling
+coin_skip_warn_cxxflags=yes
+
 # Get the name of the C compiler and appropriate compiler options
 AC_COIN_PROG_CC
 
-CXXFLAGS_before_setup=$CXXFLAGS
 # Get the name of the C++ compiler and appropriate compiler options
 AC_COIN_PROG_CXX
-AC_MSG_NOTICE([sorry, compiler flags cleared again])
-CXXFLAGS=$CXXFLAGS_before_setup
 
 # Get the C++ runtime libraries in case we want to link with a C or
 # Fortran compiler
@@ -210,9 +210,6 @@ fi
 # will hick-up
 LIBS_without_ADDLIBS="$LIBS"
 
-#get absolute path of $srcdir
-abssrcdir=`cd $srcdir; pwd`
-
 
 #################
 # CPLEX Library #
@@ -228,7 +225,7 @@ AC_LANG_POP(C)
 ###############
 
 coin_tntdir=../ThirdParty/TNT
-coin_tntsrcdir=$abssrcdir/$coin_tntdir
+coin_tntsrcdir=$abs_source_dir/$coin_tntdir
 
 AC_ARG_WITH([tnt],
             AC_HELP_STRING([--with-tnt],
@@ -245,7 +242,7 @@ CPPFLAGS="-I$use_tnt $CPPFLAGS"
 ####################
 
 coin_ranlibdir=../ThirdParty/ranlib/ranlib.c
-coin_ranlibsrcdir=$abssrcdir/$coin_ranlibdir
+coin_ranlibsrcdir=$abs_source_dir/$coin_ranlibdir
 
 AC_ARG_WITH([ranlib],
             AC_HELP_STRING([--with-ranlib],
@@ -271,7 +268,7 @@ AC_LANG_POP(C)
 #################
 
 coin_metisdir=../ThirdParty/METIS/metis-4.0
-coin_metissrcdir=$abssrcdir/$coin_metisdir
+coin_metissrcdir=$abs_source_dir/$coin_metisdir
 
 AC_ARG_WITH([metis],
             AC_HELP_STRING([--with-metis],
@@ -335,7 +332,7 @@ AM_CONDITIONAL([COIN_HAS_FILIB],[test "$coin_has_filib" = yes])
 # COIN_HAS_GAMSIO, if GAMS I/O is available.
 
 coin_gamsioobjdir=../ThirdParty/GAMS_IO
-coin_gamsiosrcdir=$abssrcdir/$coin_gamsioobjdir
+coin_gamsiosrcdir=$abs_source_dir/$coin_gamsioobjdir
 
 #if user provided GAMS I/O libraries, use this one, otherwise check ThirdParty/COIN_IO directory
 AC_ARG_WITH([gamsio],
