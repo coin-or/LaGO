@@ -358,17 +358,21 @@ if test x"$use_gamsio" != x; then
 						 fi
 						])
 	
-	AC_MSG_CHECKING([whether GAMS I/O libraries at $use_gamsio and $use_gamssys works])
-	GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/gdxwrap.o -L$use_gamsio -lg2d -ldl -L$use_gamssys -lifcore -limf"
-  LIBS="$GAMSIO_LIBS $LIBS"
-	CPPFLAGS="-I$use_gamsio $CPPFLAGS"
-  AC_TRY_LINK([
+	if test x"$use_gamssys" != x; then
+		AC_MSG_CHECKING([whether GAMS I/O libraries at $use_gamsio and $use_gamssys works])
+		GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/gdxwrap.o -L$use_gamsio -lg2d -ldl -L$use_gamssys -lifcore -limf"
+		LIBS="$GAMSIO_LIBS $LIBS"
+		CPPFLAGS="-I$use_gamsio $CPPFLAGS"
+		AC_TRY_LINK([
 #include <cstdio>
 #include "iolib.h"], [gfinit()],
-                    [AC_MSG_RESULT([yes])
-                     ADDLIBS="$GAMSIO_LIBS $ADDLIBS"],
-                    [AC_MSG_RESULT([no])
-                     AC_MSG_ERROR([GAMS I/O library $use_gamsio does not work])])
+											[AC_MSG_RESULT([yes])
+											ADDLIBS="$GAMSIO_LIBS $ADDLIBS"],
+											[AC_MSG_RESULT([no])
+											AC_MSG_ERROR([GAMS I/O library $use_gamsio does not work])])
+  else
+ 		use_gamsio=
+  fi
 fi
 
 AM_CONDITIONAL([COIN_HAS_GAMSIO],[test x"$use_gamsio" != x])
