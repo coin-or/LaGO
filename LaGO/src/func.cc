@@ -99,6 +99,7 @@ bool SparsityInfo::compute_sparsity_pattern(const Func& f, const vector<dvector>
 
 			f.HessMult(*hm, *it_sp, e); // computes it_index-th column of hessian for sample point it_sp
 			for (int i=0; i<it_index->first; i++) { // todo: use SparseVector-properties here
+				assert(finite((*hm)(i)));
 				if ((*hm)(i)==0.) continue;
 				if ((!hm_old) || (*hm_old)(i)==0.)  // appears first
 					add_sparsity_pattern(i, it_index->first, (*hm)(i));

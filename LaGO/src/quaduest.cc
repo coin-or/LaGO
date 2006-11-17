@@ -12,8 +12,9 @@
 
 QuadraticUnderestimator::QuadraticUnderestimator(Pointer<Param> param_)
 : param(param_), decomp(param),
-	eps(param_->get_d("Quadratic Underestimator epsilon", 1E-3)),
+	eps(param_->get_d("Quadratic Underestimator epsilon", 1E-4)),
 	iter_max(param_->get_i("Quadratic Underestimator iteration limit", 100)),
+	time_max(param_->get_d("Quadratic Underestimator time limit", 0)),
 	sampling(param_, "Quadratic Underestimator"),
 	sampling_vertices(param_, "Quadratic Underestimator"), sampling_minimizer(param_, "Quadratic Underestimator"),
 	sampling_initial(param_->get_i("Quadratic Underestimator sample set initial", 1)),
@@ -395,7 +396,7 @@ void QuadraticUnderestimator::quadratic_underestimator(SparseMatrix2& A, SparseV
 	dvector best_coeff(multiindices_size);
 	double best_violation=-INFINITY;
 	double best_U3_val;
-	Timer timer;
+	Timer timer, timer2;
 	
 	int nr_locmin=0;
 	bool finished;
@@ -526,6 +527,10 @@ void QuadraticUnderestimator::quadratic_underestimator(SparseMatrix2& A, SparseV
 
 		if (iter>=iter_max) {
 			out_log << "Iteration limit (" << iter_max << ") of quadratic underest. improvement exceeded. Keeping prior found solution with violation " << best_violation << ' ';
+			finished=true;
+		}
+		if (time_max && timer.stop()>time_max) {
+			out_log << "Time limit (" << time_max << ") of quadratic underest. improvement exceeded. Keeping prior found solution with violation " << best_violation << ' ';
 			finished=true;
 		}
 		

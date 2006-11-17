@@ -1258,6 +1258,7 @@ void MinlpOpt::init2() {
 
 	if (LocOpt::nlp_solver_available()) {
 		Pointer<LocOpt> locopt=LocOpt::get_solver(reform->ext_convex_prob, param, "ConvexSolve", NULL, NULL);
+		locopt->tol=1E-5; locopt->iter_max=1000;
 		int ret=locopt->solve(reform->ext_convex_prob->primal_point);
 
 		out_out.setf(ios::fixed);
@@ -1271,16 +1272,16 @@ void MinlpOpt::init2() {
 		sol_Cext_is_solution=(ret==0);
 		if (sol_Cext_is_solution && low_bound<locopt->opt_val()) low_bound=locopt->opt_val();
 
-
-		locopt=NULL;		
-		locopt=LocOpt::get_solver(convex_prob, param, "ConvexSolve", NULL, NULL);
-		ret=locopt->solve(convex_prob->primal_point);
-
-		out_out.setf(ios::fixed);
-		out_out.precision(20);
-		out_out << "Solving convex problem (C): return " << ret << "\t time: " << locopt->time() << "\t value: " << locopt->opt_val() << endl;
-		out_out.unsetf(ios::fixed);
-		out_out.precision(6);
+//
+//		locopt=NULL;		
+//		locopt=LocOpt::get_solver(convex_prob, param, "ConvexSolve", NULL, NULL);
+//		ret=locopt->solve(convex_prob->primal_point);
+//
+//		out_out.setf(ios::fixed);
+//		out_out.precision(20);
+//		out_out << "Solving convex problem (C): return " << ret << "\t time: " << locopt->time() << "\t value: " << locopt->opt_val() << endl;
+//		out_out.unsetf(ios::fixed);
+//		out_out.precision(6);
 	}
 
 	linear_relax=new LinearRelax(param);

@@ -208,7 +208,7 @@ int Sampling_Vertices::get_points(vector<dvector>& sample_set, const UserVector<
 	long maxnum=0;
 
 	for (VariableIterator it(si, false, true, true); it; ++it) {
-		if (lower(it())>-INFINITY && upper(it())<INFINITY) maxnum++;
+		if (lower(it())>-INFINITY && upper(it())<INFINITY && lower(it())!=upper(it())) maxnum++;
 		x[it()]=lower(it());
 	}
 
@@ -218,25 +218,33 @@ int Sampling_Vertices::get_points(vector<dvector>& sample_set, const UserVector<
 		if ((lower(i)<=-INFINITY) || (upper(i)>=INFINITY))
 			x[i]=random(lower(i), upper(i));
 
-	maxnum=(long)pow(2., (double)maxnum);
-	assert(maxnum>0);
-	long dist=MAX(maxnum/vertices, 1);
-
-	long switch_mask=0;
 	int added=0;
-	while (added<=vertices) {
-		switch_mask+=dist;
-		long sm=switch_mask^(switch_mask-dist);
-		for (VariableIterator it(si, false, true, true); it; ++it) {
-			if (lower(it())>-INFINITY && upper(it())<INFINITY) {
-				if (sm%2) x[it()]=lower[it()]+upper[it()]-x(it());
-				sm/=2;
+	if (maxnum<=20) {
+		maxnum=(long)pow(2., (double)maxnum);
+		long dist=MAX(maxnum/vertices, 1);
+	
+		long switch_mask=0;
+		while (added<=vertices) {
+			switch_mask+=dist;
+			long sm=switch_mask^(switch_mask-dist);
+			for (VariableIterator it(si, false, true, true); it; ++it) {
+				if (lower(it())>-INFINITY && upper(it())<INFINITY && lower(it())!=upper(it())) {
+					if (sm%2) x[it()]=lower[it()]+upper[it()]-x(it());
+					sm/=2;
+				}
 			}
+	
+			sample_set.push_back(x);
+			added++;
 		}
-
-		sample_set.push_back(x);
-		added++;
-	}
+	} else while (added<vertices) {
+			for (VariableIterator it(si, false, true, true); it; ++it)
+				if (lower(it())>-INFINITY && upper(it())<INFINITY && lower(it())!=upper(it()))
+					if (random(0.,1.)>0.5) x[it()]=upper(it());
+					else x[it()]=lower(it());
+			sample_set.push_back(x);
+			++added;
+		}		
 
 	return added; // should be nearly the same as vertices
 }
@@ -249,29 +257,38 @@ int Sampling_Vertices::get_points(vector<dvector>& sample_set, const UserVector<
 
 	long maxnum=0;
 	for (int i=0; i<x.dim(); ++i) {
-		if (lower(i)>-INFINITY && upper(i)<INFINITY) maxnum++;
+		if (lower(i)>-INFINITY && upper(i)<INFINITY && lower(i)!=upper(i)) maxnum++;
 		else x[i]=random(lower(i), upper(i));
 	}
 	if (!maxnum) return 0; // no bounded variables regarding given index sets
 
-	maxnum=(long)pow(2., (double)maxnum);
-	assert(maxnum>0);
-	long dist=MAX(maxnum/vertices, 1);
-
-	long switch_mask=0;
 	int added=0;
-	while (added<maxnum && added<vertices) {
-		switch_mask+=dist;
-		long sm=switch_mask^(switch_mask-dist);
-		for (int i=0; i<x.dim(); ++i) {
-			if (lower(i)>-INFINITY && upper(i)<INFINITY) {
-				if (sm%2) x[i]=lower(i)+upper(i)-x(i);
-				sm/=2;
+	if (maxnum<=20) {
+		maxnum=(long)pow(2., (double)maxnum);
+		
+		long dist=MAX(maxnum/vertices, 1);
+		long switch_mask=0;
+		while (added<maxnum && added<vertices) {
+			switch_mask+=dist;
+			long sm=switch_mask^(switch_mask-dist);
+			for (int i=0; i<x.dim(); ++i) {
+				if (lower(i)>-INFINITY && upper(i)<INFINITY && lower(i)!=upper(i)) {
+					if (sm%2) x[i]=lower(i)+upper(i)-x(i);
+					sm/=2;
+				}
 			}
+			sample_set.push_back(x);
+			++added;
 		}
-		sample_set.push_back(x);
-		added++;
-	}
+	} else while (added<vertices) {
+			for (int i=0; i<x.dim(); ++i)
+				if (lower(i)>-INFINITY && upper(i)<INFINITY && lower(i)!=upper(i))
+					if (random(0.,1.)>0.5) x[i]=upper(i);
+					else x[i]=lower(i);
+			sample_set.push_back(x);
+			++added;
+		}		
+	
 	out_log << 'V' << added << ' ';
 	return added; // should be vertices, approximately
 }

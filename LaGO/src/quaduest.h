@@ -31,10 +31,15 @@
 		%options >0
 		%default 100
 		%level 1
-		How often we should refit the underestimator of a function.
+		How often (at most) we should refit the underestimator of a function.
+		@param Quadratic Underestimator time limit
+		%options >=0
+		%default 0
+		%level 1
+		How long (at most) we should refit the underestimator of a function. 0 means no timelimit.
 		@param Quadratic Underestimator epsilon
 		%options >=0
-		%default 0.001
+		%default 0.0001
 		%level 0
 		How big should the buffer in the underestimator for newly computed sample points be.
 */
@@ -44,6 +49,7 @@ class QuadraticUnderestimator {
 		
 		double eps;
 		int iter_max;
+		double time_max;
 
 		Sampling sampling;
 		Sampling_Vertices sampling_vertices;
