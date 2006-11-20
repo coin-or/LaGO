@@ -7,28 +7,27 @@ The ThirdParty directory contains some scripts to download and compile some of t
 
 1. The Template Numerical Toolkit (TNT) from NIST
 http://math.nist.gov/tnt
-Use the script get.TNT in ThirdParty.
+Use the script get.TNT in ThirdParty/TNT.
 
 2. RANLIB.C - Random Number Generation
 http://www.netlib.org/random/ranlib.c.tar.gz
-Use the script get.ranlib in ThirdParty.
+Use the script get.ranlib in ThirdParty/ranlib.
 
 3. METIS - Serial Graph Partitioning and Fill-reducing Matrix Ordering
 http://glaros.dtc.umn.edu/gkhome/metis/metis/overview
-Use the script get.METIS in ThirdParty.
+Use the script get.METIS in ThirdParty/METIS.
 
 4. AMPL interface (ASL) or GAMS interface
-If you want to interface LaGO by AMPL, then start the script get.ASL in ThirdParty.
+If you want to interface LaGO by AMPL, then start the script get.ASL in ThirdParty/ASL.
 It downloads and compiles the AMPL Solver Library from http://www.netlib.org/ampl/.
 
-If you want to interface LaGO by GAMS, then start the script get.GAMS_IO in ThirdParty.
+If you want to interface LaGO by GAMS, then start the script get.GAMS_IO in ThirdParty/GAMS_IO.
 It downloads and unpacks the GAMS I/O libraries.
 You will further need to have a GAMS system installed in your system.
 
 6. optional: Interval arithmetic library FILIB++
-You can get it from http://www.math.uni-wuppertal.de/wrswt/software/filib.html.
-After installation of the FILIB++ (by yourself), you have to provide the path of your FILIB++ installation to the configure script via --with-filib=...
-The presence of FILIB++ will enable some interval arithmetic based features in LaGO, like a boxreduction method.
+Use the script get.FILIB++ in ThirdParty/FILIB++.
+The presence of FILIB++ enables some interval arithmetic based features in LaGO, like a boxreduction method.
 But note that these function require that the (nonquadratic) functions of the model can be evaluated over a box.
 This feature is not available with the AMPL interface, so that LaGO with FILIB++ will only work when you use the GAMS interface, or when you solve MIQQPs only.
 
@@ -36,9 +35,6 @@ This feature is not available with the AMPL interface, so that LaGO with FILIB++
 You can buy it from ILOG.
 Then you have to provide the linking flags via --with-cplex-lib and the path of cplex.h via --with-cplex-incdir to configure.
 If CPLEX is not available for LaGO, COIN/Clp is used to solve LPs.
-
-8. optional: SNOPT
-Detection of an installed SNOPT library will be added to the configure script later.
 
 
 **** Compilation of LaGO:
