@@ -361,8 +361,9 @@ Pointer<MinlpProblem> gams::get_problem(char* gamsfile) {
 			obj_sign*=-2*(*prob->obj->b[0])(objvar);
 			(*prob->obj->b[0])[objvar]=0.;
 			if (obj_sign!=1) {
-				*prob->obj->b[0]*=obj_sign;
-				prob->obj->c*=obj_sign;
+				assert(obj_sign!=0);
+				*prob->obj->b[0]/=obj_sign;
+				prob->obj->c/=obj_sign;
 			}
 		} else
 			prob->add_con(new SepQcFunc(NULL, linear[c], NULL, constants[c]), con_type[c]==0, name);
@@ -413,7 +414,7 @@ Pointer<MinlpProblem> gams::get_problem(char* gamsfile) {
 			if ((i==objcon) && reformed) {
 				if (obj_sign==1) prob->obj->s[0]=new gamsFunc(numcol, i, data, sparsity[i]);
 				else if (obj_sign==-1) prob->obj->s[0]=new MinusFunc(new gamsFunc(numcol, i, data, sparsity[i]));
-				else prob->obj->s[0]=new SumFunc(new gamsFunc(numcol, i, data, sparsity[i]), NULL, obj_sign, 0);
+				else prob->obj->s[0]=new SumFunc(new gamsFunc(numcol, i, data, sparsity[i]), NULL, 1/	obj_sign, 0);
 				prob->obj->set_curvature(0, Func::UNKNOWN);
 			} else {
 				int index=i-((i>objcon && reformed) ? 1 : 0);
