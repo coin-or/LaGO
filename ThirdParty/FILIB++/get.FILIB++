@@ -1,0 +1,32 @@
+#!/bin/sh
+
+wgetcount=`which wget 2>/dev/null | wc -w`
+if test ! $wgetcount = 1; then
+  echo "Utility wget not found in your PATH."
+  exit -1
+fi
+
+echo " "
+echo "Running script for downloading and compiling the source code for the FILIB++"
+echo " "
+
+rm -f filib++-dist.tar.gz
+echo "Downloading the source code from www.math.uni-wuppertal.de..."
+wget http://www.math.uni-wuppertal.de/wrswt/software/filib++/filib++-dist.tar.gz
+
+rm -rf interval
+echo "Unpacking the source code..."
+tar xzf filib++-dist.tar.gz
+
+echo "Patching the source code."
+patch -p0 < filib.patch
+patch -p0 < filib.patch2
+
+echo "Compiling the FILIB++ library."
+cd interval
+PREFIX=`pwd`/.. GRP=`id -g` OWN=`id -u` make -f makefiles/Makefile.gcc libs
+PREFIX=`pwd`/.. GRP=`id -g` OWN=`id -u` make -f makefiles/Makefile.gcc install
+
+echo " "
+echo "Done compiling and installing FILIB++."
+echo " "

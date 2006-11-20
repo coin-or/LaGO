@@ -111,6 +111,9 @@ LaGO/src/usermatrix.h -text
 LaGO/src/uservector.h -text
 /Makefile.am -text
 /Makefile.in -text
+ThirdParty/FILIB++/filib.patch -text
+ThirdParty/FILIB++/filib.patch2 -text
+ThirdParty/FILIB++/get.FILIB++ -text
 ThirdParty/GAMS_IO/get.GAMS_IO -text
 ThirdParty/GAMS_IO/gmsla_.zip -text
 ThirdParty/METIS/get.METIS -text

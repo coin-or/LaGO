@@ -1,0 +1,174 @@
+diff -ru interval/interval/interval_arith.icc filib/interval/interval_arith.icc
+--- interval/interval/interval_arith.icc	2001-11-26 17:45:36.000000000 +0100
++++ filib/interval/interval_arith.icc	2004-01-15 15:06:53.000000000 +0100
+@@ -973,7 +973,53 @@
+ 		else
+ 		{
+ 			#if defined(FILIB_EXTENDED)
+-				return interval<N,K>::ENTIRE();
++				if(a.contains(0.))
++				  return interval<N,K>::ENTIRE();
++				if(b.inf() == 0.)
++				{
++					if(a.sup() < 0.)
++					{
++						N SUP; FILIB_UPWARD_DIVIDES(SUP,a.sup(),b.sup());
++						interval<N,K> r(FILIB_NINFINITY,SUP);
++				    FILIB_RESET;
++						return r;
++					}
++					/**
++					 * a.inf() > 0.
++					 **/
++					else
++					{
++						N INF; FILIB_DOWNWARD_DIVIDES(INF,a.inf(),b.sup());
++						interval<N,K> r(INF,FILIB_INFINITY);
++				    FILIB_RESET;
++						return r;
++					}
++				}
++				else if(b.sup() == 0.)
++				{
++					if(a.sup() < 0.)
++					{
++						N INF; FILIB_DOWNWARD_DIVIDES(INF,a.sup(),b.inf());
++						interval<N,K> r(INF,FILIB_INFINITY);
++				    FILIB_RESET;
++						return r;
++					}
++					/**
++					 * a.inf() > 0.
++					 **/
++					else
++					{
++						N SUP; FILIB_UPWARD_DIVIDES(SUP,a.inf(),b.inf());
++						interval<N,K> r(FILIB_NINFINITY,SUP);
++				    FILIB_RESET;
++						return r;
++					}
++				}
++				/**
++				 * 0. is in the interior of b
++				 **/
++				else
++				  return interval<N,K>::ENTIRE();
+ 			#else
+ 				std::cerr
+ 					<< std::endl 
+diff -ru interval/rounding_control/rounding_control_double_asmi386.icc filib/rounding_control/rounding_control_double_asmi386.icc
+--- interval/rounding_control/rounding_control_double_asmi386.icc	2001-12-02 17:41:34.000000000 +0100
++++ filib/rounding_control/rounding_control_double_asmi386.icc	2004-05-18 00:43:58.000000000 +0200
+@@ -58,8 +58,9 @@
+ 				 * double precision, round to nearest, no
+ 				 * interupts
+ 				 **/
++                                register int __tmp = i387_ROUND_NEAR;
+ 				__asm__  
+-				("fldcw %0" : : "m" (i387_ROUND_NEAR) REGISTER_SAVE);
++				("fldcw %0" : : "m" (__tmp) REGISTER_SAVE);
+ 			}
+ 			/**
+ 			 * set rounding to towards minus infinity
+@@ -67,8 +68,9 @@
+ 			template<bool C>			
+ 			inline void filib::rounding_control<double,C>::downward() 
+ 			{
++                                register int __tmp = i387_ROUND_DOWN;
+ 				__asm__   
+-				("fldcw %0" : : "m" (i387_ROUND_DOWN) REGISTER_SAVE);
++				("fldcw %0" : : "m" (__tmp) REGISTER_SAVE);
+ 			}
+ 			/**
+ 			 * set rounding to towards plus infinity
+@@ -76,8 +78,9 @@
+ 			template<bool C>
+ 			inline void filib::rounding_control<double,C>::upward() 
+ 			{
++                                register int __tmp = i387_ROUND_UP;
+ 				__asm__    
+-				("fldcw %0" : : "m" (i387_ROUND_UP) REGISTER_SAVE);
++				("fldcw %0" : : "m" (__tmp) REGISTER_SAVE);
+ 			}
+ 			/**
+ 			 * set rounding to truncate (round to zero)
+@@ -85,8 +88,9 @@
+ 			template<bool C>			
+ 			inline void filib::rounding_control<double,C>::tozero() 
+ 			{
++                                register int __tmp = i387_ROUND_TRUNC;
+ 				__asm__   
+-				("fldcw %0" : : "m" (i387_ROUND_TRUNC) REGISTER_SAVE);
++				("fldcw %0" : : "m" (__tmp) REGISTER_SAVE);
+ 			}
+ 			/**
+ 			 * set rounding to round to nearest (see ieee)
+@@ -94,8 +98,9 @@
+ 			template<bool C>
+ 			inline void filib::rounding_control<double,C>::tonearest() 
+ 			{
++                                register int __tmp = i387_ROUND_NEAR;
+ 				__asm__  
+-				("fldcw %0" : : "m" (i387_ROUND_NEAR) REGISTER_SAVE);
++				("fldcw %0" : : "m" (__tmp) REGISTER_SAVE);
+ 			}
+ 			/**
+ 			 * reset rounding fake
+diff -ru interval/rounding_control/rounding_control_float_asmi386.icc filib/rounding_control/rounding_control_float_asmi386.icc
+--- interval/rounding_control/rounding_control_float_asmi386.icc	2001-12-02 17:41:34.000000000 +0100
++++ filib/rounding_control/rounding_control_float_asmi386.icc	2006-02-09 09:49:37.000000000 +0100
+@@ -55,8 +55,9 @@
+ 				 * float precision, round to nearest, no
+ 				 * interupts
+ 				 **/
++                                register int __tmp = i387_FLOAT_ROUND_NEAR;
+ 				__asm__
+-				("fldcw %0" : : "m" (i387_FLOAT_ROUND_NEAR) REGISTER_SAVE);
++				("fldcw %0" : : "m" (__tmp) REGISTER_SAVE);
+ 			}
+ 			/**
+ 			 * set rounding to towards minus infinity
+@@ -64,8 +65,9 @@
+ 			template<bool C>			
+ 			inline void filib::rounding_control<float,C>::downward() 
+ 			{
++                                register int __tmp = i387_FLOAT_ROUND_DOWN;
+ 				__asm__   
+-				("fldcw %0" : : "m" (i387_FLOAT_ROUND_DOWN) REGISTER_SAVE);
++				("fldcw %0" : : "m" (__tmp) REGISTER_SAVE);
+ 			}
+ 			/**
+ 			 * set rounding to towards plus infinity
+@@ -73,8 +75,9 @@
+ 			template<bool C>
+ 			inline void filib::rounding_control<float,C>::upward() 
+ 			{
++                                register int __tmp = i387_FLOAT_ROUND_UP;
+ 				__asm__    
+-				("fldcw %0" : : "m" (i387_FLOAT_ROUND_UP) REGISTER_SAVE);
++				("fldcw %0" : : "m" (__tmp) REGISTER_SAVE);
+ 			}
+ 			/**
+ 			 * set rounding to truncate (round to zero)
+@@ -82,8 +85,9 @@
+ 			template<bool C>			
+ 			inline void filib::rounding_control<float,C>::tozero() 
+ 			{
++                                register int __tmp = i387_FLOAT_ROUND_TRUNC;
+ 				__asm__   
+-				("fldcw %0" : : "m" (i387_FLOAT_ROUND_TRUNC) REGISTER_SAVE);
++				("fldcw %0" : : "m" (__tmp) REGISTER_SAVE);
+ 			}
+ 			/**
+ 			 * set rounding to round to nearest (see ieee)
+@@ -91,8 +95,9 @@
+ 			template<bool C>
+ 			inline void filib::rounding_control<float,C>::tonearest() 
+ 			{
++                                register int __tmp = i387_FLOAT_ROUND_NEAR;
+ 				__asm__  
+-				("fldcw %0" : : "m" (i387_FLOAT_ROUND_NEAR) REGISTER_SAVE);
++				("fldcw %0" : : "m" (__tmp) REGISTER_SAVE);
+ 			}
+ 			/**
+ 			 * reset rounding fake
