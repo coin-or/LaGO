@@ -516,6 +516,17 @@ void QuadraticUnderestimator::quadratic_underestimator(SparseMatrix2& A, SparseV
 					out_log << "Local minimizer already in sample set, not adding again." << endl;
 				}
 			}
+			
+			if (time_max && timer.stop()>time_max && locminsolver.iter_max>10*f->dim()) {
+				if (best_violation==-INFINITY) { // first iteration -> give him some chance to check the other points
+					out_log << "Time limit (" << time_max << ") exceeded. Reduce locmin iteration limit to " << 10*f->dim();
+					locminsolver.iter_max=10*f->dim();		
+				} else { // some U3 solution already checked -> abort
+					out_log << "Time limit (" << time_max << ") exceeded. ";
+					maxviol=-INFINITY;
+					break;
+				}		
+			}			
 		}
 		out_log << 'v' << -maxviol << ' ';
 
@@ -526,11 +537,11 @@ void QuadraticUnderestimator::quadratic_underestimator(SparseMatrix2& A, SparseV
 		}
 
 		if (iter>=iter_max) {
-			out_log << "Iteration limit (" << iter_max << ") of quadratic underest. improvement exceeded. Keeping prior found solution with violation " << best_violation << ' ';
+			out_log << "Iteration limit (" << iter_max << ") exceeded. Keeping solution with violation " << best_violation << ' ';
 			finished=true;
 		}
 		if (time_max && timer.stop()>time_max) {
-			out_log << "Time limit (" << time_max << ") of quadratic underest. improvement exceeded. Keeping prior found solution with violation " << best_violation << ' ';
+			out_log << "Keeping solution with violation " << best_violation << ' ';
 			finished=true;
 		}
 		
