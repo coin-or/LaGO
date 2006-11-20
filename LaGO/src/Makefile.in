@@ -32,6 +32,7 @@
 #                         Maintainer Stuff                             #
 ########################################################################
 
+
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
@@ -61,12 +62,13 @@ bin_PROGRAMS = LaGO$(EXEEXT)
 @COIN_HAS_CPX_FALSE@am__append_4 = $(CLPOBJDIR)/src/libClp.la $(OSIOBJDIR)/src/OsiClp/libOsiClp.la
 @COIN_HAS_CPX_FALSE@am__append_5 = `cat $(CLPOBJDIR)/clp_addlibs.txt`
 @COIN_HAS_GAMSIO_TRUE@am__append_6 = gams.cc gams.h preprocessapi.h 
-@COIN_HAS_GAMSIO_FALSE@am__append_7 = ampl.cc ampl.h
+@COIN_HAS_GAMSIO_TRUE@am__append_7 = -Wl,-export-dynamic
+@COIN_HAS_GAMSIO_FALSE@am__append_8 = ampl.cc ampl.h
 DIST_COMMON = $(srcdir)/../../BuildTools/Makemain.inc \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/config_lago.h.in
-@HAVE_EXTERNALS_TRUE@am__append_8 = Externals
-@HAVE_EXTERNALS_TRUE@am__append_9 = .Externals-stamp
+@HAVE_EXTERNALS_TRUE@am__append_9 = Externals
+@HAVE_EXTERNALS_TRUE@am__append_10 = .Externals-stamp
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
@@ -76,7 +78,22 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = config_lago.h
 CONFIG_CLEAN_FILES =
-am__installdirs = "$(DESTDIR)$(bindir)"
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
+libLTLIBRARIES_INSTALL = $(INSTALL)
+LTLIBRARIES = $(lib_LTLIBRARIES)
+libgamspreprocess_la_LIBADD =
+am__libgamspreprocess_la_SOURCES_DIST = gamspreprocess.cc \
+	preprocessapi.h
+@COIN_HAS_GAMSIO_TRUE@am_libgamspreprocess_la_OBJECTS =  \
+@COIN_HAS_GAMSIO_TRUE@	gamspreprocess.lo
+libgamspreprocess_la_OBJECTS = $(am_libgamspreprocess_la_OBJECTS)
+@COIN_HAS_GAMSIO_TRUE@am_libgamspreprocess_la_rpath = -rpath $(libdir)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am__LaGO_SOURCES_DIST = bcp.cc bcp.h boxfind.cc boxfind.h column.cc \
@@ -129,13 +146,16 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(LaGO_SOURCES)
-DIST_SOURCES = $(am__LaGO_SOURCES_DIST)
+SOURCES = $(libgamspreprocess_la_SOURCES) $(LaGO_SOURCES)
+DIST_SOURCES = $(am__libgamspreprocess_la_SOURCES_DIST) \
+	$(am__LaGO_SOURCES_DIST)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
-ADDLIBS = @ADDLIBS@
+ADDLIBS = @ADDLIBS@ `cat $(COINUTILSOBJDIR)/coinutils_addlibs.txt \
+	$(CGLOBJDIR)/cgl_addlibs.txt $(OSIOBJDIR)/osi_addlibs.txt \
+	$(IPOPTOBJDIR)/src/Interfaces/ipopt_addlibs_cpp.txt`
 ADD_CFLAGS = @ADD_CFLAGS@
 ADD_CXXFLAGS = @ADD_CXXFLAGS@
 ALWAYS_FALSE_FALSE = @ALWAYS_FALSE_FALSE@
@@ -221,10 +241,7 @@ LAGOSRCDIR = @LAGOSRCDIR@
 LDFLAGS = @LDFLAGS@
 LIBEXT = @LIBEXT@
 LIBOBJS = @LIBOBJS@
-LIBS = @LIBS@ $(am__append_5) $(ADDLIBS) `cat \
-	$(COINUTILSOBJDIR)/coinutils_addlibs.txt \
-	$(CGLOBJDIR)/cgl_addlibs.txt $(OSIOBJDIR)/osi_addlibs.txt \
-	$(IPOPTOBJDIR)/src/Interfaces/ipopt_addlibs_cpp.txt`
+LIBS = @LIBS@ $(am__append_5)
 LIBTOOL = @LIBTOOL@
 LIBTOOLM4 = @LIBTOOLM4@
 LN_S = @LN_S@
@@ -307,7 +324,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
-EXTRA_DIST = $(am__append_8)
+EXTRA_DIST = $(am__append_9)
 LaGO_SOURCES = bcp.cc bcp.h boxfind.cc boxfind.h column.cc column.h \
 	config_lago.h cuts.cc cuts.h decomp.cc decomp.h func.cc func.h \
 	graph.h ipopt2.cc ipopt2.h lagheu.cc lagheu.h LaGO.cc \
@@ -318,7 +335,7 @@ LaGO_SOURCES = bcp.cc bcp.h boxfind.cc boxfind.h column.cc column.h \
 	quaduest.h relax.cc relax.h relaxopt.cc relaxopt.h rmp.cc \
 	rmp.h sampling.cc sampling.h standard.h tools.cc tools.h \
 	usermatrix.cc usermatrix.h uservector.h $(am__append_6) \
-	$(am__append_7)
+	$(am__append_8)
 AM_CPPFLAGS = -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` -I`$(CYGPATH_W) \
 	$(COINUTILSOBJDIR)/inc` -I`$(CYGPATH_W) $(CGLSRCDIR)/src` \
 	-I`$(CYGPATH_W) $(CGLOBJDIR)/inc` -I`$(CYGPATH_W) \
@@ -332,9 +349,12 @@ LaGO_LDADD = $(am__append_2) $(am__append_4) \
 	$(OSIOBJDIR)/src/libOsi.la $(CGLOBJDIR)/src/libCgl.la \
 	$(COINUTILSOBJDIR)/src/libCoinUtils.la \
 	$(IPOPTOBJDIR)/src/Interfaces/libipopt.la
-LaGO_LDFLAGS = -rpath $(libdir)
+LaGO_LDFLAGS = $(ADDLIBS) -rpath $(libdir) $(am__append_7)
+@COIN_HAS_GAMSIO_TRUE@lib_LTLIBRARIES = libgamspreprocess.la
+@COIN_HAS_GAMSIO_TRUE@libgamspreprocess_la_SOURCES = gamspreprocess.cc preprocessapi.h
+@COIN_HAS_GAMSIO_TRUE@libgamspreprocess_la_LDFLAGS = -shared -shared-libgcc -Wl,-soname,libgamspreprocess.so -Wl,-export-dynamic
 DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
-DISTCLEANFILES = $(am__append_9) $(VPATH_DISTCLEANFILES)
+DISTCLEANFILES = $(am__append_10) $(VPATH_DISTCLEANFILES)
 all: config_lago.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -386,6 +406,35 @@ $(srcdir)/config_lago.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 
 distclean-hdr:
 	-rm -f config_lago.h stamp-h1
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	test -z "$(libdir)" || $(mkdir_p) "$(DESTDIR)$(libdir)"
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    f=$(am__strip_dir) \
+	    echo " $(LIBTOOL) --mode=install $(libLTLIBRARIES_INSTALL) $(INSTALL_STRIP_FLAG) '$$p' '$(DESTDIR)$(libdir)/$$f'"; \
+	    $(LIBTOOL) --mode=install $(libLTLIBRARIES_INSTALL) $(INSTALL_STRIP_FLAG) "$$p" "$(DESTDIR)$(libdir)/$$f"; \
+	  else :; fi; \
+	done
+
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	@set -x; list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  p=$(am__strip_dir) \
+	  echo " $(LIBTOOL) --mode=uninstall rm -f '$(DESTDIR)$(libdir)/$$p'"; \
+	  $(LIBTOOL) --mode=uninstall rm -f "$(DESTDIR)$(libdir)/$$p"; \
+	done
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
+	  test "$$dir" != "$$p" || dir=.; \
+	  echo "rm -f \"$${dir}/so_locations\""; \
+	  rm -f "$${dir}/so_locations"; \
+	done
+libgamspreprocess.la: $(libgamspreprocess_la_OBJECTS) $(libgamspreprocess_la_DEPENDENCIES) 
+	$(CXXLINK) $(am_libgamspreprocess_la_rpath) $(libgamspreprocess_la_LDFLAGS) $(libgamspreprocess_la_OBJECTS) $(libgamspreprocess_la_LIBADD) $(LIBS)
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	test -z "$(bindir)" || $(mkdir_p) "$(DESTDIR)$(bindir)"
@@ -436,6 +485,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decomp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/func.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gams.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gamspreprocess.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ipopt2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lagheu.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linrelax.Po@am__quote@
@@ -563,9 +613,11 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(PROGRAMS) config_lago.h
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) config_lago.h
+install-binPROGRAMS: install-libLTLIBRARIES
+
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-am
@@ -595,7 +647,8 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
+	clean-libtool mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -615,7 +668,7 @@ info-am:
 
 install-data-am:
 
-install-exec-am: install-binPROGRAMS
+install-exec-am: install-binPROGRAMS install-libLTLIBRARIES
 
 install-info: install-info-am
 
@@ -641,20 +694,22 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-info-am
+uninstall-am: uninstall-binPROGRAMS uninstall-info-am \
+	uninstall-libLTLIBRARIES
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-binPROGRAMS \
-	clean-generic clean-libtool ctags distclean distclean-compile \
-	distclean-generic distclean-hdr distclean-libtool \
-	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-binPROGRAMS install-data \
-	install-data-am install-exec install-exec-am install-info \
-	install-info-am install-man install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-binPROGRAMS \
-	uninstall-info-am
+	clean-generic clean-libLTLIBRARIES clean-libtool ctags \
+	distclean distclean-compile distclean-generic distclean-hdr \
+	distclean-libtool distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-binPROGRAMS \
+	install-data install-data-am install-exec install-exec-am \
+	install-info install-info-am install-libLTLIBRARIES \
+	install-man install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
+	uninstall-am uninstall-binPROGRAMS uninstall-info-am \
+	uninstall-libLTLIBRARIES
 
 
 # Make sure acinclude is using most recent coin.m4

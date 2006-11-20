@@ -67,6 +67,7 @@ LaGO/src/func.cc -text
 LaGO/src/func.h -text
 LaGO/src/gams.cc -text
 LaGO/src/gams.h -text
+LaGO/src/gamspreprocess.cc -text
 LaGO/src/graph.h -text
 LaGO/src/ipopt2.cc -text
 LaGO/src/ipopt2.h -text

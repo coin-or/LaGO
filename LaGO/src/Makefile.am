@@ -44,12 +44,18 @@ $(CGLOBJDIR)/src/libCgl.la \
 $(COINUTILSOBJDIR)/src/libCoinUtils.la \
 $(IPOPTOBJDIR)/src/Interfaces/libipopt.la
 
-LIBS += $(ADDLIBS) `cat $(COINUTILSOBJDIR)/coinutils_addlibs.txt $(CGLOBJDIR)/cgl_addlibs.txt $(OSIOBJDIR)/osi_addlibs.txt $(IPOPTOBJDIR)/src/Interfaces/ipopt_addlibs_cpp.txt`
+ADDLIBS += `cat $(COINUTILSOBJDIR)/coinutils_addlibs.txt $(CGLOBJDIR)/cgl_addlibs.txt $(OSIOBJDIR)/osi_addlibs.txt $(IPOPTOBJDIR)/src/Interfaces/ipopt_addlibs_cpp.txt`
 
-LaGO_LDFLAGS = -rpath $(libdir)
+LaGO_LDFLAGS = $(ADDLIBS) -rpath $(libdir) 
 
 if COIN_HAS_GAMSIO
 LaGO_SOURCES += gams.cc gams.h preprocessapi.h 
+
+lib_LTLIBRARIES = libgamspreprocess.la
+libgamspreprocess_la_SOURCES = gamspreprocess.cc preprocessapi.h
+libgamspreprocess_la_LDFLAGS = -shared -shared-libgcc -Wl,-soname,libgamspreprocess.so -Wl,-export-dynamic
+LaGO_LDFLAGS += -Wl,-export-dynamic
+
 else
 LaGO_SOURCES += ampl.cc ampl.h
 endif
