@@ -293,32 +293,31 @@ AC_LANG_POP(C)
 # FILIB++ #
 ###########
 
+coin_filibdir=../ThirdParty/FILIB++
+coin_filibsrcdir=$abs_source_dir/$coin_filibdir
+
 AC_ARG_WITH([filib],
             AC_HELP_STRING([--with-filib],
                            [specify directory of FILIB++]),
             [use_filib=$withval],
-	          [use_filib=])
+	          [use_filib=$coin_filibsrcdir])
 
-if test x$use_filib	!= x; then
-	AC_MSG_CHECKING([whether FILIB++ library at $use_filib works])
-	coin_save_libs=$LIBS
-	coin_save_cppflags=$CPPFLAGS
-	LIBS="-L$use_filib/lib -lprim $LIBS"
-	CPPFLAGS="-I$use_filib/include $CPPFLAGS"
-	AC_TRY_LINK([#include "interval/interval.hpp"], [filib::fp_traits<double>::setup();],
-  	          [AC_MSG_RESULT([yes])
-    	         AC_DEFINE([COIN_HAS_FILIB],[1], [If defined, the FILIB++ is available.])
-      	       coin_has_filib=yes
-               ADDLIBS="-L$use_filib/lib -lprim $ADDLIBS"
-        	    ],
-          	  [AC_MSG_RESULT([no])
-            	 coin_has_filib=no
-            	 LIBS=$coin_save_libs
-            	 CPPFLAGS=$coin_save_cppflags
-            	])
-else
-	coin_has_filib=no
-fi
+AC_MSG_CHECKING([whether FILIB++ library at $use_filib works])
+coin_save_libs=$LIBS
+coin_save_cppflags=$CPPFLAGS
+LIBS="-L$use_filib/lib -lprim $LIBS"
+CPPFLAGS="-I$use_filib/include $CPPFLAGS"
+AC_TRY_LINK([#include "interval/interval.hpp"], [filib::fp_traits<double>::setup();],
+  	        [AC_MSG_RESULT([yes])
+  	         AC_DEFINE([COIN_HAS_FILIB],[1], [If defined, the FILIB++ is available.])
+     	       coin_has_filib=yes
+             ADDLIBS="-L$use_filib/lib -lprim $ADDLIBS"
+       	    ],
+         	  [AC_MSG_RESULT([no])
+           	 coin_has_filib=no
+           	 LIBS=$coin_save_libs
+           	 CPPFLAGS=$coin_save_cppflags
+           	])
 
 AM_CONDITIONAL([COIN_HAS_FILIB],[test "$coin_has_filib" = yes])
 

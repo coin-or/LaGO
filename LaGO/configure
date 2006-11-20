@@ -23440,23 +23440,25 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 # FILIB++ #
 ###########
 
+coin_filibdir=../ThirdParty/FILIB++
+coin_filibsrcdir=$abs_source_dir/$coin_filibdir
+
 
 # Check whether --with-filib or --without-filib was given.
 if test "${with_filib+set}" = set; then
   withval="$with_filib"
   use_filib=$withval
 else
-  use_filib=
+  use_filib=$coin_filibsrcdir
 fi;
 
-if test x$use_filib	!= x; then
-	echo "$as_me:$LINENO: checking whether FILIB++ library at $use_filib works" >&5
+echo "$as_me:$LINENO: checking whether FILIB++ library at $use_filib works" >&5
 echo $ECHO_N "checking whether FILIB++ library at $use_filib works... $ECHO_C" >&6
-	coin_save_libs=$LIBS
-	coin_save_cppflags=$CPPFLAGS
-	LIBS="-L$use_filib/lib -lprim $LIBS"
-	CPPFLAGS="-I$use_filib/include $CPPFLAGS"
-	cat >conftest.$ac_ext <<_ACEOF
+coin_save_libs=$LIBS
+coin_save_cppflags=$CPPFLAGS
+LIBS="-L$use_filib/lib -lprim $LIBS"
+CPPFLAGS="-I$use_filib/include $CPPFLAGS"
+cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
@@ -23508,8 +23510,8 @@ cat >>confdefs.h <<\_ACEOF
 #define COIN_HAS_FILIB 1
 _ACEOF
 
-      	       coin_has_filib=yes
-               ADDLIBS="-L$use_filib/lib -lprim $ADDLIBS"
+     	       coin_has_filib=yes
+             ADDLIBS="-L$use_filib/lib -lprim $ADDLIBS"
 
 else
   echo "$as_me: failed program was:" >&5
@@ -23517,16 +23519,13 @@ sed 's/^/| /' conftest.$ac_ext >&5
 
 echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
-            	 coin_has_filib=no
-            	 LIBS=$coin_save_libs
-            	 CPPFLAGS=$coin_save_cppflags
+           	 coin_has_filib=no
+           	 LIBS=$coin_save_libs
+           	 CPPFLAGS=$coin_save_cppflags
 
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
-else
-	coin_has_filib=no
-fi
 
 
 
