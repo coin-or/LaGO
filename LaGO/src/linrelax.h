@@ -48,10 +48,12 @@ class LinearRelaxSolverMIP;
 class LinearRelax {
 	friend class LinearRelaxSolverGeneral;
 	friend class LinearRelaxSolverMIP;
+	friend ostream& operator<<(ostream& out, LinearRelax& linrelax);
 	public:
 	/** Class to represent a linear (block) constraint.
 	*/
 	class LinConstraint {
+		friend ostream& operator<<(ostream& out, const LinConstraint& lincon);
 		public:
 			vector<Pointer<UserVector<double> > > b;
 			double c;

@@ -54,6 +54,7 @@ class IntervalGradientCut {
 
 
 class SimpleCut {
+	friend ostream& operator<<(ostream& out, const SimpleCut& cut);
 	public:
 		Pointer<UserVector<double> > coeff;
 		double constant;
@@ -138,6 +139,7 @@ class MinlpNode;
 */
 template <class CutType> class Cut {
 	friend class CutPool;
+//	friend ostream& operator<<(ostream& out, Cut<CutType>& cut);
 
 	class NodeInfo {
 		public:

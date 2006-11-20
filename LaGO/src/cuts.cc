@@ -140,6 +140,16 @@ Pointer<IntervalGradientCut> IntervalGradientCutGenerator::get_cuts(const dvecto
 	return cut;
 }
 
+// ---------------------------------------- SimpleCut ----------------------------------------
+
+ostream& operator<<(ostream& out, const SimpleCut& cut) {
+	if (cut.coeff)
+		for (int i=0; i<cut.coeff->dim(); ++i)
+			if ((*cut.coeff)(i)) out << " +" << 2*(*cut.coeff)(i) << "*x" << i;
+	out << " + " << cut.constant << " <=0" << endl;
+	return out;	
+}
+
 // ---------------------------------------- Cut ----------------------------------------------
 
 template <class CutType>

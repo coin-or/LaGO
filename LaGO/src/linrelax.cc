@@ -376,6 +376,44 @@ void LinearRelax::generate_cuts(Pointer<MinlpNode> node) {
 		add_cut(*it, -1, node);
 }
 
+ostream& operator<<(ostream& out, LinearRelax& linrelax) {
+		out << "Objective: " << *linrelax.obj;
+		out << "Coupling constraints: " << endl;
+		for (list<LinearRelax::LinConstraint>::const_iterator it(linrelax.couple_con.begin()); it!=linrelax.couple_con.end(); ++it)
+			out << *it;
+		for (int k=0; k<linrelax.block_con.size(); ++k) {
+			if (!linrelax.block_con[k].empty()) {
+				out << "Constraints block " << k << ':' << endl;
+				for (list<LinearRelax::LinConstraint>::const_iterator it(linrelax.block_con[k].begin()); it!=linrelax.block_con[k].end(); ++it)
+					out << *it;								
+			}			
+		}
+
+		list<CutPool::CutInfo> cutinfos;
+		linrelax.get_cuts(cutinfos);
+		out << "Cuts: " << endl;
+		for (list<CutPool::CutInfo>::iterator it(cutinfos.begin()); it!=cutinfos.end(); ++it) {
+			switch (it->type) {
+				case CutPool::SIMPLE: out << it->it_simplecuts->get_cut(); break;
+				case CutPool::LINEARIZATION: out << it->it_linearizationcuts->get_cut(); break;
+				case CutPool::INTERVALGRADIENT: out << "IntervalgradientCut skipped" << endl; break;
+			}
+		}		
+		return out;
+}
+
+ostream& operator<<(ostream& out, const LinearRelax::LinConstraint& lincon) {
+	out << lincon.name << ':';
+	for (int k=0; k<lincon.b.size(); ++k) {
+		if (lincon.b[k])
+			for (int i=0; i<lincon.b[k]->dim(); ++i)
+				if ((*lincon.b[k])(i)) out << " +" << 2*(*lincon.b[k])(i) << "*x" << i;
+	}
+	out << " + " << lincon.c << (lincon.eq ? " =0" : " <=0") << endl;	
+	return out;	
+}
+
+
 // ---------------------------------------- LinearRelaxSolver ----------------------------------------
 
 LinearRelaxSolver::LinearRelaxSolver(LinearRelax& linrelax_)

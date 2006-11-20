@@ -1624,7 +1624,7 @@ int MinlpBCP::solve() {
 //	linear_relax->generate_cuts(NULL);
 	if (ret) {
 		out_solver << "Could not compute lower bound of root node." << endl;
-		return 1;
+		return sol_cand.empty();
 	}
 	out_solver_log << endl;
 
