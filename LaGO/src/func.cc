@@ -697,8 +697,8 @@ bool SepQcFunc::compute_sparsity(int block_nr, const vector<dvector>& sample_set
 	const SparsityInfo& ssi(((const Func*)s[block_nr])->get_sparsity());
 	if (replace_if_quadratic && ssi.quadratic->size()==ssi.nonlinear->size()) {
 		Pointer<UserVector<double> > sb(new SparseVector<double>(block[block_nr].size()));
+		Pointer<SparseMatrix2> sA(new SparseMatrix2(block[block_nr].size()));
 		if (!ssi.quadratic->empty()) {
-			Pointer<SparseMatrix2> sA(new SparseMatrix2(block[block_nr].size()));
 			for (map<pair<int,int>, SparsityInfo::NonlinearConnection>::iterator it(ssi.sparsity_pattern->begin()); it!=ssi.sparsity_pattern->end(); ++it) {
 				sA->AddElement(it->first.first, it->first.second, .5*it->second.coeff);
 				sA->AddElement(it->first.second, it->first.first, .5*it->second.coeff);
@@ -710,7 +710,7 @@ bool SepQcFunc::compute_sparsity(int block_nr, const vector<dvector>& sample_set
 			sA->finish();
 			if (A[block_nr]) A[block_nr]=new SumMatrix((Pointer<const UserMatrix>)A[block_nr], (Pointer<const UserMatrix>)sA);
 			else A[block_nr]=sA;
-		}
+		} else sA=NULL;
 
 		for (map<int, SparsityInfo::LinearVariable>::iterator it(ssi.linear->begin()); it!=ssi.linear->end(); ++it)
 			sb->SetElement(it->first, .5*it->second.coeff);
@@ -720,8 +720,14 @@ bool SepQcFunc::compute_sparsity(int block_nr, const vector<dvector>& sample_set
 			*b[block_nr]+=*sb;
 		} else b[block_nr]=sb;
 
-		c+=s[block_nr]->eval(SparseVector<double>(block[block_nr].size()));
-		assert(finite(c));
+		double constant=s[block_nr]->eval(SparseVector<double>(block[block_nr].size()));
+		if (!finite(constant)) { // problem when evaluating s in zero
+			constant=s[block_nr]->eval(sample_set[0]);
+			if (sA) constant-=sA->xAx(sample_set[0]);
+			if (sb) constant-=2*(*sb*sample_set[0]);			
+		}
+		assert(finite(constant));
+		c+=constant;
 
 		s[block_nr]=NULL;
 	}
