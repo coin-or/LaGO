@@ -21,6 +21,7 @@ tar xzf filib++-dist.tar.gz
 echo "Patching the source code."
 patch -p0 < filib.patch
 patch -p0 < filib.patch2
+patch -p0 < filib.patch3
 
 echo "Compiling the FILIB++ library."
 cd interval
