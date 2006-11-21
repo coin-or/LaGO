@@ -296,6 +296,10 @@ class MinlpBCP : public RelaxationSolver {
 		/** Reducing the box and updating the relaxation after subdivision.
 		*/
 		bool boxreduce(Pointer<MinlpNode> node, int index, IntervalReduction::which_bound_type which_bound);
+		
+		/** Checks by interval arithmetic whether the box in node is feasible by evaluation the constraints over the box.
+		 */ 
+		bool feasibility_check(Pointer<MinlpNode> node);
 
 		// --------------------- bounding
 

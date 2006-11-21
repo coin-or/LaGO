@@ -724,10 +724,7 @@ class DenseVector : public UserVector<Type> {
     Type operator*(const DenseVector<Type>& v) const {
       return TNT::dot_prod(x, v.x);
     }
-
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using UserVector<Type>::operator*;
-#endif
 
     /** Computes the sum of this DenseVector and another one.
         @param v The DenseVector to add with this one.
@@ -745,10 +742,7 @@ class DenseVector : public UserVector<Type> {
     const UserVector<Type>& operator+() const {
       return *(const DenseVector<Type>*)this;
     }
-
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using UserVector<Type>::operator+;
-#endif
 
     /** Computes the difference between this DenseVector and another one.
         @param v The DenseVector to subtract.
@@ -782,10 +776,7 @@ class DenseVector : public UserVector<Type> {
       for (int i=0; i<dim(); i++) ret[i]*=v(i);
       return ret;
     }
-
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using UserVector<Type>::diagmult;
-#endif
 
     /** Returns a const Pointer to the elements of this DenseVector.
     */
@@ -1162,10 +1153,7 @@ class SparseVector : public UserVector<Type> {
         if (p->index==i) return p->value;
       return Type();
     }
-
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using UserVector<Type>::operator();
-#endif
 
     // could be improved
     UserVector<Type>& operator=(const UserVector<Type>& v) {
@@ -1570,10 +1558,7 @@ class SparseVector : public UserVector<Type> {
       }
       return ret;
     }
-
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using UserVector<Type>::operator+;
-#endif
 
     /** Computes the difference of this SparseVector and another one.
         @param v The SparseVector to substract.
@@ -1616,10 +1601,7 @@ class SparseVector : public UserVector<Type> {
       }
       return ret;
     }
-
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using UserVector<Type>::operator-;
-#endif
 
     /** Computes the diagonal multiplication of this SparseVector and another one.
         @param v The SparseVector to multiply with.
@@ -1652,10 +1634,7 @@ class SparseVector : public UserVector<Type> {
       for (VectorElement* p=head->next; p; p=p->next)
         y[p->index]=p->value * v(p->index);
     }
-
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using UserVector<Type>::diagmult;
-#endif
 
     void set_block(const UserVector<Type>& v, const UserVector<int>& block) {
       for (int i=0; i<block.size(); i++) SetElement(block(i), v(i));
@@ -1725,10 +1704,7 @@ class IntervalVector : public DenseVector<interval<double> > {
 			DenseVector<interval<double> >::operator=(v);
 			return *this;
 		}
-
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using DenseVector<interval<double> >::operator=;
-#endif
 
 		interval<double> operator*(const UserVector<double>& v) const {
       assert(v.dim()==dim());
@@ -1744,10 +1720,7 @@ class IntervalVector : public DenseVector<interval<double> > {
         val+=(*this)(p->index)*p->value;
       return val;
     }
-
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using DenseVector<interval<double> >::operator*;
-#endif
 
 		void AddMult(const double& a, const UserVector<double>& v) {
 			for (int i=0; i<v.dim(); i++) (*this)[i]+=a*v(i);
@@ -1757,20 +1730,14 @@ class IntervalVector : public DenseVector<interval<double> > {
 			for (SparseVector<double>::VectorElement* p=v.head->next; p; p=p->next)
     		(*this)[p->index]+=a*p->value;
 		}
-
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using DenseVector<interval<double> >::AddMult;
-#endif
 
     IntervalVector diagmult(const UserVector<double>& v) const {
       IntervalVector ret(*this);
       for (int i=0; i<dim(); i++) ret[i]*=v(i);
       return ret;
     }
-
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using DenseVector<interval<double> >::diagmult;
-#endif
 };
 #endif
 

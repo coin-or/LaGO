@@ -485,9 +485,7 @@ class HessMatrix : public UserMatrix {
       f->HessMult(y, *x0, x);
     }
 
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using UserMatrix::MultV;
-#endif
 
     /** Prints some information about this matrix.
         Prints the dvector x0 and the function.
@@ -583,9 +581,7 @@ class MinusFunc : public Func {
 			return ret;
 		}
 
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using Func::valgrad;
-#endif
 
 #endif
 
@@ -688,9 +684,7 @@ class SumFunc: public Func {
 		*/
 		void grad(UserVector<double>& y, const UserVector<double>& x) const;
 		
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using Func::grad;
-#endif
 
 		/** Computes the value and the gradient.
 			  @param val A double to store the value in.
@@ -708,9 +702,7 @@ class SumFunc: public Func {
 		*/
 		void HessMult(UserVector<double>& y, const UserVector<double>& x, const UserVector<double>& z) const;
 		
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using Func::HessMult;
-#endif
 
 #ifdef FILIB_AVAILABLE
 		bool is_interval_compliant() const { return (f ? f->is_interval_compliant() : true) && (g ? g->is_interval_compliant() : true); }
@@ -913,9 +905,7 @@ class SepQcFunc: public SepFunc {
 
 			virtual SparsityInfo& get_sparsity() { assert(sparsity); return *sparsity; }
 
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 			using Func::get_sparsity;
-#endif
 
 			virtual void set_sparsity(int k, Pointer<SparsityInfo> si) {
 				sparsity_block[k]=si;
@@ -971,9 +961,7 @@ class SepQcFunc: public SepFunc {
       */
       void grad(UserVector<double>& g, const UserVector<double>& x) const;
 
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 			using Func::grad;
-#endif
 
       /** Computes the gradient of one block for a UserVector<double>.
 			    @param g The UserVector<double> to store the gradient in.
@@ -1009,9 +997,7 @@ class SepQcFunc: public SepFunc {
       */
       void HessMult(UserVector<double>& y, const UserVector<double>& x, const UserVector<double>& z, int k) const;
 
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 			using Func::HessMult;
-#endif
 
 #ifdef FILIB_AVAILABLE
 			bool is_interval_compliant() const;

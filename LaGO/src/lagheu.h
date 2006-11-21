@@ -117,9 +117,7 @@ class LagHeu : public RelaxationSolver {
 			return solve(node);
 		}
 
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using Solver::solve;
-#endif
 };
 
 class LagHeu1 : public LagHeu {
@@ -131,12 +129,7 @@ class LagHeu1 : public LagHeu {
 
 		int solve(Pointer<MinlpNode> node_);
 
-#if (!defined(__GNUC__)) // icc
 		using LagHeu::solve;
-#endif
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
-		using Solver::solve;
-#endif
 };
 
 /** Lagrangian Heuristic using Simulated Annealing.
@@ -186,12 +179,7 @@ class LagHeu_SimAnnealing : public LagHeu {
 
 		int solve(Pointer<MinlpNode> node_);
 
-#if (!defined(__GNUC__)) // icc
 		using LagHeu::solve;
-#endif
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
-		using Solver::solve;
-#endif
 };
 
 /** Another lagrange heuristic.
@@ -245,12 +233,7 @@ class LagHeu2 : public LagHeu {
 
 		void set_reform(Pointer<Reformulation> reform_);
 
-#if (!defined(__GNUC__)) // icc
 		using LagHeu::solve;
-#endif
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
-		using Solver::solve;
-#endif
 };
 
 /** Modification of LagHeu2
@@ -314,12 +297,7 @@ class LagHeu2b : public LagHeu {
 
 		void set_reform(Pointer<Reformulation> reform_);
 
-#if (!defined(__GNUC__)) // icc
 		using LagHeu::solve;
-#endif
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
-		using Solver::solve;
-#endif
 };
 
 #endif

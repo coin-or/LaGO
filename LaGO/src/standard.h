@@ -10,9 +10,6 @@
 
 #include "LaGOConfig.h"
 
-#ifndef __INTEL_COMPILER
-#include <ansidecl.h> // to get GCC_VERSION
-#endif
 #include <cstdlib>
 #include <cstdio>
 #include <cmath>

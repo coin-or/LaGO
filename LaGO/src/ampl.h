@@ -129,9 +129,7 @@ public:
     delete gr;
   }
 	
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 	using Func::grad;
-#endif
 
   /** Computes the product of a Hessian and a dvector.
       @param y The dvector to store the result in.
@@ -151,9 +149,7 @@ public:
     delete y0;
   }
 	
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 	using Func::HessMult;
-#endif
 
 	void set_curvature(CurvatureType ct) { curv_type=ct; };
 	CurvatureType get_curvature() const { return curv_type; };
@@ -252,9 +248,7 @@ public:
     delete gr;
   }
 	
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 	using Func::grad;
-#endif
 
   /** Computes the product of a Hessian and a dvector.
       @param y The dvector to store the result in.
@@ -274,9 +268,7 @@ public:
     delete y0;
   }
 	
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 	using Func::HessMult;
-#endif
 
 	void set_curvature(CurvatureType ct) { curv_type=ct; };
 	CurvatureType get_curvature() const { return curv_type; };

@@ -215,10 +215,7 @@ class gamsFunc : public Func {
 			double val;
 			valgrad(val, g, x);
 		}
-
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using Func::grad;
-#endif
 
 		void HessMult(UserVector<double>& y, const UserVector<double>& x, const UserVector<double>& z) const {
 			dvector y0(y.dim());
@@ -231,10 +228,7 @@ class gamsFunc : public Func {
 		}
 		
 		void HessMult(double* y, const double* x, const double* z) const;
-		
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using Func::HessMult;
-#endif
 
 #ifdef FILIB_AVAILABLE
 		bool is_interval_compliant() const { return true; } // :-)

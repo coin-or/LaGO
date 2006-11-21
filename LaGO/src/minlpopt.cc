@@ -1161,6 +1161,9 @@ void MinlpOpt::box_reduce3() {
 }
 
 void MinlpOpt::init() {
+#ifdef FILIB_AVAILABLE
+	filib::fp_traits<double>::setup();
+#endif
 	check_initial_point();
 
 	decompose();

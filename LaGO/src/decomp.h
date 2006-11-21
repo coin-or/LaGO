@@ -168,9 +168,7 @@ class SplitFunc: public Func {
 				if (ignore[i]) g[i]=0.;
 		}
 
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using Func::grad;
-#endif
 
 		void HessMult(UserVector<double>& y, const UserVector<double>& x, const UserVector<double>& z) const {
 			set_point(z);
@@ -184,9 +182,7 @@ class SplitFunc: public Func {
 			y=bighess(indices);
 		}
 
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using Func::HessMult;
-#endif
 
 #ifdef FILIB_AVAILABLE
 			bool is_interval_compliant() const { return orig->is_interval_compliant(); }
@@ -221,9 +217,7 @@ class SplitFunc: public Func {
 				return ret;
 			}
 
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using Func::valgrad;
-#endif
 #endif
 
 		virtual void set_curvature(CurvatureType ct) { curv_type=ct; };

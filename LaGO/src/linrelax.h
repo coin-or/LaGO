@@ -319,9 +319,7 @@ class LinearRelaxSolver : public Solver {
 
 		int solve();
 
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using Solver::solve;
-#endif
 
 		virtual int generate_cuts(list<Pointer<SimpleCut> >& cuts)=0;
 };
@@ -371,12 +369,7 @@ class LinearRelaxSolverGeneral : public LinearRelaxSolver {
 
 		int solve(Pointer<MinlpNode> node=NULL);
 
-#if (!defined(__GNUC__)) // icc
 		using LinearRelaxSolver::solve;
-#endif
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
-		using Solver::solve;
-#endif
 		
 		void remove_cuts();
 
@@ -417,12 +410,7 @@ class LinearRelaxSolverMIP : public LinearRelaxSolver {
 
 		int solve(Pointer<MinlpNode> node=NULL);
 
-#if (!defined(__GNUC__)) // icc
 		using LinearRelaxSolver::solve;
-#endif
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
-		using Solver::solve;
-#endif
 		
 		void remove_cuts();
 		

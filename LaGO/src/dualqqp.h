@@ -352,9 +352,7 @@ class QqpDualFunc: public DualFunc {
       */
       virtual int valgrad(double& val, UserVector<double>& g, const UserVector<double>& z) const;
 
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 			using DualFunc::valgrad;
-#endif
 
       /** Evaluates this function for a dvector.
           Sets dual_point to given point and calls set_dual_val().
@@ -370,9 +368,7 @@ class QqpDualFunc: public DualFunc {
 			  return dual_val;
 			}
 
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 			using DualFunc::eval;
-#endif
 /*
       double eval(const UserVector<double>& z) const {
         dvector z0(z);
@@ -395,9 +391,7 @@ class QqpDualFunc: public DualFunc {
 				valgrad(val, g, x);
       }
 			
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 			using Func::grad;
-#endif
 
       /** Does nothing.
           Should do: Compute the product of the Hessian and a dvector.
@@ -411,9 +405,7 @@ class QqpDualFunc: public DualFunc {
       */
       virtual void HessMult(UserVector<double>& y, const UserVector<double>& x, const UserVector<double>& z) const { };
 			
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 			using Func::HessMult;
-#endif
 
       /** Set the Lagrange multipliers of the quadratic box constraints.
       */
@@ -563,10 +555,7 @@ class QqpMatrix: public UserMatrix {
         y=y0;
       }
 			
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 			using UserMatrix::MultV;
-#endif
-
 };
 
 /** One extended block of the block matrix of the modified QQP-Lagrangian.
@@ -600,9 +589,7 @@ class QqpExtMatrix : public UserMatrix {
         y=y0;
       }
 			
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 			using UserMatrix::MultV;
-#endif
 };
 
 #endif // DUALQQP_H

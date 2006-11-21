@@ -260,24 +260,16 @@ class IntervalCompliantMatrix : public UserMatrix {
 
 		virtual void MultV(IntervalVector& y, const IntervalVector& x) const=0;
 
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using UserMatrix::MultV;
-#endif
 
 		virtual interval<double> yAx(const IntervalVector& y, const IntervalVector& x) const {
 			IntervalVector Ax(x.dim()); this->MultV(Ax,x);
 			return y*Ax;
 		}
-
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using UserMatrix::yAx;
-#endif
 
 		virtual interval<double> xAx(const IntervalVector& x) const { return yAx(x, x); }
-
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using UserMatrix::xAx;
-#endif
 };
 #endif
 
@@ -545,10 +537,7 @@ class SumMatrix
         y*=b;
       }
     }
-
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using UserMatrix::MultV;
-#endif
 
 #ifdef FILIB_AVAILABLE
 		virtual void MultV(IntervalVector& y, const IntervalVector& x) const {
@@ -615,12 +604,10 @@ class DiagMatrix: public ExtUserMatrix {
 			}
 #endif
 
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 #ifdef FILIB_AVAILABLE
 			using IntervalCompliantMatrix::MultV;
 #else
 			using UserMatrix::MultV;
-#endif
 #endif
 
       /** Multiplies this matrix form left and right with UserVector<double>'s.
@@ -635,12 +622,10 @@ class DiagMatrix: public ExtUserMatrix {
         return *z*y;
       }
 
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 #ifdef FILIB_AVAILABLE
 			using IntervalCompliantMatrix::yAx;
 #else
 			using UserMatrix::yAx;
-#endif
 #endif
       
 			double operator()(int row, int col) const {
@@ -749,10 +734,7 @@ class BlockMatrix
         @param x The UserVector<double> to multiply with.
     */
     void MultV(UserVector<double>& y, const UserVector<double>& x) const;
-
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using UserMatrix::MultV;
-#endif
 
     /** Multiplies from left and from right with UserVector<double>'s.
         @param y The UserVector<double> to multiply with from left.
@@ -1481,12 +1463,10 @@ class SparseMatrix2 : public ExtUserMatrix, public SparseMatrix {
 
     double yAx(const dvector& y, const dvector& x) const { return SparseMatrix::yAx(y,x); }
 
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 #ifdef FILIB_AVAILABLE
 		using IntervalCompliantMatrix::yAx;
 #else		
 		using UserMatrix::yAx;
-#endif
 #endif
     
 		double xAx(const UserVector<double>& x) const { return SparseMatrix::xAx(x); }

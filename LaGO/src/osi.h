@@ -79,9 +79,8 @@ class OSISolver : public MIPSolver {
 
 		void get_primal(UserVector<double>& x);
 		double get_primal(const MIPSolver::ColItem& colitem);
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using MIPSolver::get_primal;
-#endif
+		
 		int get_colindex(const MIPSolver::ColItem& colitem) { return ((ColItem*)(&colitem))->index; }
 
 		void get_dual(UserVector<double>& mu);

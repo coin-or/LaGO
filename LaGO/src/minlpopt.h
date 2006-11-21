@@ -340,9 +340,7 @@ class MinlpOpt : public Solver {
 		*/
 		int solve();
 
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using Solver::solve;
-#endif
 };
 
 #endif

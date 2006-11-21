@@ -737,8 +737,27 @@ bool MinlpBCP::boxreduce(Pointer<MinlpNode> node, int index, IntervalReduction::
 		}
 	}
 
+	return feasibility_check(node);
+}
+
+bool MinlpBCP::feasibility_check(Pointer<MinlpNode> node) {
+#ifdef FILIB_AVAILABLE
+	IntervalVector box(orig_prob->dim());
+	for (int i=0; i<box.dim(); ++i)
+		if (node) box[i]=interval<double>(node->lower(i), node->upper(i));
+		else box[i]=interval<double>(split_prob->lower(i), split_prob->upper(i));
+		
+	for (int c=0; c<orig_prob->con.size(); ++c) {
+		interval<double> val(orig_prob->con[c]->eval(box));
+		if (val.inf()>tol || (orig_prob->con_eq[c] && val.sup()<-tol)) {
+			out_log << "Constraint " << orig_prob->con_names[c] << " infeasible." << endl;
+			return false;
+		} 	
+	}
+#endif	
 	return true;
 }
+
 
 int MinlpBCP::update_subdiv_bound(int k, int i, Pointer<MinlpNode> node) {
 	out_solver_log << "Updating bound after subdivision." << endl;
@@ -960,7 +979,7 @@ void MinlpBCP::rect_subdiv(list<Pointer<MinlpNode> >& nodes, Pointer<MinlpNode> 
 			left=NULL;
 		}
 	} else left->ref_point[i0]=cut;
-	if (left && !boxreduce(left, i0, IntervalReduction::UPPER)) {
+	if (left && (!boxreduce(left, i0, IntervalReduction::UPPER))) {
 		linear_relax->remove_node(left);
 		left=NULL;
 	}

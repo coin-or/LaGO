@@ -347,10 +347,7 @@ class MinlpPenaltyFunc: public Func {
         @see valgrad(double&, UserVector<double>&, const UserVector<double>&)
     */
     double eval(const UserVector<double>& x) const;
-
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using Func::eval;
-#endif
 
     /** Computes the value and the gradient of this penalty function.
         The gradient of the absolut of an equality constraint is handled as zero, if the gradient of the equality constraint is zero.
@@ -362,10 +359,7 @@ class MinlpPenaltyFunc: public Func {
         @see grad(UserVector<double>&, const UserVector<double>&)
     */
     int valgrad(double& val, UserVector<double>& y, const UserVector<double>& x) const;
-
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using Func::valgrad;
-#endif
 
     /** Computes the gradient of this penalty function.
         Calls valgrad(double&, UserVector<double>&, const UserVector<double>&).
@@ -374,10 +368,7 @@ class MinlpPenaltyFunc: public Func {
         @see valgrad(double&, UserVector<double>&, const UserVector<double>&)
     */
     void grad(UserVector<double>& y, const UserVector<double>& x) const;
-		
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using Func::grad;
-#endif
 
     /** Computes the product of the hessian of this matrix and a UserVector<double>.
         @param y The UserVector<double> to store the result in.
@@ -385,10 +376,7 @@ class MinlpPenaltyFunc: public Func {
         @param x The UserVector<double> to multiply with the hessian.
     */
     void HessMult(UserVector<double>& y, const UserVector<double>& z, const UserVector<double>& x) const;
-		
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using Func::HessMult;
-#endif
 
 		virtual void set_curvature(CurvatureType ct) { out_err << "MinlpPenaltyFunc::set_curvature() not implemented. Aborting." << endl; exit (-1); };
 		virtual CurvatureType get_curvature() const  { out_err << "MinlpPenaltyFunc::get_curvature() not implemented. Aborting." << endl; exit (-1); return Func::UNKNOWN; };

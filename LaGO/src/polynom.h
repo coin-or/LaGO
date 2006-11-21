@@ -93,16 +93,10 @@ class Monom : public Func {
 			for (MultiIndex::const_iterator it(indices.begin()); it!=indices.end(); it++) val*=x(*it);
 			return val;
 		}
-		
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using Func::eval;
-#endif
 
 		void grad(UserVector<double>& grad, const UserVector<double>& x) const;
-		
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using Func::grad;
-#endif
 
 		/** Computes the multiplication of the hessian of this Monom with a UserVector.
 				Sets @f$y_i = \sum_{j,z_j\neq 0} \frac{\partial *this}{\partial x_i x_j}(x) z_j@f$
@@ -111,10 +105,7 @@ class Monom : public Func {
 		    @param z The UserVector to multiply with.
 		*/
 		void HessMult(UserVector<double>& y, const UserVector<double>& x, const UserVector<double>& z) const;
-		
-#if (!defined(__GNUC__)) || (GCC_VERSION>=3000)
 		using Func::HessMult;
-#endif
 
 		/** Gives a partial derivate in a point.
 		    @param x The point to compute the derivative for.
