@@ -114,6 +114,7 @@ LaGO/src/uservector.h -text
 /Makefile.in -text
 ThirdParty/FILIB++/filib.patch -text
 ThirdParty/FILIB++/filib.patch2 -text
+ThirdParty/FILIB++/filib.patch3 -text
 ThirdParty/FILIB++/get.FILIB++ -text
 ThirdParty/GAMS_IO/get.GAMS_IO -text
 ThirdParty/GAMS_IO/gmsla_.zip -text
