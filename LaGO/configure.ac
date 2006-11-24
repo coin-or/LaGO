@@ -299,25 +299,36 @@ coin_filibsrcdir=$abs_source_dir/$coin_filibdir
 AC_ARG_WITH([filib],
             AC_HELP_STRING([--with-filib],
                            [specify directory of FILIB++]),
-            [use_filib=$withval],
-	          [use_filib=$coin_filibsrcdir])
+            [use_filib=$withval
+             filib_libdir=$use_filib/lib],
+	          [use_filib=$coin_filibsrcdir
+             filib_libdir=../$coin_filibdir/interval/.libs
+            ])
+	          
+	          
+AC_CHECK_FILE([$use_filib/interval/interval/interval.hpp],
+               [AC_DEFINE([COIN_HAS_FILIB],[1], [If defined, the FILIB++ is available.])
+     	          coin_has_filib=yes
+                ADDLIBS="-L$filib_libdir -lprim $ADDLIBS"
+                CPPFLAGS="-I$use_filib/interval $CPPFLAGS"],
+               [coin_has_filib=no])
 
-AC_MSG_CHECKING([whether FILIB++ library at $use_filib works])
-coin_save_libs=$LIBS
-coin_save_cppflags=$CPPFLAGS
-LIBS="-L$use_filib/lib -lprim $LIBS"
-CPPFLAGS="-I$use_filib/include $CPPFLAGS"
-AC_TRY_LINK([#include "interval/interval.hpp"], [filib::fp_traits<double>::setup();],
-  	        [AC_MSG_RESULT([yes])
-  	         AC_DEFINE([COIN_HAS_FILIB],[1], [If defined, the FILIB++ is available.])
-     	       coin_has_filib=yes
-             ADDLIBS="-L$use_filib/lib -lprim $ADDLIBS"
-       	    ],
-         	  [AC_MSG_RESULT([no])
-           	 coin_has_filib=no
-           	 LIBS=$coin_save_libs
-           	 CPPFLAGS=$coin_save_cppflags
-           	])
+#AC_MSG_CHECKING([whether FILIB++ library at $use_filib works])
+#coin_save_libs=$LIBS
+#coin_save_cppflags=$CPPFLAGS
+#LIBS="-L$filib_libdir -lprim $LIBS"
+#CPPFLAGS="-I$use_filib/interval $CPPFLAGS"
+#AC_TRY_LINK([#include "interval/interval.hpp"], [filib::fp_traits<double>::setup();],
+#  	        [AC_MSG_RESULT([yes])
+#  	         AC_DEFINE([COIN_HAS_FILIB],[1], [If defined, the FILIB++ is available.])
+#     	       coin_has_filib=yes
+#             ADDLIBS="-L$filib_libdir -lprim $ADDLIBS"
+#       	    ],
+#         	  [AC_MSG_RESULT([no])
+#           	 coin_has_filib=no
+#           	 CPPFLAGS=$coin_save_cppflags
+#           	])
+#LIBS=$coin_save_libs
 
 AM_CONDITIONAL([COIN_HAS_FILIB],[test "$coin_has_filib" = yes])
 

@@ -7,7 +7,7 @@ if test ! $wgetcount = 1; then
 fi
 
 echo " "
-echo "Running script for downloading and compiling the source code for the FILIB++"
+echo "Running script for downloading and the source code for the FILIB++"
 echo " "
 
 rm -f filib++-dist.tar.gz
@@ -23,11 +23,6 @@ patch -p0 < filib.patch
 patch -p0 < filib.patch2
 patch -p0 < filib.patch3
 
-echo "Compiling the FILIB++ library."
-cd interval
-PREFIX=`pwd`/.. GRP=`id -g` OWN=`id -u` make -f makefiles/Makefile.gcc libs
-PREFIX=`pwd`/.. GRP=`id -g` OWN=`id -u` make -f makefiles/Makefile.gcc install
-
 echo " "
-echo "Done compiling and installing FILIB++."
+echo "Done downloading the FILIB++ source."
 echo " "

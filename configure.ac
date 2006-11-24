@@ -48,10 +48,7 @@ AC_COIN_THIRDPARTY_SUBDIRS([ASL],[ThirdParty/ASL],[solvers/asl.h])
 AC_COIN_THIRDPARTY_SUBDIRS([Blas],[ThirdParty/Blas],[daxpy.f])
 AC_COIN_THIRDPARTY_SUBDIRS([Lapack],[ThirdParty/Lapack],[LAPACK/SRC/dlarf.f])
 AC_COIN_THIRDPARTY_SUBDIRS([HSL],[ThirdParty/HSL],[configure.ac])
-#AC_COIN_THIRDPARTY_SUBDIRS([TNT],[ThirdParty/TNT],[tnt.h])
-#AC_COIN_THIRDPARTY_SUBDIRS([RANLIB],[ThirdParty/ranlib],[ranlib.c/src/ranlib.h])
-#AC_COIN_THIRDPARTY_SUBDIRS([METIS],[ThirdParty/METIS],[metis-4.0/Lib/metis.h])
-#AC_COIN_THIRDPARTY_SUBDIRS([GAMSIO],[ThirdParty/GAMS_IO],[GAMS_IO/iolib.h])
+AC_COIN_THIRDPARTY_SUBDIRS([FILIB],[ThirdParty/FILIB++],[interval/interval/interval.hpp])
 
 #############################################################################
 #                  Check which subprojects are there                        #
