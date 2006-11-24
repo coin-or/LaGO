@@ -23,6 +23,9 @@ patch -p0 < filib.patch
 patch -p0 < filib.patch2
 patch -p0 < filib.patch3
 
+cp interval_Makefile.am interval/Makefile.am
+cp interval_Makefile.in interval/Makefile.in
+
 echo " "
 echo "Done downloading the FILIB++ source."
 echo " "
