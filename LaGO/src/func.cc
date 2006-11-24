@@ -720,12 +720,9 @@ bool SepQcFunc::compute_sparsity(int block_nr, const vector<dvector>& sample_set
 			*b[block_nr]+=*sb;
 		} else b[block_nr]=sb;
 
-		double constant=s[block_nr]->eval(SparseVector<double>(block[block_nr].size()));
-		if (!finite(constant)) { // problem when evaluating s in zero
-			constant=s[block_nr]->eval(sample_set[0]);
-			if (sA) constant-=sA->xAx(sample_set[0]);
-			if (sb) constant-=2*(*sb*sample_set[0]);			
-		}
+		double constant=s[block_nr]->eval(sample_set[0]);
+		if (sA) constant-=sA->xAx(sample_set[0]);
+		if (sb) constant-=2*(*sb*sample_set[0]);			
 		assert(finite(constant));
 		c+=constant;
 
