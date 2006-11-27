@@ -41,7 +41,7 @@ If CPLEX is not available for LaGO, COIN/Clp is used to solve LPs.
 After installation of the required third party packages, run the script configure in the main directory of your COIN/LaGO package.
 This should configure all packages, including LaGO, and generate the required makefiles.
 Then call make and make install. Now you should find a LaGO binary in the bin directory.
-If possible, LaGO uses it's GAMS interface. If this is not available, the AMPL interface will be created.
+If possible, LaGO uses it's GAMS interface. If this is not available, the AMPL interface will be used.
 
 **** Making LaGO known to GAMS:
 In the ThirdParty/GAMS_IO directory you find the file gmsla_.zip.

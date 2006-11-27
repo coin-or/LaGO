@@ -33,7 +33,7 @@ if COIN_HAS_CPX
 AM_CPPFLAGS += -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiCpx` -I`$(CYGPATH_W) $(CPXINCDIR)`
 LaGO_LDADD += $(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la
 else
-AM_CPPFLAGS += -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiClp` -I`$(CYGPATH_W) $(CLPSRCDIR)/src` -I`$(CYGPATH_W) $(CLPSRCDIR)/inc`
+AM_CPPFLAGS += -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiClp` -I`$(CYGPATH_W) $(CLPSRCDIR)/src` -I`$(CYGPATH_W) $(CLPOBJDIR)/inc`
 LaGO_LDADD += $(CLPOBJDIR)/src/libClp.la $(OSIOBJDIR)/src/OsiClp/libOsiClp.la
 LIBS += `cat $(CLPOBJDIR)/clp_addlibs.txt`
 endif

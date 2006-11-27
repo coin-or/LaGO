@@ -237,6 +237,7 @@ build_alias = @build_alias@
 build_cpu = @build_cpu@
 build_os = @build_os@
 build_vendor = @build_vendor@
+coin_has_gamsio = @coin_has_gamsio@
 datadir = @datadir@
 exec_prefix = @exec_prefix@
 gamspath = @gamspath@
@@ -469,7 +470,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/.. $(distdir)/../BuildTools
+	$(mkdir_p) $(distdir)/.. $(distdir)/../BuildTools $(distdir)/test
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \

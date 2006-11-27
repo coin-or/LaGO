@@ -394,6 +394,7 @@ else
   AC_DEFINE([COIN_HAS_GAMSIO],[1],
             [If defined, the GAMS I/O Library is available.])
 fi
+AC_SUBST(coin_has_gamsio)
 
 #check for libgamscplexlice
 if test x"$coin_has_gamsio" = xyes; then
@@ -454,7 +455,9 @@ fi
 AC_LANG_POP(C++)
 
 AC_CONFIG_FILES([Makefile
-                 src/Makefile])
+                 src/Makefile
+                 test/run_tests
+                 test/Makefile])
 
 AC_CONFIG_HEADER([src/config_lago.h])
 

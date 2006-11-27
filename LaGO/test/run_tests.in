@@ -1,0 +1,66 @@
+#!/bin/sh
+# Copyright (C) 2006 Ivo Nowak and Stefan Vigerske
+# All Rights Reserved.
+# This file is distributed under the Common Public License.
+#
+## $Id$
+#
+# Author: Stefan Vigerske
+
+srcdir="@srcdir@"
+
+echo " "
+echo Running tests...
+echo " "
+
+for modelnl in $srcdir/*.nl
+do
+	model=${modelnl/.nl/}
+	modelname=${model//.*\/}
+	echo "Testing model $modelname."
+	if test "@coin_has_gamsio@" = "yes" ; then
+		gams $model MINLP=LAGO lo=0 > tmpfile 2>&1
+		rm -f $modelname.lst
+	else
+		../src/LaGO $model > tmpfile 2>&1
+		rm -f $model.sol
+	fi
+	
+	grep "Solved: 0" tmpfile 1>/dev/null 2>&1
+	if test $? = 0; then
+		opt_val=`sed -n -e '/Optimal value/s/Optimal value: //p' tmpfile`
+		opt_val_=`echo $opt_val | sed -e 's/-/_/g'`
+
+		#find best known optimal value
+		bkov=`cat $model.bkov`
+		bkov_=`echo $bkov | sed -e 's/-/_/g'`
+		bkovn=`echo $bkov | sed -e 's/-//g'`
+
+		#compute relative error
+		rel_error=`dc -e "2 k $opt_val_ $bkov_ - $bkovn 1 + / p"`
+		rel_=`echo $rel_error | sed -e 's/-/_/g'`
+		rel100=`dc -e "$rel_ 100 * p" | sed -e 's/\..*//'`
+		if test $rel100 -le 1 -a $rel100 -ge 0; then
+			echo "   Test passed!"
+		else
+			echo " "
+			echo " ---- 8< ---- Start of test program output ---- 8< ----"
+			cat tmpfile
+			echo " ---- 8< ----  End of test program output  ---- 8< ----"
+			echo " "
+			echo "    ******** Test FAILED! ********"
+			echo "    Best known optimal value is $bkov, but LaGO found $opt_val. Relative error is $rel100 percent."
+			echo "Output of the test program is above."
+    fi
+	else
+    echo " "
+    echo " ---- 8< ---- Start of test program output ---- 8< ----"
+    cat tmpfile
+    echo " ---- 8< ----  End of test program output  ---- 8< ----"
+    echo " "
+    echo "    ******** Test FAILED! ********"
+    echo "    Solving the problem failed."
+    echo "Output of the test program is above."
+  fi
+  rm -f tmpfile
+done
