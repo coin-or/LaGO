@@ -14,7 +14,7 @@ LICENCE    - Common Public Licence 1.0
 
 src        - LaGO source code
 
-mod        - a few MINLP examples from GAMS/MINLPLib, translated to AMPL format and compiled to .nl format
+test       - test script that runs LaGO for a few MINLP examples from GAMS/MINLPLib, also translated to AMPL format and compiled to .nl format
 
 doc        - a small parameter documentation
 
