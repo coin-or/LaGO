@@ -33,7 +33,7 @@ class MinlpNode;
 		@param ColumnGenerator max init RMP iter
 		%options integer $\geq 0$
 		%default 0
-		%level 1
+		%level 0
 		Iteration limit to make RMP feasible. If 0, the number is computed as 2*(maxblocksize+1).
 */
 class ColumnGenerator {

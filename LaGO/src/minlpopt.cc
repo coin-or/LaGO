@@ -605,7 +605,7 @@ void MinlpOpt::quad_relax() {
 //	for (int c=0; c<quad_prob->con.size(); c++) quad_prob->con[c]=new SepQcFunc(*quad_prob->con[c]);
 
 	Timer t;
-	if (param->get_i("Quadratic Underestimator adaptive", 0)) {
+	if (param->get_i("Quadratic Underestimator adaptive", 1)) {
 		if (!param->get("Quadratic Underestimator sample set Monte Carlo"))
 			param->add("Quadratic Underestimator sample set Monte Carlo", "20");
 		if (!param->get("Quadratic Underestimator sample set mid point"))
@@ -1275,7 +1275,6 @@ void MinlpOpt::init2() {
 		sol_Cext_is_solution=(ret==0);
 		if (sol_Cext_is_solution && low_bound<locopt->opt_val()) low_bound=locopt->opt_val();
 
-//
 //		locopt=NULL;		
 //		locopt=LocOpt::get_solver(convex_prob, param, "ConvexSolve", NULL, NULL);
 //		ret=locopt->solve(convex_prob->primal_point);

@@ -116,9 +116,9 @@ class LevelCutHandler {
     @class MinlpOpt
     @param MinlpOpt mode
     %options BCP, off
-		%level 1
+		%level 0
 		%default BCP
-    Determines, which algorithm to use.
+    Determines, which algorithm to use. BCP is the Branch and Cut algorithm. off stops after preprocessing.
 		@param Boxreduce effort
 		%options 0, 1, 2
 		%default 1
@@ -130,7 +130,7 @@ class LevelCutHandler {
 		@param Boxreduce type
 		%options off, NLP, NLP2, MINLP
 		%default off
-		%level 1
+		%level 0
 		Which method to use for the box reduction phase II. NLP is (C)-method, NLP2 is (Cext)-method, MINLP is (Pext)-method, off, if switches this part off.
     @param Boxreduction limit for reconvexification
     %options [0,1]
@@ -140,7 +140,7 @@ class LevelCutHandler {
 		@param Decomposition
 		%options 0, 1
 		%default 1
-		%level 2
+		%level 1
 		Whether to apply decomposition or not.
 		@param Decomposition sample set Monte Carlo
 		%options integer >= 0
@@ -157,37 +157,43 @@ class LevelCutHandler {
 		@param Relax check convex sample set Monte Carlo
 		%options integer >= 0
 		%default 200
-		%level 2
+		%level 1
+		The number of sample points to use for convexity test.
 		@param Check decomposition
 		%options 0, 1
 		%default 0
-		%level 1
+		%level 0
 		Performs a test on the decomposition.
 		@param Check polynomial underestimator
 		%options 0, 1
 		%default 0
-		%level 1
+		%level 0
 		Performs a test on the polynomial underestimators.
 		@param Check convexification
 		%options 0, 1
 		%default 0
-		%level 1
+		%level 0
 		Performs a test on the convexification.
     @param heu close value tolerance
     %options double $\geq 0$
 		%default 10E-8
-		%level 1
+		%level 0
     It the relative distance of two (objective) values is less than this tolerance, they are considered as equal.
     @param heu close points tolerance
     %options double $\geq 0$
 		%default .0001
-		%level 1
+		%level 0
     If the maximal (over all variables) relative (to box diameter) distance is less than this tolerance, two points are considered as equal.
 		@param Level Cuts
 		%options 0, 1
 		%default 1
 		%level 1
 		Whether to add a level cut.
+		@param Quadratic Underestimator adaptive
+		%options 0, 1
+		%default 1
+		%level 2
+		Whether to use the new adaptive (but slower) quadratic underestimator or the old less reliable ones.
 */
 class MinlpOpt : public Solver {
 	friend class LinearRelax;

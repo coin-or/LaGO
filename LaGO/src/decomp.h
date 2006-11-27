@@ -249,19 +249,10 @@ public:
     %options 0 or 1
     %default 1
     If 1, (s-)functions with constant hessians are replaced by their quadratic approximation.
-    @param decompose method
-		%level 1
-    %options mincut or smooth
-    %default mincut
-    Determines, which method should be used to decompose the sparsity graph.
-    @param decompose amount of copyvars
-    %options double $\geq 0$
-    %default 0
-    Determines the amount of copy variables, which are allowed, when we split a problem, using the mincut-algorithm.
 		@param Decomposition average blocksize
-		% options integer $\geq 1$
-		% default 5
-		% level 2
+		%options integer $\geq 1$
+		%default 5
+		%level 1
 		The average blocksize, we should try to partition the sparsity graph into.
 */
 class Decomposition {

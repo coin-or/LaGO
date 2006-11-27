@@ -13,7 +13,7 @@
 QuadraticUnderestimator::QuadraticUnderestimator(Pointer<Param> param_)
 : param(param_), decomp(param),
 	eps(param_->get_d("Quadratic Underestimator epsilon", 1E-4)),
-	iter_max(param_->get_i("Quadratic Underestimator iteration limit", 100)),
+	iter_max(param_->get_i("Quadratic Underestimator iteration limit", 10)),
 	time_max(param_->get_d("Quadratic Underestimator time limit", 0)),
 	sampling(param_, "Quadratic Underestimator"),
 	sampling_vertices(param_, "Quadratic Underestimator"), sampling_minimizer(param_, "Quadratic Underestimator"),

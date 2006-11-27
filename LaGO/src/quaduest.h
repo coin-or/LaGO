@@ -15,21 +15,10 @@
 #include "polynom.h"
 
 /** Class to compute a quadratic underestimators of nonconvex functions.
-		@class QuadraticUnderestimator
-		@param Quadratic Underestimator sample set ...
-		%level 1
-		All sample set parameters starts with "Quadratic Underestimator" here. Check Sampling section for additional parameters.
-		@param Quadratic Underestimator sample set initial
-		%options 0 or 1
-		%default 0
-		%level 1
-		@param Quadratic Underestimator sample set initial
-		%options 0 or 1
-		%default 0
-		%level 1
+    @class QuadraticUnderestimator
 		@param Quadratic Underestimator iteration limit
 		%options >0
-		%default 100
+		%default 10
 		%level 1
 		How often (at most) we should refit the underestimator of a function.
 		@param Quadratic Underestimator time limit
@@ -42,6 +31,30 @@
 		%default 0.0001
 		%level 0
 		How big should the buffer in the underestimator for newly computed sample points be.
+		@param Quadratic Underestimator sample set Monte Carlo
+		%options integer >= 0
+		%default 20
+		%level 1
+		@param Quadratic Underestimator sample set mid point
+		%options 0, 1
+		%default 0
+		%level 1
+		@param Quadratic Underestimator sample set box ends
+		%options 0, 1
+		%default 0
+		%level 1
+		@param Quadratic Underestimator sample set vertices2
+		%options integer >= 0
+		%default 200
+		%level 1
+		@param Quadratic Underestimator sample set minimizer
+		%options 0, 1
+		%default 1
+		%level 1
+		@param Quadratic Underestimator sample set initial
+		%options 0, 1
+		%default 1
+		%level 1
 */
 class QuadraticUnderestimator {
 	private:

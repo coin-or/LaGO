@@ -13,9 +13,17 @@
 #include "gams.h"
 #include "snopt.h"
 
+/** Reads a problem, constructs the optimizer, starts the solve process, and writes the solution files.  
+    @class main
+    @param log output
+    %options 0, 1
+    %default 0
+    %level 1
+    Indicates whether we should print logging output (1), or not (0).
+*/
 int main(int argc, char** argv) {
 	Timer t;
-//	out_log_p=NULL;
+	out_log_p=NULL;
 //	out_out_p=NULL;
 //	out_err_p=NULL;
 
@@ -51,6 +59,8 @@ int main(int argc, char** argv) {
 	Pointer<MinlpProblem> prob(interface.get_problem(argv[1]));
 	prob->prob_name=strdup(argv[1]);
 #endif
+
+	if (param->get_i("log output", 0) && !out_log_p) out_log_p=out_err_p;
 
 #ifdef SNOPT_AVAILABLE
 	snoptlicenceok=true;

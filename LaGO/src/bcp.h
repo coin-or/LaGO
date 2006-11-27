@@ -45,16 +45,16 @@ class LagHeu;
     %options integer $\geq 0$
 		%default 10000
 		%level 2
-    The maximum number of iterations.
+    The maximum number of Branch and Bound iterations.
 		@param MinlpBCP max time
 		%options double $\geq 0$
 		%default 3600
 		%level 2
-		The maximum amount of seconds, which can be used by MinlpBCP.
+		The maximum amount of seconds, which can be used by the preprocessing and MinlpBCP. 
 		@param MinlpBCP gap tol
 		%options double $\geq 0$
 		%default 0.01
-		%level 1
+		%level 2
 		Gap tolerance. Stops, if gap between upper and lower bound is smaller than gap tol.
 		@param Lagrangian cuts
 		%options 0, 1
@@ -64,8 +64,8 @@ class LagHeu;
     @param BCP bound type
     %options NLP,RMP,LP,LP-RMP,stop
 		%default LP
-		%level 2
-    Determines, which bounding method to use.
+		%level 1
+    Determines, which bounding method to use. Options other then LP or NLP are likely to fail.
 		\begin{itemize}
 		\item NLP: Using the convex relaxation (Cext).
 		\item LP: Using the linear relaxation (R).
@@ -76,28 +76,31 @@ class LagHeu;
 		@param BCP preprocess max iter
 		%options integer $\geq 0$
 		%default 0
-		%level 1
+		%level 0
 		The maximum number of BCP preprocessing iterations.
     @param BCP subdiv typ
     %options Binary, Cost, Bisection, Violation
 		%default Binary
-		%level 1
-    The branching method. Binary subdivides only by fixing binary variables.
+		%level 2
+    The branching method. First, binary subdivision is tried. If all binaries are fixed, further actions depend on the value of this parameter. 
 		\begin{itemize}
-		\item Cost: Tries to subdivide w.r.t. a variable, for which a maximum improvement of the Lagrangian can be achieved.
+		\item Binary: If all binary variables are fixed, no further subdivision is performed.
+		\item Cost: Tries to subdivide w.r.t. a variable, for which a maximum improvement of the Lagrangian can be achieved. (not tested)
 		\item Bisection: Subdivides w.r.t. a variables, which boxdiameter is maximal.
 		\item Violation: Tries to subdivide w.r.t. a variable, which can minimize the violation of the reference point.
+    If it fails to find a variable, bisection is used.
 		\end{itemize}
 		@param IntervalGradient cuts
     %options 0, 1
 		%default 0
 		%level 1
-    Enables IntervalGradientCuts
+    Enables (relaxed) IntervalGradientCuts.
 		@param MIP cuts
 		%options 0, 1
 		%default 1
 		%level 1
-		Indicates, whether to derive cuts from the LP relaxation by considering it as a MIP.
+		Indicates, whether to derive cuts from the LP relaxation by considering the binary restrictions in the original problem.
+		Currently, MixedIntegerRoundingCuts from the Cgl are used.
 		@param maxcut
 		%options 0, 1
 		%default 0
@@ -105,17 +108,16 @@ class LagHeu;
 		@param BCP upper bound effort
 		%options $\{0, 1, 2, 3\}$
 		%default 0 (2 for MaxCut)
-		%level 2
+		%level 0
 		How much effort to spend in computation of upper bounds.
 		\begin{itemize}
 		\item[$\geq 0$] performs just local optimization, starting from the reference point.
 		\item[$\geq 1$] applies preswitching as well.
-		\item[$\geq 3$] calls RoundPartHeu, with solution candidates limit 1 (MaxCut: no limit on sol. cand.); and tries SLP-Heuristik
 		\end{itemize}
 		@param LagHeu
 		%options first, second, second b, Simulated Annealing
 		%default none
-		%level 2
+		%level 0
 		Which Lagrangian Heuristic to use to compute upper bounds. Only available, when RMP bounds are used.
 		"first" means the first one, we implemented, "second" is the third one, also called LagHeu2, "second b" is a modification of LagHeu2.
 		@param stopping rho
@@ -131,9 +133,9 @@ class LagHeu;
 		%level 1
 		%options 0, 1
 		%default 1
-		If we should apply IntervalReduction after branching.
+		If we should apply boxreduction based on interval arithmetic after branching.
 		@param Memory limit
-		%level 1
+		%level 0
 		%options $\geq 0$
 		%default 0
 		The amount of virtual memory in Megabytes, LaGO is allowed to use. If set to 0, no limit is used.

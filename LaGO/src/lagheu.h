@@ -137,7 +137,7 @@ class LagHeu1 : public LagHeu {
 		@param Simulated Annealing iter max
 		%options integer $\geq 0$
 		%default MAX(20, number of blocks)
-		%level 1
+		%level 0
 		The number of major iterations of the Simulated Annealing walk. So this is the number of local optimizations, we perform.
 		@param Simulated Annealing weights
 		%options distance, violation
@@ -187,12 +187,12 @@ class LagHeu_SimAnnealing : public LagHeu {
     @param LagHeu2 max locopt
 		%options integer $\geq 0$
 		%default 100
-		%level 1
+		%level 0
 		Number of best candidates to keep for local optimization.
     @param LagHeu2 max combinations
 		%options integer $\geq 0$
 		%default 10000
-		%level 1
+		%level 0
 		Upper bound on the number of combinations of extreme points to explore.
 */
 class LagHeu2 : public LagHeu {
@@ -241,12 +241,12 @@ class LagHeu2 : public LagHeu {
     @param LagHeu2 max locopt
 		%options integer $\geq 0$
 		%default 100
-		%level 1
+		%level 0
 		Number of best candidates to keep for local optimization.
     @param LagHeu2 max combinations
 		%options integer $\geq 0$
 		%default 10000
-		%level 1
+		%level 0
 		Upper bound on the number of combinations of extreme points to explore.
 */
 class LagHeu2b : public LagHeu {

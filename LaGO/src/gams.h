@@ -29,7 +29,7 @@ extern "C" struct dictRec;
 		%level 2
 		If 0, no solution candidates are written to gdx files.
 		If greater 0, every solution candidate is written to a file solcand$<$Value$>$\_$<$Randomnumber$>$.gdx, where Value is the objective value.
-		If more files were written than the number, which is specified by this parameter, the file with the worst (highest value) solution candidate will be removed again.
+		If more files were written than the number, which is specified by this parameter, the file with the worst solution candidate is removed again.
 */
 class gams {
 	friend class gamsLocOpt;

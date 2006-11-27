@@ -36,7 +36,7 @@
 		@param GAMS Preprocessing optionfile
 		%options integer $\geq 0$
 		%default 0
-		%level 2
+		%level 1
 		The optionfile for the solver to use for the preprocessing model.
 */
 class GAMSPreprocessing : public LocOptPreprocessing {

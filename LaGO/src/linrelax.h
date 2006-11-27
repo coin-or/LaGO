@@ -19,11 +19,6 @@ class LinearRelaxSolverMIP;
 
 /** A linear relaxation.
     @class LinearRelax
-	@param deep cuts
-	%options 0 or 1
-	%default 1
-	%level 1
-    Indicates, whether to add deep cuts (1) or not (0).
 	@param Level Cuts
 	%options 0 or 1
 	%default 1
@@ -32,17 +27,17 @@ class LinearRelaxSolverMIP;
     @param max cuts nr
     %options integer $\geq 0$
     %default 500000
-	%level 1
+	%level 2
     The maximum number of cuts handled (over all nodes).
     @param Cuts inactive time limit global
     %options integer $\geq 0$
     %default 10
-    %level 0
+    %level 1
     The number of iterations a global (i.e., valid for all nodes) cut should be inactive before it is deleted.
     @param Cuts inactive time limit local
     %options integer $\geq 0$
     %default 3
-    %level 0
+    %level 1
     The number of iterations a local (i.e., valid for only one node and its successors) cut should be inactive before it is deleted.
 */
 class LinearRelax {

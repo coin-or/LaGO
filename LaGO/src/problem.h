@@ -14,10 +14,10 @@
 /** Class for defining a mixed-integer nonlinear minimization problem.
     If i_discr is empty the problem is continuous.
     @class MinlpProblem
-    @param constraint scaling eps:
+    @param constraint scaling eps
 		%options $\geq 0$
-		%default 1
-    The value $\epsilon$ to which constraints are going to be scaled.
+		%default 0
+    The value $\epsilon$ to which constraints are going to be scaled. Not applied currently.
     @param constraint scaling default
 		%options W*gradient | condition Jac | adjust by box ends | equalized
 		%default no scaling

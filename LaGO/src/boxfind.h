@@ -19,13 +19,14 @@
     @class BoundsFinder
     @param BoundsFinder method
     %options guess, expensive, expensive2
-    %default expensive
+    %default guess
 		%level 1
-    The method, how we compute the bounds.
+    The method, how to compute missing bounds in case that Boxreduce effort is set to 2.
+    ``guess'' just guesses bounds, while expensive tries to compute an enclosure of the set determined by the convex constraints of the original problem. 
 		@param Box Reduction skip binaries
 		%options 0, 1
 		%default 0
-		%level 1
+		%level 0
 		Indicates, whether we should skip to perform box reduction for binary variables.
 */
 class BoundsFinder {
@@ -58,8 +59,8 @@ class BoundsFinder {
 		BoundsFinder(Pointer<Param> param_=NULL)
 		: param(param_), method(3), low(true), up(true), known(true)
 		{	if (!LocOpt::nlp_solver_available()) method=0;
-			else if ((!param) || (strcmp(param->get("BoundsFinder method", "expensive"), "expensive")==0))	method=1;
-			else if (!strcmp(param->get("BoundsFinder method"), "guess"))	method=0;
+			else if ((!param) || (strcmp(param->get("BoundsFinder method", "guess"), "guess")==0))	method=0;
+			else if (!strcmp(param->get("BoundsFinder method"), "expensive")) 	method=1;
 			else if (!strcmp(param->get("BoundsFinder method"), "expensive2")) method=2;
 		};
 		
