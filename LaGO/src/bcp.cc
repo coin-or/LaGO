@@ -97,11 +97,12 @@ void MinlpBCP::init() {
 
 	mem_limit=param->get_i("Memory limit", 0);
 
-	if (!strcmp(param->get("BCP bound type", "LP"), "LP")) maj_bound_type=LP_bound;
-	else if (!strcmp(param->get("BCP bound type"), "NLP")) maj_bound_type=NLP_bound;
-	else if (!strcmp(param->get("BCP bound type"), "RMP")) maj_bound_type=RMP_bound;
-	else if (!strcmp(param->get("BCP bound type"), "LP-RMP")) maj_bound_type=LP_RMP_bound;
-	else if (!strcmp(param->get("BCP bound type"), "stop")) maj_bound_type=stop_bound;
+	Pointer<char> bcpboundtype=param->get("BCP bound type", "LP");
+	if (!strcmp(bcpboundtype, "LP")) maj_bound_type=LP_bound;
+	else if (!strcmp(bcpboundtype, "NLP")) maj_bound_type=NLP_bound;
+	else if (!strcmp(bcpboundtype, "RMP")) maj_bound_type=RMP_bound;
+	else if (!strcmp(bcpboundtype, "LP-RMP")) maj_bound_type=LP_RMP_bound;
+	else if (!strcmp(bcpboundtype, "stop")) maj_bound_type=stop_bound;
 	else maj_bound_type=LP_bound;
 
 	pre_bb_max_iter=param->get_i("BCP preprocess max iter", 0);
@@ -109,10 +110,11 @@ void MinlpBCP::init() {
 
 	lagsolve_type=BranchCut;
 
-	if (!strcmp(param->get("BCP subdiv type", "Binary"), "Binary")) subdiv_type=BinSubdiv;
-	else if (!strcmp(param->get("BCP subdiv type"), "Cost")) subdiv_type=CostSubdivLag;
-	else if (!strcmp(param->get("BCP subdiv type"), "Bisection")) subdiv_type=BisectSubdiv;
-	else if (!strcmp(param->get("BCP subdiv type"), "Violation")) subdiv_type=ViolSubdiv;
+	Pointer<char> bcpsubdivtype=param->get("BCP subdiv type", "Binary");
+	if (!strcmp(bcpsubdivtype, "Binary")) subdiv_type=BinSubdiv;
+	else if (!strcmp(bcpsubdivtype, "Cost")) subdiv_type=CostSubdivLag;
+	else if (!strcmp(bcpsubdivtype, "Bisection")) subdiv_type=BisectSubdiv;
+	else if (!strcmp(bcpsubdivtype, "Violation")) subdiv_type=ViolSubdiv;
 	else subdiv_type=CostSubdivLag;
 
 	is_maxcut=param->get_i("maxcut", 0);
@@ -1543,46 +1545,27 @@ int MinlpBCP::conv_rate_check(double val) {
 void MinlpBCP::mem_check() {
 	if (!mem_limit) return;
 
-	unsigned int mem=get_mem();
-	mem/=1024;
-	out_solver_log << "Mem used: " << mem << "KB";
+	unsigned int mem=get_mem()/1024; // getting KB
 
-	mem/=1024;
-	if (mem<mem_limit) {
-		out_solver_log << endl;
+	if (mem/1024<mem_limit) { // compare to MB
+		out_solver_log << "Memory used: " << mem << "KB" << endl;
 		return;
 	}
-	out_solver_log << '\t';
+	out_solver << "Memory used: " << mem << "KB. Memory limit reached. ";
 
-	int toremove=bb_tree.size()/10;
-	out_solver << "Memory limit reached. Removing " << toremove << " nodes.";
-
+	int removed=0;
 	multimap<double, Pointer<MinlpNode> >::iterator it;
-	while (toremove--) {
+	while (mem/1024>.95*mem_limit && bb_tree.size()>1) {
 		it=--bb_tree.end();
+		MinlpNode* addr=it->second;
 		linear_relax->remove_node(it->second);
 		bb_tree.erase(it);
+		assert(Pointer<MinlpNode>::count(addr)==0);
+		++removed;
+		mem=get_mem()/1024;		
 	}
-/*
-	multimap<double, Pointer<MinlpNode> >::reverse_iterator it(bb_tree.rbegin());
-	for (int i=0; it!=bb_tree.rend() && i<100; ++i)
-		linear_relax->remove_node(it->second);
-*/
-	out_solver << "\t Mem used now: " << get_mem()/1024 << "KB" << endl;
-/*
-	while (mem>.9*mem_limit && bb_tree.size()>10) {
-		Pointer<MinlpNode> node=it->second;
-		linear_relax->remove_node(node);
-		node=NULL;
-		bb_tree.erase(--bb_tree.end());
-		it=bb_tree.rbegin();
-		mem=get_mem(procfile, dummy)/1024;
-		out_solver_log << mem << ' ';
-		mem/=1024;
-//		++it;
-	}
-	out_solver_log << endl;
-*/
+
+	out_solver << "Removed " << removed << " nodes. Now using " << mem << "KB." << endl;
 }
 
 // ------------------------------------------- main loop ----------------------------------------------------
@@ -1926,7 +1909,7 @@ int MinlpBCP::find_sol_candidates(Pointer<MinlpNode> node) {
 
 	// Lag Heu
 	if (node->i_ExtremePoints.size()) {
-		char* name=NULL;
+		Pointer<char> name;
 		if ((!lagheu) && (name=param->get("LagHeu"))) {
 			if (!strcmp(name, "first")) lagheu=new LagHeu1(orig_prob, linear_relax, is_gams_prob, sol_cand_closeval_tol, sol_cand_diam, param, out_solver_p, out_solver_log_p);
 			else if (!strcmp(name, "second")) lagheu=new LagHeu2(orig_prob, linear_relax, is_gams_prob, sol_cand_closeval_tol, sol_cand_diam, param, out_solver_p, out_solver_log_p);

@@ -139,28 +139,28 @@ void Timer::print(ostream& out, double time) {
 
 }
 
-/** Reads proc/pid/stat file.
-*/
-ifstream proc_stat;
-/** Name of file proc/pid/stat.
-*/
-Pointer<char> proc_stat_name;
+#include <malloc.h>
 
 unsigned int get_mem() {
-	if (!proc_stat_name) {
-		proc_stat_name=new char[100];
-		sprintf(proc_stat_name, "/proc/%i/stat", getpid());
-	}
+//struct mallinfo {
+//  int arena;    /* non-mmapped space allocated from system */
+//  int ordblks;  /* number of free chunks */
+//  int smblks;   /* number of fastbin blocks */
+//  int hblks;    /* number of mmapped regions */
+//  int hblkhd;   /* space in mmapped regions */
+//  int usmblks;  /* maximum total allocated space */
+//  int fsmblks;  /* space available in freed fastbin blocks */
+//  int uordblks; /* total allocated space */
+//  int fordblks; /* total free space */
+//  int keepcost; /* top-most, releasable (via malloc_trim) space */
+//};
 
-	proc_stat.open(proc_stat_name);
-	char* dummy=new char[255];
-	for (int i=0; i<22; ++i) proc_stat >> dummy;
+	struct mallinfo meminfo=mallinfo();
+//	out_log << meminfo.arena << '\t' << meminfo.ordblks << '\t' << meminfo.smblks << '\t'
+//		<< meminfo.hblks << '\t' << meminfo.hblkhd << '\t' << meminfo.usmblks << '\t' << meminfo.fsmblks << '\t'
+//		<< meminfo.uordblks << '\t' << meminfo.fordblks << '\t' << meminfo.keepcost << endl;
 
-	unsigned int mem;
-	proc_stat >> mem;
-	proc_stat.close();
-
-	return mem;
+	return meminfo.arena+meminfo.uordblks;
 }
 
 pid_t childpid;

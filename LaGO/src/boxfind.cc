@@ -5,6 +5,16 @@
 // Author: Stefan Vigerske
 
 #include "boxfind.h"
+BoundsFinder::BoundsFinder(Pointer<Param> param_)
+: param(param_), method(3), low(true), up(true), known(true)
+{	if (!LocOpt::nlp_solver_available() || !param) method=0;
+	else {
+		Pointer<char> methodparam=param->get("BoundsFinder method", "guess");
+		if (strcmp(methodparam, "guess")==0)	method=0;
+		else if (!strcmp(methodparam, "expensive")) 	method=1;
+		else if (!strcmp(methodparam, "expensive2")) method=2;
+	}
+};
 
 pair<int,int> BoundsFinder::compute_bounds(MinlpProblem& conv_prob, vector<bool>& discr) {
 	pair<int,int> ret;

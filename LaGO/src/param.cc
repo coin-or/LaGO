@@ -6,6 +6,13 @@
 
 #include "param.h"
 
+ParamTree::~ParamTree() {
+	if (left) delete left;
+	if (right) delete right;
+	free((char*)name);
+	if (value) free((char*)value);
+}
+
 void ParamTree::add(const char* name_, const char* value_) {
   if (! name_) return;
   int cmp=strcmp(name_, name);
@@ -36,6 +43,13 @@ void ParamTree::dump(ostream& out) {
 
 // --------------------------------------------------------------------
 
+Param::~Param() {
+	for (int i=0; i<paramfiles.size(); i++)
+		if (paramfiles[i]) free(paramfiles[i]);
+	if (head) delete head;
+	if (basedir) delete basedir;
+}
+
 int Param::read() {
   bool readnext=true;
   char *line, *name, *value;
@@ -61,8 +75,8 @@ int Param::read() {
         delete file;
         return -1;
       }
+			line=new char[255];
       while (!file->eof()) {
-        line=new char[255];
         if (file->getline(line, 255)) { // read's one line.
           linenr++;
           if (*line=='#') continue; // comment line
@@ -86,8 +100,8 @@ int Param::read() {
             ret++;
           }
         }
-        delete[] line;
       }
+			delete[] line;
       delete file;  // close file
     }
   }

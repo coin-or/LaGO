@@ -160,6 +160,7 @@ public:
 		if (numInstr) delete[] numInstr;
 		if (s) delete[] s;
 		if (sbar) delete[] sbar;
+		if (resstack) delete[] resstack;
 		if (jacNX) delete jacNX;
 		if (jacVR) delete jacVR;
 		if (jacVL) delete jacVL;

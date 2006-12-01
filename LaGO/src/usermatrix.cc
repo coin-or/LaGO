@@ -125,7 +125,7 @@ int UserMatrix::eig(vector<dvector> &eig_vec, vector<double> &eig_val, Param *pa
 		if (!ret) return 0; // all fine, so return; else try arpack
 	}
 
-	char* ea;
+	Pointer<char> ea;
 	if (param && (ea=param->get("eig algorithm"))) {
 		if (!strcmp("lanczos", ea))
 #ifdef LANCZOS_AVAILABLE
@@ -720,9 +720,9 @@ void SparseMatrix::resize(int rows__, int cols__) {
 	if (rows__==0 || cols__==0) {
 		values.clear();
 		if (val) {
-			delete val; val=NULL;
-			delete row_ind; row_ind=NULL;
-			delete col_ptr; col_ptr=NULL;
+			delete[] val; val=NULL;
+			delete[] row_ind; row_ind=NULL;
+			delete[] col_ptr; col_ptr=NULL;
 		}
 	} else {
 		assert(val==NULL);

@@ -135,10 +135,11 @@ class LagHeu;
 		%default 1
 		If we should apply boxreduction based on interval arithmetic after branching.
 		@param Memory limit
-		%level 0
+		%level 2
 		%options $\geq 0$
 		%default 0
-		The amount of virtual memory in Megabytes, LaGO is allowed to use. If set to 0, no limit is used.
+		The amount of totally allocated memory (swaped and non-swaped) in Megabytes, LaGO is allowed to use. If set to 0, no limit is used.
+		When the limit is exceeded in the Branch and Cut, nodes from the branching tree are pruned until LaGO consumes less than 95% of the limit on memory or only one node is left in the tree. 
 */
 class MinlpBCP : public RelaxationSolver {
 	friend class ColumnGenerator;

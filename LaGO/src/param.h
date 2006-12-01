@@ -54,12 +54,7 @@ class ParamTree {
     /** Destructor.
         Deletes the left and right tree, name and value.
     */
-    ~ParamTree() {
-      if (left) delete left;
-      if (right) delete right;
-      delete name;
-      if (value) delete value;
-    }
+		~ParamTree();
 
     /** Add's a new node in the tree.
         If a node for this name still exist's, the value will be overwritten.
@@ -169,12 +164,8 @@ public:
       Deletes the filename-list and frees the parameter-tree.
       @see ParamTree::~ParamTree
   */
-  ~Param() {
-    for (int i=0; i<paramfiles.size(); i++)
-      if (paramfiles[i]) delete paramfiles[i];
-    if (head) delete head;
-  }
-
+  ~Param();
+  
   /** Add's a file to the list of the parameter files.
       @param filename The name of the file.
   */
@@ -193,7 +184,7 @@ public:
       @param def A default value for the parameter, if it wasn't set, default is NULL.
       @return A copy of the value of the parameter or NULL, if no parameter of the specific name was read.
   */
-  char* get(const char *name, const char* def=(const char*)NULL) const {
+	Pointer<char> get(const char *name, const char* def=(const char*)NULL) const {
     const char* parvalue=(head ? head->get(name) : NULL);
     return (parvalue ? strdup(parvalue) : (def ? strdup(def) : NULL));
   }
@@ -204,10 +195,10 @@ public:
       @return The value of the parameter, converted to a double.
   */
   double get_d(const char* name_, double def=0) const {
-    char *parvalue=get(name_);
+    Pointer<char> parvalue=get(name_);
     double val=(parvalue ? (double)atof(parvalue) : def);
 
-    if (parvalue) free(parvalue);
+//    if (parvalue) free(parvalue);
     return val;
   };
 
@@ -217,10 +208,10 @@ public:
       @return The value of the parameter, converted to an integer.
   */
   int get_i(const char* name_, int def=0) const {
-    char *parvalue=get(name_);
+    Pointer<char> parvalue=get(name_);
     int val=(parvalue ? atoi(parvalue) : def);
 
-    if (parvalue) free(parvalue);
+//    if (parvalue) free(parvalue);
     return val;
   }
 
