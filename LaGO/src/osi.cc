@@ -101,7 +101,7 @@ void OSISolver::reset() {
 		addedrows.clear();
 	}
 
-	if (Ind) delete Ind;
+	if (Ind) delete[] Ind;
 }
 
 bool OSISolver::lastpoint_feasible() {
@@ -340,7 +340,7 @@ void OSISolver::delete_rows(const list<const MIPSolver::RowItem*>& rowitems) {
 	for (list<const MIPSolver::RowItem*>::const_iterator it(rowitems.begin()); it!=rowitems.end(); ++it, ++i)
 		RowInd[i]=((const RowItem*)(*it))->index;
 	osisolver->deleteRows(num, RowInd);
-	delete RowInd;
+	delete[] RowInd;
 
 	for (list<const MIPSolver::RowItem*>::const_iterator it(rowitems.begin()); it!=rowitems.end(); ++it) {
 		list<RowItem>::iterator it2(((const RowItem*)(*it))->it);

@@ -196,11 +196,15 @@ void SparsityInfo::add(const UserVector<double>& b, const ivector& block) {
 void SparsityInfo::add(const UserMatrix& A) {
 	const ExtUserMatrix* EA=NULL;
 	const SparseMatrix2* SA=NULL;
+	bool delete_SA=false;
 
 	SA=dynamic_cast<const SparseMatrix2*>(&A);
 	if (!SA) {
 		EA=dynamic_cast<const ExtUserMatrix*>(&A);
-		if (!EA) SA=new SparseMatrix2(A);
+		if (!EA) {
+			SA=new SparseMatrix2(A);
+			delete_SA=true;
+		}
 	}
 
 	if (SA) {
@@ -253,6 +257,7 @@ void SparsityInfo::add(const UserMatrix& A) {
 			}
 		}
 	}
+	if (delete_SA) delete SA;
 }
 
 void SparsityInfo::add(const UserMatrix& A, const ivector& block) {

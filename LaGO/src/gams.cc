@@ -206,7 +206,7 @@ gams::gams(Pointer<Param> param_)
 	 	cerr << "Could not load gdxio.so: " << errormsg << endl;
 		exit(-1);
 	}
-	delete errormsg;
+	delete[] errormsg;
 #endif
 }
 
@@ -442,7 +442,7 @@ Pointer<MinlpProblem> gams::get_problem(char* gamsfile) {
 }
 
 gams::~gams() {
-//	if (dict) delete dict;
+	if (dict) gcdFree(dict);
 	gfclos();
 	gamsptr=NULL;
 }
@@ -914,7 +914,7 @@ gamsLocOpt::gamsLocOpt(Pointer<MinlpProblem> prob_, Pointer<Param> param_, Point
 	tmpsolfn=strdup(iolib.flnsol);
 	*(tiolib*)iolibsave=iolib;
 	args=new char*[3];
-	solvername=param ? param->get("GAMS LocOpt solver", "conopt") : strdup("conopt");
+	solvername=param ? param->get("GAMS LocOpt solver", "conopt") : Pointer<char>(strdup("conopt"));
 	int slen=strlen(solvername);
 	for (int i=0; i<iolib.nosolvers; ++i)
 		if (strnicmp(solvername, iolib.line1[i], slen)==0 && isspace(iolib.line1[i][slen])) {
@@ -939,7 +939,7 @@ gamsLocOpt::gamsLocOpt(Pointer<MinlpProblem> prob_, Pointer<Param> param_, Point
 	file.close();
 
 	if (param) {
-		char* preprocess_lib=param->get("GAMS LocOpt preprocessing");
+		Pointer<char> preprocess_lib=param->get("GAMS LocOpt preprocessing");
 		if (preprocess_lib) {
 			if (!preprocess_handle) preprocess_handle=dlopen(preprocess_lib, RTLD_NOW);
 			if (!preprocess_handle) {
@@ -955,7 +955,6 @@ gamsLocOpt::gamsLocOpt(Pointer<MinlpProblem> prob_, Pointer<Param> param_, Point
 				create=(preprocess_create_t*)dlsym(preprocess_handle, "create");
 				preprocessing=create(param, gamsptr->dict, *prob);
 			}
-
 		}
 	}
 
@@ -963,9 +962,9 @@ gamsLocOpt::gamsLocOpt(Pointer<MinlpProblem> prob_, Pointer<Param> param_, Point
 }
 
 gamsLocOpt::~gamsLocOpt() {
-	delete args[0];
-	delete args[1];
-	delete args;
+	free(args[0]);
+	delete[] args[1];
+	delete[] args;
 	delete (tiolib*)iolibsave;
 	if (preprocessargs) {
 		delete preprocessargs[0];

@@ -466,7 +466,7 @@ MinlpOpt::MinlpOpt(Pointer<MinlpProblem> prob, Pointer<Param> param_, bool is_ga
 {	tol=1E-4;
 	boxreduce_effort=param->get_i("Boxreduce effort", 1);
 
-	char* val=param->get("Boxreduce type", "off");
+	Pointer<char> val=param->get("Boxreduce type", "off");
 	if ((!val) || (!strcmp(val, "NLP"))) boxreduce_type=box_C;
 	else if (!strcmp(val, "NLP2")) boxreduce_type=box_Cext;
 	else if (!strcmp(val, "MINLP")) boxreduce_type=box_Pext;
@@ -475,7 +475,6 @@ MinlpOpt::MinlpOpt(Pointer<MinlpProblem> prob, Pointer<Param> param_, bool is_ga
 		out_err << "Boxreduce type " << val << " not known. Try other. Aborting." << endl;
 		exit(-1);
 	}
-	if (val) free(val);
 }
 
 void MinlpOpt::decompose() {
@@ -781,6 +780,7 @@ void MinlpOpt::convex_relax() {
 					quad_prob->con_eq[c-1]=false;
 					quad_con_c_add.push_back(-quad_con_c_add[c-1]);
 				}
+				if (name) delete[] name;
 			}
 			(c ? convex_prob->con[c-1] : convex_prob->obj)=p.first;
 
@@ -1309,10 +1309,11 @@ int MinlpOpt::solve() {
 	init();
 	int ret;
 
-	if (!strcmp(param->get("MinlpOpt mode", "BCP"), "BCP")) {
-		out_out << "Starting Branch Cut and Price." << endl;
+	Pointer<char> minlpoptmode=param->get("MinlpOpt mode", "BCP");
+	if (!strcmp(minlpoptmode, "BCP")) {
+		out_out << "Starting Branch and Cut." << endl;
 		ret=start_bb();
-	} else if (!strcmp(param->get("MinlpOpt mode"), "off")) {
+	} else if (!strcmp(minlpoptmode, "off")) {
 		out_out << "Preprocessing only." << endl;
 		init2();
 		ret=1;

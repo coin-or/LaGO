@@ -460,7 +460,8 @@ LagHeu_SimAnnealing::LagHeu_SimAnnealing(Pointer<MinlpProblem> orig_prob_, Point
 	Z(linear_relax->obj->block.size())
 { iter_max=param->get_i("Simulated Annealing iter max", MAX(20, Z.size()));
 	minor_iter_max=linear_relax->obj->dim()/Z.size(); // average block size
-	if (!strcmp(param->get("Simulated Annealing weights", "violation"), "violation")) weight_type=VIOLATION;
+	Pointer<char> weightsparam=param->get("Simulated Annealing weights", "violation");
+	if (!strcmp(weightsparam, "violation")) weight_type=VIOLATION;
 	else weight_type=DISTANCE;
 }
 

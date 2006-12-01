@@ -56,13 +56,7 @@ class BoundsFinder {
 		/** (Standard-)Constructor.
 		    @param param_ Parameters, default is NULL.
 		*/
-		BoundsFinder(Pointer<Param> param_=NULL)
-		: param(param_), method(3), low(true), up(true), known(true)
-		{	if (!LocOpt::nlp_solver_available()) method=0;
-			else if ((!param) || (strcmp(param->get("BoundsFinder method", "guess"), "guess")==0))	method=0;
-			else if (!strcmp(param->get("BoundsFinder method"), "expensive")) 	method=1;
-			else if (!strcmp(param->get("BoundsFinder method"), "expensive2")) method=2;
-		};
+		BoundsFinder(Pointer<Param> param_=NULL);
 		
 		/** Tries to find or improve variables bounds.
 		    Depending on the parameter "BoundsFinder method" calls the simple or expensive method.

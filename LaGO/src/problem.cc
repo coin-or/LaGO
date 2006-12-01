@@ -182,18 +182,17 @@ int MinlpProblem::scale(UserVector<double>& x, Pointer<Param> param) {
   int scaled=0; // number of scaled constraints
 
   double eps=param->get_d("constraint scaling eps", 1.);
-  char* default_option=param->get("constraint scaling default", "none");
+	Pointer<char> default_option=param->get("constraint scaling default", "none");
 
   if (strcmp(default_option, "none"))
     for (int c=0; c<con.size(); c++) con_scale[c]=compute_scale(default_option, c, eps, x);
-	delete default_option;
 	
   int max_pattern=param->get_i("constraint scaling max patterns", 0);
   assert(max_pattern<1000);
   for (int i=0; i<=max_pattern; i++) {
     char* pname=new char[strlen("constraint scaling pattern ")+4];
     sprintf(pname, "constraint scaling pattern %i", i);
-    char* pattern=param->get(pname);
+    Pointer<char> pattern=param->get(pname);
     if (pattern) {
       pattern=strdup(pattern);
       char* option=pattern;
@@ -207,8 +206,6 @@ int MinlpProblem::scale(UserVector<double>& x, Pointer<Param> param) {
     	}
 	    for (int c=0; c<con.size(); c++)
 	      if (strstr(con_names[c], pattern)) con_scale[c]=compute_scale(option, c, eps, x);
-
-	    delete pattern;
 	  }
 	  delete pname;
   }

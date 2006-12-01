@@ -225,7 +225,7 @@ int GAMSPreprocessing::init(struct dictRec* LaGO_dict, const MinlpProblem& LaGO_
 	}
 
 	// get solver index
-	char* preprocess_solver=param ? param->get("GAMS Preprocessing solver", "conopt") : strdup("conopt");
+	Pointer<char> preprocess_solver=param ? param->get("GAMS Preprocessing solver", "conopt") : Pointer<char>(strdup("conopt"));
 	int slen=strlen(preprocess_solver);
 	for (int i=0; i<iolib.nosolvers; ++i)
 		if (strnicmp(preprocess_solver, iolib.line1[i], slen)==0 && isspace(iolib.line1[i][slen])) {
@@ -273,7 +273,6 @@ int GAMSPreprocessing::init(struct dictRec* LaGO_dict, const MinlpProblem& LaGO_
     << "\t Variables, LaGO has more: " << var_LaGO_notpp.size() << endl
 		<< "\t discrete variables: " << i_discr.size() << endl;
 
-	delete preprocess_solver;
 	preprocess_iolib=iolib;
 	iolib=LaGO_iolib;
 	return 0;
