@@ -654,14 +654,7 @@ bool Sampling_Minimizer::add_minimizer(vector<vector<dvector> >& sample_set, Poi
 	if (!minimizer) return false;
 
 	Pointer<MinlpProblem> prob=new MinlpProblem(f, lower, upper);
-/*	if (!param) param=new Param();
-		if (!param->get("Sampling Minimizer snopt nospecs")) {
-			param->add("Sampling Minimizer snopt nospecs", "0");
-			if (!param->get("Sampling Minimizer snopt specs"))
-				param->add("Sampling Minimizer snopt specs", "resource/superbasic.snopt");
-		}
-*/
-	Pointer<LocOpt> solver(LocOpt::get_solver(prob, param, "Sampling Minimizer", NULL, NULL));
+	Pointer<LocOpt> solver(LocOpt::get_solver(prob, param, NULL, NULL, NULL));
 
 	double min_val=INFINITY;
 	int min_index=-1;
@@ -704,7 +697,7 @@ bool Sampling_Minimizer::add_minimizer(vector<dvector>& sample_set, Pointer<Func
 	Pointer<SepQcFunc> obj(new SepQcFunc(f->dim()));
 	obj->s[0]=f;
 	Pointer<MinlpProblem> prob=new MinlpProblem(obj, lower, upper);
-	Pointer<LocOpt> solver(LocOpt::get_solver(prob, param, "Sampling Minimizer", NULL, NULL));
+	Pointer<LocOpt> solver(LocOpt::get_solver(prob, param, NULL, NULL, NULL));
 
 	int ret=solver->solve(start);
 
