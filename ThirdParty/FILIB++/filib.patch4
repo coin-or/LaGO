@@ -1,0 +1,84 @@
+diff -ru filib.org/bsd/strtod.c interval/bsd/strtod.c
+--- filib.org/bsd/strtod.c	2002-11-25 08:07:05.000000000 +0100
++++ interval/bsd/strtod.c	2005-09-04 21:53:42.000000000 +0200
+@@ -139,7 +139,7 @@
+  */
+ 
+ #if defined(__i386__) || defined(__ia64__) || defined(__alpha__) || \
+-    defined(__sparc64__) || defined(__powerpc__)
++    defined(__sparc64__) || defined(__powerpc__) || defined(__x86_64__)
+ #include <sys/types.h>
+ #if BYTE_ORDER == BIG_ENDIAN
+ #define IEEE_BIG_ENDIAN
+diff -ru filib.org/macro/include/rounding.h interval/macro/include/rounding.h
+--- filib.org/macro/include/rounding.h	2004-06-16 12:32:22.000000000 +0200
++++ interval/macro/include/rounding.h	2005-09-04 21:50:27.000000000 +0200
+@@ -5,7 +5,7 @@
+ 
+ #if defined(FILIB_NATIVE_ROUNDING)
+ 
+- #if defined(__i386__) || defined(__sparc__)
++ #if defined(__i386__) || defined(__sparc__) || defined(__x86_64__)
+ 
+    // 387 control word for directed roundings; no interrupts and double
+    // precision rounding 
+diff -ru filib.org/macro/src/ieee.cc interval/macro/src/ieee.cc
+--- filib.org/macro/src/ieee.cc	2004-06-16 10:24:06.000000000 +0200
++++ interval/macro/src/ieee.cc	2005-09-04 21:53:02.000000000 +0200
+@@ -117,7 +117,7 @@
+ 
+ Double::FPUStartUp::FPUStartUp() 
+ {
+-#ifdef __i386__
++#if defined(__i386__) || defined(__x86_64__)
+ #if defined(__GNUC__) || defined(__KCC)
+   // set FPU control to double precision, rounding to nearest, no interrupts
+   asm("fldcw %0" : : "m" (0x027F) );
+diff -ru filib.org/rounding_control/rounding_control_double_freebsd.icc interval/rounding_control/rounding_control_double_freebsd.icc
+--- filib.org/rounding_control/rounding_control_double_freebsd.icc	2001-12-02 17:41:34.000000000 +0100
++++ interval/rounding_control/rounding_control_double_freebsd.icc	2005-09-04 21:55:37.000000000 +0200
+@@ -42,7 +42,7 @@
+ 				/**
+ 				 * set double precision
+ 				 **/
+-				#if defined(__i386__)
++				#if defined(__i386__) || defined(__x86_64__)
+ 				fpsetprec(FP_PD);
+ 				#endif
+ 			}
+diff -ru filib.org/rounding_control/rounding_control_double.hpp interval/rounding_control/rounding_control_double.hpp
+--- filib.org/rounding_control/rounding_control_double.hpp	2001-10-23 16:58:50.000000000 +0200
++++ interval/rounding_control/rounding_control_double.hpp	2005-09-04 21:56:10.000000000 +0200
+@@ -69,7 +69,7 @@
+ // include platform specific rounding code
+ 
+ // use asm inline code for GNU-Assembler on i38[67]
+-#if (defined(__GNUC__) && defined(__i386__)) || (defined(__KCC) && defined(__i386__))
++#if (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))) || (defined(__KCC) && (defined(__i386__) || defined(__x86_64__)))
+ #include <rounding_control/rounding_control_double_asmi386.icc>
+ 
+ // use asm inline code for GNU-Assembler on SPARC
+diff -ru filib.org/rounding_control/rounding_control_float_freebsd.icc interval/rounding_control/rounding_control_float_freebsd.icc
+--- filib.org/rounding_control/rounding_control_float_freebsd.icc	2001-12-02 17:41:34.000000000 +0100
++++ interval/rounding_control/rounding_control_float_freebsd.icc	2005-09-04 21:54:13.000000000 +0200
+@@ -42,7 +42,7 @@
+ 				/**
+ 				 * set float precision
+ 				 **/
+-				#if defined(__i386__)
++				#if defined(__i386__) || defined(__x86_64__)
+ 				fpsetprec(FP_PD);
+ 				#endif
+ 			}
+diff -ru filib.org/rounding_control/rounding_control_float.hpp interval/rounding_control/rounding_control_float.hpp
+--- filib.org/rounding_control/rounding_control_float.hpp	2001-10-23 16:58:50.000000000 +0200
++++ interval/rounding_control/rounding_control_float.hpp	2005-09-04 21:55:14.000000000 +0200
+@@ -69,7 +69,7 @@
+ // include platform specific rounding code
+ 
+ // use asm inline code for GNU-Assembler on i38[67]
+-#if (defined(__GNUC__) && defined(__i386__)) || (defined(__KCC) && defined(__i386__))
++#if (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))) || (defined(__KCC) && (defined(__i386__) || defined(__x86_64__)))
+ #include <rounding_control/rounding_control_float_asmi386.icc>
+ 
+ // use asm for sparc 

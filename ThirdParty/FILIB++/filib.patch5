@@ -1,0 +1,962 @@
+diff -Naur interval/fp_traits/fp_traits_base_double_setup.cpp interval/fp_traits/fp_traits_base_double_setup.cpp
+--- interval/fp_traits/fp_traits_base_double_setup.cpp	2002-08-21 19:03:17.000000000 +0200
++++ interval/fp_traits/fp_traits_base_double_setup.cpp	2006-12-02 17:17:16.000000000 +0100
+@@ -29,31 +29,31 @@
+ #include <ieee/primitive.hpp>
+ #include <cmath>
+ 
+-template<>
++// template<>
+ double const filib::fp_traits_base<double>::min_val = 
+ 	filib::primitive::compose(0,0x1,0,0);
+ 
+-template<>
++// template<>
+ double const filib::fp_traits_base<double>::max_val = 
+ 	filib::primitive::compose(0,0x7FE,(1 << 21)-1,0xffffffff);
+ 
+-template<>
++// template<>
+ double const filib::fp_traits_base<double>::nan_val = 
+ 	filib::primitive::compose(0,0x7FF,1 << 19,0);
+ 
+-template<>
++// template<>
+ double const filib::fp_traits_base<double>::inf_val  = 
+ 	filib::primitive::compose(0,0x7FF,0,0);
+ 
+-template<>
++// template<>
+ double const filib::fp_traits_base<double>::ninf_val =
+ 	filib::primitive::compose(1,0x7FF,0,0);
+ 
+-template<>
++// template<>
+ double const filib::fp_traits_base<double>::l_pi_val  = 
+ 	filib::constructFromBitSet<double>(
+ 	"0:10000000000:1001001000011111101101010100010001000010110100011000");
+-template<>
++// template<>
+ double const filib::fp_traits_base<double>::u_pi_val  = 
+ 	filib::constructFromBitSet<double>(
+ 	"0:10000000000:1001001000011111101101010100010001000010110100011001");
+diff -Naur interval/fp_traits/fp_traits_base_float_setup.cpp interval/fp_traits/fp_traits_base_float_setup.cpp
+--- interval/fp_traits/fp_traits_base_float_setup.cpp	2002-08-21 19:03:17.000000000 +0200
++++ interval/fp_traits/fp_traits_base_float_setup.cpp	2006-12-02 17:17:33.000000000 +0100
+@@ -30,32 +30,32 @@
+ 
+ #include "fp_traits/fp_traits.hpp"
+ 
+-template<>
++// template<>
+ float const filib::fp_traits_base<float>::min_val = 
+ 	filib::primitive::composef(0,0xFE,(1 << 23)-1);
+ 
+-template<>
++// template<>
+ float const filib::fp_traits_base<float>::max_val = 
+ 	filib::primitive::composef(0,0xFE,(1 << 23)-1);
+ 
+-template<>
++// template<>
+ float const filib::fp_traits_base<float>::nan_val = 
+ 	filib::primitive::composef(0,0xFF,0x80);
+ 
+-template<>
++// template<>
+ float const filib::fp_traits_base<float>::inf_val  = 
+ 	filib::primitive::composef(0,0xFF,0);
+ 
+-template<>
++// template<>
+ float const filib::fp_traits_base<float>::ninf_val =
+ 	filib::primitive::composef(1,0xFF,0);
+ 
+-template<>
++// template<>
+ float const filib::fp_traits_base<float>::l_pi_val  =
+ 	primitive::composef(0,126,(1<<23)-1)*
+ 	static_cast<float>
+ 	(filib::constructFromBitSet<double>("0:10000000000:1001001000011111101101010100010001000010110100011000"));
+-template<>
++// template<>
+ float const filib::fp_traits_base<float>::u_pi_val  =
+ 	primitive::composef(0,127,1)*
+ 	static_cast<float>
+diff -Naur interval/fp_traits/fp_traits_double_setup.cpp interval/fp_traits/fp_traits_double_setup.cpp
+--- interval/fp_traits/fp_traits_double_setup.cpp	2002-08-21 19:03:18.000000000 +0200
++++ interval/fp_traits/fp_traits_double_setup.cpp	2006-12-02 17:17:00.000000000 +0100
+@@ -28,17 +28,17 @@
+ #include <cmath>
+ #include <fp_traits/fp_traits.hpp>
+ 
+-template<>
++// template<>
+ int filib::fp_traits<double,filib::native_switched>::precision_val = 3;
+-template<>
++// template<>
+ int filib::fp_traits<double,filib::native_directed>::precision_val = 3;
+-template<>
++// template<>
+ int filib::fp_traits<double,filib::multiplicative>::precision_val = 3;
+-template<>
++// template<>
+ int filib::fp_traits<double,filib::no_rounding>::precision_val = 3;
+-template<>
++// template<>
+ int filib::fp_traits<double,filib::native_onesided_switched>::precision_val = 3;
+-template<>
++// template<>
+ int filib::fp_traits<double,filib::native_onesided_global>::precision_val = 3;
+-template<>
++// template<>
+ int filib::fp_traits<double,filib::pred_succ_rounding>::precision_val = 3;
+diff -Naur interval/fp_traits/fp_traits_float_setup.cpp interval/fp_traits/fp_traits_float_setup.cpp
+--- interval/fp_traits/fp_traits_float_setup.cpp	2002-08-21 19:03:18.000000000 +0200
++++ interval/fp_traits/fp_traits_float_setup.cpp	2006-12-02 17:18:01.000000000 +0100
+@@ -28,15 +28,15 @@
+ #include <cmath>
+ #include <fp_traits/fp_traits.hpp>
+ 
+-template<>
++// template<>
+ int filib::fp_traits<float,filib::native_switched>::precision_val = 3;
+-template<>
++// template<>
+ int filib::fp_traits<float,filib::native_directed>::precision_val = 3;
+-template<>
++// template<>
+ int filib::fp_traits<float,filib::multiplicative>::precision_val = 3;
+-template<>
++// template<>
+ int filib::fp_traits<float,filib::no_rounding>::precision_val = 3;
+-template<>
++// template<>
+ int filib::fp_traits<float,filib::native_onesided_switched>::precision_val = 3;
+-template<>
++// template<>
+ int filib::fp_traits<float,filib::native_onesided_global>::precision_val = 3;
+diff -Naur interval/rounding_control/rounding_control_double_asmi386.icc interval/rounding_control/rounding_control_double_asmi386.icc
+--- interval/rounding_control/rounding_control_double_asmi386.icc	2006-12-02 18:00:22.000000000 +0100
++++ interval/rounding_control/rounding_control_double_asmi386.icc	2006-12-02 17:41:45.000000000 +0100
+@@ -46,12 +46,12 @@
+ 			#else
+ 			#define REGISTER_SAVE
+ 			#endif
+-
++namespace filib {
+ 			/**
+ 			 * construct rounding control
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::setup() 
++			inline void rounding_control<double,C>::setup() 
+ 			{
+ 				/**
+ 				 * reset
+@@ -66,7 +66,7 @@
+ 			 * set rounding to towards minus infinity
+ 			 **/
+ 			template<bool C>			
+-			inline void filib::rounding_control<double,C>::downward() 
++			inline void rounding_control<double,C>::downward() 
+ 			{
+                                 register int __tmp = i387_ROUND_DOWN;
+ 				__asm__   
+@@ -76,7 +76,7 @@
+ 			 * set rounding to towards plus infinity
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::upward() 
++			inline void rounding_control<double,C>::upward() 
+ 			{
+                                 register int __tmp = i387_ROUND_UP;
+ 				__asm__    
+@@ -86,7 +86,7 @@
+ 			 * set rounding to truncate (round to zero)
+ 			 **/
+ 			template<bool C>			
+-			inline void filib::rounding_control<double,C>::tozero() 
++			inline void rounding_control<double,C>::tozero() 
+ 			{
+                                 register int __tmp = i387_ROUND_TRUNC;
+ 				__asm__   
+@@ -96,7 +96,7 @@
+ 			 * set rounding to round to nearest (see ieee)
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::tonearest() 
++			inline void rounding_control<double,C>::tonearest() 
+ 			{
+                                 register int __tmp = i387_ROUND_NEAR;
+ 				__asm__  
+@@ -106,26 +106,27 @@
+ 			 * reset rounding fake
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<double,false>::reset()
++			inline void rounding_control<double,false>::reset()
+ 			{
+ 			}
+ 			/**
+ 			 * really reset rounding
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<double,true>::reset()
++			inline void rounding_control<double,true>::reset()
+ 			{
+-				filib::rounding_control<double,true>::tonearest();
++				rounding_control<double,true>::tonearest();
+ 			}
++}//namespace
+ 			#else /** KAI **/
+-
++namespace filib {
+ 			extern "C" void * __kai_apply(const char *,...);
+ 
+ 			/**
+ 			 * construct rounding control
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::setup() 
++			inline void rounding_control<double,C>::setup() 
+ 			{
+ 				/**
+ 				 * reset
+@@ -138,7 +139,7 @@
+ 			 * set rounding to towards minus infinity
+ 			 **/
+ 			template<bool C>			
+-			inline void filib::rounding_control<double,C>::downward() 
++			inline void rounding_control<double,C>::downward() 
+ 			{
+ 				__kai_apply("__asm__ __volatile__ (\"fldcw %%0\" : : \"m\" (%e) : \"st\",\"st(1)\",\"st(2)\",\"st(3)\",\"st(4)\",\"st(5)\",\"st(6)\",\"st(7)\");", i387_ROUND_DOWN);
+ 			}
+@@ -146,7 +147,7 @@
+ 			 * set rounding to towards plus infinity
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::upward() 
++			inline void rounding_control<double,C>::upward() 
+ 			{
+ 				__kai_apply("__asm__ __volatile__ (\"fldcw %%0\" : : \"m\" (%e) : \"st\",\"st(1)\",\"st(2)\",\"st(3)\",\"st(4)\",\"st(5)\",\"st(6)\",\"st(7)\");", i387_ROUND_UP);
+ 			}
+@@ -154,7 +155,7 @@
+ 			 * set rounding to truncate (round to zero)
+ 			 **/
+ 			template<bool C>			
+-			inline void filib::rounding_control<double,C>::tozero() 
++			inline void rounding_control<double,C>::tozero() 
+ 			{
+ 				__kai_apply("__asm__ __volatile__ (\"fldcw %%0\" : : \"m\" (%e) : \"st\",\"st(1)\",\"st(2)\",\"st(3)\",\"st(4)\",\"st(5)\",\"st(6)\",\"st(7)\");", i387_ROUND_TRUNC);
+ 			}
+@@ -162,7 +163,7 @@
+ 			 * set rounding to round to nearest (see ieee)
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::tonearest() 
++			inline void rounding_control<double,C>::tonearest() 
+ 			{
+ 				__kai_apply("__asm__ __volatile__ (\"fldcw %%0\" : : \"m\" (%e) : \"st\",\"st(1)\",\"st(2)\",\"st(3)\",\"st(4)\",\"st(5)\",\"st(6)\",\"st(7)\");", i387_ROUND_NEAR);
+ 			}
+@@ -170,15 +171,16 @@
+ 			 * reset rounding fake
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<double,false>::reset()
++			inline void rounding_control<double,false>::reset()
+ 			{
+ 			}
+ 			/**
+ 			 * really reset rounding
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<double,true>::reset()
++			inline void rounding_control<double,true>::reset()
+ 			{
+ 				__kai_apply("__asm__ __volatile__ (\"fldcw %%0\" : : \"m\" (%e) : \"st\",\"st(1)\",\"st(2)\",\"st(3)\",\"st(4)\",\"st(5)\",\"st(6)\",\"st(7)\");", i387_ROUND_NEAR);
+ 			}
++} // namespace
+ 			#endif
+diff -Naur interval/rounding_control/rounding_control_double_asmsparc.icc interval/rounding_control/rounding_control_double_asmsparc.icc
+--- interval/rounding_control/rounding_control_double_asmsparc.icc	2001-12-02 17:41:34.000000000 +0100
++++ interval/rounding_control/rounding_control_double_asmsparc.icc	2006-12-02 17:47:32.000000000 +0100
+@@ -41,23 +41,23 @@
+ 			#include <stdexcept>
+ 
+ 			#include <ieeefp.h>
+-
++namespace filib {
+ 			/**
+ 			 * construct rounding control
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::setup() 
++			inline void rounding_control<double,C>::setup() 
+ 			{
+ 				/**
+ 				 * set rounding mode
+ 				 **/
+-				filib::rounding_control<double,C>::tonearest();
++				rounding_control<double,C>::tonearest();
+ 			}
+ 			/**
+ 			 * set rounding to towards minus infinity
+ 			 **/
+ 			template<bool C>			
+-			inline void filib::rounding_control<double,C>::downward() 
++			inline void rounding_control<double,C>::downward() 
+ 			{
+                                 volatile unsigned long status_word;
+                                 __asm__("st %%fsr,%0" : "=m" (*&status_word) : : "memory");
+@@ -68,7 +68,7 @@
+ 			 * set rounding to towards plus infinity
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::upward() 
++			inline void rounding_control<double,C>::upward() 
+ 			{
+                                 volatile unsigned long status_word;
+                                 __asm__("st %%fsr,%0" : "=m" (*&status_word) : : "memory");
+@@ -81,7 +81,7 @@
+ 			 * set rounding to truncate (round to zero)
+ 			 **/
+ 			template<bool C>			
+-			inline void filib::rounding_control<double,C>::tozero() 
++			inline void rounding_control<double,C>::tozero() 
+ 			{
+                                 volatile unsigned long status_word;
+                                 __asm__("st %%fsr,%0" : "=m" (*&status_word) : : "memory");
+@@ -94,7 +94,7 @@
+ 			 * set rounding to round to nearest (see ieee)
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::tonearest() 
++			inline void rounding_control<double,C>::tonearest() 
+ 			{
+                                 volatile unsigned long status_word;
+                                 __asm__("st %%fsr,%0" : "=m" (*&status_word) : : "memory");
+@@ -105,14 +105,15 @@
+ 			 * reset rounding fake
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<double,false>::reset()
++			inline void rounding_control<double,false>::reset()
+ 			{
+ 			}
+ 			/**
+ 			 * really reset rounding
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<double,true>::reset()
++			inline void rounding_control<double,true>::reset()
+ 			{
+-				filib::rounding_control<double,true>::tonearest();
++				rounding_control<double,true>::tonearest();
+ 			}
++} // namespace
+diff -Naur interval/rounding_control/rounding_control_double_freebsd.icc interval/rounding_control/rounding_control_double_freebsd.icc
+--- interval/rounding_control/rounding_control_double_freebsd.icc	2006-12-02 18:00:22.000000000 +0100
++++ interval/rounding_control/rounding_control_double_freebsd.icc	2006-12-02 17:47:28.000000000 +0100
+@@ -28,12 +28,12 @@
+ 			#include <sys/types.h>
+ 			#include <ieeefp.h>
+ 			}
+-
++namespace filib {
+ 			/**
+ 			 * construct rounding control for FreeBSD / SysV 386
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::setup()
++			inline void rounding_control<double,C>::setup()
+ 			{
+ 				/**
+ 				 * we don't want to receive SIGFPE
+@@ -51,7 +51,7 @@
+ 			 * set rounding to towards minus infinity
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::downward()
++			inline void rounding_control<double,C>::downward()
+ 			{
+ 				fpsetround(FP_RM);
+ 			}
+@@ -60,7 +60,7 @@
+ 			 * set rounding to towards plus infinity
+ 			 **/			
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::upward()
++			inline void rounding_control<double,C>::upward()
+ 			{
+ 				fpsetround(FP_RP);
+ 			}
+@@ -69,7 +69,7 @@
+ 			 * set rounding to truncate (round to zero)
+ 			 **/			
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::tozero()
++			inline void rounding_control<double,C>::tozero()
+ 			{
+ 				fpsetround(FP_RZ);
+ 			}
+@@ -78,7 +78,7 @@
+ 			 * set rounding to round to nearest (see ieee)
+ 			 **/			
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::tonearest()
++			inline void rounding_control<double,C>::tonearest()
+ 			{
+ 				fpsetround(FP_RN);
+ 			}
+@@ -87,13 +87,14 @@
+ 			 * reset rounding (fake)
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<double,false>::reset()
++			inline void rounding_control<double,false>::reset()
+ 			{}
+ 			/**
+ 			 * reset rounding (real)
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<double,true>::reset()
++			inline void rounding_control<double,true>::reset()
+ 			{
+-				filib::rounding_control<double,true>::tonearest();
++				rounding_control<double,true>::tonearest();
+ 			}
++} // namespace
+diff -Naur interval/rounding_control/rounding_control_double_iso9x.icc interval/rounding_control/rounding_control_double_iso9x.icc
+--- interval/rounding_control/rounding_control_double_iso9x.icc	2001-12-02 17:41:34.000000000 +0100
++++ interval/rounding_control/rounding_control_double_iso9x.icc	2006-12-02 17:48:00.000000000 +0100
+@@ -30,9 +30,9 @@
+ 			 * construct rounding control conforming to
+ 			 * ISO C 9X
+ 			 **/
+-
++namespace filib {
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::setup()
++			inline void rounding_control<double,C>::setup()
+ 			{
+ 				/**
+ 				 * we don't want to receive SIGFPE
+@@ -49,7 +49,7 @@
+ 			 * set rounding to towards minus infinity
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::downward()
++			inline void rounding_control<double,C>::downward()
+ 			{
+ 				fesetround(FE_DOWNWARD);
+ 			}
+@@ -58,7 +58,7 @@
+ 			 * set rounding to towards plus infinity
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::upward()
++			inline void rounding_control<double,C>::upward()
+ 			{
+ 				fesetround(FE_UPWARD);
+ 			}
+@@ -67,7 +67,7 @@
+ 			 * set rounding to truncate (round to zero)
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::tozero()
++			inline void rounding_control<double,C>::tozero()
+ 			{
+ 				fesetround(FE_TONEAREST);
+ 			}
+@@ -76,7 +76,7 @@
+ 			 * set rounding to round to nearest (see ieee)
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::tonearest()
++			inline void rounding_control<double,C>::tonearest()
+ 			{
+ 				fesetround(FE_TOWARDZERO);
+ 			}
+@@ -85,14 +85,15 @@
+ 			 * reset rounding mode, fake
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<double,false>::reset()
++			inline void rounding_control<double,false>::reset()
+ 			{}
+ 
+ 			/**
+ 			 * reset rounding mode, real
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<double,true>::reset()
++			inline void rounding_control<double,true>::reset()
+ 			{
+-				filib::rounding_control<double,true>::tonearest();
++				rounding_control<double,true>::tonearest();
+ 			}
++} // namespace
+diff -Naur interval/rounding_control/rounding_control_double_void.icc interval/rounding_control/rounding_control_double_void.icc
+--- interval/rounding_control/rounding_control_double_void.icc	2001-10-23 16:58:50.000000000 +0200
++++ interval/rounding_control/rounding_control_double_void.icc	2006-12-02 17:48:23.000000000 +0100
+@@ -24,39 +24,41 @@
+ **  License along with this library; if not, write to the Free
+ **  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ */
++namespace filib {
+ 			/**
+ 			 * construct rounding control
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::setup() 
++			inline void rounding_control<double,C>::setup() 
+ 			{}
+ 			/**
+ 			 * set rounding to towards minus infinity
+ 			 **/
+ 			template<bool C>			
+-			inline void filib::rounding_control<double,C>::downward() 
++			inline void rounding_control<double,C>::downward() 
+ 			{}
+ 			/**
+ 			 * set rounding to towards plus infinity
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::upward() 
++			inline void rounding_control<double,C>::upward() 
+ 			{}
+ 			/**
+ 			 * set rounding to truncate (round to zero)
+ 			 **/
+ 			template<bool C>			
+-			inline void filib::rounding_control<double,C>::tozero() 
++			inline void rounding_control<double,C>::tozero() 
+ 			{}
+ 			/**
+ 			 * set rounding to round to nearest (see ieee)
+ 			 **/
+ 			template<bool C>			
+-			inline void filib::rounding_control<double,C>::tonearest() 
++			inline void rounding_control<double,C>::tonearest() 
+ 			{}
+ 			/**
+ 			 * reset rounding fake
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<double,C>::reset()
++			inline void rounding_control<double,C>::reset()
+ 			{}
++} // namespace
+diff -Naur interval/rounding_control/rounding_control_float_asmi386.icc interval/rounding_control/rounding_control_float_asmi386.icc
+--- interval/rounding_control/rounding_control_float_asmi386.icc	2006-12-02 18:00:22.000000000 +0100
++++ interval/rounding_control/rounding_control_float_asmi386.icc	2006-12-02 17:42:04.000000000 +0100
+@@ -43,12 +43,12 @@
+ 			#else
+ 			#define REGISTER_SAVE
+ 			#endif
+-
++namespace filib {
+ 			/**
+ 			 * construct rounding control
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::setup() 
++			inline void rounding_control<float,C>::setup() 
+ 			{
+ 				/**
+ 				 * reset
+@@ -63,7 +63,7 @@
+ 			 * set rounding to towards minus infinity
+ 			 **/
+ 			template<bool C>			
+-			inline void filib::rounding_control<float,C>::downward() 
++			inline void rounding_control<float,C>::downward() 
+ 			{
+                                 register int __tmp = i387_FLOAT_ROUND_DOWN;
+ 				__asm__   
+@@ -73,7 +73,7 @@
+ 			 * set rounding to towards plus infinity
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::upward() 
++			inline void rounding_control<float,C>::upward() 
+ 			{
+                                 register int __tmp = i387_FLOAT_ROUND_UP;
+ 				__asm__    
+@@ -83,7 +83,7 @@
+ 			 * set rounding to truncate (round to zero)
+ 			 **/
+ 			template<bool C>			
+-			inline void filib::rounding_control<float,C>::tozero() 
++			inline void rounding_control<float,C>::tozero() 
+ 			{
+                                 register int __tmp = i387_FLOAT_ROUND_TRUNC;
+ 				__asm__   
+@@ -93,7 +93,7 @@
+ 			 * set rounding to round to nearest (see ieee)
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::tonearest() 
++			inline void rounding_control<float,C>::tonearest() 
+ 			{
+                                 register int __tmp = i387_FLOAT_ROUND_NEAR;
+ 				__asm__  
+@@ -103,26 +103,27 @@
+ 			 * reset rounding fake
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<float,false>::reset()
++			inline void rounding_control<float,false>::reset()
+ 			{
+ 			}
+ 			/**
+ 			 * really reset rounding
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<float,true>::reset()
++			inline void rounding_control<float,true>::reset()
+ 			{
+-				filib::rounding_control<float,true>::tonearest();
++				rounding_control<float,true>::tonearest();
+ 			}
++} // namespace
+ 			#else /** KAI **/
+-
++namespace filib {
+ 			extern "C" void * __kai_apply(const char *,...);
+ 
+ 			/**
+ 			 * construct rounding control
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::setup() 
++			inline void rounding_control<float,C>::setup() 
+ 			{
+ 				/**
+ 				 * reset
+@@ -135,7 +136,7 @@
+ 			 * set rounding to towards minus infinity
+ 			 **/
+ 			template<bool C>			
+-			inline void filib::rounding_control<float,C>::downward() 
++			inline void rounding_control<float,C>::downward() 
+ 			{
+ 				__kai_apply("__asm__ __volatile__ (\"fldcw %%0\" : : \"m\" (%e) : \"st\",\"st(1)\",\"st(2)\",\"st(3)\",\"st(4)\",\"st(5)\",\"st(6)\",\"st(7)\");", i387_FLOAT_ROUND_DOWN);
+ 			}
+@@ -143,7 +144,7 @@
+ 			 * set rounding to towards plus infinity
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::upward() 
++			inline void rounding_control<float,C>::upward() 
+ 			{
+ 				__kai_apply("__asm__ __volatile__ (\"fldcw %%0\" : : \"m\" (%e) : \"st\",\"st(1)\",\"st(2)\",\"st(3)\",\"st(4)\",\"st(5)\",\"st(6)\",\"st(7)\");", i387_FLOAT_ROUND_UP);
+ 			}
+@@ -151,7 +152,7 @@
+ 			 * set rounding to truncate (round to zero)
+ 			 **/
+ 			template<bool C>			
+-			inline void filib::rounding_control<float,C>::tozero() 
++			inline void rounding_control<float,C>::tozero() 
+ 			{
+ 				__kai_apply("__asm__ __volatile__ (\"fldcw %%0\" : : \"m\" (%e) : \"st\",\"st(1)\",\"st(2)\",\"st(3)\",\"st(4)\",\"st(5)\",\"st(6)\",\"st(7)\");", i387_FLOAT_ROUND_TRUNC);
+ 			}
+@@ -159,7 +160,7 @@
+ 			 * set rounding to round to nearest (see ieee)
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::tonearest() 
++			inline void rounding_control<float,C>::tonearest() 
+ 			{
+ 				__kai_apply("__asm__ __volatile__ (\"fldcw %%0\" : : \"m\" (%e) : \"st\",\"st(1)\",\"st(2)\",\"st(3)\",\"st(4)\",\"st(5)\",\"st(6)\",\"st(7)\");", i387_FLOAT_ROUND_NEAR);
+ 			}
+@@ -167,15 +168,16 @@
+ 			 * reset rounding fake
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<float,false>::reset()
++			inline void rounding_control<float,false>::reset()
+ 			{
+ 			}
+ 			/**
+ 			 * really reset rounding
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<float,true>::reset()
++			inline void rounding_control<float,true>::reset()
+ 			{
+ 				__kai_apply("__asm__ __volatile__ (\"fldcw %%0\" : : \"m\" (%e) : \"st\",\"st(1)\",\"st(2)\",\"st(3)\",\"st(4)\",\"st(5)\",\"st(6)\",\"st(7)\");", i387_FLOAT_ROUND_NEAR);
+ 			}
++} // namespace
+ 			#endif
+diff -Naur interval/rounding_control/rounding_control_float_asmsparc.icc interval/rounding_control/rounding_control_float_asmsparc.icc
+--- interval/rounding_control/rounding_control_float_asmsparc.icc	2001-12-02 17:41:34.000000000 +0100
++++ interval/rounding_control/rounding_control_float_asmsparc.icc	2006-12-02 17:49:04.000000000 +0100
+@@ -41,23 +41,23 @@
+ 			#include <stdexcept>
+ 
+ 			#include <ieeefp.h>
+-
++namespace filib {
+ 			/**
+ 			 * construct rounding control
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::setup() 
++			inline void rounding_control<float,C>::setup() 
+ 			{
+ 				/**
+ 				 * set rounding mode
+ 				 **/
+-				filib::rounding_control<float,C>::tonearest();
++				rounding_control<float,C>::tonearest();
+ 			}
+ 			/**
+ 			 * set rounding to towards minus infinity
+ 			 **/
+ 			template<bool C>			
+-			inline void filib::rounding_control<float,C>::downward() 
++			inline void rounding_control<float,C>::downward() 
+ 			{
+                                 volatile unsigned long status_word;
+                                 __asm__("st %%fsr,%0" : "=m" (*&status_word) : : "memory");
+@@ -68,7 +68,7 @@
+ 			 * set rounding to towards plus infinity
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::upward() 
++			inline void rounding_control<float,C>::upward() 
+ 			{
+                                 volatile unsigned long status_word;
+                                 __asm__("st %%fsr,%0" : "=m" (*&status_word) : : "memory");
+@@ -81,7 +81,7 @@
+ 			 * set rounding to truncate (round to zero)
+ 			 **/
+ 			template<bool C>			
+-			inline void filib::rounding_control<float,C>::tozero() 
++			inline void rounding_control<float,C>::tozero() 
+ 			{
+                                 volatile unsigned long status_word;
+                                 __asm__("st %%fsr,%0" : "=m" (*&status_word) : : "memory");
+@@ -94,7 +94,7 @@
+ 			 * set rounding to round to nearest (see ieee)
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::tonearest() 
++			inline void rounding_control<float,C>::tonearest() 
+ 			{
+                                 volatile unsigned long status_word;
+                                 __asm__("st %%fsr,%0" : "=m" (*&status_word) : : "memory");
+@@ -105,14 +105,15 @@
+ 			 * reset rounding fake
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<float,false>::reset()
++			inline void rounding_control<float,false>::reset()
+ 			{
+ 			}
+ 			/**
+ 			 * really reset rounding
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<float,true>::reset()
++			inline void rounding_control<float,true>::reset()
+ 			{
+-				filib::rounding_control<float,true>::tonearest();
++				rounding_control<float,true>::tonearest();
+ 			}
++} // namespace
+diff -Naur interval/rounding_control/rounding_control_float_freebsd.icc interval/rounding_control/rounding_control_float_freebsd.icc
+--- interval/rounding_control/rounding_control_float_freebsd.icc	2006-12-02 18:00:22.000000000 +0100
++++ interval/rounding_control/rounding_control_float_freebsd.icc	2006-12-02 17:49:27.000000000 +0100
+@@ -28,12 +28,12 @@
+ 			#include <sys/types.h>
+ 			#include <ieeefp.h>
+ 			}
+-
++namespace filib {
+ 			/**
+ 			 * construct rounding control for FreeBSD / SysV 386
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::setup()
++			inline void rounding_control<float,C>::setup()
+ 			{
+ 				/**
+ 				 * we don't want to receive SIGFPE
+@@ -51,7 +51,7 @@
+ 			 * set rounding to towards minus infinity
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::downward()
++			inline void rounding_control<float,C>::downward()
+ 			{
+ 				fpsetround(FP_RM);
+ 			}
+@@ -60,7 +60,7 @@
+ 			 * set rounding to towards plus infinity
+ 			 **/			
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::upward()
++			inline void rounding_control<float,C>::upward()
+ 			{
+ 				fpsetround(FP_RP);
+ 			}
+@@ -69,7 +69,7 @@
+ 			 * set rounding to truncate (round to zero)
+ 			 **/			
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::tozero()
++			inline void rounding_control<float,C>::tozero()
+ 			{
+ 				fpsetround(FP_RZ);
+ 			}
+@@ -78,7 +78,7 @@
+ 			 * set rounding to round to nearest (see ieee)
+ 			 **/			
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::tonearest()
++			inline void rounding_control<float,C>::tonearest()
+ 			{
+ 				fpsetround(FP_RN);
+ 			}
+@@ -87,13 +87,14 @@
+ 			 * reset rounding (fake)
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<float,false>::reset()
++			inline void rounding_control<float,false>::reset()
+ 			{}
+ 			/**
+ 			 * reset rounding (real)
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<float,true>::reset()
++			inline void rounding_control<float,true>::reset()
+ 			{
+-				filib::rounding_control<float,true>::tonearest();
++				rounding_control<float,true>::tonearest();
+ 			}
++} // namespace
+diff -Naur interval/rounding_control/rounding_control_float_iso9x.icc interval/rounding_control/rounding_control_float_iso9x.icc
+--- interval/rounding_control/rounding_control_float_iso9x.icc	2001-12-02 17:41:34.000000000 +0100
++++ interval/rounding_control/rounding_control_float_iso9x.icc	2006-12-02 17:49:45.000000000 +0100
+@@ -30,9 +30,9 @@
+ 			 * construct rounding control conforming to
+ 			 * ISO C 9X
+ 			 **/
+-
++namespace filib {
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::setup()
++			inline void rounding_control<float,C>::setup()
+ 			{
+ 				/**
+ 				 * we don't want to receive SIGFPE
+@@ -49,7 +49,7 @@
+ 			 * set rounding to towards minus infinity
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::downward()
++			inline void rounding_control<float,C>::downward()
+ 			{
+ 				fesetround(FE_DOWNWARD);
+ 			}
+@@ -58,7 +58,7 @@
+ 			 * set rounding to towards plus infinity
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::upward()
++			inline void rounding_control<float,C>::upward()
+ 			{
+ 				fesetround(FE_UPWARD);
+ 			}
+@@ -67,7 +67,7 @@
+ 			 * set rounding to truncate (round to zero)
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::tozero()
++			inline void rounding_control<float,C>::tozero()
+ 			{
+ 				fesetround(FE_TONEAREST);
+ 			}
+@@ -76,7 +76,7 @@
+ 			 * set rounding to round to nearest (see ieee)
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::tonearest()
++			inline void rounding_control<float,C>::tonearest()
+ 			{
+ 				fesetround(FE_TOWARDZERO);
+ 			}
+@@ -85,14 +85,15 @@
+ 			 * reset rounding mode, fake
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<float,false>::reset()
++			inline void rounding_control<float,false>::reset()
+ 			{}
+ 
+ 			/**
+ 			 * reset rounding mode, real
+ 			 **/
+ 			template<>
+-			inline void filib::rounding_control<float,true>::reset()
++			inline void rounding_control<float,true>::reset()
+ 			{
+-				filib::rounding_control<float,true>::tonearest();
++				rounding_control<float,true>::tonearest();
+ 			}
++} // namespace
+diff -Naur interval/rounding_control/rounding_control_float_void.icc interval/rounding_control/rounding_control_float_void.icc
+--- interval/rounding_control/rounding_control_float_void.icc	2001-10-23 16:58:50.000000000 +0200
++++ interval/rounding_control/rounding_control_float_void.icc	2006-12-02 17:50:01.000000000 +0100
+@@ -24,39 +24,41 @@
+ **  License along with this library; if not, write to the Free
+ **  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+ */
++namespace filib {
+ 			/**
+ 			 * construct rounding control
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::setup() 
++			inline void rounding_control<float,C>::setup() 
+ 			{}
+ 			/**
+ 			 * set rounding to towards minus infinity
+ 			 **/
+ 			template<bool C>			
+-			inline void filib::rounding_control<float,C>::downward() 
++			inline void rounding_control<float,C>::downward() 
+ 			{}
+ 			/**
+ 			 * set rounding to towards plus infinity
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::upward() 
++			inline void rounding_control<float,C>::upward() 
+ 			{}
+ 			/**
+ 			 * set rounding to truncate (round to zero)
+ 			 **/
+ 			template<bool C>			
+-			inline void filib::rounding_control<float,C>::tozero() 
++			inline void rounding_control<float,C>::tozero() 
+ 			{}
+ 			/**
+ 			 * set rounding to round to nearest (see ieee)
+ 			 **/
+ 			template<bool C>			
+-			inline void filib::rounding_control<float,C>::tonearest() 
++			inline void rounding_control<float,C>::tonearest() 
+ 			{}
+ 			/**
+ 			 * reset rounding fake
+ 			 **/
+ 			template<bool C>
+-			inline void filib::rounding_control<float,C>::reset()
++			inline void rounding_control<float,C>::reset()
+ 			{}
++} // namespace
