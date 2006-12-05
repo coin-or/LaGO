@@ -1086,6 +1086,7 @@ void MinlpBCP::bisect_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, 
 
 	for (int k=0; k<split_prob->block.size(); k++) {
 		for(int i=0; i<split_prob->block[k].size(); i++) {
+			if (split_prob->get_sparsity(k)->linear->count(i)) continue; // no branching w.r.t. linear variables
 			int i0=split_prob->block[k][i];
 			double dist=split_prob->upper(i0)-split_prob->lower(i0);
 			if (dist<rtol) continue;
@@ -1245,6 +1246,7 @@ void MinlpBCP::viol_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Po
 			for (int i=0; i<split_prob->block[k].size(); i++) {
 				int i0=split_prob->block[k][i];
 				if (fabs(g(i0))<rtol) continue;
+				if (split_prob->con[c]->sparsity_available(k) && split_prob->con[c]->get_sparsity(k).linear->count(i)) continue; // no branching w.r.t. linear variables
 				double dist=split_prob->upper(i0)-split_prob->lower(i0);
 				if (dist<rtol) continue; // fixed variable in problem
 				double dist_local=node->upper(i0)-node->lower(i0);
