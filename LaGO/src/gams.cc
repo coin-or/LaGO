@@ -503,11 +503,6 @@ void gams::gdx_error(int n) {
 }
 
 void gams::write_gdx(const dvector& x, char* filename, double val) {
-	PGXFile gdxhandle=NULL;
-	int errornr;
-	if (errornr=GDXOpenWrite(&gdxhandle, filename, "LaGO")) gdx_error(errornr);
-//	out_log << "GDX file open." << endl;
-
 	if (written_gdx_limit) {
 		if (written_gdx.size()>=written_gdx_limit) {
 //			out_log << "Removing " << written_gdx.rbegin()->second << endl;
@@ -521,6 +516,15 @@ void gams::write_gdx(const dvector& x, char* filename, double val) {
 		}
 		written_gdx.insert(pair<double, Pointer<char> >(val, strdup(filename)));
 	}
+
+	write_gdx(x, filename);	
+}
+
+void gams::write_gdx(const dvector& x, char* filename) {
+	PGXFile gdxhandle=NULL;
+	int errornr;
+	if (errornr=GDXOpenWrite(&gdxhandle, filename, "LaGO")) gdx_error(errornr);
+//	out_log << "GDX file open." << endl;
 
   char quote, *targ, *end, *s, tbuf[32];
   int uelIndices[10], nIndices, lSym, oldSym=-1;
@@ -959,6 +963,7 @@ gamsLocOpt::gamsLocOpt(Pointer<MinlpProblem> prob_, Pointer<Param> param_, Point
 	}
 
 	write_solcand=param && param->get_i("GAMS write solution candidates", 0);
+	write_startpoint=param && param->get_i("GAMS write startpoint", 0);
 }
 
 gamsLocOpt::~gamsLocOpt() {
@@ -1036,6 +1041,16 @@ int gamsLocOpt::solve(dvector& start) {
 	sprintf(iolib.flnsbbopt, "%soqinfo.scr", iolib.gscrdr);
 
 	sol_point=start;
+
+	if (write_startpoint) {
+#ifdef GDX_AVAILABLE
+			char* name=new char[50];
+			sprintf(name, "startpoint_%.10f.gdx", random(0.,1.));
+			gamsptr->write_gdx(sol_point, name);
+			delete[] name;
+#endif
+	}
+
 
 	if (preprocessing || preprocessargs) {
 		rd=random(0.,1.);
@@ -1129,12 +1144,12 @@ int gamsLocOpt::solve(dvector& start) {
 // translating return codes from GAMS to SNOPT
 	if (solver_status==1 && (model_status==1 || model_status==2)) {
 		if (write_solcand) {
-			/*if (!preprocessargs) */rd=random(0.,1.);
 #ifdef GDX_AVAILABLE
+			/*if (!preprocessargs) */rd=random(0.,1.);
 			char* name=new char[50];
 			sprintf(name, "solcand%f_%.10f.gdx", opt_val_, rd);
 			gamsptr->write_gdx(sol_point, name, opt_val_);
-			delete name;
+			delete[] name;
 #endif
 		}
 		out_solver << "feasiblity: "; prob->feasible(sol_point, 1E-4, out_solver_p);

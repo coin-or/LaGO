@@ -30,6 +30,11 @@ extern "C" struct dictRec;
 		If 0, no solution candidates are written to gdx files.
 		If greater 0, every solution candidate is written to a file solcand$<$Value$>$\_$<$Randomnumber$>$.gdx, where Value is the objective value.
 		If more files were written than the number, which is specified by this parameter, the file with the worst solution candidate is removed again.
+		@param GAMS write startpoint
+		%options $\geq 0$
+		%default 0
+		%level 2
+		If greater 0, every starting point of a local search is written to a file startpoint\_$<$Randomnumber$>$.gdx.
 */
 class gams {
 	friend class gamsLocOpt;
@@ -96,7 +101,8 @@ class gams {
 #ifdef GDX_AVAILABLE
 		/** Writes a gdx file which contains the variables and the values from a given vector.
 		*/
-		void write_gdx(const dvector& x, char* filename, double val=0.);
+		void write_gdx(const dvector& x, char* filename, double val);
+		void write_gdx(const dvector& x, char* filename);
 		void read_gdx(dvector& x, char* filename);
 #endif
 
@@ -302,6 +308,7 @@ class gamsLocOpt : public LocOpt {
 		bool preprocess_keepgdx;
 
 		bool write_solcand;
+		bool write_startpoint;
 
 		/** A random value to identify points, we process.
 		*/
