@@ -258,7 +258,7 @@ class LinearRelax {
 			upper=upper_;
 		}
 		
-		void generate_cuts(Pointer<MinlpNode> node);
+		int generate_cuts(Pointer<MinlpNode> node);
 };
 
 /** An abstract solver for the linear relaxation.

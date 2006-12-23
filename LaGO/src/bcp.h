@@ -152,6 +152,10 @@ class MinlpBCP : public RelaxationSolver {
 		 * Default: false.
 		*/
 		bool prob_is_convex;
+		
+		/** The quadratic relaxation of the problem.
+		*/ 
+		Pointer<MinlpProblem> quad_prob;		
 
 		/** The original problem for each block (P_k), without objective function.
 		*/
@@ -439,8 +443,10 @@ class MinlpBCP : public RelaxationSolver {
 			Pointer<ostream> out_solver_p_=out_out_p, Pointer<ostream> out_solver_log_p_=out_log_p);
 
 		virtual ~MinlpBCP();
+		
+		void set_quad_relax(Pointer<MinlpProblem> quad_prob_);
 
-		void set_convex_relax(Pointer<MinlpProblem> convex_prob_, Pointer<dvector> sol_C_, bool sol_C_is_solution_);
+		void set_convex_prob(Pointer<MinlpProblem> convex_prob_, const Pointer<dvector>& sol_C_=NULL, bool sol_C_is_solution_=false);
 
 		void set_reform(Pointer<Reformulation> reform_, Pointer<dvector> sol_C_, bool sol_C_is_solution_);
 

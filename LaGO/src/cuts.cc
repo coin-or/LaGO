@@ -501,8 +501,18 @@ int LinearizedConCutGenerator::get_cuts(list<pair<LinearizationCut, pair<int, bo
 			(*cut.coeff)[i]+=shift*(xk(i)-.5*lower(i0)-.5*upper(i0));
 			cut.constant+=(xk(i)-lower(i0))*shift*(xk(i)-upper(i0));
 		}
-		cut.constant-=2*(*cut.coeff*xk);
+		
+		double violation=cut.constant;
+		if (tindex>=0) violation-=x(prob->block[k][tindex]);
+		if (violation<tol) continue; // skip constraints where the convex relax. is not violated
 
+		double maxcoeff=1;
+		for (int i=0; i<cut.coeff->size(); ++i) if (2*fabs((*cut.coeff)(i))>maxcoeff) maxcoeff=2*fabs((*cut.coeff)(i));
+//		out_log << "Constraint " << objcon.name << " violated by " << violation << '\t' << maxcoeff << '\t' << violation/maxcoeff;
+		violation/=maxcoeff;
+		if (violation>max_violation) max_violation=violation;
+		
+		cut.constant-=2*(*cut.coeff*xk);
 		cut.coeff->resize(prob->block[k].size()); // resize to extended problem size
 
 		// if had been reformulated, add -t_k variable to gradient
@@ -511,6 +521,10 @@ int LinearizedConCutGenerator::get_cuts(list<pair<LinearizationCut, pair<int, bo
 //		out_log << objcon.name << " block " << k << " const.= " << cut.constant << "\t coeff=" << *cut.coeff;
 		cuts.push_back(pair<LinearizationCut, pair<int, bool> >(cut, pair<int, bool>(k, objcon.func->get_curvature(k)==Func::CONVEX)));
 		++nr;
+
+//		double valcheck=2* (*cut.coeff * x(prob->block[k]))+cut.constant;
+//		out_log << '\t' << valcheck;
+//		out_log << endl;
 	}
 
 	return nr;	
@@ -572,8 +586,18 @@ int LinearizedConCutGenerator::get_cuts(list<pair<LinearizationCut, pair<int, bo
 			(*cut.coeff)[i]+=shift*(xk(i)-.5*lower(i0)-.5*upper(i0));
 			cut.constant+=(xk(i)-lower(i0))*shift*(xk(i)-upper(i0));
 		}
-		cut.constant-=2*(*cut.coeff*xk);
 
+		double violation=cut.constant;
+		if (tindex>=0) violation+=x(prob->block[k][tindex]);
+		if (violation<tol) continue; // skip constraints where the convex relax. is not violated
+
+		double maxcoeff=1;
+		for (int i=0; i<cut.coeff->size(); ++i) if (2*fabs((*cut.coeff)(i))>maxcoeff) maxcoeff=2*fabs((*cut.coeff)(i));
+//		out_log << "Constraint " << con.name << " violated by " << violation << '\t' << maxcoeff << '\t' << violation/maxcoeff;
+		violation/=maxcoeff;
+		if (violation>max_violation) max_violation=violation;
+
+		cut.constant-=2*(*cut.coeff*xk);
 		cut.coeff->resize(prob->block[k].size()); // resize to extended problem size
 
 		// if had been reformulated, add t_k variable
@@ -582,6 +606,10 @@ int LinearizedConCutGenerator::get_cuts(list<pair<LinearizationCut, pair<int, bo
 //		out_log << '-' << con.name << " block " << k  << "\t const.= " << cut.constant << "\t coeff=" << *cut.coeff;
 		cuts.push_back(pair<LinearizationCut, pair<int, bool> >(cut, pair<int, bool>(k, con.func->get_curvature(k)==Func::CONCAVE)));
 		++nr;
+
+//		double valcheck=2* (*cut.coeff * x(prob->block[k]))+cut.constant;
+//		out_log << '\t' << valcheck;
+//		out_log << endl;
 	}
 	
 	return nr;
@@ -657,6 +685,11 @@ Pointer<LinearizationCut> LinearizedConCutGenerator::update_cut(LinearizationCut
 			(*newcut->coeff)[i]+=shift*(newcut->x(i)-.5*lower(i)-.5*upper(i));
 			newcut->constant+=(newcut->x(i)-lower(i))*shift*(newcut->x(i)-upper(i));
 		}
+		
+		double violation=newcut->constant;
+		if (tindex>=0) violation-=newcut->t_value;
+		if (violation<tol) return NULL;		
+		
 		newcut->constant-=2*(*newcut->coeff*newcut->x);
 	
 		newcut->coeff->resize(cut.coeff->size()); // resize to extended problem size
@@ -710,6 +743,11 @@ Pointer<LinearizationCut> LinearizedConCutGenerator::update_cut(LinearizationCut
 			(*newcut->coeff)[i]+=shift*(newcut->x(i)-.5*lower(i)-.5*upper(i));
 			newcut->constant+=(newcut->x(i)-lower(i))*shift*(newcut->x(i)-upper(i));
 		}
+		
+		double violation=newcut->constant;
+		if (tindex>=0) violation+=newcut->t_value;
+		if (violation<tol) return NULL;
+				
 		newcut->constant-=2*(*newcut->coeff*newcut->x);
 	
 		newcut->coeff->resize(cut.coeff->size()); // resize to extended problem size

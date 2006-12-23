@@ -393,6 +393,10 @@ class LinearizedConCutGenerator {
 		static const double tol;
 
 	public:
+		/** The maximum violation of a quadratic underestimator in a reference point.
+		*/
+		double max_violation;	
+	
 		LinearizedConCutGenerator(Pointer<MinlpProblem> prob_, Pointer<MINLPData> minlpdata_=NULL, Pointer<Reformulation> reform_=NULL);
 
 		/** Returns a linearization of a constraint, which is defined over one block only.

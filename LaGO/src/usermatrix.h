@@ -301,6 +301,15 @@ class ExtUserMatrix
         @return The element at index (row, col).
     */
     virtual double operator()(int row, int col) const=0;
+
+#ifdef FILIB_AVAILABLE
+		/** Computes sum of xAx and 2b*x for a vector b.
+		 */
+		virtual interval<double> xAx_2bx(const IntervalVector& x, const UserVector<double>& b) const {
+			return xAx(x)+interval<double>(2,2)*(x*b);
+		}
+#endif
+		
 };
 
 /** Wrapper class to shift a matrix.
@@ -1308,6 +1317,8 @@ class SparseMatrix {
 		}
 		return ret;
     }
+
+		virtual interval<double> xAx_2bx(const IntervalVector& x, const UserVector<double>& b) const;
 #endif
 
 		/** Multiplication with a SparseVector<double>.
@@ -1473,6 +1484,8 @@ class SparseMatrix2 : public ExtUserMatrix, public SparseMatrix {
 
 #ifdef FILIB_AVAILABLE
 		interval<double> xAx(const IntervalVector& x) const { return SparseMatrix::xAx(x); }
+
+		interval<double> xAx_2bx(const IntervalVector& x, const UserVector<double>& b) const { return SparseMatrix::xAx_2bx(x, b); }
 #endif
 
     virtual void AddMult(UserVector<double>& y, const UserVector<double>& x, const double alpha) const { SparseMatrix::AddMult(y,x,alpha); }

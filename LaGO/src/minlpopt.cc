@@ -1330,6 +1330,7 @@ int MinlpOpt::start_bb() {
 
 	Timer t;
 	MinlpBCP bcp(orig_prob, split_prob, linear_relax, is_gams_prob, sol_cand_closeval_tol, sol_cand_diam, param, out_solver_p, out_solver_log_p);
+	bcp.set_quad_relax(quad_prob);
 	bcp.set_convex_prob(convex_prob);
 	bcp.set_reform(reform, sol_Cext, sol_Cext_is_solution);
 	bcp.set_levelcut_handler(levelcuts);

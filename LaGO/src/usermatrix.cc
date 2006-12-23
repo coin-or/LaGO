@@ -823,6 +823,45 @@ void SparseMatrix::plot(char* filename) const {
       out << row_ind[j] << '\t' << -col << '\t' << val[j] << endl;
 }
 
+#ifdef FILIB_AVAILABLE
+interval<double> SparseMatrix::xAx_2bx(const IntervalVector& x, const UserVector<double>& b) const {
+#ifndef NO_SPARSEMATRIX_ASSERTS
+	assert(val);
+	assert(rows_==cols_);
+	assert(x.dim()==cols_);
+#endif
+	interval<double> ret(0.);
+	interval<double> zero(0.);
+
+	int j=0;
+	for (int col=0; col<cols_; col++)
+	if (x(col)!=zero) {
+		double diag=0;
+		for (j=col_ptr[col]; j<col_ptr[col+1]; j++)
+			if (row_ind[j]!=col) ret+=x(row_ind[j]) * x(col) * val[j]; // x_i * x_j for i!=j
+			else diag=val[j]; 
+		if (!diag) ret+=2*b(col)*x(col); // 2b*x without x^2 term
+		else { // eval x^2+2*b*x
+			double min=INFINITY;
+			double max=-INFINITY;
+			double extreme=-b(col)/diag;
+			if (extreme>=x(col).inf() && extreme<=x(col).sup()) { // extreme value in interval
+				if (diag>0) min=-3*b(col)*b(col)/diag;
+				else 	max=-3*b(col)*b(col)/diag; //(val[j]*extreme+2*b(col))*extreme;
+			}
+			double atleft=(diag*x(col).inf()+2*b(col))*x(col).inf();
+			double atright=(diag*x(col).sup()+2*b(col))*x(col).sup();
+			if (atleft<min) min=atleft;
+			if (atleft>max) max=atleft;
+			if (atright<min) min=atright;
+			if (atright>max) max=atright;
+			ret+=interval<double>(min, max);
+		}
+	}
+	return ret;
+}
+#endif
+
 // ----------------------------- SparseMatrix2 ---------------------------------
 
 void SparseMatrix2::make_symmetric() {

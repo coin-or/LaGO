@@ -1040,12 +1040,17 @@ interval<double> SepQcFunc::eval(const IntervalVector& x) const {
 
 interval<double> SepQcFunc::eval(const IntervalVector& x, int k) const {
 	interval<double> val;
-	if (b[k]) val=2.*(x*(*b[k]));
+	if (s[k]) val=s[k]->eval(x);
+
 	if (A[k]) {
-		assert(dynamic_cast<const IntervalCompliantMatrix*>((const UserMatrix*)A[k]));
-		val+=((const IntervalCompliantMatrix*)(const UserMatrix*)A[k])->xAx(x);
-	}
-	if (s[k]) val+=s[k]->eval(x);
+		const ExtUserMatrix* EA=dynamic_cast<const ExtUserMatrix*>((const UserMatrix*)A[k]);
+		if (EA && b[k]) val+=EA->xAx_2bx(x, *b[k]);			
+		else { 		
+			assert(dynamic_cast<const IntervalCompliantMatrix*>((const UserMatrix*)A[k]));
+			val+=((const IntervalCompliantMatrix*)(const UserMatrix*)A[k])->xAx(x);
+			if (b[k]) val+=2.*(x*(*b[k]));
+		}
+	} else if (b[k]) val+=2.*(x*(*b[k]));
 	return val;
 }
 

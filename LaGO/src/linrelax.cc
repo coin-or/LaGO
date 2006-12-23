@@ -369,11 +369,13 @@ double LinearRelax::box_reduce(dvector& newlow, dvector& newup, const vector<boo
 	return reduction;
 }
 
-void LinearRelax::generate_cuts(Pointer<MinlpNode> node) {
+int LinearRelax::generate_cuts(Pointer<MinlpNode> node) {
 	list<Pointer<SimpleCut> > cuts;
 	int nr=solver->generate_cuts(cuts);
 	for (list<Pointer<SimpleCut> >::iterator it(cuts.begin()); it!=cuts.end(); ++it)
 		add_cut(*it, -1, node);
+		
+	return nr;
 }
 
 ostream& operator<<(ostream& out, LinearRelax& linrelax) {
