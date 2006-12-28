@@ -306,9 +306,9 @@ Pointer<MinlpProblem> gams::get_problem(char* gamsfile) {
 	char* name=NULL;
 	for (int i=0; i<numcol; i++) {
 		gfrcol(&coldata);
-		if (coldata.idata[3]>1) {
+		if (coldata.idata[3]>2) {
 			out_err << "Variable " << i << " has type " << coldata.idata[3] << endl;
-			out_err << "Integer variables in problem. Not supported yet, aborting." << endl;
+			out_err << "This kind of variables is not supported, aborting." << endl;
 			exit(-1);
 		}
 		double low=coldata.cdata[1]; lower[i]=low;
@@ -339,7 +339,7 @@ Pointer<MinlpProblem> gams::get_problem(char* gamsfile) {
 			if (index-1==objcon && i==objvar) reformed&=(nltyp==0); // objective variable appears linear
 		}
 	}
-	out_out << "Binaries: " << prob->i_discr.size() << endl;
+	out_out << "Discrete variables: " << prob->i_discr.size() << endl;
 
 	out_log << "Reformable: " << (reformed ? "yes" : "no") << endl;
 
@@ -1066,8 +1066,7 @@ int gamsLocOpt::solve(dvector& start) {
 	int i0;
 	for (int i=0; i<prob->i_discr.size(); i++) { // store new bounds for discrete variables
 		i0=prob->i_discr[i];
-		lower[i0]=lower_discr[i]=upper[i0]=upper_discr[i]=sol_point[i0]=
-			(2*sol_point(i0)<=prob->lower(i0)+prob->upper(i0)) ? prob->lower(i0) : prob->upper(i0);
+		lower[i0]=lower_discr[i]=upper[i0]=upper_discr[i]=sol_point[i0]=closestint(sol_point(i0));
 	}
 
 //	duals_con=0; basind_con=2; basind_var=2;

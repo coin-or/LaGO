@@ -97,7 +97,7 @@ void LinearRelax::init(Pointer<MinlpProblem> convex_prob, const vector<int>& i_d
 		}
 		if (block_con_nr<0) { // constant constraint !
 			if (convex_prob->con[c]->c<1E-4 && ((!convex_prob->con_eq[c]) || convex_prob->con[c]->c>-1E-4)) continue;
-			out_out << "Warning: Unfeasible constant constraint found!" << endl;
+			out_out << "Warning: Infeasible constant constraint found!" << endl;
 			block_con_nr=0;
 		}
 		if (linear) {
@@ -270,7 +270,7 @@ bool LinearRelax::box_reduce(pair<double,double>& newbox, const pair<double,doub
 	if ((!unknown_only) || oldbox.first<=-INFINITY) {
 		solver->set_objective(tempobj);
 		ret=solver->solve();
-		if (!ret) newbox.first=MIN(oldbox.second, MAX(oldbox.first, solver->opt_val()));
+		if (!ret) newbox.first=project(solver->opt_val(), oldbox.first, oldbox.second);
 		else if (ret==1) {
 			solver->set_objective(obj);
 			return false; // relaxation infeasible
@@ -278,11 +278,14 @@ bool LinearRelax::box_reduce(pair<double,double>& newbox, const pair<double,doub
 //		else out_log << "LinearRelax::box_reduce lower of " << obj->block[k][i] << " returned nonzero." << endl;
 		if (discrete)
 			if (newbox.first>oldbox.first+1E-4) {
-//				out_log << "fix " << obj->block[k][i] << " to " << oldbox.second << " low=" << newbox.first << endl;
-				newbox.first=oldbox.second; // fix binary
-				solver->set_objective(obj);
-				boxreduce_fixed_binaries.insert(pair<int,int>(k, i));
-				return true;
+//				out_log << oldbox.first << " -> " << newbox.first;
+				newbox.first=MIN(upperint(newbox.first), oldbox.second);
+//				out_log << " -> " << newbox.first << endl;
+				boxreduce_reduced_integer.insert(pair<int,int>(k, i));
+				if (newbox.first==oldbox.second) {
+					solver->set_objective(obj);
+					return true;
+				}
 			} else newbox.first=oldbox.first;  // avoid minimal (<1E-4) perturbation in bound of discrete variable
 	}
 
@@ -290,7 +293,7 @@ bool LinearRelax::box_reduce(pair<double,double>& newbox, const pair<double,doub
 		*tempobj->b[k]*=-1.;
 		solver->set_objective(tempobj);
 		ret=solver->solve();
-		if (!ret) newbox.second=MAX(newbox.first, MIN(oldbox.second, -solver->opt_val()));
+		if (!ret) newbox.second=project(-solver->opt_val(), newbox.first, oldbox.second);
 		else if (ret==1) {
 			solver->set_objective(obj);
 			return false;
@@ -298,11 +301,14 @@ bool LinearRelax::box_reduce(pair<double,double>& newbox, const pair<double,doub
 //		else out_log << "LinearRelax::box_reduce upper of " << obj->block[k][i] << " returned nonzero." << endl;
 		if (discrete)
 			if (newbox.second<oldbox.second-1E-4) {
-//				out_log << "fix " << obj->block[k][i] << " to " << newbox.first << " up=" << newbox.second << endl;
-				newbox.second=newbox.first; // fix binary
-				solver->set_objective(obj);
-				boxreduce_fixed_binaries.insert(pair<int,int>(k, i));
-				return true;
+//				out_log << oldbox.second << " -> " << newbox.second;
+				newbox.second=MAX(lowerint(newbox.second), oldbox.first);
+//				out_log << " -> " << newbox.second << endl;
+				boxreduce_reduced_integer.insert(pair<int,int>(k, i));
+				if (newbox.second==oldbox.first) {
+					solver->set_objective(obj);
+					return true;
+				}
 			}	else newbox.second=oldbox.second; // avoid minimal (<1E-4) perturbation in bound of discrete variable
 	}
 

@@ -44,33 +44,28 @@ Pointer<MinlpProblem> ampl::get_problem() {
 		if (LUv[2*i]+1>=1e+99) LUv[2*i+1]=INFINITY;
 	}
 	
-	bool integers=false; // indicates, whether we have integer-variables
+//	bool integers=false; // indicates, whether we have integer-variables
   // nonlinear variables in constraints and objective
   for (int i=0; i<nlvb; i++, n++) {
-		if (i>=nlvb-nlvbi && (LUv[2*n+1]-LUv[2*n])>1+rtol) integers=true;
+//		if (i>=nlvb-nlvbi && (LUv[2*n+1]-LUv[2*n])>1+rtol) integers=true;
     prob->add_var(n, 0, (i>=nlvb-nlvbi), LUv[2*n], LUv[2*n+1], var_name(n));
 	}
   // nonlinear variables only in constraints
   for (int i=0; i<nlvc-nlvb; i++, n++) {
-		if (i>=nlvc-nlvb-nlvci && (LUv[2*n+1]-LUv[2*n])>1+rtol) integers=true;
+//		if (i>=nlvc-nlvb-nlvci && (LUv[2*n+1]-LUv[2*n])>1+rtol) integers=true;
     prob->add_var(n, 0, (i>=nlvc-nlvb-nlvci), LUv[2*n], LUv[2*n+1], var_name(n));
 	}
 	
   // nonlinear variables only in objective
   for (int i=0; i<nlvo-nlvc; i++, n++) {
-		if (i>=nlvo-nlvc-nlvoi && (LUv[2*n+1]-LUv[2*n])>1+rtol) integers=true;
+//		if (i>=nlvo-nlvc-nlvoi && (LUv[2*n+1]-LUv[2*n])>1+rtol) integers=true;
     prob->add_var(n, 0, (i>=nlvo-nlvc-nlvoi), LUv[2*n], LUv[2*n+1], var_name(n));
 	}
 
   // linear variables
   for (int i=0; i<n_var-MAX(nlvo, nlvc); i++, n++) {
-		if (i>=n_var-MAX(nlvo, nlvc)-nbv-niv && (LUv[2*n+1]-LUv[2*n])>1+rtol) integers=true;
+//		if (i>=n_var-MAX(nlvo, nlvc)-nbv-niv && (LUv[2*n+1]-LUv[2*n])>1+rtol) integers=true;
     prob->add_var(n, 0, (i>=n_var-MAX(nlvo, nlvc)-nbv-niv), LUv[2*n], LUv[2*n+1], var_name(n));
-	}
-
-	if (integers) {
-		out_err << "Integer variables in problem. Not supported yet, aborting." << endl;
-		exit(-1);
 	}
 
   Pointer<SepQcFunc> func;

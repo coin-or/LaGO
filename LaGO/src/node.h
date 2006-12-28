@@ -49,11 +49,11 @@ class MinlpNode {
 
 		/** The indices of the fixed binary variables for MinlpBCP, seperated by block.
 		*/
-		map<int, set<int> > bcp_fixed_var;
+//		map<int, set<int> > bcp_fixed_var;
 
 		/** The partition cuts from MinlpBCP, seperated by blocks.
 		*/
-		vector<list<Pointer<SepQcFunc> > > part_con;
+//		vector<list<Pointer<SepQcFunc> > > part_con;
 
 		/** Box for this node.
 		*/
@@ -128,7 +128,7 @@ class MinlpNode {
 		/** Evaluates the key of the node which is currently the lower bound.
 		 * If all discrete variables are fixed, the key in increased by rtol.
 		 */
-		double key(int nr_discr_var);
+		double key(const vector<int>& i_discr);
 
 };
 

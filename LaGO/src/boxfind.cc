@@ -96,15 +96,15 @@ pair<int,int> BoundsFinder::compute_bounds_expensive(MinlpProblem& conv_prob, dv
 		if (conv_prob.upper[i]<INFINITY) {
 			if (conv_prob.upper[i]>max_upper) max_upper=conv_prob.upper[i];
 		} else missing_bounds=true;
-		if (discr[i]) all_discr=false;
+		if (!discr[i]) all_discr=false;
 	}
-	if (skip_binaries && all_discr) return pair<int,int>(0,0);
+	if (skip_binaries && all_discr && !missing_bounds) return pair<int,int>(0,0);
 
 	Pointer<SepQcFunc> orig_obj(conv_prob.obj);
 	conv_prob.obj=new SepQcFunc(conv_prob.block);
 	for (int k=0; k<conv_prob.block.size(); k++)
 		conv_prob.obj->b[k]=new SparseVector<double>(conv_prob.block[k].size());
-	(*conv_prob.obj->b[0])[0]=1.;  // to get correct number of nonzeros while construction of SnOpt
+//	(*conv_prob.obj->b[0])[0]=1.;  // to get correct number of nonzeros while construction of SnOpt
 
 	int locopt_ret;
 
@@ -126,7 +126,7 @@ pair<int,int> BoundsFinder::compute_bounds_expensive(MinlpProblem& conv_prob, dv
 					}
 					else if (newlow > conv_prob.lower[index]+rtol) {  // improved bound
 						if (newlow>conv_prob.upper[index]) newlow=conv_prob.upper[index];
-						if (discr[index]) newlow=newlow>conv_prob.lower[index]+1E-4 ? conv_prob.upper[index] : conv_prob.lower[index];
+						if (discr[index]) newlow=project(upperint(newlow-1E-4), conv_prob.lower[index], conv_prob.upper[index]);
 						new_lower[index]=conv_prob.lower[index]=newlow;
 					}
 				} else {
@@ -148,7 +148,7 @@ pair<int,int> BoundsFinder::compute_bounds_expensive(MinlpProblem& conv_prob, dv
 						++success;
 					} else if (newup < conv_prob.upper[index]-rtol) { // improved bound
 						if (newup<conv_prob.lower[index]) newup=conv_prob.lower[index];
-						if (discr[index]) newup=(newup<conv_prob.upper[index]-1E-4) ? conv_prob.lower[index] : conv_prob.upper[index];
+						if (discr[index]) newup=project(lowerint(newup+1E-4), conv_prob.lower[index], conv_prob.upper[index]);
 						new_upper[index]=conv_prob.upper[index]=newup;
 					}
 				} else {
@@ -224,23 +224,23 @@ void BoundsFinder::compute_linbounds(MinlpProblem& prob) {
 			min/=-it->second; max/=-it->second;
 			if (it->second>0) {
 				if (min_known && prob.upper[it->first]>min+rtol && (known || prob.upper[it->first]>=INFINITY)) {
-					if (prob.discr[it->first]) min=prob.lower[it->first];
+					if (prob.discr[it->first]) min=project(lowerint(min),prob.lower[it->first],prob.upper[it->first]);
 //					out_log << "Constraint " << prob.con_names[c] << ": Reduced  upper bound of " << prob.var_names[it->first] << " from " << prob.upper[it->first] << " to " << min << endl;
 					prob.upper[it->first]=min;
 				}
 				if (max_known && prob.con_eq[c] && prob.lower[it->first]<max-rtol && (known || prob.lower[it->first]<=-INFINITY)) {
-					if (prob.discr[it->first]) max=prob.upper[it->first];
+					if (prob.discr[it->first]) max=project(upperint(max),prob.lower[it->first],prob.upper[it->first]);
 //					out_log << "Constraint " << prob.con_names[c] << ": Heighten lower bound of " << prob.var_names[it->first] << " from " << prob.lower[it->first] << " to " << max << endl;
 					prob.lower[it->first]=max;
 				}
 			} else {
 				if (min_known && prob.lower[it->first]<min-rtol && (known || prob.lower[it->first]<=-INFINITY)) {
-					if (prob.discr[it->first]) min=prob.upper[it->first];
+					if (prob.discr[it->first]) min=project(upperint(min),prob.lower[it->first],prob.upper[it->first]);
 //					out_log << "Constraint " << prob.con_names[c] << ": Heighten lower bound of " << prob.var_names[it->first] << " from " << prob.lower[it->first] << " to " << min << endl;
 					prob.lower[it->first]=min;
 				}
 				if (max_known && prob.con_eq[c] && prob.upper[it->first]>max+rtol && (known || prob.upper[it->first]>=INFINITY)) {
-					if (prob.discr[it->first]) max=prob.lower[it->first];
+					if (prob.discr[it->first]) max=project(lowerint(max),prob.lower[it->first],prob.upper[it->first]);
 //					out_log << "Constraint " << prob.con_names[c] << ": Reduced  upper bound of " << prob.var_names[it->first] << " from " << prob.upper[it->first] << " to " << max << endl;
 					prob.upper[it->first]=max;
 				}
@@ -302,7 +302,7 @@ int BoundsFinderLinear::compute(dvector& newlow, dvector& newup, set<pair<int, I
 		if (low && (known || prob->lower(i)<=-INFINITY)) {
 			MIPSolver::SolutionStatus ret=compute_bound(newbound, i, true);
 			switch(ret) {
-				case MIPSolver::SOLVED: newlow[i]=MIN(newup(i), MAX(prob->lower(i), newbound)); // should be newbound always
+				case MIPSolver::SOLVED: newlow[i]=project(newbound, prob->lower(i), newup(i));
 					break;
 				case MIPSolver::UNBOUNDED: break; // ignore
 				default: ++nr_problems;
@@ -313,7 +313,7 @@ int BoundsFinderLinear::compute(dvector& newlow, dvector& newup, set<pair<int, I
 		if (up && (known || prob->upper(i)>=INFINITY)) {
 			MIPSolver::SolutionStatus ret=compute_bound(newbound, i, false);
 			switch(ret) {
-				case MIPSolver::SOLVED: newup[i]=MAX(newlow(i), MIN(prob->upper(i), newbound)); // should be newbound always
+				case MIPSolver::SOLVED: newup[i]=project(newbound, newlow(i), prob->upper(i));
 					break;
 				case MIPSolver::UNBOUNDED: break; // ignore
 				default: ++nr_problems;
@@ -325,13 +325,9 @@ int BoundsFinderLinear::compute(dvector& newlow, dvector& newup, set<pair<int, I
 //		if (newlow(i)>prob->lower(i)+1E-4 || newup(i)<prob->upper(i)-1E-4) out_log << "BoundsFinderLinear reduce box of " << prob->var_names[i]
 //			<< " from [" << prob->lower(i) << ", " << prob->upper(i) << "] to ["  << newlow(i) << ", " << newup(i) << ']' << endl;
 
-		if (prob->discr[i]) { // maybe fixing binary
-			if (newlow(i)>prob->lower(i)+1E-4) newlow[i]=newup[i]=prob->upper(i); //newup[i];
-			else {
-				newlow[i]=prob->lower(i);
-				if (newup(i)<prob->upper(i)-1E-4) newup[i]=newlow[i]=prob->lower(i); //newlow[i];
-				else newup[i]=prob->upper(i);
-			}
+		if (prob->discr[i]) {
+			newlow[i]=project(upperint(newlow(i)-1E-4), prob->lower(i), prob->upper(i));
+			newup[i]=project(lowerint(newup(i)+1E-4), prob->lower(i), prob->upper(i));
 		}
 
 		if (changed_var) { // if we want specific information about the variables, which bound was changed
@@ -456,7 +452,7 @@ int DualBounds::update_box(int n) {
 		ei.SetElement(i, .5); // lower bound
 		double bound=dual_bound(ei);
 		if (bound>-INFINITY && bound>C->lower[i]+rtol)
-			if (S->discr[i]) S->lower[i]=C->lower[i]=C->upper[i]; // fixing binary
+			if (S->discr[i]) S->lower[i]=C->lower[i]=project(upperint(bound), old_low, old_up);
 			else S->lower[i]=C->lower[i]=MIN(bound, C->upper[i]);
 		if (bound==-INFINITY) problems++;
 
@@ -464,7 +460,7 @@ int DualBounds::update_box(int n) {
 		ei*=-1; // upper bound
 		bound=-dual_bound(ei);
 		if (bound<INFINITY && bound<C->upper[i]-rtol)
-			if (S->discr[i]) S->upper[i]=C->upper[i]=C->lower[i];
+			if (S->discr[i]) S->upper[i]=C->upper[i]=project(lowerint(bound), old_low, old_up);
 			else C->upper[i]=S->upper[i]=MAX(bound, C->lower[i]);
 		ei.DelElement(i);
 		if (bound==INFINITY) problems++;
@@ -544,7 +540,7 @@ void IntervalReduction::set_problem(Pointer<MinlpProblem> prob_) {
 void IntervalReduction::run(dvector& newlow, dvector& newup, const dvector& oldlow, const dvector& oldup, set<pair<const DependencyGraph::NodeType*, which_bound_type> >& nodeset) {
 	int funceval=0;
 	const int maxfunceval=10000;
-	fixed_binaries.clear();
+	reduced_integer.clear();
 	empty_boxes=false;
 	bool box_changed=false;
 #ifdef FILIB_AVAILABLE
@@ -598,15 +594,16 @@ void IntervalReduction::run(dvector& newlow, dvector& newup, const dvector& oldl
 
 			if (prob->discr[index]) {
 				if (newbounds.inf()>oldbounds.inf()+rtol) {
-					newbounds=interval<double>(oldbounds.sup());
+					newbounds=interval<double>(upperint(newbounds.inf()), oldbounds.sup());
+//					newbounds=interval<double>(oldbounds.sup());
 					const NodeData& node2(edge.get_node2().data);
 					assert(node2.block_nr>=0 && node2.block_index>=0);
-					fixed_binaries.insert(pair<int,int>(node2.block_nr, node2.block_index));
+					reduced_integer.insert(pair<int,int>(node2.block_nr, node2.block_index));
 				} else if (newbounds.sup()<oldbounds.sup()-rtol) {
-					newbounds=interval<double>(oldbounds.inf());
+					newbounds=interval<double>(oldbounds.inf(), lowerint(newbounds.sup()));
 					const NodeData& node2(edge.get_node2().data);
 					assert(node2.block_nr>=0 && node2.block_index>=0);
-					fixed_binaries.insert(pair<int,int>(node2.block_nr, node2.block_index));
+					reduced_integer.insert(pair<int,int>(node2.block_nr, node2.block_index));
 				} else newbounds=oldbounds; // no rtol's in bounds of binary variables please
 			}
 
@@ -647,7 +644,7 @@ void IntervalReduction::run(dvector& newlow, dvector& newup, const dvector& oldl
 		return;
 	}
 
-	if (!fixed_binaries.empty()) out_log << "\t fixed binaries: " << fixed_binaries.size();
+	if (!reduced_integer.empty()) out_log << "\t reduced integers: " << reduced_integer.size();
 	if (empty_boxes) {
 		out_log << "\t empty boxes!" << endl;
 		reduction=-INFINITY;

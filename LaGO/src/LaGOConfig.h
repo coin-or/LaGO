@@ -1,5 +1,5 @@
 /*
- * Include file for the configuration of Ipopt.
+ * Include file for the configuration of LaGO.
  *
  * On systems where the code is configured with the configure script
  * (i.e., compilation is always done with HAVE_CONFIG_H defined), this
@@ -23,6 +23,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config_lago.h"
 
+inline const char* LAGOVERSION() { return VERSION; }
+
 /* undefine macros that could conflict with those in other config.h
    files */
 #undef PACKAGE
@@ -38,7 +40,8 @@
 /* include the COIN-wide system specific configure header */
 #include "configall_system.h"
 
-#endif /* HAVE_CONFIG_H */
+const char* LAGOVERSION="0.0";
 
+#endif /* HAVE_CONFIG_H */
 
 #endif /*__LAGOCONFIG_H__*/

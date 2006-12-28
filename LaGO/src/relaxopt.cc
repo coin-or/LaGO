@@ -143,11 +143,9 @@ void RelaxationSolver::make_sub_prob(Pointer<MinlpProblem>& out, Pointer<MinlpPr
 	out=new MinlpProblem(*in);
 	out->lower=node->lower;
 	out->upper=node->upper;
-	for (int i=0; i<out->dim(); ++i)
-		if (out->primal_point(i)<out->lower(i)-rtol) out->primal_point[i]=out->lower(i);
-		else if (out->primal_point(i)>out->upper(i)+rtol) out->primal_point[i]=out->upper(i);
-	for (int k=0; k<node->part_con.size(); k++)
-		for (list<Pointer<SepQcFunc> >::iterator it(node->part_con[k].begin()); it!=node->part_con[k].end(); it++)
-			out->add_con(*it, false, "partition con");
+	Project::project(out->primal_point, out->lower, out->upper);
+//	for (int k=0; k<node->part_con.size(); k++)
+//		for (list<Pointer<SepQcFunc> >::iterator it(node->part_con[k].begin()); it!=node->part_con[k].end(); it++)
+//			out->add_con(*it, false, "partition con");
 }
 

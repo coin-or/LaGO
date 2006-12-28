@@ -1774,17 +1774,16 @@ class Project {
 		
 };
 
-/** Class to round the discrete variables of a point to the bounds.
+/** Class to round the discrete variables of a point to integer values.
 */
 class Round {
 	public:
-		/** Rounds the values of the SamplePoints, which are determined by indices, to the bounds.
+		/** Rounds the values of a point, which are determined by indices, to integer values.
 		    @param x The point to round.
 		    @param indices The indices of the elements, which should be rounded.
 		    @param lower The lower bound of the box.
 		    @param upper The upper bound of the box.
 		    @return The rounded point.
-		    @see round(dvector&, const dvector&, vector<int>&, const dvector&, const dvector&)
 		*/
 		static dvector round(const dvector& x, vector<int>& indices, const dvector& lower, const dvector& upper) {
 			dvector xr(x.dim());
@@ -1792,18 +1791,17 @@ class Round {
 			return xr;
 		}
 		
-		/** Rounds the values of the SamplePoints, which are determined by indices, to the bounds.
+		/** Rounds the values of a point, which are determined by indices, to integer values.
 		    @param xr The dvector to store the rounded point in.
 		    @param x The point to round.
 		    @param indices The indices of the elements, which should be rounded.
 		    @param lower The lower bound of the box.
 		    @param upper The upper bound of the box.
-		    @see round(const dvector&, vector<int>&, const dvector&, const dvector&)
 		*/
 		static void round(dvector& xr, const dvector& x, vector<int>& indices, const dvector& lower, const dvector& upper) {
 			xr=x;
 	  	for (vector<int>::iterator i(indices.begin()); i!=indices.end(); i++)
-			  xr[*i] = x(*i)<=0.5*(lower(*i)+upper(*i)) ? lower(*i) : upper(*i);
+			  xr[*i] = project(closestint(x(*i)), lower(*i), upper(*i)); 
 		}
 };
 

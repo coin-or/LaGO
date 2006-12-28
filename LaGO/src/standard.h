@@ -30,6 +30,15 @@ inline long pow(int a, unsigned int b) { return (long)pow((double)a, (double)b);
 inline long pow(int a, int b) { return (long)pow((double)a, (double)b); }
 #endif
 
+inline double closestint(const double& x) { return round(x); }
+inline double upperint(const double& x) { return ceil(x); }
+inline double lowerint(const double& x) { return floor(x); }
+inline double integrality_violation(const double& x) { return fabs(x-closestint(x)); }
+
+/** Projects a value onto an interval.
+ */
+inline double project(const double& x, const double& low, const double& up) { return x<low ? low : (x>up ? up : x); }
+
 #include <cassert>
 
 #include <iostream>

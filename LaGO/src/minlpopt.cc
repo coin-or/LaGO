@@ -490,6 +490,7 @@ void MinlpOpt::decompose() {
 		Sampling(param, "Decomposition").get_points(sample_set, orig_prob->lower, orig_prob->upper, orig_prob->block);
 
 		split_prob=Decomposition(param).decompose(*orig_prob, sample_set);
+//		out_log << "Problem type: " << (split_prob->problem_type==MinlpProblem::QQP ? "MIQQP" : "MINLP") << endl; 
 		if (out_log_p && param->get_i("Check decomposition", 0)) { // with Decomposition check
 			out_log << "Checking decomposition..." << endl;
 /*	 		dvector x1(orig_prob->dim());
@@ -543,7 +544,6 @@ void MinlpOpt::decompose() {
 				}
 			}
 		}
-
 	} else split_prob=orig_prob;
 /*
 	int maxk=0; int maxsize=0;
@@ -801,7 +801,7 @@ double MinlpOpt::print_box_reduce_quality(dvector& oldlow, dvector& oldup, Point
 	double avg_rel_impr=0.; // average relative improvement
 	double min_rel_impr=1.; // minimal relative improvement
 	int nr_real_impr=0; // number of improvements, better than 20%
-	int nr_bin_fixed=0; // number of fixed binary variables
+	int nr_integer_reduced=0; // number of reduced integer variable bounds
 
 	for (int i=0; i<oldlow.dim(); i++) {
 		if (oldup(i)>=INFINITY || oldlow(i)<=-INFINITY) {
@@ -818,7 +818,7 @@ double MinlpOpt::print_box_reduce_quality(dvector& oldlow, dvector& oldup, Point
 		avg_rel_impr+=rel_impr;
 		if (rel_impr<min_rel_impr) min_rel_impr=rel_impr;
 		if (rel_impr<=.8) nr_real_impr++;
-		if (prob->discr[i] && (rel_impr<rtol)) nr_bin_fixed++;
+		if (prob->discr[i] && (rel_impr<1)) nr_integer_reduced++;
 	}
 	avg_rel_impr/=oldlow.dim();
 
@@ -826,13 +826,13 @@ double MinlpOpt::print_box_reduce_quality(dvector& oldlow, dvector& oldup, Point
 	out_out << prefix << " average relative box diameter improvement: " << avg_rel_impr*100 << endl;
 	out_out << prefix << " minimal relative box diameter improvement: " << min_rel_impr*100 << endl;
 	out_out << prefix << " percentage number of real box improvements: " << (100*nr_real_impr)/oldlow.dim() << endl;
-	if (prob->i_discr.size()) out_out << prefix << " percentage number of fixed binaries: " << (100*nr_bin_fixed/prob->i_discr.size()) << endl;
+	if (prob->i_discr.size()) out_out << prefix << " percentage number of reduced integer bounds: " << (100*nr_integer_reduced/prob->i_discr.size()) << endl;
 	out_out.precision(6);
-/*
-	out_log << "new box: " << endl;
-	for (int i=0; i<prob->dim(); i++)
-		out_log << prob->var_names[i] << ": \t" << prob->lower[i] << "\t " << prob->upper[i] << endl;
-*/
+
+//	out_log << "new box: " << endl;
+//	for (int i=0; i<prob->dim(); i++)
+//		out_log << prob->var_names[i] << ": \t" << prob->lower[i] << "\t " << prob->upper[i] << endl;
+
 	return avg_rel_impr;
 }
 
@@ -1358,9 +1358,7 @@ void MinlpOpt::check_initial_point() {
 			<< " = " << orig_prob->primal_point[j]
 			<< " Out of bounds [" << orig_prob->lower[j] << "," <<  orig_prob->upper[j] << "];" << endl;
 			out_of_bounds = 1;
-			if (orig_prob->primal_point[j] < orig_prob->lower[j]-rtol) orig_prob->primal_point[j] = orig_prob->lower[j];
-			if (orig_prob->primal_point[j] > orig_prob->upper[j]+rtol) orig_prob->primal_point[j] = orig_prob->upper[j];
+			if (orig_prob->primal_point[j] < orig_prob->lower[j]) orig_prob->primal_point[j] = orig_prob->lower[j];
+			if (orig_prob->primal_point[j] > orig_prob->upper[j]) orig_prob->primal_point[j] = orig_prob->upper[j];
     }
-	//	if(out_of_bounds) exit(-1);
-	// this should be uncommented for super2, ...
 }

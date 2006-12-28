@@ -422,7 +422,8 @@ MipProblem::MipProblem(const MinlpProblem& minlp)
 : nr_col(minlp.dim()), nr_row(minlp.con.size()),
   col_lower(minlp.lower), col_upper(minlp.upper), col_names(minlp.var_names), col_types(minlp.dim(), CONTINUOUS),
 	A(minlp.con.size(), minlp.dim()), row_lower(minlp.con.size(), -INFINITY), row_upper(minlp.con.size()), row_names(minlp.con_names)
-{ for (int i=0; i<minlp.i_discr.size(); i++) setColType(minlp.i_discr[i], BINARY);
+{ for (int i=0; i<minlp.i_discr.size(); i++)
+		setColType(minlp.i_discr[i], (col_lower[i]==0 && col_upper[i]==1) ? BINARY : INTEGER);
 	for (int c=0; c<minlp.con.size(); c++) {
 		if (minlp.con_eq[c]) row_lower[c]=-minlp.con[c]->c;
 		row_upper[c]=-minlp.con[c]->c;

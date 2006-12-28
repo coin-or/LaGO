@@ -13,7 +13,7 @@ MinlpNode::MinlpNode(const dvector& lower_, const dvector& upper_/*, const map<i
 
 MinlpNode::MinlpNode(MinlpNode& node)
 : low_bound(node.low_bound), ref_point(node.ref_point), dual_point(node.dual_point),
-	bcp_fixed_var(node.bcp_fixed_var), part_con(node.part_con), lower(node.lower), upper(node.upper),
+	/*bcp_fixed_var(node.bcp_fixed_var), part_con(node.part_con), */lower(node.lower), upper(node.upper),
 	fix_branch_var(node.fix_branch_var), update_subdiv_bound_called(false), lagprob_solutions(node.lagprob_solutions)
 { }
 
@@ -43,9 +43,9 @@ set<SolCandidate>::const_iterator MinlpNode::outside_part_set(const set<SolCandi
 		feas=true;
 		for (int i=0; feas && i<it->second.dim(); ++i)
 			feas=(lower(i)<=it->second(i)+rtol) && (upper(i)>=it->second(i)-rtol);
-		for (int k=0; feas && k<part_con.size(); k++)
-			for (list<Pointer<SepQcFunc> >::iterator it_con(part_con[k].begin()); feas && it_con!=part_con[k].end(); it_con++)
-				feas=(*it_con)->eval(it->second)<1E-4;
+//		for (int k=0; feas && k<part_con.size(); k++)
+//			for (list<Pointer<SepQcFunc> >::iterator it_con(part_con[k].begin()); feas && it_con!=part_con[k].end(); it_con++)
+//				feas=(*it_con)->eval(it->second)<1E-4;
 	} while ((!feas) && (++it)!=points.end());
 	return it;
 }
@@ -55,16 +55,19 @@ bool MinlpNode::inside_part_set(dvector &point, int k, const vector<ivector>& bl
 
 	for (int i=0; feas && i<point.size(); ++i)
 		feas=(lower(block[k][i])<=point(i)+rtol) && (upper(block[k][i])>=point(i)-rtol);
-	if (k<part_con.size())
-		for (list<Pointer<SepQcFunc> >::iterator it(part_con[k].begin()); feas && it!=part_con[k].end(); it++)
-			feas=(*it)->eval(point, k)+(*it)->c<1E-4;
+//	if (k<part_con.size())
+//		for (list<Pointer<SepQcFunc> >::iterator it(part_con[k].begin()); feas && it!=part_con[k].end(); it++)
+//			feas=(*it)->eval(point, k)+(*it)->c<1E-4;
 
 	return feas;
 }
 
-double MinlpNode::key(int nr_discr_var) {
-	int fixed=0;
-	for (map<int, set<int> >::iterator it(bcp_fixed_var.begin()); it!=bcp_fixed_var.end(); it++)
-		fixed+=it->second.size();
-	return key() + 	(fixed==nr_discr_var ? rtol : 0.);
+double MinlpNode::key(const vector<int>& i_discr) {
+	bool allfixed=true;
+	for (int i=0; i<i_discr.size(); ++i)
+		if (lower(i_discr[i])!=upper(i_discr[i])) {
+			allfixed=false;
+			break;
+		} 
+	return key() + (allfixed ? rtol : 0.);
 }

@@ -18,7 +18,7 @@
     @param log output
     %options 0, 1
     %default 0
-    %level 1
+    %level 2
     Indicates whether we should print logging output (1), or not (0).
 */
 int main(int argc, char** argv) {
@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
 //	out_out_p=NULL;
 //	out_err_p=NULL;
 
-	out_out << "LaGO very-early-version" << endl;
+	out_out << "LaGO " << LAGOVERSION() << endl;
 	if (argc<2) {
 #ifdef COIN_HAS_ASL
 		out_out << "usage: " << argv[0] << " stubfile (without .nl) [<parameter-file>]" << endl;

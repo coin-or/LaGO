@@ -187,7 +187,7 @@ class IntervalReduction {
 		bool do_print;
 		bool empty_boxes;
 		double min_impr;
-		set<pair<int, int> > fixed_binaries;
+		set<pair<int, int> > reduced_integer;
 
 		/** Stores for each block, how much it was reduced.
 		*/

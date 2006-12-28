@@ -47,7 +47,7 @@ MinlpBCP::MinlpBCP(Pointer<MinlpProblem> orig_prob_, Pointer<MinlpProblem> split
 MinlpBCP::~MinlpBCP() { };
 
 void MinlpBCP::set_quad_relax(Pointer<MinlpProblem> quad_prob_) {
-	quad_prob=quad_prob_;	
+	quad_prob=quad_prob_;
 }
 
 
@@ -132,8 +132,6 @@ void MinlpBCP::init() {
 	conv_rate_cntrl_last_major_val=-INFINITY;
 	conv_rate_cntrl_last_val=-INFINITY;
 	conv_rate_cntrl_improve_iter=-1;
-
-//	if (split_prob->block.size()>1) bound_print=new ofstream("bounds.log");
 
 	if (param->get_i("BCP IntervalReduction", 1)) {
 		intervalreduction=new IntervalReduction();
@@ -524,8 +522,7 @@ pair<bool, double> MinlpBCP::improve_bound(Pointer<MinlpNode> node) {
 
 int MinlpBCP::set_NLP_bound(Pointer<MinlpNode> node, bool improve) {
 	bool loccuts=false;
-//	for (int k=0; (!loccuts) && k<node->local_cuts.size(); k++) loccuts=!node->local_cuts[k].empty();
-	for (int k=0; (!loccuts) && k<node->part_con.size(); k++) loccuts=!node->part_con[k].empty();
+//	for (int k=0; (!loccuts) && k<node->part_con.size(); k++) loccuts=!node->part_con[k].empty();
 
 	if ((!sub_convex_prob) || loccuts) {
 		sub_convex_prob=NULL;
@@ -685,6 +682,7 @@ int MinlpBCP::improve_LP_bound(Pointer<MinlpNode> node) {
 				newcuts=true;
 			}
 		} else if (newcuts) ret=set_LP_bound(node);
+		else out_log << endl;
 		
 //		out_log << "New reference point: " << node->ref_point;
 		
@@ -703,25 +701,26 @@ bool MinlpBCP::boxreduce(Pointer<MinlpNode> node, int index, IntervalReduction::
 
 	set<int> changed_blocks; // the blocks we changed, i.e. we need to update the ExtremePoints there
 
+//	for (int i=0; i<split_prob->dim(); i++) out_log << split_prob->var_names[i] << ": \t" << node->lower[i] << "\t " << node->upper[i] << endl;
 	do {
 		// intervalreduction
 		intervalreduction->compute(node->lower, node->upper, node->lower, node->upper, startset);
 		if (intervalreduction->empty_boxes) return false;
-		for (set<pair<int,int> >::iterator it(intervalreduction->fixed_binaries.begin()); it!=intervalreduction->fixed_binaries.end(); ++it)
-			node->bcp_fixed_var[it->first].insert(it->second);
+//	for (int i=0; i<split_prob->dim(); i++) out_log << split_prob->var_names[i] << ": \t" << node->lower[i] << "\t " << node->upper[i] << endl;
 
 		// updating cuts
 		for (int k=0; k<intervalreduction->reduction_by_block.size(); ++k)
 			if (intervalreduction->reduction_by_block[k]<1.) {
 				changed_blocks.insert(k);
-				if (intervalreduction->reduction_by_block[k]<.8) linear_relax->update_cuts(node, k, intgrad_cutgen, linconcutgen);
+				if (intervalreduction->reduction_by_block[k]<.9) linear_relax->update_cuts(node, k, intgrad_cutgen, linconcutgen);
 			}
-					
+
 		// reduction using linear relaxation
 		linear_relax->clear_solver();
-		linear_relax->boxreduce_fixed_binaries.clear();
+		linear_relax->boxreduce_reduced_integer.clear();
 		startset.clear();
 		out_log << "LinearRelax boxreduction: ";
+		list<int> to_update_cuts;
 		for (int k=0; k<intervalreduction->reduction_by_block.size(); ++k) {
 			if (intervalreduction->reduction_by_block[k]>0.8) continue;
 			double red=linear_relax->box_reduce(node, k, (reform ? reform->ext_prob : split_prob)->discr, false, &startset);
@@ -732,15 +731,18 @@ bool MinlpBCP::boxreduce(Pointer<MinlpNode> node, int index, IntervalReduction::
 			}
 			if (red!=1.) out_log << ':' << ' ' << red;
 			out_log << ' ';
+			if (red<.9) to_update_cuts.push_back(k);
 		}
-		if (!linear_relax->boxreduce_fixed_binaries.empty()) {
-			out_log << "fixed binaries: ";// << linear_relax->boxreduce_fixed_binaries.size() << '\t';
-			for (set<pair<int,int> >::iterator it(linear_relax->boxreduce_fixed_binaries.begin()); it!=linear_relax->boxreduce_fixed_binaries.end(); ++it) {
+		if (!linear_relax->boxreduce_reduced_integer.empty()) {
+			out_log << "reduced integer: ";
+			for (set<pair<int,int> >::iterator it(linear_relax->boxreduce_reduced_integer.begin()); it!=linear_relax->boxreduce_reduced_integer.end(); ++it) {
 				out_log << split_prob->var_names[split_prob->block[it->first](it->second)] << '(' << node->lower(split_prob->block[it->first](it->second)) << ')' << ' ';
-				node->bcp_fixed_var[it->first].insert(it->second);
 			}
 		}
 		out_log << endl;
+//	for (int i=0; i<split_prob->dim(); i++) out_log << split_prob->var_names[i] << ": \t" << node->lower[i] << "\t " << node->upper[i] << endl;
+		for (list<int>::iterator it(to_update_cuts.begin()); it!=to_update_cuts.end(); ++it)
+			linear_relax->update_cuts(node, *it, intgrad_cutgen, linconcutgen);
 	} while (!startset.empty());
 
 	if (node->i_ExtremePoints.size()) {
@@ -795,43 +797,8 @@ int MinlpBCP::update_subdiv_bound(int k, int i, Pointer<MinlpNode> node) {
 	switch(bound_type) {
 		case LP_bound: {
 			node->update_subdiv_bound_called=true;
-			
 			ret=set_LP_bound(node);
 			if (!ret) ret=improve_LP_bound(node);
-			
-//			if (!linear_relax->cutlimit_reached()) {
-//				Pointer<MinlpProblem> prob;
-//				Pointer<MinlpProblem> conv;
-//				if (reform) {
-//					prob=reform->ext_prob;
-//					conv=reform->ext_convex_prob;
-//				} else {
-//					prob=split_prob ? split_prob : orig_prob;
-//					conv=convex_prob;
-//				}
-//			
-//				if (conv) { // adding linearization cuts
-//					list<pair<LinearizationCut, pair<int, bool> > > cuts;
-//					
-//					Project::project(node->ref_point, node->ref_point, node->lower, node->upper);
-//					linconcutgen.get_cuts(cuts, node->ref_point, node->lower, node->upper, true);
-//					
-//					int local_cuts_nr=0, global_cuts_nr=0;
-//					for (list<pair<LinearizationCut, pair<int, bool> > >::iterator cutit(cuts.begin()); cutit!=cuts.end() && !linear_relax->cutlimit_reached(); ++cutit) {
-//						linear_relax->add_cut(Pointer<LinearizationCut>(new LinearizationCut(cutit->first)), cutit->second.first, cutit->second.second ? NULL : node);
-//						if (cutit->second.second) ++global_cuts_nr; else ++local_cuts_nr;
-//					}
-//						
-//					out_log << "Added " << global_cuts_nr << " global and " << local_cuts_nr << " local LinearizationCuts." << endl;
-//				}
-//
-//				if (mip_cuts) {
-//					ret=set_LP_bound(node);
-//					if (ret) break;
-//					linear_relax->generate_cuts(node);
-//				}
-//			}
-//			ret=set_LP_bound(node);
 		} break;
 	}
 
@@ -849,7 +816,6 @@ int MinlpBCP::subdivide(list<Pointer<MinlpNode> >&nodes, Pointer<MinlpNode> node
 	out_solver_log << "Subdividing..." << endl;
 	int subdiv_var;
 
-//  if not all binaries fixed: call bin_subdiv
 	int ret=bin_subdiv(nodes, subdiv_var, node);
 	if (ret==1) return subdiv_var; // linear relaxation infeasible
 
@@ -859,9 +825,17 @@ int MinlpBCP::subdivide(list<Pointer<MinlpNode> >&nodes, Pointer<MinlpNode> node
 			case CostSubdivNewton: cost_subdiv(nodes, subdiv_var, node); break;
 			case BisectSubdiv: bisect_subdiv(nodes, subdiv_var, node); break;
 			case ViolSubdiv: viol_subdiv(nodes, subdiv_var, node); break;
-			case BinSubdiv: if (ret==0 && lower_bound==-INFINITY) lower_bound=node->low_bound; break; // fix this lower bound
+			case BinSubdiv:
+				out_solver_log << "All discrete variables fixed, so no more subdivision here.";
+				if (ret==0 && lower_bound==-INFINITY) {
+					lower_bound=node->low_bound;// fix this lower bound
+					out_solver_log << " Fixing lower bound " << lower_bound;
+				}
+				out_solver_log << endl;
+				break;
 		}
-	}
+	} else if (nodes.empty() && prob_is_convex)
+		out_solver_log << "All discrete variables fixed and problem is convex, so no more subdivision here." << endl;
 
 	subdiv_time+=t.stop();
 	return subdiv_var;
@@ -871,25 +845,33 @@ int MinlpBCP::subdivide(list<Pointer<MinlpNode> >&nodes, Pointer<MinlpNode> node
 
 void MinlpBCP::rect_subdiv(list<Pointer<MinlpNode> >& nodes, Pointer<MinlpNode> node, int k_star, int i_star, double cut) {
 	int i0=split_prob->block[k_star][i_star];
-	if (split_prob->discr[i0]) cut=(int)cut;
+//	if (split_prob->discr[i0]) cut=closestint(cut);
+	cut=project(cut, node->lower(i0), node->upper(i0));
 	out_solver_log << "Subdivide at variable ";
 	if (split_prob->var_names[i0]) { out_solver_log << split_prob->var_names[i0]; }
 	else out_solver_log << i0;
-	out_solver_log << "\t binary: " << (split_prob->discr[i0] ? "yes" : "no") << "\t cut at: " << cut << endl;
+	out_solver_log << "\t discrete: " << (split_prob->discr[i0] ? "yes" : "no") << "\t cut at: " << cut << endl;
 
 	Pointer<MinlpNode> left=new MinlpNode(*node);
 	Pointer<MinlpNode> right=new MinlpNode(*node);
 	if (split_prob->discr[i0]) {
-		if (!node->bcp_fixed_var.count(k_star)) {
-			set<int> fix; fix.insert(i_star);
-			left->bcp_fixed_var.insert(pair<int, set<int> >(k_star, fix));
-			right->bcp_fixed_var.insert(pair<int, set<int> >(k_star, fix));
+//		if (!node->bcp_fixed_var.count(k_star)) {
+//			set<int> fix; fix.insert(i_star);
+//			left->bcp_fixed_var.insert(pair<int, set<int> >(k_star, fix));
+//			right->bcp_fixed_var.insert(pair<int, set<int> >(k_star, fix));
+//		} else {
+//			left->bcp_fixed_var.find(k_star)->second.insert(i_star);
+//			right->bcp_fixed_var.find(k_star)->second.insert(i_star);
+//		}
+		if (cut==left->upper(i0)) {
+			left->ref_point[i0]=left->upper[i0]=cut-1;
+			right->ref_point[i0]=right->lower[i0]=cut;
 		} else {
-			left->bcp_fixed_var.find(k_star)->second.insert(i_star);
-			right->bcp_fixed_var.find(k_star)->second.insert(i_star);
+			left->ref_point[i0]=left->upper[i0]=lowerint(cut);
+			right->ref_point[i0]=right->lower[i0]=lowerint(cut)+1;
 		}
-		left->ref_point[i0]=left->upper[i0]=left->lower[i0];
-		right->ref_point[i0]=right->lower[i0]=right->upper[i0];
+		assert(left->lower[i0]<=left->upper[i0]);
+		assert(right->lower[i0]<=right->upper[i0]);
 	} else {
 		nr_subdiv_contvar++;
 		left->upper[i0]=cut;
@@ -909,15 +891,15 @@ void MinlpBCP::rect_subdiv(list<Pointer<MinlpNode> >& nodes, Pointer<MinlpNode> 
 		list<dvector> addleft, addright;
 		if (split_prob->discr[i0]) {
 			for (list<list<ExtremePoint>::iterator>::iterator it(node->i_ExtremePoints[k_star].begin()); it!=node->i_ExtremePoints[k_star].end(); ++it) {
-				if ((**it)(i_star)<split_prob->lower(i0)+rtol) { // point belongs to left node
+				if ((**it)(i_star)<=left->upper[i0]) { // point belongs to left node
 					left->i_ExtremePoints[k_star].push_back(*it);
 					addright.push_back(**it);
-					addright.back()[i_star]=split_prob->upper(i0); // project onto right node
+					addright.back()[i_star]=right->lower[i0]; // project onto right node
 					if (reform) reform->set_t_block(addright.back(), k_star); // make feasible
 				} else {
 					right->i_ExtremePoints[k_star].push_back(*it);
 					addleft.push_back(**it);
-					addleft.back()[i_star]=split_prob->lower(i0); // project onto right node
+					addleft.back()[i_star]=left->upper[i0]; // project onto right node
 					if (reform) reform->set_t_block(addleft.back(), k_star); // make feasible
 				}
 			}
@@ -1044,12 +1026,15 @@ void MinlpBCP::rect_subdiv(list<Pointer<MinlpNode> >& nodes, Pointer<MinlpNode> 
 //----------------------------------------------------------------------
 
 int MinlpBCP::bin_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Pointer<MinlpNode> node) {
-	int fixed=0;
-	for (map<int, set<int> >::iterator it(node->bcp_fixed_var.begin()); it!=node->bcp_fixed_var.end(); it++)
-		fixed+=it->second.size();
+	bool allfixed=true;
+	for (int i=0; i<orig_prob->i_discr.size(); ++i)
+		if (node->lower(orig_prob->i_discr[i])!=node->upper(orig_prob->i_discr[i])) {
+			allfixed=false;
+			break;
+		}
 
-	if (fixed==orig_prob->i_discr.size()) {
-		out_solver_log << "All binaries fixed, so no more binary subdivision here." << endl;
+	if (allfixed) {
+//		out_solver_log << "All discrete variables fixed, so no more binary subdivision here." << endl;
 		return 0;
 	}
 
@@ -1076,9 +1061,10 @@ int MinlpBCP::bin_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Poin
 		for (int i=0; i<split_prob->block[k].size(); i++) {
 			int i0=split_prob->block[k][i];
 			if (!split_prob->discr[i0]) continue; // no binary
-			if (node->upper(i0)-node->lower(i0)<rtol) continue; // already fixed
-			double cost=MIN(fabs(node->ref_point(i0)-node->lower(i0)), fabs(node->upper(i0)-node->ref_point(i0))) / (1+(node->upper(i0)-node->lower(i0)));
-			if (subdiv_type!=BinSubdiv && !prob_is_convex)
+			if (node->upper(i0)==node->lower(i0)) continue; // already fixed
+			double cost=integrality_violation(node->ref_point(i0));
+//			MIN(fabs(node->ref_point(i0)-node->lower(i0)), fabs(node->upper(i0)-node->ref_point(i0))) / (1+(node->upper(i0)-node->lower(i0)));
+			if (subdiv_type!=BinSubdiv && !prob_is_convex) // almost integer
 				if (cost<1E-4) continue;
  			if (b_lag(i)>0) cost+=10*b_lag(i);
 			if (cost>max_cost) {
@@ -1089,7 +1075,7 @@ int MinlpBCP::bin_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Poin
 		}
 	}
 	if (k_star<0 && subdiv_type!=BinSubdiv && !prob_is_convex) {
-		out_solver_log << "All binary variables at 0 or 1. Try default subdivision method." << endl;
+		out_solver_log << "All discrete variables at integers. Try default subdivision method." << endl;
 		return 0;
 	}
 	if (k_star<0 || i_star<0) {
@@ -1100,15 +1086,13 @@ int MinlpBCP::bin_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Poin
 		for (int k=0; k<split_prob->block.size(); ++k)
 			for (int i=0; i<split_prob->block[k].size(); ++i) {
 				int i0=split_prob->block[k][i];
-				out_log << i0 << ':' << split_prob->var_names[i0] << '\t' << node->lower(i0) << '\t' << node->upper(i0) << '\t' << node->ref_point(i0)
-				<< '\t' << MIN(fabs(node->ref_point(i0)-node->lower(i0)), fabs(node->upper(i0)-node->ref_point(i0))) / (1+(node->upper(i0)-node->lower(i0)))
-				 << endl;
+				out_log << i0 << ':' << split_prob->var_names[i0] << '\t' << node->lower(i0) << '\t' << node->upper(i0) << '\t' << node->ref_point(i0) << endl;
 			}
 	}
 //	out_log << "subdiv at " << k_star << " " << i_star << endl;
 	assert(k_star>=0 && i_star>=0);
 	subdiv_var=linear_relax->obj->block[k_star][i_star];
-	rect_subdiv(nodes,node,k_star,i_star,node->lower[subdiv_var]);
+	rect_subdiv(nodes,node,k_star,i_star,node->ref_point[subdiv_var]);
 
 	if (nodes.empty()) return 1;
 	return 0;
@@ -1126,7 +1110,7 @@ void MinlpBCP::bisect_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, 
 			if (split_prob->get_sparsity(k)->linear->count(i)) continue; // no branching w.r.t. linear variables
 			int i0=split_prob->block[k][i];
 			double dist=split_prob->upper(i0)-split_prob->lower(i0);
-			if (dist<rtol) continue;
+			if (dist<rtol) continue; // fixed variable in problem
 			double dist_local=node->upper(i0)-node->lower(i0);
 			if (dist_local<rtol) continue; // fixed variable in node
 			double d=dist_local/dist;
@@ -1414,12 +1398,12 @@ void MinlpBCP::init_lag_problems(Pointer<MinlpNode> node) {
 // new MinlpPartLagFunc(opt.linear_prob, dual_point, k, false)));
 
 		// partition cuts from this node
-		if (node->part_con.size()) {
-			for (list<Pointer<SepQcFunc> >::iterator it(node->part_con[k].begin()); it!=node->part_con[k].end(); it++) {
-				lag_problem[k]->add_con(new SepQcFunc((*it)->A[k], (*it)->b[k], (*it)->s[k], (*it)->c), false, "part con");
-				block_sub_convex_prob[k]->add_con(lag_problem[k]->con.back(), lag_problem[k]->con_eq.back(), lag_problem[k]->con_names.back());
-			}
-		}
+//		if (node->part_con.size()) {
+//			for (list<Pointer<SepQcFunc> >::iterator it(node->part_con[k].begin()); it!=node->part_con[k].end(); it++) {
+//				lag_problem[k]->add_con(new SepQcFunc((*it)->A[k], (*it)->b[k], (*it)->s[k], (*it)->c), false, "part con");
+//				block_sub_convex_prob[k]->add_con(lag_problem[k]->con.back(), lag_problem[k]->con_eq.back(), lag_problem[k]->con_names.back());
+//			}
+//		}
 
 		// local cuts from this node for (C_k)
 // todo: add local cuts for this node again to block convex relax
@@ -1471,7 +1455,6 @@ void MinlpBCP::update_lag_problem(int k, const dvector& a) {
 
 void MinlpBCP::solve_lag_problem(LagSolveStatus& status, int k, Pointer<MinlpNode> node, Pointer<SepQcFunc> temp_cut) {
 	assert(lag_problem.size()==linear_relax->obj->block.size() && lag_problem[k]);
-Timer t;
 	Pointer<LinearRelax> block_sub_linear_relax(new LinearRelax(*linear_relax, k, node, lag_problem[k]->obj));
 
 	Pointer<dvector> diam(new dvector(*sol_cand_diam, linear_relax->obj->block[k]));
@@ -1631,30 +1614,17 @@ int MinlpBCP::solve() {
 	Pointer<MinlpNode> node1;
 	int ret;
 	iter_=0;
-//	timer->start();
 	double final_gap;
 
-	map<int, set<int> > fixed;
-	map<int, set<int> >::iterator it_block;
-	for (int k=0; k<split_prob->block.size(); k++) {
-		it_block=fixed.end();
-		for (int i=0; i<split_prob->block[k].size(); i++) {
-			int i0=split_prob->block[k][i];
-			if (split_prob->discr[i0] && split_prob->upper(i0)-split_prob->lower(i0)<rtol) {
-				if (it_block==fixed.end()) {
-					set<int> newset;
-					it_block=fixed.insert(pair<int, set<int> >(k, newset)).first;
-				}
-				it_block->second.insert(i);
-				out_solver_log << "Recognized variable " << split_prob->var_names[i0] << " as already fixed to " << split_prob->lower[i0] << endl;
-			}
-		}
-	}
+//	for (int i=0; i<split_prob->i_discr.size(); ++i) {
+//		int i0=split_prob->i_discr[i];
+//		if (split_prob->lower(i0)==split_prob->upper(i0))
+//			out_solver_log << "Recognized variable " << split_prob->var_names[i0] << " as already fixed to " << split_prob->lower[i0] << endl;
+//	}
 
 	bound_type = pre_bb_max_iter ? pre_bound_type : maj_bound_type;
 	ret=0;
 	node1=new MinlpNode(reform ? reform->ext_prob->lower : split_prob->lower, reform ? reform->ext_prob->upper : split_prob->upper);
-	node1->bcp_fixed_var=fixed;
 	out_solver_log << "Computing lower bound of initial node. Current bound: " << node1->low_bound << endl;
 	if (sol_C && sol_C_is_solution) node1->low_bound=reform ? reform->ext_convex_prob->obj->eval(*sol_C) : convex_prob->obj->eval(*sol_C);
 	if (bound_type==RMP_bound || bound_type==LP_RMP_bound)
@@ -1735,11 +1705,11 @@ double MinlpBCP::start_bb() {
 
 	do {
 		iter_++;
-		out_solver << "BCP Iter. " << iter_ << " / " << iter_max << "\t Time: " << timer->stop();
+		out_solver << "Iter. " << iter_ << " / " << iter_max << "  Time: " << timer->stop();
 		if (out_solver_p && max_time<INFINITY) { out_solver << " / "; Timer::print(*out_solver_p, max_time); }
-		out_solver << "\t tree: " << bb_tree.size() << "\t cuts: " << linear_relax->nr_all_cuts();
+		out_solver << "   tree: " << bb_tree.size() << "  cuts: " << linear_relax->nr_all_cuts();
 		if (out_solver_p && linear_relax->cutlimit_reached()) out_solver << "(l)";
-		out_solver << "\t lower: " << bb_tree.begin()->first << "\t upper: " << opt_val_ << "   " << nr_solcand_found << "\t gap: " << gap << endl;
+		out_solver << "\t gap: [" << bb_tree.begin()->first << ", " << opt_val_ << "] = " << (gap*100) << "%\t " << nr_solcand_found << endl;
 //		max_bb_tree_size=MAX(max_bb_tree_size, bb_tree.size());
 
 		mem_check();
@@ -1752,11 +1722,13 @@ double MinlpBCP::start_bb() {
 			bb_tree.erase(bb_tree.begin());
 			clean_sub_problems();
 
-			if (out_solver_log_p && node1->bcp_fixed_var.size()) {
+			if (out_solver_log_p && split_prob->i_discr.size()) {
 				out_solver_log << "Fixation: ";
-				for (map<int, set<int> >::iterator it_block(node1->bcp_fixed_var.begin()); it_block!=node1->bcp_fixed_var.end(); it_block++)
-					for (set<int>::iterator it_var(it_block->second.begin()); it_var!=it_block->second.end(); it_var++)
-						out_solver_log << split_prob->var_names[split_prob->block[it_block->first][*it_var]] << "(" << node1->lower(linear_relax->obj->block[it_block->first][*it_var]) << ") ";
+				for (int i=0; i<split_prob->i_discr.size(); ++i) {
+					int i0=split_prob->i_discr[i];
+					if (node1->lower(i0)==node1->upper(i0))
+						out_solver_log << split_prob->var_names[i0] << "(" << node1->lower(i0) << ") ";
+				}
 				out_solver_log << endl;
 			}
 			out_solver_log << "Box diameter (2-norm): " << sqrt((node1->upper-node1->lower).sq_norm2());
@@ -1789,7 +1761,7 @@ double MinlpBCP::start_bb() {
 
 		if (bound_type!=stop_bound && opt_val()>node1->low_bound+rtol) { // some room left for improvement
 			if (bound_impr.second>bound_impr_tol) {
-				bb_tree.insert(pair<double, Pointer<MinlpNode> >(node1->key(orig_prob->i_discr.size()), node1));
+				bb_tree.insert(pair<double, Pointer<MinlpNode> >(node1->key(orig_prob->i_discr), node1));
 			} else {
 				list<Pointer<MinlpNode> > nodes;
 				int subdiv_var=subdivide(nodes, node1);
@@ -1802,7 +1774,7 @@ double MinlpBCP::start_bb() {
 						clean_sub_problems();
 						ret=set_low_bound(*it);
 					} else ret=0;
-					if (!ret) bb_tree.insert(pair<double, Pointer<MinlpNode> >((*it)->key(orig_prob->i_discr.size()), *it));
+					if (!ret) bb_tree.insert(pair<double, Pointer<MinlpNode> >((*it)->key(orig_prob->i_discr), *it));
 					else {
 						linear_relax->remove_node(*it);
 						out_solver_log << "Node not added to bb-tree." << endl;
@@ -1823,22 +1795,13 @@ double MinlpBCP::start_bb() {
 			bb_tree.erase(prunestart, bb_tree.end());
 		}
 
-//		if (bb_tree.size()) gap=(opt_val_-bb_tree.begin()->first)/(1+MAX(fabs(opt_val_),fabs(bb_tree.begin()->first)));
-		if (bb_tree.size()) gap=(opt_val_-bb_tree.begin()->first)/(1+fabs(bb_tree.begin()->first));
+		if (bb_tree.size()) gap=(opt_val_-bb_tree.begin()->first)/(1+MAX(fabs(opt_val_),fabs(bb_tree.begin()->first)));
+//		if (bb_tree.size()) gap=(opt_val_-bb_tree.begin()->first)/(1+fabs(bb_tree.begin()->first));
 		else {
 			gap=0.;
 			if (lower_bound==-INFINITY) lower_bound=node1 ? node1->low_bound : opt_val();
 		}
 		prune_ExtremePoints(bb_tree);
-
-		if (bound_print && opt_val_<INFINITY) {
-			*bound_print << (double)timer->stop() << "\t ";
-			if (lower_bound==-INFINITY) *bound_print << bb_tree.begin()->first;
-			else *bound_print << lower_bound;
-			*bound_print << "\t " << opt_val_ << "\t ";
-			if (lower_bound==-INFINITY) *bound_print << gap << endl;
-			else *bound_print << (opt_val_-lower_bound)/(1+fabs(lower_bound)) << endl;
-		}
 
 		out_solver_log << endl;
 		if (pre_bb_max_iter) {
@@ -1858,7 +1821,7 @@ double MinlpBCP::start_bb() {
 	if (lower_bound==-INFINITY && bb_tree.size()) lower_bound=bb_tree.begin()->first;
 	out_solver_log << "Final lower bound: " << lower_bound << endl;
 
-	if (last_impr_iter>=0) return (opt_val_-lower_bound)/(1+fabs(lower_bound));
+	if (last_impr_iter>=0) return (opt_val_-lower_bound)/(1+MAX(fabs(lower_bound),fabs(opt_val_)));
 	return 1.;
 }
 //----------------------------------------------------------------------
@@ -1892,7 +1855,6 @@ bool MinlpBCP::add_sol_candidate(const dvector& x) {
 			linear_relax->add_cut(Pointer<LinearizationCut>(new LinearizationCut(cutit->first)), cutit->second.first, cutit->second.second ? NULL : current_node);
 			if (cutit->second.second) ++global_cuts_nr; else ++local_cuts_nr;
 		}
-			
 		out_log << "Added " << global_cuts_nr << " global and " << local_cuts_nr << " local LinearizationCuts." << endl;
 	}
 
@@ -1919,8 +1881,8 @@ int MinlpBCP::find_sol_candidates(Pointer<MinlpNode> node) {
 	// to get uniform rounding for copied variables (if x and y satisfy x==y, they should do so after rounding as well)
 	for (int i=0; i<split_prob->i_discr.size(); i++) {
 		int i0=split_prob->i_discr[i];
-		double mid=.5*(split_prob->lower(i0)+split_prob->upper(i0));
-		if (fabs(node->ref_point(i0)-mid)<rtol) node->ref_point[i0]=mid;
+		if (fabs(integrality_violation(node->ref_point(i0))-0.5)<rtol)
+			node->ref_point[i0]=lowerint(node->ref_point(i0))+0.5;
 	}
 	dvector trialpoint(node->ref_point.dim());
 	Round::round(trialpoint, node->ref_point, split_prob->i_discr, node->lower, node->upper);
@@ -1979,28 +1941,28 @@ int MinlpBCP::find_sol_candidates(Pointer<MinlpNode> node) {
 }
 
 int MinlpBCP::preswitching(Pointer<MinlpNode> node) {
-	int midbinaries=0; // binaries, which are undecided yet
+	int middiscrete=0; // discrete variables, which are undecided yet
  	for (int i=0; i<split_prob->i_discr.size(); i++) {
   	int i0=split_prob->i_discr[i];
-		if (split_prob->upper[i0]-split_prob->lower[i0]<rtol) continue;
-		double mid=MIN(node->ref_point[i0]-split_prob->lower[i0], split_prob->upper[i0]-node->ref_point[i0])/(split_prob->upper[i0]-split_prob->lower[i0]);
-		if (mid<.02) continue;
-		midbinaries++;
+		if (split_prob->upper[i0]==split_prob->lower[i0]) continue;
+		if (integrality_violation(node->ref_point[i0])<.02) continue;
+		middiscrete++;
 	}
 	dvector trialpoint(node->ref_point.dim());
 	int ret=1;
-	int samplesize=midbinaries;//(int)pow(log(midbinaries+1.), 2);
-	out_solver_log << "Apply random switching " << samplesize << " times for " << midbinaries << " undecided binaries." << endl;
+	int samplesize=middiscrete;//(int)pow(log(midbinaries+1.), 2);
+	out_solver_log << "Apply random switching " << samplesize << " times for " << middiscrete << " undecided integer variables." << endl;
 	while (samplesize--) {
 		Round::round(trialpoint, node->ref_point, split_prob->i_discr, node->lower, node->upper);
 		bool changed=false;
   	for (int i=0; i<split_prob->i_discr.size(); i++) {
 	  	int i0=split_prob->i_discr[i];
-			if (split_prob->upper[i0]-split_prob->lower[i0]<rtol) continue;
-			double mid=MIN(node->ref_point[i0]-split_prob->lower[i0], split_prob->upper[i0]-node->ref_point[i0])/(split_prob->upper[i0]-split_prob->lower[i0]);
+			if (split_prob->upper[i0]==split_prob->lower[i0]) continue;
+			double mid=integrality_violation(node->ref_point[i0]);
 			if (mid<.02) continue;
 			if (random(0., 1.)<mid) {
-				trialpoint[i0]=split_prob->lower[i0]+split_prob->upper[i0]-trialpoint[i0]; // switch variable
+				if (trialpoint[i0]==lowerint(node->ref_point[i0])) trialpoint[i0]+=1.;
+				else trialpoint[i0]-=1.;
 				changed=true;
 			}
 		}

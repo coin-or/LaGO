@@ -276,16 +276,16 @@ bool LagHeu::project_and_round(dvector& x) {
 	MIPSolver::SolutionStatus ret=solve_project_LP(x);
 	if (ret!=MIPSolver::SOLVED && ret!=MIPSolver::FEASIBLE) return false;
 
-	// collect binary variables
+	// collect integer variables
 	map<int, double> unfixed;
 	for (int i=0; i<orig_prob->i_discr.size(); ++i) {
 		int i0=orig_prob->i_discr[i];
 		if (node->lower(i0)==node->upper(i0)) continue;
 
-		double key=MIN(fabs(node->lower(i0)-x(i0)), fabs(node->upper(i0)-x(i0)))/(node->upper(i0)-node->lower(i0));
+		double key=integrality_violation(x(i0));
 		unfixed.insert(pair<int,double>(i0, key));
 	}
-	if (unfixed.empty()) return true; // continuous problem or all binaries are already fixed
+	if (unfixed.empty()) return true; // continuous problem or all integers are already fixed
 
 	int switch_count=0;
 	bool ret2=project_and_round_rek(x, unfixed, switch_count);
@@ -304,7 +304,13 @@ bool LagHeu::project_and_round_rek(dvector& x, map<int, double>& unfixed, int& s
 	int index=index_it->first;
 	double key=index_it->second;
 	unfixed.erase(index_it);
-
+	
+	if (node->lower(index)!=0. || node->upper(index)!=1.) {
+		out_err << "LagHeu::project_and_round_rek not adjusted for arbitrary integer variables yet. Aborting." << endl;
+		exit(-1);		
+	} 
+	// the rest should work fine for binary variables
+	
 	double rounded=2.*x(index)>node->lower(index)+node->upper(index) ? node->upper(index) : node->lower(index);
 	project_LP_fix_variable(index, rounded); // fix variable
 

@@ -137,7 +137,7 @@ class LinearRelax {
 		*/
 		int core_size() const;
 
-		set<pair<int, int> > boxreduce_fixed_binaries;
+		set<pair<int, int> > boxreduce_reduced_integer;
 
 		/** Constructor.
 		*/

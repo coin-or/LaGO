@@ -82,13 +82,12 @@ class LagHeu;
     %options Binary, Cost, Bisection, Violation
 		%default Binary
 		%level 2
-    The branching method. First, binary subdivision is tried. If all binaries are fixed, further actions depend on the value of this parameter. 
+    The branching method. First, binary (integer) subdivision is tried. If all integers are fixed, further actions depend on the value of this parameter. 
 		\begin{itemize}
-		\item Binary: If all binary variables are fixed, no further subdivision is performed.
+		\item Binary: When all integer variables are fixed, no further subdivision is performed.
 		\item Cost: Tries to subdivide w.r.t. a variable, for which a maximum improvement of the Lagrangian can be achieved. (not tested)
 		\item Bisection: Subdivides w.r.t. a variables, which boxdiameter is maximal.
-		\item Violation: Tries to subdivide w.r.t. a variable, which can minimize the violation of the reference point.
-    If it fails to find a variable, bisection is used.
+		\item Violation: Tries to subdivide w.r.t. a variable, which can minimize the violation of the reference point. If it fails to find a variable, bisection is used.
 		\end{itemize}
 		@param IntervalGradient cuts
     %options 0, 1
@@ -191,8 +190,6 @@ class MinlpBCP : public RelaxationSolver {
 
 		/** bound improvement tolerance */
 		double bound_impr_tol;
-
-		Pointer<ostream> bound_print;
 
 		/** starts the BB-algorithm
 		@param bb_tree A Branch-and-Bound tree
