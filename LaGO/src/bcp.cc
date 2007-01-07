@@ -790,7 +790,7 @@ bool MinlpBCP::feasibility_check(Pointer<MinlpNode> node) {
 
 
 int MinlpBCP::update_subdiv_bound(int k, int i, Pointer<MinlpNode> node) {
-	out_solver_log << "Updating bound after subdivision." << endl;
+//	out_solver_log << "Updating bound after subdivision." << endl;
 	Timer t;
 	int ret=0;
 
@@ -813,7 +813,7 @@ int MinlpBCP::update_subdiv_bound(int k, int i, Pointer<MinlpNode> node) {
 
 int MinlpBCP::subdivide(list<Pointer<MinlpNode> >&nodes, Pointer<MinlpNode> node) {
 	Timer t;
-	out_solver_log << "Subdividing..." << endl;
+//	out_solver_log << "Subdividing..." << endl;
 	int subdiv_var;
 
 	int ret=bin_subdiv(nodes, subdiv_var, node);
@@ -983,7 +983,11 @@ void MinlpBCP::rect_subdiv(list<Pointer<MinlpNode> >& nodes, Pointer<MinlpNode> 
 	out_solver_log << " = [" << left->lower(i0) << ',' << left->upper(i0) << ']' << endl;
 	linear_relax->duplicate_nodeinfo(node, left);
 	linear_relax->update_cuts(left, k_star, intgrad_cutgen, linconcutgen); // update existing intervalgradient cuts
-	if (left->ref_point(i0)<=cut) { // refpoint in left node -> generate new intervalgradient cuts
+	if (!boxreduce(left, i0, IntervalReduction::UPPER)) { // reduce the box
+		linear_relax->remove_node(left);
+		left=NULL;
+	}
+	if (left && left->lower(i0)<=left->ref_point(i0) && left->ref_point(i0)<=left->upper(i0)) { // refpoint in left node -> generate new cuts
 		if (intgrad_cuts) {
 			Pointer<IntervalGradientCut> intgradcut(intgrad_cutgen.get_cuts(left->ref_point(prob.block[k_star]), k_star, left->lower(prob.block[k_star]), left->upper(prob.block[k_star])));
 			linear_relax->add_cut(intgradcut, k_star, left);
@@ -993,19 +997,26 @@ void MinlpBCP::rect_subdiv(list<Pointer<MinlpNode> >& nodes, Pointer<MinlpNode> 
 			linear_relax->remove_node(left);
 			left=NULL;
 		}
-	} else left->ref_point[i0]=cut;
-	if (left && (!boxreduce(left, i0, IntervalReduction::UPPER))) {
-		linear_relax->remove_node(left);
-		left=NULL;
+	} else if (left) {
+		left->ref_point[i0]=project(left->ref_point(i0), left->lower(i0), left->upper(i0));
+		if (set_low_bound(left)) {
+			linear_relax->remove_node(left);
+			left=NULL;
+		}
 	}
 	if (left) nodes.push_back(left);
 
+	clean_sub_problems();
 	out_solver_log << "Updating cuts and boxreduction for right node: ";
 	if (split_prob->var_names[i0]) { out_solver_log << split_prob->var_names[i0]; }	else out_solver_log << i0;
 	out_solver_log << " = [" << right->lower(i0) << ',' << right->upper(i0) << ']' << endl;
 	linear_relax->duplicate_nodeinfo(node, right);
 	linear_relax->update_cuts(right, k_star, intgrad_cutgen, linconcutgen);
-	if (right->ref_point(i0)>=cut) { // refpoint in right node
+	if (!boxreduce(right, i0, IntervalReduction::LOWER)) {
+		linear_relax->remove_node(right);
+		right=NULL;
+	}
+	if (right && right->ref_point(i0)>=right->lower(i0) && right->ref_point(i0)<=right->upper(i0)) { // refpoint in right node
 		if (intgrad_cuts) {
 			Pointer<IntervalGradientCut> intgradcut(intgrad_cutgen.get_cuts(right->ref_point(prob.block[k_star]), k_star, right->lower(prob.block[k_star]), right->upper(prob.block[k_star])));
 			linear_relax->add_cut(intgradcut, k_star, right);
@@ -1015,10 +1026,12 @@ void MinlpBCP::rect_subdiv(list<Pointer<MinlpNode> >& nodes, Pointer<MinlpNode> 
 			linear_relax->remove_node(right);
 			right=NULL;
 		}
-	} else right->ref_point[i0]=cut;
-	if (right && !boxreduce(right, i0, IntervalReduction::LOWER)) {
-		linear_relax->remove_node(right);
-		right=NULL;
+	} else if (right) {
+		right->ref_point[i0]=project(right->ref_point(i0), right->lower(i0), right->upper(i0));
+		if (set_low_bound(right)) {
+			linear_relax->remove_node(right);
+			right=NULL;
+		}
 	}
 	if (right) nodes.push_back(right);
 }
@@ -1063,7 +1076,6 @@ int MinlpBCP::bin_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Poin
 			if (!split_prob->discr[i0]) continue; // no binary
 			if (node->upper(i0)==node->lower(i0)) continue; // already fixed
 			double cost=integrality_violation(node->ref_point(i0));
-//			MIN(fabs(node->ref_point(i0)-node->lower(i0)), fabs(node->upper(i0)-node->ref_point(i0))) / (1+(node->upper(i0)-node->lower(i0)));
 			if (subdiv_type!=BinSubdiv && !prob_is_convex) // almost integer
 				if (cost<1E-4) continue;
  			if (b_lag(i)>0) cost+=10*b_lag(i);
@@ -1102,8 +1114,10 @@ int MinlpBCP::bin_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Poin
 
 void MinlpBCP::bisect_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Pointer<MinlpNode> node) {
 	int istar,kstar;
+	int istar_abs, kstar_abs;
 	double dmax=-rtol;
-	double cut;
+	double dmax_abs=-rtol;
+	double cut, cut_abs;
 
 	for (int k=0; k<split_prob->block.size(); k++) {
 		for(int i=0; i<split_prob->block[k].size(); i++) {
@@ -1119,14 +1133,27 @@ void MinlpBCP::bisect_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, 
 				kstar=k; istar=i;
 				cut=node->lower(i0)+dist_local/2;
 			}
+			if (dist_local>dmax_abs) {
+				dmax_abs=dist_local;
+				kstar_abs=k; istar_abs=i;
+				cut_abs=node->lower(i0)+dist_local/2;
+			} 
+//			out_log << split_prob->var_names[i0] << ": " << dist_local << ' ' << dist << ' ' << d << ' ' << kstar << ' ' << istar << endl;
 		}
 	}
-
-	if (dmax>1E-4) {
+	
+	// we have to balance somehow between the relative reduction (which can be meaningless if the original box is very large),
+	// and the absolute reduction (which can be meaningless if the variables are bad scaled)
+	if (dmax>1E-4 && (dmax>0.05 || dmax_abs<1.)) {
 		nr_subdiv_bisect++;
 		rect_subdiv(nodes, node, kstar, istar, cut);
 		subdiv_var=linear_relax->obj->block[kstar][istar];
-	} // TODO: should the lower bound be fixed otherwise?
+	} else if (dmax_abs>1E-4) {
+		nr_subdiv_bisect++;
+		rect_subdiv(nodes, node, kstar_abs, istar_abs, cut_abs);
+		subdiv_var=linear_relax->obj->block[kstar_abs][istar_abs];
+	}
+	// TODO: should the lower bound be fixed otherwise?
 }
 
 //----------------------------------------------------------------------
@@ -1241,7 +1268,7 @@ void MinlpBCP::cost_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Po
 	else rect_subdiv(nodes, node, k_free,i_free,cut_free);
 	subdiv_var=i0_free;
 }
-
+/*
 void MinlpBCP::viol_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Pointer<MinlpNode> node) {
 	int k_star=-1, i_star=-1, k2=-1, i2=-1;
 	double val, maxviol=rtol, cut;
@@ -1255,9 +1282,12 @@ void MinlpBCP::viol_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Po
 	for (int c=0; c<ref_prob.con.size(); c++) {
 		val=ref_prob.con[c]->eval(x);
 		if (val<tol && (val>-tol || !ref_prob.con_eq[c])) continue;
-
+		
 		ref_prob.con[c]->grad(g, x);
 		double gradnorm=sqrt(g.sq_norm2());
+
+//		out_log << ref_prob.con_names[c] << ": " << val << ' ' << gradnorm << ' ' << maxviol; 
+
 		if (gradnorm<rtol) continue;
 		if (fabs(val)<maxviol*gradnorm) continue;
 
@@ -1268,14 +1298,17 @@ void MinlpBCP::viol_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Po
 		for (int k=0; k<split_prob->block.size(); k++) {
 			for (int i=0; i<split_prob->block[k].size(); i++) {
 				int i0=split_prob->block[k][i];
+//				out_log << '\t' << split_prob->var_names[i0] << ':' << x(i0) << ',' << fabs(g(i0));
 				if (fabs(g(i0))<rtol) continue;
 				if (split_prob->con[c]->sparsity_available(k) && split_prob->con[c]->get_sparsity(k).linear->count(i)) continue; // no branching w.r.t. linear variables
 				double dist=split_prob->upper(i0)-split_prob->lower(i0);
 				if (dist<rtol) continue; // fixed variable in problem
 				double dist_local=node->upper(i0)-node->lower(i0);
+//				out_log << ',' << dist_local;
 				if (dist_local<rtol) continue; // fixed variable in node
 				double delta_i=MIN(x(i0)-node->lower(i0), node->upper(i0)-x(i0))/dist;
 				double sigma_i=dist_local/dist;
+//				out_log << ',' << sigma_i << ',' << delta_i;
 				if (sigma_i<1E-4) continue; // already very small (compared to beginning)
 				if ((delta_i>0.2) && (fabs(g(i0))/sigma_i<g_min)) { // delta_i > .2 -> sigma_i>0
 					g_min=fabs(g(i0))/sigma_i;
@@ -1300,12 +1333,12 @@ void MinlpBCP::viol_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Po
 				cut=x(i0);
 				if (cut>node->upper(i0)-.2*dist_local)
 					cut=node->upper(i0)-.2*dist_local;
-				else if (cut<node->upper(i0)+.2*dist_local)
+				else if (cut<node->lower(i0)+.2*dist_local)
 					cut=node->lower(i0)+.2*dist_local;
 			}
 		}
 	}
-
+//out_log << endl;
 	if (k_star==-1) {
 		out_solver_log << "No Violation subdivision possible. Falling back to Bisection subdivision." << endl;
 		bisect_subdiv(nodes, subdiv_var, node);
@@ -1315,6 +1348,87 @@ void MinlpBCP::viol_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Po
 	subdiv_var=linear_relax->obj->block[k_star][i_star];
 //	out_solver_log << reform->ext_prob->var_names[subdiv_var] << ": max violation: " << maxviol << "\t dist_local: " << node->upper(subdiv_var)-node->lower(subdiv_var) << endl;
 	rect_subdiv(nodes, node, k_star, i_star, cut);
+}
+*/
+
+void MinlpBCP::viol_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Pointer<MinlpNode> node) {
+	dvector x(reform ? reform->get_short_vector(node->ref_point) : node->ref_point);
+	assert(x.dim()==split_prob->dim());
+
+	int k2=-1, i2=-1;
+	double maxdelta2=0;
+	dvector delta(split_prob->dim());
+	dvector diam_frac(split_prob->dim());
+	for (int k=0; k<split_prob->block.size(); k++) {
+		for (int i=0; i<split_prob->block[k].size(); i++) {
+			if (!split_prob->get_sparsity(k)->nonlinear->count(i)) continue; // only nonlinear variables
+						
+			int i0=split_prob->block[k][i];
+			double diam_local=node->upper(i0)-node->lower(i0);
+			if (diam_local<1E-4) continue; // variable bounds very close already
+			double diam=split_prob->upper(i0)-split_prob->lower(i0);
+			diam_frac[i0]=diam_local/diam;
+			
+			delta[i0]=(node->upper(i0)-x(i0))*(x(i0)-node->lower(i0))/(diam_local*diam_local);
+			
+ 			// in case that we have reduced this one already a lot, this variable is only 2nd choice
+//			if (diam_frac(i0)<1E-4 && delta(i0)>maxdelta2) {
+//				maxdelta2=delta[i0];
+//				k2=k;
+//				i2=i;
+//			}
+		}
+	}
+
+	MinlpProblem& ref_prob(quad_prob ? *quad_prob : *split_prob);
+	dvector g(x.dim());
+
+	double val, maxviol=rtol;
+	int k_star=-1, i_star=-1;
+	for (int c=0; c<ref_prob.con.size(); c++) {
+		val=ref_prob.con[c]->eval(x);
+		if (val<tol && (val>-tol || !ref_prob.con_eq[c])) continue;
+
+		// compute scaling		
+		ref_prob.con[c]->grad(g, x);
+		double scale=sqrt(g.sq_norm2());
+		if (scale<1) scale=1;
+
+		if (fabs(val)<maxviol*scale && k_star>=0) continue; // if we already have one with a larger violation, skip this one 
+		maxviol=fabs(val/scale);
+
+		double maxdelta=0;
+		for (int k=0; k<split_prob->block.size(); k++) {
+			for (int i=0; i<split_prob->block[k].size(); i++) {
+				if (split_prob->con[c]->sparsity_available(k) && !split_prob->con[c]->get_sparsity(k).nonlinear->count(i)) continue; // no branching w.r.t. linear variables
+				int i0=split_prob->block[k][i];
+
+				if (diam_frac(i0)<1E-4 || delta(i0)<1E-4 || delta(i0)<maxdelta) continue;
+				
+				maxdelta=delta(i0);
+				k_star=k;
+				i_star=i;				
+			}
+		}
+	}
+//
+//	if (k_star==-1 && k2>=0) { // fall into reserve mode
+//		k_star=k2;
+//		i_star=i2;
+//	}
+
+	if (k_star>=0) {
+		int i0=split_prob->block[k_star][i_star];
+		double dist=split_prob->upper(i0)-split_prob->lower(i0);
+		double dist_local=node->upper(i0)-node->lower(i0);
+		// project a bit more inside the box
+		double cut=project(x(i0), node->lower(i0)+.02*dist_local, node->upper(i0)-.02*dist_local);
+		subdiv_var=i0; 
+		rect_subdiv(nodes, node, k_star, i_star, cut);
+	} else {
+		out_solver_log << "No Violation subdivision possible. Falling back to Bisection subdivision." << endl;
+		bisect_subdiv(nodes, subdiv_var, node);
+	}
 }
 
 
@@ -1722,16 +1836,29 @@ double MinlpBCP::start_bb() {
 			bb_tree.erase(bb_tree.begin());
 			clean_sub_problems();
 
-			if (out_solver_log_p && split_prob->i_discr.size()) {
-				out_solver_log << "Fixation: ";
-				for (int i=0; i<split_prob->i_discr.size(); ++i) {
-					int i0=split_prob->i_discr[i];
-					if (node1->lower(i0)==node1->upper(i0))
-						out_solver_log << split_prob->var_names[i0] << "(" << node1->lower(i0) << ") ";
+			if (out_solver_log_p) {
+				if (split_prob->i_discr.size()) {
+					out_solver_log << "Fixation: ";
+					for (int i=0; i<split_prob->i_discr.size(); ++i) {
+						int i0=split_prob->i_discr[i];
+						if (node1->lower(i0)==node1->upper(i0))
+							out_solver_log << split_prob->var_names[i0] << "(" << node1->lower(i0) << ") ";
+					}
+					out_solver_log << endl;
 				}
-				out_solver_log << endl;
+//				double maxdiam=0.;
+//				for (int k=0; k<split_prob->block.size(); k++)
+//					for(int i=0; i<split_prob->block[k].size(); i++) {
+//						if (split_prob->get_sparsity(k)->linear->count(i)) continue; // do not check linear variables
+//						int i0=split_prob->block[k][i];
+//						double dist=node1->upper(i0)-node1->lower(i0);
+//						if (dist>maxdiam) maxdiam=dist;
+//						out_solver_log << split_prob->var_names[i0] << "(" << node1->lower(i0) << ", " << node1->upper(i0) << ") "; 
+//					}
+//				out_solver_log << endl << "Max. box diameter for nonlinear variables: " << maxdiam; 
 			}
-			out_solver_log << "Box diameter (2-norm): " << sqrt((node1->upper-node1->lower).sq_norm2());
+			
+//			out_solver_log << "Box diameter (2-norm): " << sqrt((node1->upper-node1->lower).sq_norm2());
 /*			if (out_solver_log_p && node1->box_cuts.size()) {
 				out_solver_log << "Box cuts: ";
 				for (map<int, map<int, pair<double, double> > >::iterator it_block(node1->box_cuts.begin()); it_block!=node1->box_cuts.end(); it_block++)
@@ -1754,10 +1881,8 @@ double MinlpBCP::start_bb() {
 		//(solution search)\\
 		//If $U\cap X_{\rm cand}=\emptyset$,
 		set<SolCandidate>::const_iterator sol_candidate_it(node1->outside_part_set(sol_cand));
-		if (sol_candidate_it==sol_cand.end() || bound_type==stop_bound) {
-			ret=find_sol_candidates(node1);
-			out_solver_log << "find_sol_candidates return: " << ret << endl;
-		}
+		if (sol_candidate_it==sol_cand.end() || bound_type==stop_bound)
+			find_sol_candidates(node1);
 
 		if (bound_type!=stop_bound && opt_val()>node1->low_bound+rtol) { // some room left for improvement
 			if (bound_impr.second>bound_impr_tol) {
@@ -1768,18 +1893,8 @@ double MinlpBCP::start_bb() {
 				linear_relax->remove_node(node1);
 				node1=NULL;
 
-				for (list<Pointer<MinlpNode> >::iterator it(nodes.begin()); it!=nodes.end(); it++) {
-					if (!(*it)->update_subdiv_bound_called) {
-						out_solver_log << "Compute lower bound of new node." << endl;
-						clean_sub_problems();
-						ret=set_low_bound(*it);
-					} else ret=0;
-					if (!ret) bb_tree.insert(pair<double, Pointer<MinlpNode> >((*it)->key(orig_prob->i_discr), *it));
-					else {
-						linear_relax->remove_node(*it);
-						out_solver_log << "Node not added to bb-tree." << endl;
-					}
-				}
+				for (list<Pointer<MinlpNode> >::iterator it(nodes.begin()); it!=nodes.end(); it++)
+					bb_tree.insert(pair<double, Pointer<MinlpNode> >((*it)->key(orig_prob->i_discr), *it));
 				// no subdivided node added, and no other node left
 				if ((!bb_tree.size()) && (lower_bound==-INFINITY)) lower_bound=opt_val();
 			}
@@ -1796,7 +1911,6 @@ double MinlpBCP::start_bb() {
 		}
 
 		if (bb_tree.size()) gap=(opt_val_-bb_tree.begin()->first)/(1+MAX(fabs(opt_val_),fabs(bb_tree.begin()->first)));
-//		if (bb_tree.size()) gap=(opt_val_-bb_tree.begin()->first)/(1+fabs(bb_tree.begin()->first));
 		else {
 			gap=0.;
 			if (lower_bound==-INFINITY) lower_bound=node1 ? node1->low_bound : opt_val();

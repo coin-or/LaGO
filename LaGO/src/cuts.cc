@@ -504,7 +504,7 @@ int LinearizedConCutGenerator::get_cuts(list<pair<LinearizationCut, pair<int, bo
 		
 		double violation=cut.constant;
 		if (tindex>=0) violation-=x(prob->block[k][tindex]);
-		if (violation<tol) continue; // skip constraints where the convex relax. is not violated
+		if (violation<tol && violated_polyest_only) continue; // skip constraints where the convex relax. is not violated
 
 		double maxcoeff=1;
 		for (int i=0; i<cut.coeff->size(); ++i) if (2*fabs((*cut.coeff)(i))>maxcoeff) maxcoeff=2*fabs((*cut.coeff)(i));
@@ -551,7 +551,7 @@ int LinearizedConCutGenerator::get_cuts(list<pair<LinearizationCut, pair<int, bo
 		// not active
 		if (tindex<0 && val<-tol) continue;
 		if (tindex>=0 && val+x(prob->block[k][tindex])<-tol) continue;
-
+		
 		Pointer<UserVector<double> > coeff;
 //		const SepQcFunc& quadfunc(con.polynomial_underestimator ? *con.polynomial_overestimator : *con.func);
 		if (con.polynomial_overestimator) {
@@ -561,6 +561,7 @@ int LinearizedConCutGenerator::get_cuts(list<pair<LinearizationCut, pair<int, bo
 				map<int,double>::const_iterator approxit(con.polynomial_approx_constants_upper.find(k));
 				if (approxit!=con.polynomial_approx_constants_upper.end()) val+=approxit->second; //add constant part introduced by computing quadratic underestimator
 			}
+
 			if (violated_polyest_only) { // skip constraint where poly.oest. not violated
 				if (tindex<0 && val<-tol) continue;
 				if (tindex>=0 && val+x(prob->block[k][tindex])<-tol) continue;
@@ -589,7 +590,8 @@ int LinearizedConCutGenerator::get_cuts(list<pair<LinearizationCut, pair<int, bo
 
 		double violation=cut.constant;
 		if (tindex>=0) violation+=x(prob->block[k][tindex]);
-		if (violation<tol) continue; // skip constraints where the convex relax. is not violated
+
+		if (violation<tol && violated_polyest_only) continue; // skip constraints where the convex relax. is not violated
 
 		double maxcoeff=1;
 		for (int i=0; i<cut.coeff->size(); ++i) if (2*fabs((*cut.coeff)(i))>maxcoeff) maxcoeff=2*fabs((*cut.coeff)(i));
