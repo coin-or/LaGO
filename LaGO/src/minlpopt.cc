@@ -227,6 +227,7 @@ bool primal_feasible=false;
 	}
 
 	related_t.resize(opt.split_prob->con.size(), -1);
+	vector<bool> con_reformulated(opt.split_prob->con.size(), false);
 
 	// initialize extended problems
 	ext_prob=new MinlpProblem(*opt.split_prob);
@@ -266,6 +267,7 @@ bool primal_feasible=false;
 			else if (f.b[k]) lin_block=true;
 		}
 		if ((!lin_block) && (nonlinblocks<=1) && (c || (!nonlinblocks))) continue;
+		if (c) con_reformulated[c-1]=true;
 
 		for (int k=0; k<f.block.size(); k++) {
 			if ((!f.s[k]) && (!f.A[k])) continue;
@@ -357,14 +359,18 @@ bool primal_feasible=false;
 		if (opt.ineq_index[c]<=0) continue;
 		ext_prob->del_con(opt.ineq_index[c]);
 		ext_prob->con_eq[c]=true;
-		if (ext_quad_prob) {
-			ext_quad_prob->con_eq[c]=true;
-			ext_quad_prob->del_con(opt.ineq_index[c]);
+		if (con_reformulated[c]) {
+			if (ext_quad_prob) {
+				ext_quad_prob->con_eq[c]=true;
+				ext_quad_prob->del_con(opt.ineq_index[c]);
+			}
+			ext_convex_prob->del_con(opt.ineq_index[c]);
+	 		// make equality con only, if we added t's here; if it had the form g(x)+y<=0, where g is defined for one block, it needs to remain as inequality
+//			out_log << "here at " << c << '\t' << opt.ineq_index[c] << ": " << related_t[c] << '\t' << related_t[opt.ineq_index[c]] << endl;
+//			ext_convex_prob->con_eq[c]=related_t[c]<0 ? false : true;
+			ext_convex_prob->con_eq[c]=true;
 		}
-		ext_convex_prob->del_con(opt.ineq_index[c]);
- 		// make equality con only, if we added t's here; if it had the form g(x)+y<=0, where g is defined for one block, it needs to remain as inequality
-		ext_convex_prob->con_eq[c]=related_t[c]<0 ? false : true;
-
+		
 		for (int d=c+1; d<opt.ineq_index.size(); d++)
 			if (opt.ineq_index[d]>opt.ineq_index[c]) opt.ineq_index[d]--;
 
@@ -481,6 +487,8 @@ void MinlpOpt::decompose() {
 	if (param->get_i("Decomposition", 1)) {
 		vector<vector<dvector> > sample_set;
 		sample_set.resize(orig_prob->block.size());
+		for (int k=0; k<orig_prob->block.size(); ++k)
+			sample_set[k].push_back(orig_prob->primal_point(orig_prob->block[k]));
 		if (!param->get("Decomposition sample set Monte Carlo"))
 			param->add("Decomposition sample set Monte Carlo", "20");
 		if (!param->get("Decomposition sample set mid point"))
@@ -1165,7 +1173,7 @@ void MinlpOpt::init() {
 	filib::fp_traits<double>::setup();
 #endif
 	check_initial_point();
-
+	
 	decompose();
 
 	box_reduce0();
