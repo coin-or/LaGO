@@ -36,9 +36,9 @@ int main(int argc, char** argv) {
 		out_out << "usage: " << argv[0] << " <gams-file> [<parameter-file>]" << endl;
 #else
 		out_out << "No AMPL or GAMS interface available." << endl;
-		exit(-1);
 #endif
 #endif	
+		exit(-1);
 	}
 
 	Pointer<Param> param;

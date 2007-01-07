@@ -21,7 +21,7 @@ Use the script get.METIS in ThirdParty/METIS.
 If you want to interface LaGO by AMPL, then start the script get.ASL in ThirdParty/ASL.
 It downloads and compiles the AMPL Solver Library from http://www.netlib.org/ampl/.
 
-If you want to interface LaGO by GAMS, then start the script get.GAMS_IO in ThirdParty/GAMS_IO.
+If you want to interface LaGO by GAMS, then start the script get.LX3 (32-bit Linux) or get.LEI (64-bit Linux) in ThirdParty/GAMS_IO.
 It downloads and unpacks the GAMS I/O libraries.
 You will further need to have a GAMS system installed in your system.
 
@@ -42,6 +42,7 @@ After installation of the required third party packages, run the script configur
 This should configure all packages, including LaGO, and generate the required makefiles.
 Then call make and make install. Now you should find a LaGO binary in the bin directory.
 If possible, LaGO uses it's GAMS interface. If this is not available, the AMPL interface will be used.
+
 
 **** Making LaGO known to GAMS:
 In the ThirdParty/GAMS_IO directory you find the file gmsla_.zip.

@@ -197,13 +197,13 @@ void gams::init_snopt_licence() {
 }
 
 gams::gams(Pointer<Param> param_)
-: param(param_), obj_sign(1), reformed(true), dict(NULL)
+: param(param_), obj_sign(1), is_minimization(true), reformed(true), dict(NULL)
 { assert(!gamsptr);
 	gamsptr=this;
 #ifdef GDX_AVAILABLE
 	char* errormsg=new char[128];
-	if (gdxWrapInit("gdxio.so", errormsg, 128)) {
-	 	cerr << "Could not load gdxio.so: " << errormsg << endl;
+	if (gdxWrapInit(NULL, errormsg, 128)) {
+	 	cerr << "Could not load GDX I/O library: " << errormsg << endl;
 		exit(-1);
 	}
 	delete[] errormsg;
@@ -243,7 +243,10 @@ Pointer<MinlpProblem> gams::get_problem(char* gamsfile) {
 	int numrow=info.kgv[1];
 	int numcol=info.kgv[2];
 	if (info.lgv[3]) obj_sign=1;
-	else obj_sign=-1;
+	else {
+		obj_sign=-1;
+		is_minimization=false;
+	}
 	objcon=info.kgv[15]-1;
 	objvar=info.kgv[7];
 
@@ -505,8 +508,7 @@ void gams::gdx_error(int n) {
 void gams::write_gdx(const dvector& x, char* filename, double val) {
 	if (written_gdx_limit) {
 		if (written_gdx.size()>=written_gdx_limit) {
-//			out_log << "Removing " << written_gdx.rbegin()->second << endl;
-			if (obj_sign>0) { // minimization problem, remove from end
+			if (is_minimization) { // minimization problem, remove from end
 				remove(written_gdx.rbegin()->second);
 				written_gdx.erase(--written_gdx.end());
 			} else { // maximization problem, remove from front

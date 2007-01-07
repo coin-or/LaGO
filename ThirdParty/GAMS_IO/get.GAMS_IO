@@ -1,7 +1,0 @@
-#!/bin/bash
-
-wget http://www.gams.com/~svigerske/gamsio_for_LaGO.tar.gz
-
-tar xzf gamsio_for_LaGO.tar.gz
-cd GAMS_IO
-gcc -c gdxwrap.c

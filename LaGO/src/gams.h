@@ -48,6 +48,7 @@ class gams {
 
 		dvector rhs;
 		dvector lower, upper;
+		bool is_minimization;
 		double obj_sign;
 		int objcon, objvar;
 		Pointer<char> objcon_name;

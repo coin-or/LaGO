@@ -139,7 +139,8 @@ ThirdParty/FILIB++/filib.patch5 -text
 ThirdParty/FILIB++/get.FILIB++ -text
 ThirdParty/FILIB++/interval_Makefile.am -text
 ThirdParty/FILIB++/interval_Makefile.in -text
-ThirdParty/GAMS_IO/get.GAMS_IO -text
+ThirdParty/GAMS_IO/get.LEI -text
+ThirdParty/GAMS_IO/get.LX3 -text
 ThirdParty/GAMS_IO/gmsla_.zip -text
 ThirdParty/METIS/get.METIS -text
 ThirdParty/TNT/get.TNT -text

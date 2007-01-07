@@ -34,10 +34,10 @@
 #undef COIN_HAS_OSI
 
 /* Define to the debug sanity check level (0 is no test) */
-#undef COIN_IPOPT_CHECKLEVEL
+#undef COIN_LAGO_CHECKLEVEL
 
 /* Define to the debug verbosity level (0 is no output) */
-#undef COIN_IPOPT_VERBOSITY
+#undef COIN_LAGO_VERBOSITY
 
 /* Define to dummy `main' function (if any) required to link to the Fortran
    libraries. */

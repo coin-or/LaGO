@@ -341,15 +341,38 @@ AM_CONDITIONAL([COIN_HAS_FILIB],[test "$coin_has_filib" = yes])
 # GAMS I/O.  It defines the makefile conditional and preprocessor macro
 # COIN_HAS_GAMSIO, if GAMS I/O is available.
 
-coin_gamsioobjdir=../ThirdParty/GAMS_IO
+GAMSIO_CODE=unsupportedarchitecture
+case $build in
+  x86_64-*-linux-*)
+      GAMSIO_CODE=LEI
+      gamsio_system=Linux
+    ;;
+  i?86-*-linux-*)
+      GAMSIO_CODE=LX3
+      gamsio_system=Linux
+    ;;
+#  *-cygwin* | *-mingw*)
+#      GAMSIO_CODE=VIS
+#      gamsio_system=Windows
+#    ;;
+#  *-darwin*)
+#      GAMSIO_CODE=DAR
+#      gamsio_system=Darwin
+#    ;;
+esac
+
+coin_gamsioobjdir=../ThirdParty/GAMS_IO/$GAMSIO_CODE
 coin_gamsiosrcdir=$abs_source_dir/$coin_gamsioobjdir
+
+#coin_gamsioobjdir=../ThirdParty/GAMS_IO
+#coin_gamsiosrcdir=$abs_source_dir/$coin_gamsioobjdir
 
 #if user provided GAMS I/O libraries, use this one, otherwise check ThirdParty/COIN_IO directory
 AC_ARG_WITH([gamsio],
             AC_HELP_STRING([--with-gamsio],
                            [specify directory of GAMS I/O libraries and header files]),
             [use_gamsio=$withval],
-	          [AC_CHECK_FILE([$coin_gamsiosrcdir/GAMS_IO/iolib.h],[use_gamsio=$coin_gamsiosrcdir/GAMS_IO],[use_gamsio=])]  )
+	          [AC_CHECK_FILE([$coin_gamsiosrcdir/iolib.h],[use_gamsio=$coin_gamsiosrcdir],[use_gamsio=])]  )
 						
 # Check if GAMS I/O libs work
 if test x"$use_gamsio" != x; then
@@ -370,7 +393,12 @@ if test x"$use_gamsio" != x; then
 	
 	if test x"$use_gamssys" != x; then
 		AC_MSG_CHECKING([whether GAMS I/O libraries at $use_gamsio and $use_gamssys works])
-		GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/gdxwrap.o -L$use_gamsio -lg2d -ldl -L$use_gamssys -lifcore -limf"
+		if test x"$GAMSIO_CODE" = xLX3; then
+		  GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/gdxwrap.o $use_gamsio/libg2d.a -ldl -L$use_gamssys -lifcore -limf"
+		elif test x"$GAMSIO_CODE" = xLEI; then
+		  GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/gdxwrap.o $use_gamsio/libg2d.a -ldl -L$use_gamssys -lifcore -limf -lirc"
+		fi
+#		GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/gdxwrap.o -L$use_gamsio -lg2d -ldl -L$use_gamssys -lifcore -limf"
 		LIBS="$GAMSIO_LIBS $LIBS"
 		CPPFLAGS="-I$use_gamsio $CPPFLAGS"
 		AC_TRY_LINK([
