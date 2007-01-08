@@ -431,19 +431,19 @@ if test x"$coin_has_gamsio" = xyes; then
 	
 		AC_MSG_CHECKING([whether GAMS/CPLEX licence library is present and working])
 		coin_save_libs=$LIBS
-		LIBS="-lgamscplexlice $LIBS $CPXLIB"
+		LIBS="$use_gamsio/libgamscplexlice.a $LIBS $CPXLIB"
 		AC_TRY_LINK([#include "gamscplexlice.h"], [gamscplexlice(0,0,0,0,0,0,0,0,0,0,0,0,0)],
 	  	          [AC_MSG_RESULT([yes])
                  coin_has_gamscplexlice=yes
-                 ADDLIBS="-lgamscplexlice $ADDLIBS"],
+                 ADDLIBS="$use_gamsio/libgamscplexlice.a $ADDLIBS"
+		             AC_DEFINE([COIN_HAS_GAMSCPLEXLICE],[1],[If defined, the GAMS/CPLEX licence library is available.])
+                ],
       	        [AC_MSG_RESULT([no])
                  coin_has_gamscplexlice=no
 	            	 LIBS=$coin_save_libs]);
 
 		AC_LANG_POP(C)
 		
-	  AC_DEFINE([COIN_HAS_GAMSCPLEXLICE],[1],
-  	          [If defined, the GAMS/CPLEX licence library is available.])
 	else
 		coin_has_gamscplexlice=no
 	fi

@@ -23910,7 +23910,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 		echo "$as_me:$LINENO: checking whether GAMS/CPLEX licence library is present and working" >&5
 echo $ECHO_N "checking whether GAMS/CPLEX licence library is present and working... $ECHO_C" >&6
 		coin_save_libs=$LIBS
-		LIBS="-lgamscplexlice $LIBS $CPXLIB"
+		LIBS="$use_gamsio/libgamscplexlice.a $LIBS $CPXLIB"
 		cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -23959,7 +23959,13 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
                  coin_has_gamscplexlice=yes
-                 ADDLIBS="-lgamscplexlice $ADDLIBS"
+                 ADDLIBS="$use_gamsio/libgamscplexlice.a $ADDLIBS"
+
+cat >>confdefs.h <<\_ACEOF
+#define COIN_HAS_GAMSCPLEXLICE 1
+_ACEOF
+
+
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
@@ -23978,11 +23984,6 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-
-
-cat >>confdefs.h <<\_ACEOF
-#define COIN_HAS_GAMSCPLEXLICE 1
-_ACEOF
 
 	else
 		coin_has_gamscplexlice=no
