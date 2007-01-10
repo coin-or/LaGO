@@ -22,19 +22,6 @@ class SolCandidate;
 extern "C" struct dictRec;
 
 /** Gams interface.
-		@class gams
-		@param GAMS write solution candidates
-		%options $\geq 0$
-		%default 0
-		%level 2
-		If 0, no solution candidates are written to gdx files.
-		If greater 0, every solution candidate is written to a file solcand$<$Value$>$\_$<$Randomnumber$>$.gdx, where Value is the objective value.
-		If more files were written than the number, which is specified by this parameter, the file with the worst solution candidate is removed again.
-		@param GAMS write startpoint
-		%options $\geq 0$
-		%default 0
-		%level 2
-		If greater 0, every starting point of a local search is written to a file startpoint\_$<$Randomnumber$>$.gdx.
 */
 class gams {
 	friend class gamsLocOpt;
@@ -256,6 +243,18 @@ class gamsFunc : public Func {
 
 /** Calls a GAMS-solver to solve the original problem with different bounds, fixed variables or another starting point.
 		@class gamsLocOpt
+		@param GAMS write solution candidates
+		%options $\geq 0$
+		%default 0
+		%level 2
+		If 0, no solution candidates are written to gdx files.
+		If greater 0, every solution candidate is written to a file solcand$<$Value$>$\_$<$Randomnumber$>$.gdx, where Value is the objective value.
+		If more files were written than the number, which is specified by this parameter, the file with the worst solution candidate is removed again.
+		@param GAMS write startpoint
+		%options $\geq 0$
+		%default 0
+		%level 2
+		If greater 0, every starting point of a local search is written to a file startpoint\_$<$Randomnumber$>$.gdx.
     @param GAMS LocOpt solver
     %options name of GAMS solver
     %default conopt
@@ -271,8 +270,6 @@ class gamsFunc : public Func {
 		%default none
 		%level 2
 		The library to link which defines some algorithm to do some preprocessing for a given startpoint before giving it to the local optimizer.
-		@param GAMS write solution candidates
-		See gams-section.
 */
 class gamsLocOpt : public LocOpt {
 	friend class gams;

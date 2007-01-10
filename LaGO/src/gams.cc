@@ -1047,8 +1047,12 @@ int gamsLocOpt::solve(dvector& start) {
 	if (write_startpoint) {
 #ifdef GDX_AVAILABLE
 			char* name=new char[50];
-			sprintf(name, "startpoint_%.10f.gdx", random(0.,1.));
+			double rd=random(0.,1.);
+			sprintf(name, "startpoint_%.10f.gdx", rd);
 			gamsptr->write_gdx(sol_point, name);
+			sprintf(name+24, "viol");
+			ofstream violfile(name);
+			prob->print_most_violated_constraints(sol_point, violfile, 20);
 			delete[] name;
 #endif
 	}

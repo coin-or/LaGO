@@ -137,6 +137,32 @@ int MinlpProblem::feasible(const UserVector<double>& x, double tol, ostream* out
   return ret;
 }
 
+void MinlpProblem::print_most_violated_constraints(const UserVector<double>& x, ostream& out, int nr, double tol) {
+	multimap<double, pair<int, double> > violcon_sorted;
+	dvector grad(dim());
+	for (int c=0; c<con.size(); ++c) {
+		double val=con[c]->eval(x);
+		if (!finite(val)) {
+			out << con_names[c] << " not defined: " << val << endl;
+			--nr;
+			continue;
+		}
+		
+		// compute scaling
+		con[c]->grad(grad, x);
+		double scale=sqrt(grad.sq_norm2());
+		if (scale<1) scale=1.;
+		
+		double valscale=val/scale;
+		if (valscale>tol || (con_eq[c] && valscale<-tol))
+			violcon_sorted.insert(pair<double, pair<int, double> >(fabs(valscale), pair<int,double>(c, val)));    
+	}
+	
+	for (multimap<double, pair<int, double> >::reverse_iterator it(violcon_sorted.rbegin()); nr && it!=violcon_sorted.rend(); ++it, --nr) {
+		out << con_names[it->second.first] << "\t violated by " << it->second.second << "\t scaled: " << it->first << endl;
+	} 
+}
+
 double MinlpProblem::compute_scale(char* option, int c, double eps, UserVector<double>& x) {
   if (!strcmp(option, "none")) return 1.;
 
