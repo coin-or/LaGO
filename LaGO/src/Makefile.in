@@ -727,7 +727,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-info-am \
 
 @COIN_HAS_GAMSIO_TRUE@install-exec-local: $(DESTDIR)$(bindir)/LaGO
 @COIN_HAS_GAMSIO_TRUE@	ln -sf $(DESTDIR)$(bindir)/LaGO gmsla_ux.out
-@COIN_HAS_GAMSIO_TRUE@	zip gmsla_.zip gmsla_ux.out gmsla_us.run install/gmsla_un.dat
+@COIN_HAS_GAMSIO_TRUE@	zip gmsla_.zip gmsla_ux.out gmsla_us.run gmsdu_us.run install/gmsla_un.dat install/gmsdu_un.dat
 @COIN_HAS_GAMSIO_TRUE@	$(install_sh_DATA) gmsla_.zip $(DESTDIR)$(bindir)/gmsla_.zip
 @COIN_HAS_GAMSIO_TRUE@	rm -f gmsla_ux.out
 

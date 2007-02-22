@@ -1,0 +1,7 @@
+id           Dummy
+license_id   00 01 02
+capabilities NLP RMINLP MINLP
+file_type    112
+dictionary_file 4
+run_file     gmsdu_us.run
+special      2

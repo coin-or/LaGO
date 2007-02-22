@@ -61,7 +61,7 @@ LaGO_LDFLAGS += -Wl,-export-dynamic
 
 install-exec-local: $(DESTDIR)$(bindir)/LaGO
 	ln -sf $(DESTDIR)$(bindir)/LaGO gmsla_ux.out
-	zip gmsla_.zip gmsla_ux.out gmsla_us.run install/gmsla_un.dat
+	zip gmsla_.zip gmsla_ux.out gmsla_us.run gmsdu_us.run install/gmsla_un.dat install/gmsdu_un.dat
 	$(install_sh_DATA) gmsla_.zip $(DESTDIR)$(bindir)/gmsla_.zip
 	rm -f gmsla_ux.out
 
