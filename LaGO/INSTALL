@@ -45,8 +45,8 @@ If possible, LaGO uses it's GAMS interface. If this is not available, the AMPL i
 
 
 **** Making LaGO known to GAMS:
-In the ThirdParty/GAMS_IO directory you find the file gmsla_.zip.
-Copy this file in the directory of your GAMS distribution. Then call the program gamsinst of your GAMS distribution.
-This program will find the file gmsla_.zip and make GAMS known of LaGO.
-Finally, you have to tell GAMS where to find LaGO. For doing so, adjust the variable LAGODIR in the file gmsla_ux.run in your GAMS distribution.
-
+In the bin directory you find the file gmsla_.zip.
+It contains the LaGO binary and installation files for the GAMS installer.
+1. Copy gmsla_.zip in the directory of your GAMS distribution.
+2. Call the program gamsinst of your GAMS distribution.
+   This program will find the file gmsla_.zip and install LaGO in your GAMS system.

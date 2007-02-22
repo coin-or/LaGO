@@ -9,7 +9,7 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-EXTRA_DIST =
+EXTRA_DIST = gmsla_us.run install/gmsla_un.dat
 
 bin_PROGRAMS = LaGO
 LaGO_SOURCES = bcp.cc bcp.h boxfind.cc boxfind.h column.cc column.h config_lago.h cuts.cc cuts.h decomp.cc decomp.h func.cc func.h graph.h ipopt2.cc ipopt2.h lagheu.cc lagheu.h LaGO.cc LaGOConfig.h linrelax.cc linrelax.h MINLP.cc MINLP.h MINLPData.cc MINLPData.h minlpopt.cc minlpopt.h MINLPView.cc MINLPView.h node.cc node.h opt.cc opt.h osi.cc osi.h param.cc param.h polynom.cc polynom.h problem.cc problem.h quaduest.cc quaduest.h relax.cc relax.h relaxopt.cc relaxopt.h rmp.cc rmp.h sampling.cc sampling.h standard.h tools.cc tools.h usermatrix.cc usermatrix.h uservector.h
@@ -32,6 +32,9 @@ LaGO_LDADD =
 if COIN_HAS_CPX
 AM_CPPFLAGS += -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiCpx` -I`$(CYGPATH_W) $(CPXINCDIR)`
 LaGO_LDADD += $(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la
+#Cgl seem to insist on OsiClp library, and OsiClp depends on Clp
+LaGO_LDADD += $(CLPOBJDIR)/src/libClp.la $(OSIOBJDIR)/src/OsiClp/libOsiClp.la
+LIBS += `cat $(CLPOBJDIR)/clp_addlibs.txt`
 else
 AM_CPPFLAGS += -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiClp` -I`$(CYGPATH_W) $(CLPSRCDIR)/src` -I`$(CYGPATH_W) $(CLPOBJDIR)/inc`
 LaGO_LDADD += $(CLPOBJDIR)/src/libClp.la $(OSIOBJDIR)/src/OsiClp/libOsiClp.la
@@ -55,6 +58,15 @@ lib_LTLIBRARIES = libgamspreprocess.la
 libgamspreprocess_la_SOURCES = gamspreprocess.cc preprocessapi.h
 libgamspreprocess_la_LDFLAGS = -shared -shared-libgcc -Wl,-soname,libgamspreprocess.so -Wl,-export-dynamic
 LaGO_LDFLAGS += -Wl,-export-dynamic
+
+install-exec-local: $(DESTDIR)$(bindir)/LaGO
+	ln -sf $(DESTDIR)$(bindir)/LaGO gmsla_ux.out
+	zip gmsla_.zip gmsla_ux.out gmsla_us.run install/gmsla_un.dat
+	$(install_sh_DATA) gmsla_.zip $(DESTDIR)$(bindir)/gmsla_.zip
+	rm -f gmsla_ux.out
+
+uninstall-local:
+	rm -f $(DESTDIR)$(bindir)/gmsla_.zip
 
 else
 LaGO_SOURCES += ampl.cc ampl.h

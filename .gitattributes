@@ -44,7 +44,9 @@ LaGO/src/func.h -text
 LaGO/src/gams.cc -text
 LaGO/src/gams.h -text
 LaGO/src/gamspreprocess.cc -text
+LaGO/src/gmsla_us.run -text
 LaGO/src/graph.h -text
+LaGO/src/install/gmsla_un.dat -text
 LaGO/src/ipopt2.cc -text
 LaGO/src/ipopt2.h -text
 LaGO/src/lagheu.cc -text
