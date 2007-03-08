@@ -1076,7 +1076,12 @@ int gamsLocOpt::solve(dvector& start) {
 	}
 
 //	duals_con=0; basind_con=2; basind_var=2;
-  if (cioSBBSave(1,1,0,0,(Pointer<double>)lower_discr, (Pointer<double>)upper_discr, (Pointer<double>)sol_point, NULL, NULL, NULL)) {
+  // fake dual variables and variable and equation status
+	dvector duals(prob->con.size()+1);
+	ivector varstatus(prob->dim(),3); 
+	ivector equstatus(prob->con.size()+1,3); 
+  if (cioSBBSave(1,1,1,1,(Pointer<double>)lower_discr, (Pointer<double>)upper_discr, (Pointer<double>)sol_point, (Pointer<double>)duals, (Pointer<int>)varstatus, (Pointer<int>)equstatus)) {
+//  if (cioSBBSave(1,1,0,0,(Pointer<double>)lower_discr, (Pointer<double>)upper_discr, (Pointer<double>)sol_point, NULL, NULL, NULL)) {
 		out_err << "Could not write to S/R File." << endl;
 		exit(-1);
 	}
