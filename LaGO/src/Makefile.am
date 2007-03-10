@@ -59,7 +59,7 @@ libgamspreprocess_la_SOURCES = gamspreprocess.cc preprocessapi.h
 libgamspreprocess_la_LDFLAGS = -shared -shared-libgcc -Wl,-soname,libgamspreprocess.so -Wl,-export-dynamic
 LaGO_LDFLAGS += -Wl,-export-dynamic
 
-install-exec-local: $(DESTDIR)$(bindir)/LaGO
+install-exec-local: install-binPROGRAMS
 	ln -sf $(DESTDIR)$(bindir)/LaGO gmsla_ux.out
 	zip gmsla_.zip gmsla_ux.out gmsla_us.run gmsdu_us.run install/gmsla_un.dat install/gmsdu_un.dat
 	$(install_sh_DATA) gmsla_.zip $(DESTDIR)$(bindir)/gmsla_.zip
