@@ -681,8 +681,10 @@ void gams::write_sol_file(const dvector& sol_point, int model_status, int solver
 	for (int c=0; c<iolib.nrows; c++)
 		gfwrow(solver->con_val(c), solver->duals_con(c), solver->basind_con(c), 0);
 
-	for (int i=0; i<iolib.ncols; i++)
+	for (int i=0; i<iolib.ncols; i++) {
+		if (prob->discr[i]) solver->basind_var[i]=3; // superbasic for discrete variables
 		gfwcol(solver->sol_point(i), solver->duals_var(i), solver->basind_var(i), 0);
+	}
 /*
 #ifdef GDX_AVAILABLE
 	write_gdx(solver->sol_point, "point.gdx", solver->opt_val());
