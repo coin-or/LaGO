@@ -1,4 +1,4 @@
-/* src/config_lago.h.in.  Generated from configure.ac by autoheader.  */
+/* inc/config_lago.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define to 1 if the Cgl package is used */
 #undef COIN_HAS_CGL

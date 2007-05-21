@@ -9,6 +9,8 @@
 
 AUTOMAKE_OPTIONS = foreign
 
+SUBDIRS = Base
+
 #EXTRA_DIST = gmsla_us.run install/gmsla_un.dat
 EXTRA_DIST = 
 

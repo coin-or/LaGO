@@ -433,7 +433,7 @@ PACKAGE_VERSION='0.3'
 PACKAGE_STRING='LaGO 0.3'
 PACKAGE_BUGREPORT='http://projects.coin-or.org/LaGO/newticket'
 
-ac_unique_file="src/base.hpp"
+ac_unique_file="src/Base/LaGOConfig.h"
 ac_default_prefix=`pwd`
 # Factoring default headers for most tests.
 ac_includes_default="\
@@ -24449,10 +24449,10 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 #AC_COIN_VPATH_LINK(src/install/gmsla_un.dat)
 #AC_COIN_VPATH_LINK(src/install/gmsdu_un.dat)
 
-                    ac_config_files="$ac_config_files Makefile src/Makefile"
+                              ac_config_files="$ac_config_files Makefile src/Makefile src/Base/Makefile"
 
 
-          ac_config_headers="$ac_config_headers src/config_lago.h"
+          ac_config_headers="$ac_config_headers inc/config_lago.h"
 
 
 
@@ -25143,8 +25143,9 @@ do
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
   "src/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
+  "src/Base/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Base/Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
-  "src/config_lago.h" ) CONFIG_HEADERS="$CONFIG_HEADERS src/config_lago.h" ;;
+  "inc/config_lago.h" ) CONFIG_HEADERS="$CONFIG_HEADERS inc/config_lago.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
    { (exit 1); exit 1; }; };;

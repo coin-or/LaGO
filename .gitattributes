@@ -8,10 +8,13 @@ LaGO/Makefile.in -text
 LaGO/README -text
 LaGO/configure -text
 LaGO/configure.ac -text
+LaGO/inc/config_lago.h.in -text
+LaGO/src/Base/LaGOConfig.h -text
+LaGO/src/Base/Makefile.am -text
+LaGO/src/Base/Makefile.in -text
+LaGO/src/Base/base.hpp -text
 LaGO/src/Makefile.am -text
 LaGO/src/Makefile.in -text
-LaGO/src/base.hpp -text
-LaGO/src/config_lago.h.in -text
 /Makefile.am -text
 /Makefile.in -text
 ThirdParty/FILIB++/Makefile.am -text

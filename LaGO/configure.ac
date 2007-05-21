@@ -23,7 +23,7 @@ under the Common Public License.])
 
 # List one file in the package so that the configure script can test
 # whether the package is actually there
-AC_CONFIG_SRCDIR(src/base.hpp)
+AC_CONFIG_SRCDIR(src/Base/LaGOConfig.h)
 
 # Where should everything be installed by default?  Here, we want it
 # to be installed directly in 'bin', 'lib', 'include' subdirectories
@@ -400,8 +400,9 @@ AC_LANG_POP(C++)
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
+                 src/Base/Makefile
                 ])
 
-AC_CONFIG_HEADER([src/config_lago.h])
+AC_CONFIG_HEADER([inc/config_lago.h])
 
 AC_COIN_FINALIZE
