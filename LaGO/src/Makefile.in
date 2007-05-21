@@ -14,13 +14,12 @@
 
 @SET_MAKE@
 
-# Copyright (C) 2006 Ivo Nowak and Stefan Vigerske
+# Copyright (C) 2007 Stefan Vigerske
 # All Rights Reserved.
 # This file is distributed under the Common Public License.
 #
 #
 # Author: Stefan Vigerske
-# Template from: Andreas Waechter
 
 # Copyright (C) 2006 International Business Machines and others.
 # All Rights Reserved.
@@ -31,7 +30,6 @@
 ########################################################################
 #                         Maintainer Stuff                             #
 ########################################################################
-
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
@@ -54,21 +52,10 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = LaGO$(EXEEXT)
-@COIN_HAS_CPX_TRUE@am__append_1 = -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiCpx` -I`$(CYGPATH_W) $(CPXINCDIR)`
-#Cgl seem to insist on OsiClp library, and OsiClp depends on Clp
-@COIN_HAS_CPX_TRUE@am__append_2 =  \
-@COIN_HAS_CPX_TRUE@	$(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la \
-@COIN_HAS_CPX_TRUE@	$(CLPOBJDIR)/src/libClp.la \
-@COIN_HAS_CPX_TRUE@	$(OSIOBJDIR)/src/OsiClp/libOsiClp.la
-@COIN_HAS_CPX_TRUE@am__append_3 = `cat $(CLPOBJDIR)/clp_addlibs.txt`
-@COIN_HAS_CPX_FALSE@am__append_4 = -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiClp` -I`$(CYGPATH_W) $(CLPSRCDIR)/src` -I`$(CYGPATH_W) $(CLPOBJDIR)/inc`
-@COIN_HAS_CPX_FALSE@am__append_5 = $(CLPOBJDIR)/src/libClp.la $(OSIOBJDIR)/src/OsiClp/libOsiClp.la
-@COIN_HAS_CPX_FALSE@am__append_6 = `cat $(CLPOBJDIR)/clp_addlibs.txt`
 DIST_COMMON = $(srcdir)/../../BuildTools/Makemain.inc \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
-@HAVE_EXTERNALS_TRUE@am__append_7 = Externals
-@HAVE_EXTERNALS_TRUE@am__append_8 = .Externals-stamp
+@HAVE_EXTERNALS_TRUE@am__append_1 = Externals
+@HAVE_EXTERNALS_TRUE@am__append_2 = .Externals-stamp
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
@@ -78,31 +65,8 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/inc/config_lago.h
 CONFIG_CLEAN_FILES =
-am__installdirs = "$(DESTDIR)$(bindir)"
-binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
-PROGRAMS = $(bin_PROGRAMS)
-am_LaGO_OBJECTS =
-LaGO_OBJECTS = $(am_LaGO_OBJECTS)
-@COIN_HAS_CPX_TRUE@am__DEPENDENCIES_1 =  \
-@COIN_HAS_CPX_TRUE@	$(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la \
-@COIN_HAS_CPX_TRUE@	$(CLPOBJDIR)/src/libClp.la \
-@COIN_HAS_CPX_TRUE@	$(OSIOBJDIR)/src/OsiClp/libOsiClp.la
-@COIN_HAS_CPX_FALSE@am__DEPENDENCIES_2 = $(CLPOBJDIR)/src/libClp.la \
-@COIN_HAS_CPX_FALSE@	$(OSIOBJDIR)/src/OsiClp/libOsiClp.la
-LaGO_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2) \
-	$(OSIOBJDIR)/src/libOsi.la $(CGLOBJDIR)/src/libCgl.la \
-	$(COINUTILSOBJDIR)/src/libCoinUtils.la \
-	$(IPOPTOBJDIR)/src/Interfaces/libipopt.la
-COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
-	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
-	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
-	$(AM_CFLAGS) $(CFLAGS)
-CCLD = $(CC)
-LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(LaGO_SOURCES)
-DIST_SOURCES = $(LaGO_SOURCES)
+SOURCES =
+DIST_SOURCES =
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-exec-recursive install-info-recursive \
@@ -114,9 +78,7 @@ CTAGS = ctags
 DIST_SUBDIRS = $(SUBDIRS)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
-ADDLIBS = @ADDLIBS@ `cat $(COINUTILSOBJDIR)/coinutils_addlibs.txt \
-	$(CGLOBJDIR)/cgl_addlibs.txt $(OSIOBJDIR)/osi_addlibs.txt \
-	$(IPOPTOBJDIR)/src/Interfaces/ipopt_addlibs_cpp.txt`
+ADDLIBS = @ADDLIBS@
 ADD_CFLAGS = @ADD_CFLAGS@
 ADD_CXXFLAGS = @ADD_CXXFLAGS@
 ALWAYS_FALSE_FALSE = @ALWAYS_FALSE_FALSE@
@@ -197,7 +159,7 @@ LAGOSRCDIR = @LAGOSRCDIR@
 LDFLAGS = @LDFLAGS@
 LIBEXT = @LIBEXT@
 LIBOBJS = @LIBOBJS@
-LIBS = @LIBS@ $(am__append_3) $(am__append_6)
+LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LIBTOOLM4 = @LIBTOOLM4@
 LN_S = @LN_S@
@@ -284,44 +246,10 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS = Base
+EXTRA_DIST = $(am__append_1)
 
-#EXTRA_DIST = gmsla_us.run install/gmsla_un.dat
-EXTRA_DIST = $(am__append_7)
-LaGO_SOURCES = 
-AM_CPPFLAGS = -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` -I`$(CYGPATH_W) \
-	$(COINUTILSOBJDIR)/inc` -I`$(CYGPATH_W) $(CGLSRCDIR)/src` \
-	-I`$(CYGPATH_W) $(CGLOBJDIR)/inc` -I`$(CYGPATH_W) \
-	$(OSISRCDIR)/src` -I`$(CYGPATH_W) $(OSIOBJDIR)/inc` \
-	-I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Interfaces` -I`$(CYGPATH_W) \
-	$(IPOPTSRCDIR)/src/Common` -I`$(CYGPATH_W) \
-	$(IPOPTSRCDIR)/src/LinAlg` -I`$(CYGPATH_W) \
-	$(IPOPTSRCDIR)/src/Algorithm` -I`$(CYGPATH_W) \
-	$(IPOPTOBJDIR)/inc` $(am__append_1) $(am__append_4)
-LaGO_LDADD = $(am__append_2) $(am__append_5) \
-	$(OSIOBJDIR)/src/libOsi.la $(CGLOBJDIR)/src/libCgl.la \
-	$(COINUTILSOBJDIR)/src/libCoinUtils.la \
-	$(IPOPTOBJDIR)/src/Interfaces/libipopt.la
-LaGO_LDFLAGS = $(ADDLIBS) -rpath $(libdir) 
-
-#LaGO_SOURCES += gams.cc gams.h preprocessapi.h 
-
-#lib_LTLIBRARIES = libgamspreprocess.la
-#libgamspreprocess_la_SOURCES = gamspreprocess.cc preprocessapi.h
-#libgamspreprocess_la_LDFLAGS = -shared -shared-libgcc -Wl,-soname,libgamspreprocess.so -Wl,-export-dynamic
-#LaGO_LDFLAGS += -Wl,-export-dynamic
-
-#install-exec-local: install-binPROGRAMS
-#	ln -sf $(DESTDIR)$(bindir)/LaGO gmsla_ux.out
-#	zip gmsla_.zip gmsla_ux.out gmsla_us.run gmsdu_us.run install/gmsla_un.dat install/gmsdu_un.dat
-#	$(install_sh_DATA) gmsla_.zip $(DESTDIR)$(bindir)/gmsla_.zip
-#	rm -f gmsla_ux.out
-
-#uninstall-local:
-#	rm -f $(DESTDIR)$(bindir)/gmsla_.zip
-
-#LaGO_SOURCES += ampl.cc ampl.h
-DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
-DISTCLEANFILES = $(am__append_8) $(VPATH_DISTCLEANFILES)
+#DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
+DISTCLEANFILES = $(am__append_2) $(VPATH_DISTCLEANFILES)
 all: all-recursive
 
 .SUFFIXES:
@@ -354,43 +282,6 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-install-binPROGRAMS: $(bin_PROGRAMS)
-	@$(NORMAL_INSTALL)
-	test -z "$(bindir)" || $(mkdir_p) "$(DESTDIR)$(bindir)"
-	@list='$(bin_PROGRAMS)'; for p in $$list; do \
-	  p1=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
-	  if test -f $$p \
-	     || test -f $$p1 \
-	  ; then \
-	    f=`echo "$$p1" | sed 's,^.*/,,;$(transform);s/$$/$(EXEEXT)/'`; \
-	   echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) --mode=install $(binPROGRAMS_INSTALL) '$$p' '$(DESTDIR)$(bindir)/$$f'"; \
-	   $(INSTALL_PROGRAM_ENV) $(LIBTOOL) --mode=install $(binPROGRAMS_INSTALL) "$$p" "$(DESTDIR)$(bindir)/$$f" || exit 1; \
-	  else :; fi; \
-	done
-
-uninstall-binPROGRAMS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(bin_PROGRAMS)'; for p in $$list; do \
-	  f=`echo "$$p" | sed 's,^.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/'`; \
-	  echo " rm -f '$(DESTDIR)$(bindir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(bindir)/$$f"; \
-	done
-
-clean-binPROGRAMS:
-	@list='$(bin_PROGRAMS)'; for p in $$list; do \
-	  f=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
-	  echo " rm -f $$p $$f"; \
-	  rm -f $$p $$f ; \
-	done
-LaGO$(EXEEXT): $(LaGO_OBJECTS) $(LaGO_DEPENDENCIES) 
-	@rm -f LaGO$(EXEEXT)
-	$(LINK) $(LaGO_LDFLAGS) $(LaGO_OBJECTS) $(LaGO_LDADD) $(LIBS)
-
-mostlyclean-compile:
-	-rm -f *.$(OBJEXT)
-
-distclean-compile:
-	-rm -f *.tab.c
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -579,12 +470,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-recursive
-all-am: Makefile $(PROGRAMS)
+all-am: Makefile
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(bindir)"; do \
-	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
-	done
 install: install-recursive
 install-exec: install-exec-recursive
 install-data: install-data-recursive
@@ -612,12 +500,12 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-recursive
 
-clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
+clean-am: clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f Makefile
-distclean-am: clean-am distclean-compile distclean-generic \
-	distclean-libtool distclean-tags
+distclean-am: clean-am distclean-generic distclean-libtool \
+	distclean-tags
 
 dvi: dvi-recursive
 
@@ -631,7 +519,7 @@ info-am:
 
 install-data-am:
 
-install-exec-am: install-binPROGRAMS
+install-exec-am:
 
 install-info: install-info-recursive
 
@@ -645,8 +533,7 @@ maintainer-clean-am: distclean-am maintainer-clean-generic
 
 mostlyclean: mostlyclean-recursive
 
-mostlyclean-am: mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool
+mostlyclean-am: mostlyclean-generic mostlyclean-libtool
 
 pdf: pdf-recursive
 
@@ -656,24 +543,22 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-info-am
+uninstall-am: uninstall-info-am
 
 uninstall-info: uninstall-info-recursive
 
 .PHONY: $(RECURSIVE_TARGETS) CTAGS GTAGS all all-am check check-am \
-	clean clean-binPROGRAMS clean-generic clean-libtool \
-	clean-recursive ctags ctags-recursive distclean \
-	distclean-compile distclean-generic distclean-libtool \
+	clean clean-generic clean-libtool clean-recursive ctags \
+	ctags-recursive distclean distclean-generic distclean-libtool \
 	distclean-recursive distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-binPROGRAMS \
-	install-data install-data-am install-exec install-exec-am \
-	install-info install-info-am install-man install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	maintainer-clean maintainer-clean-generic \
-	maintainer-clean-recursive mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool mostlyclean-recursive \
-	pdf pdf-am ps ps-am tags tags-recursive uninstall uninstall-am \
-	uninstall-binPROGRAMS uninstall-info-am
+	html-am info info-am install install-am install-data \
+	install-data-am install-exec install-exec-am install-info \
+	install-info-am install-man install-strip installcheck \
+	installcheck-am installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic maintainer-clean-recursive \
+	mostlyclean mostlyclean-generic mostlyclean-libtool \
+	mostlyclean-recursive pdf pdf-am ps ps-am tags tags-recursive \
+	uninstall uninstall-am uninstall-info-am
 
 
 # Make sure acinclude is using most recent coin.m4

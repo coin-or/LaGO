@@ -1,9 +1,10 @@
-# Copyright (C) Stefan Vigerske 2007
+# Copyright (C) 2007 Stefan Vigerske
 # All Rights Reserved.
+# This file is distributed under the Common Public License.
 
 ## $Id: Makefile.am 18 2007-04-02 16:25:41Z stefan $
 
-# Author:  Stefan Vigerske
+# Author: Stefan Vigerske
 
 AUTOMAKE_OPTIONS = foreign
 

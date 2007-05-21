@@ -9,6 +9,8 @@ LaGO/README -text
 LaGO/configure -text
 LaGO/configure.ac -text
 LaGO/inc/config_lago.h.in -text
+LaGO/src/Applications/Makefile.am -text
+LaGO/src/Applications/Makefile.in -text
 LaGO/src/Base/LaGOConfig.h -text
 LaGO/src/Base/Makefile.am -text
 LaGO/src/Base/Makefile.in -text

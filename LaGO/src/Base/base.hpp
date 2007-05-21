@@ -30,14 +30,15 @@
 using namespace std;
 
 #include "LaGOConfig.h"
-//#include "Referenced.hpp"
-//#include "SmartPtr.hpp"
 //
 //#include "DenseVector.hpp"
 //#include "SparseVector.hpp"
 //#include "Timer.hpp"
 
 #include "CoinHelperFunctions.hpp"
+#include "CoinSmartPtr.hpp"
+
+using namespace Coin;
 
 namespace LaGO {
 

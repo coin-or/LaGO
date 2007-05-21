@@ -401,6 +401,7 @@ AC_LANG_POP(C++)
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/Base/Makefile
+                 src/Applications/Makefile
                 ])
 
 AC_CONFIG_HEADER([inc/config_lago.h])
