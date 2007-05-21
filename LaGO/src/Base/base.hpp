@@ -1,7 +1,7 @@
 // Copyright (C) Stefan Vigerske 2007
 // All Rights Reserved.
 
-// $Id: base.hpp 18 2007-04-02 16:25:41Z stefan $
+// $Id$
 
 #ifndef BASE_HPP_
 #define BASE_HPP_

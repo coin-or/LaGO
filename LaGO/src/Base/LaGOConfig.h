@@ -1,7 +1,7 @@
 // Copyright (C) Stefan Vigerske 2007
 // All Rights Reserved.
 
-// $Id: RecombtreeConfig.h 2 2007-01-17 10:13:07Z stefan $
+// $Id$
 
 /*
  * Include file for the configuration of LaGO.
