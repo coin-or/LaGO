@@ -1,0 +1,45 @@
+
+Welcome to LaGO.
+
+For installation instructions and required third party packages see INSTALL.
+
+**** Overview:
+Next to this README file, you'll find the following in your LaGO distribution:
+
+AUTHORS    - who's writing on LaGO
+
+INSTALL	   - instructions for the compilation of LaGO and how to make LaGO known to GAMS
+
+LICENCE    - Common Public Licence 1.0
+
+src        - LaGO source code
+
+test       - test script that runs LaGO for a few MINLP examples from GAMS/MINLPLib, also translated to AMPL format and compiled to .nl format
+
+doc        - a small parameter documentation
+
+
+**** Usage:
+LaGO can be accessed via AMPL or GAMS.
+
+If you use AMPL, then first create the appropriate .nl file from your AMPL-model. Give the name of this file as first argument to LaGO. Additionally, you can give a LAGO-optionfile as second argument.
+usage: LaGO <AMPL-nl-file> [<optionfile>]
+example (assuming that you are in src): LaGO ../mod/alan
+
+If you use GAMS, then first follow the instructions in INSTALL. After that you can use LaGO as any MINLP-solver in GAMS. If you have not choosen LaGO as your default MINLP solver, you have to add the parameter MINLP=LAGO to your GAMS call.
+usage: gams <GAMS-modelfile> MINLP=LAGO
+
+
+**** Documentation:
+The directory doc contains a makefile which calls flex to generate a program that generates a parameter documentation.
+The easiest is to call make in the doc directory. Then point your webbrower to one of the files doc/paramdoc.html, doc/shortparamdoc.html, doc/veryshortparamdoc.html.
+These files differ in the amount of LaGO parameters that are listed.
+
+A small overview over the LaGO Branch and Cut algorithm and some proposals for an integration of LaGO into COIN-OR can be found in COINintegration.tex in doc.
+A recent paper describing the Branch and Cut algorithm implemented in LaGO can be found at http://www.mathematik.hu-berlin.de/publ/pre/2006/P-06-24.ps
+
+
+**** Correspondence:
+In case of further questions, please contact Stefan Vigerske at Humboldt-University Berlin, Department of Mathematics:
+stefan@math.hu-berlin.de
+

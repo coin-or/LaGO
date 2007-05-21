@@ -1,0 +1,13 @@
+--- ../FILIB++.save/interval/makefiles/Makefile.gcc	2004-06-16 16:24:57.000000000 +0200
++++ interval/makefiles/Makefile.gcc	2006-11-20 17:46:05.000000000 +0100
+@@ -44,7 +44,7 @@
+ 
+ GMAKE ?= gmake
+ 
+-MACROBUILD=cd macro && (${GMAKE} FILIBARCH=LINUXGCC lib || ${MAKE} FILIBARCH=LINUXGCC lib || echo "Supply variable GMAKE please!")
+-MACROCLEAN=cd macro && (${GMAKE} realclean || ${MAKE} realclean || echo "Supply variable GMAKE please!")
+-MACROINSTALL=macroinstall
++#MACROBUILD=cd macro && (${GMAKE} FILIBARCH=LINUXGCC lib || ${MAKE} FILIBARCH=LINUXGCC lib || echo "Supply variable GMAKE please!")
++#MACROCLEAN=cd macro && (${GMAKE} realclean || ${MAKE} realclean || echo "Supply variable GMAKE please!")
++#MACROINSTALL=macroinstall
+ 

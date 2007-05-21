@@ -1,0 +1,10 @@
+--- interval/interval/interval_arith.icc~	2006-11-21 15:29:00.000000000 +0100
++++ interval/interval/interval_arith.icc	2006-11-21 15:29:00.000000000 +0100
+@@ -54,6 +54,7 @@
+ 
+ 		FILIB_DOWNWARD_PLUS(INF,INF,a);
+ 		FILIB_UPWARD_PLUS(SUP,SUP,a);
++		FILIB_RESET;
+ 
+ 		#if defined(FILIB_EXTENDED)
+ 			checkInf();
