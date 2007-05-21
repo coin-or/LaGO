@@ -1855,7 +1855,7 @@ double MinlpBCP::start_bb() {
 //						if (dist>maxdiam) maxdiam=dist;
 //						out_solver_log << split_prob->var_names[i0] << "(" << node1->lower(i0) << ", " << node1->upper(i0) << ") "; 
 //					}
-//				out_solver_log << endl << "Max. box diameter for nonlinear variables: " << maxdiam; 
+//				out_solver_log << endl << "Max. box diameter for nonlinear variables: " << maxdiam << '\t'; 
 			}
 			
 //			out_solver_log << "Box diameter (2-norm): " << sqrt((node1->upper-node1->lower).sq_norm2());
@@ -1866,7 +1866,7 @@ double MinlpBCP::start_bb() {
 						out_solver_log << split_prob->var_names[split_prob->block[it_block->first][it_var->first]] << "(" << it_var->second.first << ", " << it_var->second.second << ") ";
 				out_solver_log << endl;
 			}
-*/			out_solver_log << "\t Local cuts: " << linear_relax->nr_local_cuts(node1) << endl;
+*/			out_solver_log << "Local cuts: " << linear_relax->nr_local_cuts(node1) << endl;
 
 			bound_impr=improve_bound(node1);
 		} while (((!bound_impr.first) || (node1->low_bound>=opt_val()-rtol)) && bb_tree.size());

@@ -57,18 +57,23 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = LaGO$(EXEEXT)
 @COIN_HAS_CPX_TRUE@am__append_1 = -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiCpx` -I`$(CYGPATH_W) $(CPXINCDIR)`
-@COIN_HAS_CPX_TRUE@am__append_2 = $(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la
-@COIN_HAS_CPX_FALSE@am__append_3 = -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiClp` -I`$(CYGPATH_W) $(CLPSRCDIR)/src` -I`$(CYGPATH_W) $(CLPOBJDIR)/inc`
-@COIN_HAS_CPX_FALSE@am__append_4 = $(CLPOBJDIR)/src/libClp.la $(OSIOBJDIR)/src/OsiClp/libOsiClp.la
-@COIN_HAS_CPX_FALSE@am__append_5 = `cat $(CLPOBJDIR)/clp_addlibs.txt`
-@COIN_HAS_GAMSIO_TRUE@am__append_6 = gams.cc gams.h preprocessapi.h 
-@COIN_HAS_GAMSIO_TRUE@am__append_7 = -Wl,-export-dynamic
-@COIN_HAS_GAMSIO_FALSE@am__append_8 = ampl.cc ampl.h
+#Cgl seem to insist on OsiClp library, and OsiClp depends on Clp
+@COIN_HAS_CPX_TRUE@am__append_2 =  \
+@COIN_HAS_CPX_TRUE@	$(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la \
+@COIN_HAS_CPX_TRUE@	$(CLPOBJDIR)/src/libClp.la \
+@COIN_HAS_CPX_TRUE@	$(OSIOBJDIR)/src/OsiClp/libOsiClp.la
+@COIN_HAS_CPX_TRUE@am__append_3 = `cat $(CLPOBJDIR)/clp_addlibs.txt`
+@COIN_HAS_CPX_FALSE@am__append_4 = -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiClp` -I`$(CYGPATH_W) $(CLPSRCDIR)/src` -I`$(CYGPATH_W) $(CLPOBJDIR)/inc`
+@COIN_HAS_CPX_FALSE@am__append_5 = $(CLPOBJDIR)/src/libClp.la $(OSIOBJDIR)/src/OsiClp/libOsiClp.la
+@COIN_HAS_CPX_FALSE@am__append_6 = `cat $(CLPOBJDIR)/clp_addlibs.txt`
+@COIN_HAS_GAMSIO_TRUE@am__append_7 = gams.cc gams.h preprocessapi.h 
+@COIN_HAS_GAMSIO_TRUE@am__append_8 = -Wl,-export-dynamic
+@COIN_HAS_GAMSIO_FALSE@am__append_9 = ampl.cc ampl.h
 DIST_COMMON = $(srcdir)/../../BuildTools/Makemain.inc \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/config_lago.h.in
-@HAVE_EXTERNALS_TRUE@am__append_9 = Externals
-@HAVE_EXTERNALS_TRUE@am__append_10 = .Externals-stamp
+@HAVE_EXTERNALS_TRUE@am__append_10 = Externals
+@HAVE_EXTERNALS_TRUE@am__append_11 = .Externals-stamp
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
@@ -121,7 +126,9 @@ am_LaGO_OBJECTS = bcp.$(OBJEXT) boxfind.$(OBJEXT) column.$(OBJEXT) \
 	$(am__objects_2)
 LaGO_OBJECTS = $(am_LaGO_OBJECTS)
 @COIN_HAS_CPX_TRUE@am__DEPENDENCIES_1 =  \
-@COIN_HAS_CPX_TRUE@	$(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la
+@COIN_HAS_CPX_TRUE@	$(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la \
+@COIN_HAS_CPX_TRUE@	$(CLPOBJDIR)/src/libClp.la \
+@COIN_HAS_CPX_TRUE@	$(OSIOBJDIR)/src/OsiClp/libOsiClp.la
 @COIN_HAS_CPX_FALSE@am__DEPENDENCIES_2 = $(CLPOBJDIR)/src/libClp.la \
 @COIN_HAS_CPX_FALSE@	$(OSIOBJDIR)/src/OsiClp/libOsiClp.la
 LaGO_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2) \
@@ -241,7 +248,7 @@ LAGOSRCDIR = @LAGOSRCDIR@
 LDFLAGS = @LDFLAGS@
 LIBEXT = @LIBEXT@
 LIBOBJS = @LIBOBJS@
-LIBS = @LIBS@ $(am__append_5)
+LIBS = @LIBS@ $(am__append_3) $(am__append_6)
 LIBTOOL = @LIBTOOL@
 LIBTOOLM4 = @LIBTOOLM4@
 LN_S = @LN_S@
@@ -276,12 +283,14 @@ abs_bin_dir = @abs_bin_dir@
 abs_include_dir = @abs_include_dir@
 abs_lib_dir = @abs_lib_dir@
 abs_source_dir = @abs_source_dir@
+ac_c_preproc_warn_flag = @ac_c_preproc_warn_flag@
 ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
 ac_ct_F77 = @ac_ct_F77@
 ac_ct_RANLIB = @ac_ct_RANLIB@
 ac_ct_STRIP = @ac_ct_STRIP@
+ac_cxx_preproc_warn_flag = @ac_cxx_preproc_warn_flag@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
 am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
@@ -325,7 +334,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
-EXTRA_DIST = $(am__append_9)
+EXTRA_DIST = gmsla_us.run install/gmsla_un.dat $(am__append_10)
 LaGO_SOURCES = bcp.cc bcp.h boxfind.cc boxfind.h column.cc column.h \
 	config_lago.h cuts.cc cuts.h decomp.cc decomp.h func.cc func.h \
 	graph.h ipopt2.cc ipopt2.h lagheu.cc lagheu.h LaGO.cc \
@@ -335,8 +344,8 @@ LaGO_SOURCES = bcp.cc bcp.h boxfind.cc boxfind.h column.cc column.h \
 	param.h polynom.cc polynom.h problem.cc problem.h quaduest.cc \
 	quaduest.h relax.cc relax.h relaxopt.cc relaxopt.h rmp.cc \
 	rmp.h sampling.cc sampling.h standard.h tools.cc tools.h \
-	usermatrix.cc usermatrix.h uservector.h $(am__append_6) \
-	$(am__append_8)
+	usermatrix.cc usermatrix.h uservector.h $(am__append_7) \
+	$(am__append_9)
 AM_CPPFLAGS = -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` -I`$(CYGPATH_W) \
 	$(COINUTILSOBJDIR)/inc` -I`$(CYGPATH_W) $(CGLSRCDIR)/src` \
 	-I`$(CYGPATH_W) $(CGLOBJDIR)/inc` -I`$(CYGPATH_W) \
@@ -345,17 +354,17 @@ AM_CPPFLAGS = -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/Common` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/LinAlg` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/Algorithm` -I`$(CYGPATH_W) \
-	$(IPOPTOBJDIR)/inc` $(am__append_1) $(am__append_3)
-LaGO_LDADD = $(am__append_2) $(am__append_4) \
+	$(IPOPTOBJDIR)/inc` $(am__append_1) $(am__append_4)
+LaGO_LDADD = $(am__append_2) $(am__append_5) \
 	$(OSIOBJDIR)/src/libOsi.la $(CGLOBJDIR)/src/libCgl.la \
 	$(COINUTILSOBJDIR)/src/libCoinUtils.la \
 	$(IPOPTOBJDIR)/src/Interfaces/libipopt.la
-LaGO_LDFLAGS = $(ADDLIBS) -rpath $(libdir) $(am__append_7)
+LaGO_LDFLAGS = $(ADDLIBS) -rpath $(libdir) $(am__append_8)
 @COIN_HAS_GAMSIO_TRUE@lib_LTLIBRARIES = libgamspreprocess.la
 @COIN_HAS_GAMSIO_TRUE@libgamspreprocess_la_SOURCES = gamspreprocess.cc preprocessapi.h
 @COIN_HAS_GAMSIO_TRUE@libgamspreprocess_la_LDFLAGS = -shared -shared-libgcc -Wl,-soname,libgamspreprocess.so -Wl,-export-dynamic
 DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
-DISTCLEANFILES = $(am__append_10) $(VPATH_DISTCLEANFILES)
+DISTCLEANFILES = $(am__append_11) $(VPATH_DISTCLEANFILES)
 all: config_lago.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -585,7 +594,7 @@ distclean-tags:
 	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
 
 distdir: $(DISTFILES)
-	$(mkdir_p) $(distdir)/../../BuildTools
+	$(mkdir_p) $(distdir)/../../BuildTools $(distdir)/install
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -646,6 +655,8 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+@COIN_HAS_GAMSIO_FALSE@uninstall-local:
+@COIN_HAS_GAMSIO_FALSE@install-exec-local:
 clean: clean-am
 
 clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
@@ -669,7 +680,8 @@ info-am:
 
 install-data-am:
 
-install-exec-am: install-binPROGRAMS install-libLTLIBRARIES
+install-exec-am: install-binPROGRAMS install-exec-local \
+	install-libLTLIBRARIES
 
 install-info: install-info-am
 
@@ -696,7 +708,7 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-binPROGRAMS uninstall-info-am \
-	uninstall-libLTLIBRARIES
+	uninstall-libLTLIBRARIES uninstall-local
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-binPROGRAMS \
 	clean-generic clean-libLTLIBRARIES clean-libtool ctags \
@@ -704,14 +716,23 @@ uninstall-am: uninstall-binPROGRAMS uninstall-info-am \
 	distclean-libtool distclean-tags distdir dvi dvi-am html \
 	html-am info info-am install install-am install-binPROGRAMS \
 	install-data install-data-am install-exec install-exec-am \
-	install-info install-info-am install-libLTLIBRARIES \
-	install-man install-strip installcheck installcheck-am \
-	installdirs maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
-	uninstall-am uninstall-binPROGRAMS uninstall-info-am \
-	uninstall-libLTLIBRARIES
+	install-exec-local install-info install-info-am \
+	install-libLTLIBRARIES install-man install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags uninstall uninstall-am uninstall-binPROGRAMS \
+	uninstall-info-am uninstall-libLTLIBRARIES uninstall-local
 
+
+@COIN_HAS_GAMSIO_TRUE@install-exec-local: install-binPROGRAMS
+@COIN_HAS_GAMSIO_TRUE@	ln -sf $(DESTDIR)$(bindir)/LaGO gmsla_ux.out
+@COIN_HAS_GAMSIO_TRUE@	zip gmsla_.zip gmsla_ux.out gmsla_us.run gmsdu_us.run install/gmsla_un.dat install/gmsdu_un.dat
+@COIN_HAS_GAMSIO_TRUE@	$(install_sh_DATA) gmsla_.zip $(DESTDIR)$(bindir)/gmsla_.zip
+@COIN_HAS_GAMSIO_TRUE@	rm -f gmsla_ux.out
+
+@COIN_HAS_GAMSIO_TRUE@uninstall-local:
+@COIN_HAS_GAMSIO_TRUE@	rm -f $(DESTDIR)$(bindir)/gmsla_.zip
 
 # Make sure acinclude is using most recent coin.m4
 @MAINTAINER_MODE_TRUE@$(srcdir)/acinclude.m4: $(BUILDTOOLSDIR)/coin.m4

@@ -1049,8 +1049,12 @@ int gamsLocOpt::solve(dvector& start) {
 	if (write_startpoint) {
 #ifdef GDX_AVAILABLE
 			char* name=new char[50];
-			sprintf(name, "startpoint_%.10f.gdx", random(0.,1.));
+			double rd=random(0.,1.);
+			sprintf(name, "startpoint_%.10f.gdx", rd);
 			gamsptr->write_gdx(sol_point, name);
+			sprintf(name+24, "viol");
+			ofstream violfile(name);
+			prob->print_most_violated_constraints(sol_point, violfile, 20);
 			delete[] name;
 #endif
 	}
@@ -1074,7 +1078,12 @@ int gamsLocOpt::solve(dvector& start) {
 	}
 
 //	duals_con=0; basind_con=2; basind_var=2;
-  if (cioSBBSave(1,1,0,0,(Pointer<double>)lower_discr, (Pointer<double>)upper_discr, (Pointer<double>)sol_point, NULL, NULL, NULL)) {
+  // fake dual variables and variable and equation status
+	dvector duals(prob->con.size()+1);
+	ivector varstatus(prob->dim(),3); 
+	ivector equstatus(prob->con.size()+1,3); 
+  if (cioSBBSave(1,1,1,1,(Pointer<double>)lower_discr, (Pointer<double>)upper_discr, (Pointer<double>)sol_point, (Pointer<double>)duals, (Pointer<int>)varstatus, (Pointer<int>)equstatus)) {
+//  if (cioSBBSave(1,1,0,0,(Pointer<double>)lower_discr, (Pointer<double>)upper_discr, (Pointer<double>)sol_point, NULL, NULL, NULL)) {
 		out_err << "Could not write to S/R File." << endl;
 		exit(-1);
 	}

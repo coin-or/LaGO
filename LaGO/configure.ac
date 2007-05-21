@@ -482,6 +482,11 @@ fi
 
 AC_LANG_POP(C++)
 
+AC_COIN_VPATH_LINK(src/gmsla_us.run)
+AC_COIN_VPATH_LINK(src/gmsdu_us.run)
+AC_COIN_VPATH_LINK(src/install/gmsla_un.dat)
+AC_COIN_VPATH_LINK(src/install/gmsdu_un.dat)
+
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  test/run_tests

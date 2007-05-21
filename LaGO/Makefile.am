@@ -11,9 +11,9 @@ AUTOMAKE_OPTIONS = foreign
 
 SUBDIRS = src
 
-# if ALWAYS_FALSE
-#   SUBDIRS += test
-# endif
+if ALWAYS_FALSE
+  SUBDIRS += test
+endif
 
 EXTRA_DIST = \
 	README \

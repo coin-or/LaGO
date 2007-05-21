@@ -263,6 +263,15 @@ class MinlpProblem {
           @return The number of not sattisfied constraints.
       */
       int feasible(const UserVector<double>& x, double tol, ostream* out=NULL);
+      
+      /** Prints the names of those constraints that are most violated by a given point.
+       * Each constraint is scaled by max(1,||gradient of constraint at x||_2).  
+       * @param x The point to check
+       * @param out Where to print to.
+       * @param nr How many violated constraints to print.
+       * @param tol A feasibility tolerance. 
+       */
+      void print_most_violated_constraints(const UserVector<double>& x, ostream& out, int nr=5, double tol=1E-4);
 
       /** Scales the constraints, using the primal_point.
           @param param Optional parameters, default is NULL.
