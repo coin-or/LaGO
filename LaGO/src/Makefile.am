@@ -8,7 +8,7 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = Base
+SUBDIRS = Base Problem
 
 EXTRA_DIST = 
 

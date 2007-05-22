@@ -1,10 +1,11 @@
 // Copyright (C) Stefan Vigerske 2007
 // All Rights Reserved.
+// This code is published under the Common Public License.
 
-// $Id$
+// $Id: base.hpp 94 2007-05-21 13:54:40Z stefan $
 
-#ifndef BASE_HPP_
-#define BASE_HPP_
+#ifndef LAGOBASE_HPP_
+#define LAGOBASE_HPP_
 
 #include <exception>
 #include <typeinfo>
@@ -26,6 +27,7 @@
 #include <map>
 #include <set>
 #include <list>
+#include <string>
 
 using namespace std;
 
@@ -36,9 +38,13 @@ using namespace std;
 //#include "Timer.hpp"
 
 #include "CoinHelperFunctions.hpp"
-#include "CoinSmartPtr.hpp"
+//#include "CoinSmartPtr.hpp"
 
-using namespace Coin;
+#include "LaGOSmartPtr.hpp"
+#include "LaGODenseVector.hpp"
+#include "LaGOSparseVector.hpp"
+#include "LaGOFunction.hpp"
+
 
 namespace LaGO {
 
@@ -65,4 +71,4 @@ inline int random(int lb, int ub) {
 
 } // namespace LaGO
 
-#endif /*BASE_HPP_*/
+#endif /*LAGOBASE_HPP_*/

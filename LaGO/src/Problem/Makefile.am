@@ -2,7 +2,7 @@
 # All Rights Reserved.
 # This file is distributed under the Common Public License.
 
-## $Id$
+## $Id: Makefile.am 94 2007-05-21 13:54:40Z stefan $
 
 # Author: Stefan Vigerske
 
@@ -10,13 +10,13 @@ AUTOMAKE_OPTIONS = foreign
 
 EXTRA_DIST =
 
-lib_LTLIBRARIES = libLaGOBase.la
-libLaGOBase_la_SOURCES = LaGOSparseVector.cpp LaGOFunction.cpp
+lib_LTLIBRARIES = libLaGOProblem.la
+libLaGOProblem_la_SOURCES = LaGOMINLPData.cpp
 
-include_HEADERS = ../../inc/config_lago.h LaGOConfig.h LaGObase.hpp LaGOSmartPtr.hpp \
-  LaGODenseVector.hpp LaGOSparseVector.hpp LaGOFunction.hpp
+include_HEADERS = LaGOMINLPData.hpp LaGOBlockFunction.hpp
 
 AM_CPPFLAGS = \
+ -I`$(CYGPATH_W) $(srcdir)/../Base` \
  -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` \
  -I`$(CYGPATH_W) $(COINUTILSOBJDIR)/inc` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Interfaces` \
