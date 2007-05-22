@@ -10,6 +10,10 @@ AUTOMAKE_OPTIONS = foreign
 
 SUBDIRS = Base Problem
 
+if COIN_HAS_GAMSIO
+SUBDIRS += Interfaces/GAMS
+endif
+
 EXTRA_DIST = 
 
 #DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc

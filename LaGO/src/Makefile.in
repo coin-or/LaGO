@@ -52,10 +52,11 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@COIN_HAS_GAMSIO_TRUE@am__append_1 = Interfaces/GAMS
 DIST_COMMON = $(srcdir)/../../BuildTools/Makemain.inc \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
-@HAVE_EXTERNALS_TRUE@am__append_1 = Externals
-@HAVE_EXTERNALS_TRUE@am__append_2 = .Externals-stamp
+@HAVE_EXTERNALS_TRUE@am__append_2 = Externals
+@HAVE_EXTERNALS_TRUE@am__append_3 = .Externals-stamp
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
@@ -75,7 +76,7 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	uninstall-recursive
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = $(SUBDIRS)
+DIST_SUBDIRS = Base Problem Interfaces/GAMS
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 ADDLIBS = @ADDLIBS@
@@ -146,6 +147,8 @@ EXEEXT = @EXEEXT@
 F77 = @F77@
 FADDLIBS = @FADDLIBS@
 FFLAGS = @FFLAGS@
+GAMSIO_CPPFLAGS = @GAMSIO_CPPFLAGS@
+GAMSIO_LIBS = @GAMSIO_LIBS@
 HAVE_EXTERNALS_FALSE = @HAVE_EXTERNALS_FALSE@
 HAVE_EXTERNALS_TRUE = @HAVE_EXTERNALS_TRUE@
 INSTALL_DATA = @INSTALL_DATA@
@@ -245,11 +248,11 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS = Base Problem
-EXTRA_DIST = $(am__append_1)
+SUBDIRS = Base Problem $(am__append_1)
+EXTRA_DIST = $(am__append_2)
 
 #DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
-DISTCLEANFILES = $(am__append_2) $(VPATH_DISTCLEANFILES)
+DISTCLEANFILES = $(am__append_3) $(VPATH_DISTCLEANFILES)
 all: all-recursive
 
 .SUFFIXES:

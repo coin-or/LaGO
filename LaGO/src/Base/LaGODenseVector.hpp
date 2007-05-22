@@ -21,7 +21,16 @@ public:
 	: Ipopt::DenseVector(owner_space)
 	{ }
 
+	DenseVector& operator*=(double factor) {
+		Scal(factor);
+		return *this;
+	}
 	
+	double operator()(int index) const {
+		assert(index>=0 && index<Dim());
+		if (IsHomogeneous()) return Scalar();
+		return Values()[index];
+	}
 };
 	
 	

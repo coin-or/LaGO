@@ -311,8 +311,12 @@ if test x"$use_gamsio" != x; then
 		  GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/libg2d.a -ldl -L$use_gamssys -lifcore -limf -lirc"
 		fi
 #		GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/gdxwrap.o -L$use_gamsio -lg2d -ldl -L$use_gamssys -lifcore -limf"
+		GAMSIO_CPPFLAGS="-I$use_gamsio -D$GAMSIO_CODE"
+
+		LIBS_save=$LIBS
+		CPPFLAGS_save=$CPPFLAGS
 		LIBS="$GAMSIO_LIBS $LIBS"
-		CPPFLAGS="-I$use_gamsio $CPPFLAGS"
+		CPPFLAGS="$GAMSIO_CPPFLAGS $CPPFLAGS"
 		AC_TRY_LINK([
 #include <cstdio>
 #include "iolib.h"], [gfinit()],
@@ -320,6 +324,10 @@ if test x"$use_gamsio" != x; then
 											ADDLIBS="$GAMSIO_LIBS $ADDLIBS"],
 											[AC_MSG_RESULT([no])
 											AC_MSG_ERROR([GAMS I/O library $use_gamsio does not work])])
+		LIBS=$LIBS_save
+		CPPFLAGS=$CPPFLAGS_save
+		AC_SUBST(GAMSIO_CPPFLAGS)
+		AC_SUBST(GAMSIO_LIBS)
   else
  		use_gamsio=
   fi
@@ -401,6 +409,8 @@ AC_LANG_POP(C++)
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/Base/Makefile
+                 src/Problem/Makefile
+                 src/Interfaces/GAMS/Makefile
                  src/Applications/Makefile
                 ])
 

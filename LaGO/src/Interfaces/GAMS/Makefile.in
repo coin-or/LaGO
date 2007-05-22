@@ -16,9 +16,8 @@
 
 # Copyright (C) 2007 Stefan Vigerske
 # All Rights Reserved.
-# This file is distributed under the Common Public License.
 
-# Author: Stefan Vigerske
+# Author:  Stefan Vigerske
 
 # Copyright (C) 2006 International Business Machines and others.
 # All Rights Reserved.
@@ -37,7 +36,7 @@ VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
-top_builddir = ../..
+top_builddir = ../../..
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 INSTALL = @INSTALL@
 install_sh_DATA = $(install_sh) -c -m 644
@@ -54,11 +53,11 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 DIST_COMMON = $(include_HEADERS) \
-	$(srcdir)/../../../BuildTools/Makemain.inc \
+	$(srcdir)/../../../../BuildTools/Makemain.inc \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
 @HAVE_EXTERNALS_TRUE@am__append_1 = Externals
 @HAVE_EXTERNALS_TRUE@am__append_2 = .Externals-stamp
-subdir = src/Problem
+subdir = src/Interfaces/GAMS
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/configure.ac
@@ -76,9 +75,11 @@ am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
-libLaGOProblem_la_LIBADD =
-am_libLaGOProblem_la_OBJECTS = LaGOMINLPData.lo
-libLaGOProblem_la_OBJECTS = $(am_libLaGOProblem_la_OBJECTS)
+libLaGOInterfaceGams_la_LIBADD =
+am_libLaGOInterfaceGams_la_OBJECTS = LaGOGamsReader.lo \
+	LaGOGamsFunction.lo
+libLaGOInterfaceGams_la_OBJECTS =  \
+	$(am_libLaGOInterfaceGams_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -89,8 +90,8 @@ LTCXXCOMPILE = $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) \
 CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(libLaGOProblem_la_SOURCES)
-DIST_SOURCES = $(libLaGOProblem_la_SOURCES)
+SOURCES = $(libLaGOInterfaceGams_la_SOURCES)
+DIST_SOURCES = $(libLaGOInterfaceGams_la_SOURCES)
 includeHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(include_HEADERS)
 ETAGS = etags
@@ -267,11 +268,12 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST = $(am__append_1)
-lib_LTLIBRARIES = libLaGOProblem.la
-libLaGOProblem_la_SOURCES = LaGOMINLPData.cpp
-include_HEADERS = LaGOMINLPData.hpp LaGOBlockFunction.hpp
-AM_CPPFLAGS = \
- -I`$(CYGPATH_W) $(srcdir)/../Base` \
+lib_LTLIBRARIES = libLaGOInterfaceGams.la
+libLaGOInterfaceGams_la_SOURCES = LaGOGamsReader.cpp LaGOGamsFunction.cpp
+include_HEADERS = LaGOGamsFunction.hpp LaGOGamsReader.hpp
+AM_CPPFLAGS = $(GAMSIO_CPPFLAGS) \
+ -I`$(CYGPATH_W) $(srcdir)/../../Base` \
+ -I`$(CYGPATH_W) $(srcdir)/../../Problem` \
  -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` \
  -I`$(CYGPATH_W) $(COINUTILSOBJDIR)/inc` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Interfaces` \
@@ -286,7 +288,7 @@ all: all-am
 
 .SUFFIXES:
 .SUFFIXES: .cpp .lo .o .obj
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/../../../BuildTools/Makemain.inc $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/../../../../BuildTools/Makemain.inc $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -295,9 +297,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/..
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  src/Problem/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  src/Interfaces/GAMS/Makefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign  src/Problem/Makefile
+	  $(AUTOMAKE) --foreign  src/Interfaces/GAMS/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -342,8 +344,8 @@ clean-libLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
-libLaGOProblem.la: $(libLaGOProblem_la_OBJECTS) $(libLaGOProblem_la_DEPENDENCIES) 
-	$(CXXLINK) -rpath $(libdir) $(libLaGOProblem_la_LDFLAGS) $(libLaGOProblem_la_OBJECTS) $(libLaGOProblem_la_LIBADD) $(LIBS)
+libLaGOInterfaceGams.la: $(libLaGOInterfaceGams_la_OBJECTS) $(libLaGOInterfaceGams_la_DEPENDENCIES) 
+	$(CXXLINK) -rpath $(libdir) $(libLaGOInterfaceGams_la_LDFLAGS) $(libLaGOInterfaceGams_la_OBJECTS) $(libLaGOInterfaceGams_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -351,7 +353,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOMINLPData.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOGamsFunction.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOGamsReader.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -450,7 +453,7 @@ distclean-tags:
 	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
 
 distdir: $(DISTFILES)
-	$(mkdir_p) $(distdir)/../../../BuildTools
+	$(mkdir_p) $(distdir)/../../../../BuildTools
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \

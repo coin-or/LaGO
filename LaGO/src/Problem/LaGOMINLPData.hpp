@@ -8,18 +8,21 @@
 #define LAGOMINLPDATA_H_
 
 #include "LaGObase.hpp"
+#include "LaGOBlockFunction.hpp"
 
 namespace LaGO {
 
-class BlockFunction;
+class GamsReader;
 
 /** Storage for the data of a MINLP.
  */
 class MINLPData : public ReferencedObject {
+	friend class GamsReader;
 private:
 	/** Storage for the data of an objective function or constraint.
 	 */
 	class ObjCon : public ReferencedObject {
+		friend class GamsReader;
 	protected:
 		/** Name of the objective or constraint.
 		 */
@@ -51,6 +54,7 @@ public:
 	/** Storage for the data of a variable.
 	 */
 	class Variable : public ReferencedObject {
+		friend class GamsReader;
 	private:
 		/** Index of variable in problem.
 		 */
@@ -70,9 +74,14 @@ public:
 		 */
 		bool discrete;
 
+	public:
 		Variable(int index_, double lower_, double upper_, bool discrete_=false, const string& name_=string())
 		: index(index_), name(name_), lower(lower_), upper(upper_), discrete(discrete_)
 		{ }
+		
+		bool isDiscrete() const { return discrete; }
+		
+		friend ostream& operator<<(ostream& out, const Variable& var);
 	};
 
 	/** Storage for the data of a constraint.
@@ -132,6 +141,10 @@ private:
 public:
 	MINLPData();
 	virtual ~MINLPData();
+	
+	int numVariables() const { return var.size(); }
+	int numDiscrVariables() const { return discrete_var.size(); }
+	int numConstraints() const { return con.size(); }
 	
 	friend ostream& operator<<(ostream& out, const MINLPData& data);
 	

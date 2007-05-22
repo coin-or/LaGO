@@ -21,6 +21,12 @@ public:
 	{}
 	
 	SparseVector(const SparseVectorCreator& creator);
+
+	/** A sparsevector containing only one element.
+	 */	
+	SparseVector(int index, double value)
+	: CoinPackedVector(1, &index, &value, false)
+	{ }
 	
 }; // class SparseVector
 
@@ -28,6 +34,10 @@ class SparseVectorCreator : public map<int,double> {
 public:
 	SmartPtr<SparseVector> getSparseVector() const {
 		return new SparseVector(*this);
+	}
+	
+	void insert(int index, double value) {
+		map<int,double>::insert(pair<int, double>(index, value));
 	}
 };	
 
