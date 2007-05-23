@@ -2,7 +2,7 @@
 # All Rights Reserved.
 # This file is distributed under the Common Public License.
 
-## $Id: Makefile.am 94 2007-05-21 13:54:40Z stefan $
+## $Id$
 
 # Author: Stefan Vigerske
 
@@ -11,11 +11,13 @@ AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST =
 
 lib_LTLIBRARIES = libLaGOAlgorithms.la
-libLaGOAlgorithms_la_SOURCES = 
+libLaGOAlgorithms_la_SOURCES = Decomposition/LaGODecomposition.cpp Sampling/LaGOSampling.cpp
 
 include_HEADERS = 
 
 AM_CPPFLAGS = \
+ -I`$(CYGPATH_W) $(srcdir)/Decomposition` \
+ -I`$(CYGPATH_W) $(srcdir)/Sampling` \
  -I`$(CYGPATH_W) $(srcdir)/../Base` \
  -I`$(CYGPATH_W) $(srcdir)/../Problem` \
  -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` \

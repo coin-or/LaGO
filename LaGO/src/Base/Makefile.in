@@ -77,8 +77,8 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libLaGOBase_la_LIBADD =
-am_libLaGOBase_la_OBJECTS = LaGOSparseVector.lo LaGOFunction.lo \
-	LaGOSymSparseMatrix.lo
+am_libLaGOBase_la_OBJECTS = LaGOSparseVector.lo LaGODenseVector.lo \
+	LaGOSymSparseMatrix.lo LaGOFunction.lo LaGORandomNumber.lo
 libLaGOBase_la_OBJECTS = $(am_libLaGOBase_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
@@ -269,10 +269,12 @@ target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST = $(am__append_1)
 lib_LTLIBRARIES = libLaGOBase.la
-libLaGOBase_la_SOURCES = LaGOSparseVector.cpp LaGOFunction.cpp LaGOSymSparseMatrix.cpp
+libLaGOBase_la_SOURCES = LaGOSparseVector.cpp LaGODenseVector.cpp LaGOSymSparseMatrix.cpp \
+  LaGOFunction.cpp LaGORandomNumber.cpp
+
 include_HEADERS = ../../inc/config_lago.h LaGOConfig.h LaGObase.hpp LaGOSmartPtr.hpp \
   LaGODenseVector.hpp LaGOSparseVector.hpp LaGOMatrix.hpp LaGOSymMatrix.hpp LaGOSymSparseMatrix.hpp \
-  LaGOFunction.hpp
+  LaGOFunction.hpp LaGOScaledFunction.hpp LaGORandomNumber.hpp
 
 AM_CPPFLAGS = \
  -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` \
@@ -354,7 +356,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGODenseVector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOFunction.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGORandomNumber.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOSparseVector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOSymSparseMatrix.Plo@am__quote@
 

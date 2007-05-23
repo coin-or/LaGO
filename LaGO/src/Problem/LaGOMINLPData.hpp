@@ -13,11 +13,13 @@
 namespace LaGO {
 
 class GamsReader;
+class Decomposition;
 
 /** Storage for the data of a MINLP.
  */
 class MINLPData : public ReferencedObject {
 	friend class GamsReader;
+	friend class Decomposition;
 public:
 	/** Storage for the data of a variable.
 	 */
@@ -49,6 +51,9 @@ public:
 		
 		bool isDiscrete() const { return discrete; }
 		
+		double getLower() const { return lower; }
+		double getUpper() const { return upper; }
+		
 		friend ostream& operator<<(ostream& out, const Variable& var);
 	};
 	
@@ -56,6 +61,7 @@ public:
 	 */
 	class ObjCon : public ReferencedObject {
 		friend class GamsReader;
+		friend class Decomposition;
 	protected:
 		/** Name of the objective or constraint.
 		 */
@@ -153,6 +159,10 @@ public:
 	const Objective& getObjective() const { return obj; }
 	const vector<int>& getDiscrVariables() const { return discrete_var; }
 	const vector<DenseVector>& getStartPoints() const { return start_points; }
+
+	/** Creates vectors with lower and upper bounds of those variables that are listed in indices.
+	 */ 	
+	void getBox(DenseVector& lower, DenseVector& upper, const vector<int>& indices) const;
 	
 	friend ostream& operator<<(ostream& out, const MINLPData& data);
 	

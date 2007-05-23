@@ -13,7 +13,7 @@
 
 AC_PREREQ(2.59)
 
-AC_INIT([LaGO],[0.3],[http://projects.coin-or.org/LaGO/newticket])
+AC_INIT([LaGO],[0.4],[http://projects.coin-or.org/LaGO/newticket])
 
 AC_COPYRIGHT([
 Copyright 2007 Ivo Nowak and Stefan Vigerske

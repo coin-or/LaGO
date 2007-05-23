@@ -17,7 +17,7 @@ SUBDIRS = interval
 
 EXTRA_DIST = \
 	get.FILIB++ \
-	filib.patch filib.patch2 filib.patch3
+	filib.patch filib.patch2 filib.patch3 filib.patch4 filib.patch5
 
 .PHONY:
 

@@ -8,8 +8,10 @@
 #define LAGODENSEVECTOR_HPP_
 
 #include "LaGObase.hpp"
+#include "LaGORandomNumber.hpp"
 
 #include "CoinDenseVector.hpp"
+
 
 namespace LaGO {
 
@@ -30,6 +32,14 @@ public:
 		assert(index>=0 && index<getNumElements());
 		return getElements()[index];
 	}
+	
+	void setBlock(const DenseVector& v, const vector<int>& indices) {
+		resize(indices.size());
+		for (unsigned int i=0; i<indices.size(); ++i)
+			getElements()[i]=v(indices[i]);
+	}
+	
+	void setRandom(const DenseVector& lower, const DenseVector& upper);
 	
 	double operator*(const DenseVector& v) const {
 		assert(getNumElements()==v.getNumElements());

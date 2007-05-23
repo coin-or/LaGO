@@ -7,6 +7,7 @@
 #include "LaGOGamsReader.hpp"
 #include "LaGOGamsFunction.hpp"
 #include "LaGOMINLPData.hpp"
+#include "LaGOScaledFunction.hpp"
 
 //#include <dlfcn.h>
 

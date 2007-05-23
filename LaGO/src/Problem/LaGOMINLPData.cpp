@@ -37,6 +37,16 @@ MINLPData::MINLPData()
 
 MINLPData::~MINLPData() { }
 
+void MINLPData::getBox(DenseVector& lower, DenseVector& upper, const vector<int>& indices) const {
+	lower.resize(indices.size());
+	upper.resize(indices.size());
+	for (unsigned int i=0; i<indices.size(); ++i) {
+		const Variable& var(getVariable(indices[i]));
+		lower[i]=var.getLower();
+		upper[i]=var.getUpper();
+	}
+}
+
 ostream& operator<<(ostream& out, const MINLPData& data) {
 	out << "MINLP " << data.name << ':' << endl;
 	out << data.var.size() << " variables:" << endl;

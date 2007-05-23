@@ -65,9 +65,6 @@ inline double getInfinity() { return 1E+300; }
 //	return relDistance(value1, value2, CoinMin(fabs(value1), fabs(value2)));
 //}
 //
-inline int random(int lb, int ub) {
-   return lb+(int)((ub-lb+0.99) * CoinDrand48()); // as suggested in the rand()-manual
-}
 
 } // namespace LaGO
 
