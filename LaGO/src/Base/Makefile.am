@@ -11,10 +11,11 @@ AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST =
 
 lib_LTLIBRARIES = libLaGOBase.la
-libLaGOBase_la_SOURCES = LaGOSparseVector.cpp LaGOFunction.cpp
+libLaGOBase_la_SOURCES = LaGOSparseVector.cpp LaGOFunction.cpp LaGOSymSparseMatrix.cpp
 
 include_HEADERS = ../../inc/config_lago.h LaGOConfig.h LaGObase.hpp LaGOSmartPtr.hpp \
-  LaGODenseVector.hpp LaGOSparseVector.hpp LaGOFunction.hpp
+  LaGODenseVector.hpp LaGOSparseVector.hpp LaGOMatrix.hpp LaGOSymMatrix.hpp LaGOSymSparseMatrix.hpp \
+  LaGOFunction.hpp
 
 AM_CPPFLAGS = \
  -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` \

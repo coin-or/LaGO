@@ -2,23 +2,32 @@
 // All Rights Reserved.
 // This code is published under the Common Public License.
 
-// $Id: LaGOConfig.h 94 2007-05-21 13:54:40Z stefan $
+// $Id$
 
 #ifndef LAGOBLOCKFUNCTION_HPP_
 #define LAGOBLOCKFUNCTION_HPP_
 
 #include "LaGObase.hpp"
+#include "LaGOSymSparseMatrix.hpp"
 
 namespace LaGO {
 
-/** A block from a larger function.
+/** A block from a larger nonlinear function.
  */
 class BlockFunction : public ReferencedObject {
-private:
+public:
 	/** The indices of the variables this function is defined for.
 	 */
 	vector<int> indices;
-public:
+	
+	/** The nonquadratic part.
+	 */
+	SmartPtr<Function> nonquad;
+	
+	/** The quadratic part.
+	 */
+	SmartPtr<SymSparseMatrix> quad;
+	
 	BlockFunction(const vector<int>& indices_)
 	: indices(indices_)
 	{ }

@@ -2,7 +2,7 @@
 // All Rights Reserved.
 // This code is published under the Common Public License.
 
-// $Id: LaGOConfig.h 94 2007-05-21 13:54:40Z stefan $
+// $Id$
 
 #include "LaGOGamsReader.hpp"
 #include "LaGOGamsFunction.hpp"
@@ -247,6 +247,10 @@ SmartPtr<MINLPData> GamsReader::getProblem(char* cntr_file) {
 	vector<SparseVectorCreator> conLin(numrow);
 	// nonzero variables in constraints
 	vector<set<int> > conSparsity(numrow);
+
+	prob->start_points.resize(1);
+	DenseVector& start(prob->start_points.front());
+	start.resize(numcol);
 	
 	// reading columns
 	colRec_t coldata;
@@ -271,7 +275,7 @@ SmartPtr<MINLPData> GamsReader::getProblem(char* cntr_file) {
 			cerr << "Couldn't retrieve name for variable " << i << endl;
 		prob->var.push_back(MINLPData::Variable(i, low, up, coldata.idata[3], name));
 		if (coldata.idata[3]) prob->discrete_var.push_back(i);  
-//		double startvalue=coldata.cdata[2];
+		start[i]=coldata.cdata[2];
 
 		double coeff;
 		int index;
@@ -290,7 +294,7 @@ SmartPtr<MINLPData> GamsReader::getProblem(char* cntr_file) {
 	cout << "Reformable: " << (reformed ? "yes" : "no") << endl;
 
 	if (reformed) {
-		prob->var[objvar].lower=prob->var[objvar].upper=0.;
+		prob->var[objvar].lower=prob->var[objvar].upper=start[objvar]=0.;
 		if (prob->numDiscrVariables()==prob->numVariables()-1 && (!prob->var[objvar].isDiscrete())) {
 			prob->var[objvar].discrete=true;
 			prob->discrete_var.push_back(objvar); // TODO: insert such that vector of indices stays sorted?

@@ -1,7 +1,7 @@
 # Copyright (C) 2007 Stefan Vigerske
 # All Rights Reserved.
 
-## $Id: Makefile.am 18 2007-04-02 16:25:41Z stefan $
+## $Id$
 
 # Author:  Stefan Vigerske
 

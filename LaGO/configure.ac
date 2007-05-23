@@ -411,6 +411,7 @@ AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/Base/Makefile
                  src/Problem/Makefile
+                 src/Algorithms/Makefile
                  src/Interfaces/GAMS/Makefile
                  src/Applications/Makefile
                 ])

@@ -2,10 +2,9 @@
 // All Rights Reserved.
 // This code is published under the Common Public License.
 
-// $Id: LaGOConfig.h 94 2007-05-21 13:54:40Z stefan $
+// $Id$
 
 #include "LaGOMINLPData.hpp"
-#include "LaGOBlockFunction.hpp"
 
 namespace LaGO {
 
@@ -22,13 +21,13 @@ ostream& operator<<(ostream& out, const MINLPData::ObjCon& objcon) {
 
 ostream& operator<<(ostream& out, const MINLPData::Variable& var) {
 	out << var.index << ": " << var.name << " [" << var.lower << ", " << var.upper << "] ";
-	if (var.discrete) out << var.discrete;
+	if (var.discrete) out << "discrete";
 	out << endl;
 	return out;	
 }
 
 ostream& operator<<(ostream& out, const MINLPData::Constraint& con) {
-	out << con.index << ": [" << con.lower << ", " << con.upper << ']';
+	out << con.index << ": [" << con.lower << ", " << con.upper << "] ";
 	out << (MINLPData::ObjCon&)con;
 	return out;
 }
@@ -40,13 +39,16 @@ MINLPData::~MINLPData() { }
 
 ostream& operator<<(ostream& out, const MINLPData& data) {
 	out << "MINLP " << data.name << ':' << endl;
-	out << data.var.size() << " variables: " << endl;
+	out << data.var.size() << " variables:" << endl;
 	for (unsigned int i=0; i<data.var.size(); ++i)
 		out << data.var[i];
 	out << "Objective: " << data.obj;
-	out << data.con.size() << " constraints: " << endl;
+	out << data.con.size() << " constraints:" << endl;
 	for (unsigned int c=0; c<data.con.size(); ++c)
-		out << data.con[c];	
+		out << data.con[c];
+	out << data.start_points.size() << " start points:" << endl;
+	for (unsigned int i=0; i<data.start_points.size(); ++i)
+		out << data.start_points[i] << endl;
 	return out;
 }
 

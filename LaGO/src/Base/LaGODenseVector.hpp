@@ -2,36 +2,59 @@
 // All Rights Reserved.
 // This code is published under the Common Public License.
 
-// $Id: base.hpp 94 2007-05-21 13:54:40Z stefan $
+// $Id$
 
 #ifndef LAGODENSEVECTOR_HPP_
 #define LAGODENSEVECTOR_HPP_
 
 #include "LaGObase.hpp"
 
-#include "IpDenseVector.hpp"
+#include "CoinDenseVector.hpp"
 
 namespace LaGO {
-	
-#define DenseVectorSpace Ipopt::DenseVectorSpace
 
-class DenseVector : public Ipopt::DenseVector {
+class DenseVector : public CoinDenseVector<double> {
 public:
-	DenseVector(const DenseVectorSpace* owner_space)
-	: Ipopt::DenseVector(owner_space)
+	DenseVector()
+	{ }
+	
+	DenseVector(int size, double init_value=0.)
+	: CoinDenseVector<double>(size, 0.)
 	{ }
 
-	DenseVector& operator*=(double factor) {
-		Scal(factor);
-		return *this;
-	}
+	DenseVector(int size, double* elements)
+	: CoinDenseVector<double>(size, elements)
+	{ }
 	
 	double operator()(int index) const {
-		assert(index>=0 && index<Dim());
-		if (IsHomogeneous()) return Scalar();
-		return Values()[index];
+		assert(index>=0 && index<getNumElements());
+		return getElements()[index];
+	}
+	
+	double operator*(const DenseVector& v) const {
+		assert(getNumElements()==v.getNumElements());
+		double ret=0;
+		const double* x_=getElements();
+		const double* v_=v.getElements();
+		for (int i=getNumElements(); i>0; --i, ++x_, ++v_) ret+=*x_ * *v_;
+		return ret;
+	}
+	
+	DenseVector& operator+=(const DenseVector& v) {
+		assert(getNumElements()==v.getNumElements());
+		double* x_=getElements();
+		const double* v_=v.getElements();
+		for (int i=getNumElements(); i>0; --i, ++x_, ++v_) *x_+=*v_;
+		return *this;
 	}
 };
+
+template<class T>
+ostream& operator<<(ostream& out, const CoinDenseVector<T>& v) {
+	for (int i=0; i<v.getNumElements(); ++i)
+		out << v.getElements()[i] << ' ';
+	return out;
+}
 	
 	
 } // namespace LaGO

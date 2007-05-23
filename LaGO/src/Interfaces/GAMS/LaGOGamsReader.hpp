@@ -2,7 +2,7 @@
 // All Rights Reserved.
 // This code is published under the Common Public License.
 
-// $Id: LaGOConfig.h 94 2007-05-21 13:54:40Z stefan $
+// $Id$
 
 #ifndef LAGOGAMSREADER_HPP_
 #define LAGOGAMSREADER_HPP_

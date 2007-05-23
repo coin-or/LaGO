@@ -2,7 +2,7 @@
 // All Rights Reserved.
 // This code is published under the Common Public License.
 
-// $Id: LaGOConfig.h 94 2007-05-21 13:54:40Z stefan $
+// $Id$
 
 #include "LaGObase.hpp"
 #include "LaGOMINLPData.hpp"
@@ -20,6 +20,7 @@ int main(int argc, char** argv) {
 	GamsReader interface;
 	SmartPtr<MINLPData> prob(interface.getProblem(argv[1]));
 
+	cout << *prob;
 	
 
 	cout << "LaGO finished." << endl;

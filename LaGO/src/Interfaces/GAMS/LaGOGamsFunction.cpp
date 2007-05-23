@@ -10,9 +10,6 @@ namespace LaGO {
 #define FNAME_LCASE_DECOR
 #endif
 
-//#include "iolib.h"
-//#include "nliolib.h"
-//#include "gcprocs.h"
 #include "g2dexports.h"
 
 #ifdef FNAME_LCASE_DECOR
@@ -52,22 +49,11 @@ double GamsFunction::eval(const DenseVector& x) const {
 	double value;
 	int numerr=0;
 	double dt;
-	
-	double* x_=NULL;
-	const double* cx;
-	if (x.IsHomogeneous()) {
-		x_=new double[x.Dim()];
-		CoinFillN(x_, x.Dim(), x.Scalar());
-		cx=x_;
-	} else
-		cx=x.Values();
 
-	G2DFUNCEVAL0(cx, &value, data->s,
+	G2DFUNCEVAL0(x.getElements(), &value, data->s,
 	data->instr+data->startIdx[connr]-1, &(data->numInstr[connr]), data->nlCons,
 	&dt, &numerr);
 	
-	delete[] x_;
-
 	if (numerr) {
 		data->domain_violations+=numerr;
 		string message("Error evaluating constraint ");
@@ -82,16 +68,7 @@ void GamsFunction::evalAndGradient(double& value, DenseVector& grad, const Dense
 	int numerr=0;
 	double dt;
 
-	double* x_=NULL;
-	const double* cx;
-	if (x.IsHomogeneous()) {
-		x_=new double[x.Dim()];
-		CoinFillN(x_, x.Dim(), x.Scalar());
-		cx=x_;
-	} else
-		cx=x.Values();
-
-	G2DFUNCEVAL0(cx, &value, data->s,
+	G2DFUNCEVAL0(x.getElements(), &value, data->s,
 		data->instr+data->startIdx[connr]-1, &(data->numInstr[connr]), data->nlCons,
 		&dt, &numerr);
 
@@ -102,12 +79,10 @@ void GamsFunction::evalAndGradient(double& value, DenseVector& grad, const Dense
 		throw FunctionEvaluationError(message, "GamsFunction", "evalAndGradient");
 	}
 
-	G2DREVERSEEVAL1(const_cast<double*>(cx), grad.Values(), data->s, data->sbar,
+	G2DREVERSEEVAL1(const_cast<double*>(x.getElements()), grad.getElements(), data->s, data->sbar,
 		data->instr+data->startIdx[connr]-1, &(data->numInstr[connr]), data->nlCons,
 		&dt, &numerr);
-		
-	delete[] x_;
-	
+
 	if (numerr) {
 		data->domain_violations+=numerr;
 		string message("Error computing gradient of constraint ");
@@ -125,25 +100,7 @@ void GamsFunction::hessianVectorProduct(DenseVector& product, const DenseVector&
 	double val, gradvecprod; // to store value and gradient*z
 	int numerr=0;
 
-	double* x_=NULL;
-	const double* cx;
-	if (x.IsHomogeneous()) {
-		x_=new double[x.Dim()];
-		CoinFillN(x_, x.Dim(), x.Scalar());
-		cx=x_;
-	} else
-		cx=x.Values();
-
-	double* factor_=NULL;
-	const double* cfactor;
-	if (factor.IsHomogeneous()) {
-		factor_=new double[factor.Dim()];
-		CoinFillN(factor_, factor.Dim(), factor.Scalar());
-		cfactor=factor_;
-	} else
-		cfactor=factor.Values();
-
-	G2DDIR2DX(const_cast<double*>(cx), const_cast<double*>(cfactor), product.Values(), &val, &gradvecprod,
+	G2DDIR2DX(const_cast<double*>(x.getElements()), const_cast<double*>(factor.getElements()), product.getElements(), &val, &gradvecprod,
 		data->resstack, data->instr+data->startIdx[connr]-1, &(data->numInstr[connr]), data->nlCons, &numerr);
 	
 	if (numerr) {

@@ -9,6 +9,8 @@ LaGO/README -text
 LaGO/configure -text
 LaGO/configure.ac -text
 LaGO/inc/config_lago.h.in -text
+LaGO/src/Algorithms/Makefile.am -text
+LaGO/src/Algorithms/Makefile.in -text
 LaGO/src/Applications/LaGOGAMS.cpp -text
 LaGO/src/Applications/Makefile.am -text
 LaGO/src/Applications/Makefile.in -text
@@ -18,9 +20,13 @@ LaGO/src/Base/LaGOConfig.h -text
 LaGO/src/Base/LaGODenseVector.hpp -text
 LaGO/src/Base/LaGOFunction.cpp -text
 LaGO/src/Base/LaGOFunction.hpp -text
+LaGO/src/Base/LaGOMatrix.hpp -text
 LaGO/src/Base/LaGOSmartPtr.hpp -text
 LaGO/src/Base/LaGOSparseVector.cpp -text
 LaGO/src/Base/LaGOSparseVector.hpp -text
+LaGO/src/Base/LaGOSymMatrix.hpp -text
+LaGO/src/Base/LaGOSymSparseMatrix.cpp -text
+LaGO/src/Base/LaGOSymSparseMatrix.hpp -text
 LaGO/src/Base/LaGObase.hpp -text
 LaGO/src/Base/Makefile.am -text
 LaGO/src/Base/Makefile.in -text

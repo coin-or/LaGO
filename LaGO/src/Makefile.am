@@ -8,7 +8,7 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = Base Problem
+SUBDIRS = Base Problem Algorithms
 
 if COIN_HAS_GAMSIO
 SUBDIRS += Interfaces/GAMS
