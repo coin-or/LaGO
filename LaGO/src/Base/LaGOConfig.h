@@ -29,6 +29,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config_lago.h"
 
+inline const char* LAGOVERSION() { return VERSION; }
+
 /* undefine macros that could conflict with those in other config.h
    files */
 #undef PACKAGE
@@ -68,6 +70,8 @@
 
 /* Define to 1 if the Ipopt package is used */
 #define COIN_HAS_IPOPT 1
+
+inline const char* LAGOVERSION() { return "0.0"; }
 
 #endif /* HAVE_CONFIG_H */
 

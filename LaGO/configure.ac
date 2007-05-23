@@ -13,7 +13,7 @@
 
 AC_PREREQ(2.59)
 
-AC_INIT([LaGO],[0.3],[http://projects.coin-or.org/LaGO/newticket])
+AC_INIT([LaGO],[0.4],[http://projects.coin-or.org/LaGO/newticket])
 
 AC_COPYRIGHT([
 Copyright 2007 Ivo Nowak and Stefan Vigerske
@@ -225,8 +225,10 @@ AC_LANG_POP(C)
 # FILIB++ #
 ###########
 
-coin_filibdir=../ThirdParty/FILIB++
+#use path relative to directory LaGO/src/Applications where linking to the filib is done
+coin_filibdir=../../../ThirdParty/FILIB++
 coin_filibsrcdir=$abs_source_dir/$coin_filibdir
+#TODO: use something like `$CYGPATH_W $abs_source_dir/$coin_gamsioobjdir | sed -e sX\\\\\\\\X/Xg`
 
 AC_ARG_WITH([filib],
             AC_HELP_STRING([--with-filib],
@@ -234,14 +236,14 @@ AC_ARG_WITH([filib],
             [use_filib=$withval
              filib_libdir=$use_filib/lib],
 	          [use_filib=$coin_filibsrcdir
-             filib_libdir=../$coin_filibdir/interval/.libs
+             filib_libdir=$coin_filibdir/interval
             ])
 	          
 	          
 AC_CHECK_FILE([$use_filib/interval/interval/interval.hpp],
                [AC_DEFINE([COIN_HAS_FILIB],[1], [If defined, the FILIB++ is available.])
      	          coin_has_filib=yes
-                ADDLIBS="-L$filib_libdir -lprim $ADDLIBS"
+                ADDLIBS="$filib_libdir/libprim.la $ADDLIBS"
                 CPPFLAGS="-I$use_filib/interval $CPPFLAGS"],
                [coin_has_filib=no])
 
@@ -321,7 +323,8 @@ if test x"$use_gamsio" != x; then
 #include <cstdio>
 #include "iolib.h"], [gfinit()],
 											[AC_MSG_RESULT([yes])
-											ADDLIBS="$GAMSIO_LIBS $ADDLIBS"],
+#											ADDLIBS="$GAMSIO_LIBS $ADDLIBS"
+											],
 											[AC_MSG_RESULT([no])
 											AC_MSG_ERROR([GAMS I/O library $use_gamsio does not work])])
 		LIBS=$LIBS_save
@@ -401,10 +404,8 @@ AM_CONDITIONAL([COIN_HAS_GAMSCPLEXLICE],[test "$coin_has_gamscplexlice" = yes])
 
 AC_LANG_POP(C++)
 
-#AC_COIN_VPATH_LINK(src/gmsla_us.run)
-#AC_COIN_VPATH_LINK(src/gmsdu_us.run)
-#AC_COIN_VPATH_LINK(src/install/gmsla_un.dat)
-#AC_COIN_VPATH_LINK(src/install/gmsdu_un.dat)
+AC_COIN_VPATH_LINK(src/Applications/gmsla_us.run)
+AC_COIN_VPATH_LINK(src/Applications/install/gmsla_un.dat)
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile

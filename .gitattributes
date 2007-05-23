@@ -9,8 +9,11 @@ LaGO/README -text
 LaGO/configure -text
 LaGO/configure.ac -text
 LaGO/inc/config_lago.h.in -text
+LaGO/src/Applications/LaGOGAMS.cpp -text
 LaGO/src/Applications/Makefile.am -text
 LaGO/src/Applications/Makefile.in -text
+LaGO/src/Applications/gmsla_us.run -text
+LaGO/src/Applications/install/gmsla_un.dat -text
 LaGO/src/Base/LaGOConfig.h -text
 LaGO/src/Base/LaGODenseVector.hpp -text
 LaGO/src/Base/LaGOFunction.cpp -text

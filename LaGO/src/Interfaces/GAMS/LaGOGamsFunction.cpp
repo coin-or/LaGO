@@ -116,6 +116,11 @@ void GamsFunction::evalAndGradient(double& value, DenseVector& grad, const Dense
 	}
 }
 
+void GamsFunction::gradient(DenseVector& grad, const DenseVector& x) const {
+	double value;
+	evalAndGradient(value, grad, x);
+}
+
 void GamsFunction::hessianVectorProduct(DenseVector& product, const DenseVector& x, const DenseVector& factor) const {
 	double val, gradvecprod; // to store value and gradient*z
 	int numerr=0;

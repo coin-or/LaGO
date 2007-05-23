@@ -14,6 +14,8 @@ if COIN_HAS_GAMSIO
 SUBDIRS += Interfaces/GAMS
 endif
 
+SUBDIRS += Applications
+
 EXTRA_DIST = 
 
 #DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
