@@ -16,7 +16,7 @@ class DenseVector;
 	
 class FunctionEvaluationError : public CoinError {
 public:
-	FunctionEvaluationError(const string& message, const string& methodName, const string& className)
+	FunctionEvaluationError(const string& message, const string& className, const string& methodName)
 	: CoinError(message, methodName, className)
 	{ }
 

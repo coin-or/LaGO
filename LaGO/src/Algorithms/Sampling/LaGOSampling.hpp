@@ -17,7 +17,19 @@ public:
 	
 	void addVector(list<DenseVector>& samplepoints, const vector<DenseVector>& pointvector, const vector<int>& indices);
 
+	void addVector(list<DenseVector>& samplepoints, const vector<DenseVector>& pointvector);
+
 	void monteCarlo(list<DenseVector>& samplepoints, DenseVector& lower, DenseVector& upper, int nr);
+
+	/** Generates points where some of their components are randomly generated.
+	 * @param samplepoints Where to add the generated points.
+	 * @param basisvector A vector of full size from which the nonrandom components are taken
+	 * @param indices The indices of the random components.
+	 * @param lower The lower bounds for the random components (size has to be indices.size()).
+	 * @param upper The upper bounds for the random components (size has to be indices.size()).
+	 * @param nr The number of points to generate.
+	 */
+	void monteCarlo(list<DenseVector>& samplepoints, const DenseVector& basisvector, const vector<int>& indices, DenseVector& lower, DenseVector& upper, int nr);
 	
 	
 };

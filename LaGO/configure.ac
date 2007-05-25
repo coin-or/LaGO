@@ -219,6 +219,46 @@ AC_LANG_PUSH(C)
 AC_COIN_HAS_USER_LIBRARY([Cplex],[CPX],[cplex.h],[CPXgetstat])
 AC_LANG_POP(C)
 
+####################
+# RANLIB.C LIBRARY #
+####################
+
+coin_ranlibdir=../ThirdParty/RANLIB.C
+coin_ranlibsrcdir=`$CYGPATH_W $abs_source_dir/$coin_ranlibdir | sed -e sX\\\\\\\\X/Xg`
+
+AC_ARG_WITH([ranlib],
+            AC_HELP_STRING([--with-ranlib-dir],
+                           [specify directory of Random Number generator library libranlib.c.a]),
+            [ranlib_dir=$withval],
+	          [ranlib_dir=BUILD])
+
+AC_LANG_PUSH(C)						
+						
+AC_MSG_CHECKING([whether ranlib.c library at $ranlib_dir works])
+
+if test x"$ranlib_dir" = x"BUILD"; then
+	RANLIBC_LIB="$coin_ranlibdir/.libs/libranlib.c.a -lm"
+	RANLIBC_CPPFLAGS="-I$coin_ranlibsrcdir/ranlib.c/src"
+else
+	RANLIBC_LIB="$ranlib_dir/libranlib.c.a -lm"
+	RANLIBC_CPPFLAGS="-I$ranlib_dir/src"
+fi
+
+LIBS_save="$LIBS"
+LIBS="$RANLIBC_LIB $LIBS"
+CPPFLAGS="$RANLIBC_CPPFLAGS $CPPFLAGS"
+AC_TRY_LINK([#include "ranlib.h"], [genunf(0.,1.)],
+            [AC_MSG_RESULT([yes])],
+            [AC_MSG_RESULT([no])
+             AC_MSG_ERROR([ranlib.c at $use_ranlib does not work])])
+LIBS="$LIBS_save"
+
+if test x"$ranlib_dir" = x"BUILD"; then
+	RANLIBC_LIB="../../$coin_ranlibdir/libranlib.c.la"
+fi
+AC_SUBST(RANLIBC_LIB)
+
+AC_LANG_POP(C)
 
 
 ###########
@@ -227,8 +267,7 @@ AC_LANG_POP(C)
 
 #use path relative to directory LaGO/src/Applications where linking to the filib is done
 coin_filibdir=../../../ThirdParty/FILIB++
-coin_filibsrcdir=$abs_source_dir/$coin_filibdir
-#TODO: use something like `$CYGPATH_W $abs_source_dir/$coin_gamsioobjdir | sed -e sX\\\\\\\\X/Xg`
+coin_filibsrcdir=`$CYGPATH_W $abs_source_dir/$coin_filibdir | sed -e sX\\\\\\\\X/Xg`
 
 AC_ARG_WITH([filib],
             AC_HELP_STRING([--with-filib],

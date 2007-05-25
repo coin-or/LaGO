@@ -105,7 +105,11 @@ void GamsFunction::hessianVectorProduct(DenseVector& product, const DenseVector&
 	
 	if (numerr) {
 		data->domain_violations+=numerr;
-		string message("Error computing Hessian-Vector product of constraint ");
+		string message("Error ");
+		char buf[5];
+		snprintf(buf,5,"%d",numerr);
+		message+=buf;
+		message+=" computing Hessian-Vector product of constraint ";
 		addRowName(message);
 		throw FunctionEvaluationError(message, "GamsFunction", "hessianVectorProduct");
 	}

@@ -6,9 +6,13 @@
 
 #include "LaGORandomNumber.hpp"
 
-double gennor(double a, double b) { return 0; }
-double genexp(double a) { return 0; }
-double genunf(double a, double b) { return 0; }
+extern "C" {
+#include "ranlib.h"
+}
+
+//double gennor(double a, double b) { return 0; }
+//double genexp(double a) { return 0; }
+//double genunf(double a, double b) { return 0; }
 
 namespace LaGO {
 

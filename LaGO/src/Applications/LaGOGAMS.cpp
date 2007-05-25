@@ -8,6 +8,8 @@
 #include "LaGOMINLPData.hpp"
 #include "LaGOGamsReader.hpp"
 
+#include "LaGODecomposition.hpp"
+
 using namespace LaGO;
 
 int main(int argc, char** argv) {
@@ -21,6 +23,9 @@ int main(int argc, char** argv) {
 	SmartPtr<MINLPData> prob(interface.getProblem(argv[1]));
 
 	cout << *prob;
+	
+	Decomposition decomp(*prob);
+	decomp.decompose();
 	
 
 	cout << "LaGO finished." << endl;

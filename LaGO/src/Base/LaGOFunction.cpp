@@ -9,7 +9,7 @@
 namespace LaGO {
 	
 ostream& operator<<(ostream& out, FunctionEvaluationError& error) {
-	out << error.className() << "::" << error.methodName() << ": " << error.fileName();
+	out << error.className() << "::" << error.methodName() << ": " << error.message();
 	return out;
 }
 

@@ -15,6 +15,9 @@ namespace LaGO {
 class Decomposition {
 private:
 	MINLPData& data;
+	
+	void findConnectedComponents(SparsityGraph& graph);
+	bool setComponent(const SparsityGraph::Node& node, int comp);
 public:
 	Decomposition(MINLPData& data_)
 	: data(data_)
@@ -23,6 +26,9 @@ public:
 	void decompose();
 	
 	void decompose(MINLPData::ObjCon& objcon);
+	
+	void computeSparsityGraph(MINLPData::ObjCon& objcon, list<DenseVector>& samplepoints, const vector<int>& nonzeros);
+	
 	
 }; // class Decomposition
 	

@@ -9,6 +9,7 @@
 
 #include "LaGObase.hpp"
 #include "LaGOBlockFunction.hpp"
+#include "LaGOSparsity.hpp"
 
 namespace LaGO {
 
@@ -72,6 +73,10 @@ public:
 		SmartPtr<Function> origfuncNL;
 		SmartPtr<SparseVector> origfuncLin;
 		double origfuncConstant;
+		
+		/** Stores the sparsity graph of origfuncNL.
+		 */
+		SmartPtr<SparsityGraph> sparsitygraph;
 		
 		/** The function in decomposed form.
 		 */

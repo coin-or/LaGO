@@ -49,6 +49,7 @@ LaGO/src/Makefile.in -text
 LaGO/src/Problem/LaGOBlockFunction.hpp -text
 LaGO/src/Problem/LaGOMINLPData.cpp -text
 LaGO/src/Problem/LaGOMINLPData.hpp -text
+LaGO/src/Problem/LaGOSparsity.hpp -text
 LaGO/src/Problem/Makefile.am -text
 LaGO/src/Problem/Makefile.in -text
 /Makefile.am -text
@@ -65,6 +66,11 @@ ThirdParty/FILIB++/filib.patch5 -text
 ThirdParty/FILIB++/get.FILIB++ -text
 ThirdParty/FILIB++/interval_Makefile.am -text
 ThirdParty/FILIB++/interval_Makefile.in -text
+ThirdParty/RANLIB.C/Makefile.am -text
+ThirdParty/RANLIB.C/Makefile.in -text
+ThirdParty/RANLIB.C/configure -text
+ThirdParty/RANLIB.C/configure.ac -text
+ThirdParty/RANLIB.C/get.RANLIB.C -text
 /config.guess -text
 /config.sub -text
 /configure -text

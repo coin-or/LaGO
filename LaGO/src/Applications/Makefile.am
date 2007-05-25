@@ -11,9 +11,11 @@ EXTRA_DIST = gmsla_us.run install/gmsla_un.dat
 AM_CPPFLAGS = \
  -I`$(CYGPATH_W) $(srcdir)/../Base` \
  -I`$(CYGPATH_W) $(srcdir)/../Problem` \
+ -I`$(CYGPATH_W) $(srcdir)/../Algorithms/Decomposition` \
  -I`$(CYGPATH_W) $(srcdir)/../Interfaces/GAMS` \
  -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` \
  -I`$(CYGPATH_W) $(COINUTILSOBJDIR)/inc` \
+ -I`$(CYGPATH_W) $(LAGOSRCDIR)/../Cgc/src` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Interfaces` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Common` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/LinAlg` \
@@ -22,7 +24,8 @@ AM_CPPFLAGS = \
 
 lib_LTLIBRARIES = libLaGO.la
 libLaGO_la_SOURCES =
-libLaGO_la_LIBADD = ../Problem/libLaGOProblem.la ../Base/libLaGOBase.la
+libLaGO_la_LIBADD = ../Algorithms/libLaGOAlgorithms.la ../Problem/libLaGOProblem.la ../Base/libLaGOBase.la \
+ $(RANLIBC_LIB)
 
 if COIN_HAS_GAMSIO
 bin_PROGRAMS = LaGOGAMS

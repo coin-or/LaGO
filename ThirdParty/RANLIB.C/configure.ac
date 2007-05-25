@@ -1,11 +1,10 @@
-# Copyright (C) 2006 Ivo Nowak and Stefan Vigerske
+# Copyright (C) 2007 Stefan Vigerske
 # All Rights Reserved.
 # This file is distributed under the Common Public License.
 #
 ## $Id$
 #
 # Author: Stefan Vigerske
-# Template from: Andreas Waechter
 
 #############################################################################
 #                       Names and other basic things                        #
@@ -13,17 +12,17 @@
 
 AC_PREREQ(2.59)
 
-AC_INIT([ThirdPartyFILIB],[0.0],[http://projects.coin-or.org/LaGO/newticket])
+AC_INIT([ThirdPartyRANLIB],[0.0],[http://projects.coin-or.org/LaGO/newticket])
 
 AC_COPYRIGHT([
-Copyright 2006 Ivo Nowak and Stefan Vigerske
+Copyright 2007 Stefan Vigerske
 All Rights Reserved.
 This file is part of the open source package LaGO which is distributed
 under the Common Public License.])
 
 # List one file in the package so that the configure script can test
 # whether the package is actually there
-AC_CONFIG_SRCDIR(interval/interval/interval.hpp)
+AC_CONFIG_SRCDIR(ranlib.c/src/ranlib.h)
 
 # Where should everything be installed by default?  Here, we want it
 # to be installed directly in 'bin', 'lib', 'include' subdirectories
@@ -55,7 +54,7 @@ AC_COIN_DEBUG_COMPILE(FILIB)
 AC_COIN_PROG_CC
 
 # Get the name of the C++ compiler and appropriate compiler options
-AC_COIN_PROG_CXX
+#AC_COIN_PROG_CXX
 
 # Get the C++ runtime libraries in case we want to link with a C or
 # Fortran compiler
@@ -64,22 +63,11 @@ AC_COIN_PROG_CXX
 # Initialize automake and libtool
 AC_COIN_INIT_AUTO_TOOLS
 
-############################################################################
-############################################################################
-#                   Stuff that we need for C++ programs                    #
-############################################################################
-############################################################################
-
-AC_LANG_PUSH(C++)
-
 
 ############
 # END PART #
 ############
 
-AC_LANG_POP(C++)
-
-AC_CONFIG_FILES([Makefile
-                 interval/Makefile])
+AC_CONFIG_FILES([Makefile])
 
 AC_COIN_FINALIZE

@@ -88,8 +88,10 @@ am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
-libLaGO_la_DEPENDENCIES = ../Problem/libLaGOProblem.la \
-	../Base/libLaGOBase.la
+am__DEPENDENCIES_1 =
+libLaGO_la_DEPENDENCIES = ../Algorithms/libLaGOAlgorithms.la \
+	../Problem/libLaGOProblem.la ../Base/libLaGOBase.la \
+	$(am__DEPENDENCIES_1)
 am_libLaGO_la_OBJECTS =
 libLaGO_la_OBJECTS = $(am_libLaGO_la_OBJECTS)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
@@ -97,20 +99,19 @@ PROGRAMS = $(bin_PROGRAMS)
 am__LaGOGAMS_SOURCES_DIST = LaGOGAMS.cpp
 @COIN_HAS_GAMSIO_TRUE@am_LaGOGAMS_OBJECTS = LaGOGAMS.$(OBJEXT)
 LaGOGAMS_OBJECTS = $(am_LaGOGAMS_OBJECTS)
-@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@am__DEPENDENCIES_1 = $(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la \
+@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@am__DEPENDENCIES_2 = $(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la \
 @COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	$(CLPOBJDIR)/src/libClp.la \
 @COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/OsiClp/libOsiClp.la
-@COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@am__DEPENDENCIES_2 = $(CLPOBJDIR)/src/libClp.la \
+@COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@am__DEPENDENCIES_3 = $(CLPOBJDIR)/src/libClp.la \
 @COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/OsiClp/libOsiClp.la
-am__DEPENDENCIES_3 =
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_DEPENDENCIES = ../Interfaces/GAMS/libLaGOInterfaceGams.la \
-@COIN_HAS_GAMSIO_TRUE@	libLaGO.la $(am__DEPENDENCIES_1) \
-@COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_2) \
+@COIN_HAS_GAMSIO_TRUE@	libLaGO.la $(am__DEPENDENCIES_2) \
+@COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_3) \
 @COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/libOsi.la \
 @COIN_HAS_GAMSIO_TRUE@	$(CGLOBJDIR)/src/libCgl.la \
 @COIN_HAS_GAMSIO_TRUE@	$(COINUTILSOBJDIR)/src/libCoinUtils.la \
 @COIN_HAS_GAMSIO_TRUE@	$(IPOPTOBJDIR)/src/Interfaces/libipopt.la \
-@COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_3)
+@COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_1)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -243,6 +244,7 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
+RANLIBC_LIB = @RANLIBC_LIB@
 RPATH_FLAGS = @RPATH_FLAGS@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -306,9 +308,11 @@ target_alias = @target_alias@
 EXTRA_DIST = gmsla_us.run install/gmsla_un.dat $(am__append_7)
 AM_CPPFLAGS = -I`$(CYGPATH_W) $(srcdir)/../Base` -I`$(CYGPATH_W) \
 	$(srcdir)/../Problem` -I`$(CYGPATH_W) \
+	$(srcdir)/../Algorithms/Decomposition` -I`$(CYGPATH_W) \
 	$(srcdir)/../Interfaces/GAMS` -I`$(CYGPATH_W) \
 	$(COINUTILSSRCDIR)/src` -I`$(CYGPATH_W) \
 	$(COINUTILSOBJDIR)/inc` -I`$(CYGPATH_W) \
+	$(LAGOSRCDIR)/../Cgc/src` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/Interfaces` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/Common` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/LinAlg` -I`$(CYGPATH_W) \
@@ -316,7 +320,9 @@ AM_CPPFLAGS = -I`$(CYGPATH_W) $(srcdir)/../Base` -I`$(CYGPATH_W) \
 	$(IPOPTOBJDIR)/inc` $(am__append_3)
 lib_LTLIBRARIES = libLaGO.la
 libLaGO_la_SOURCES = 
-libLaGO_la_LIBADD = ../Problem/libLaGOProblem.la ../Base/libLaGOBase.la
+libLaGO_la_LIBADD = ../Algorithms/libLaGOAlgorithms.la ../Problem/libLaGOProblem.la ../Base/libLaGOBase.la \
+ $(RANLIBC_LIB)
+
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_SOURCES = LaGOGAMS.cpp
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_LDADD = ../Interfaces/GAMS/libLaGOInterfaceGams.la \
 @COIN_HAS_GAMSIO_TRUE@	libLaGO.la $(am__append_1) \
