@@ -9,6 +9,7 @@
 
 #include "LaGObase.hpp"
 #include "LaGOSymSparseMatrix.hpp"
+#include "LaGOSparsity.hpp"
 
 namespace LaGO {
 
@@ -28,9 +29,21 @@ public:
 	 */
 	SmartPtr<SymSparseMatrix> quad;
 	
+	SmartPtr<SparsityGraph> sparsitygraph;
+
+	BlockFunction()
+	{ }
+		 	
 	BlockFunction(const vector<int>& indices_)
 	: indices(indices_)
 	{ }
+	
+	friend ostream& operator<<(ostream& out, const BlockFunction& block) {
+		if (IsValid(block.quad)) out << *block.quad << endl;
+		if (IsValid(block.nonquad)) out << *block.nonquad << endl;
+		if (IsValid(block.sparsitygraph)) out << "SparsityGraph: " << *block.sparsitygraph;
+		return out;
+	} 
 	
 }; // class BlockFunction
 

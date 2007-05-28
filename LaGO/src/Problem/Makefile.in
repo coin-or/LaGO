@@ -77,7 +77,7 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libLaGOProblem_la_LIBADD =
-am_libLaGOProblem_la_OBJECTS = LaGOMINLPData.lo
+am_libLaGOProblem_la_OBJECTS = LaGOMINLPData.lo LaGOSparsity.lo
 libLaGOProblem_la_OBJECTS = $(am_libLaGOProblem_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
@@ -165,6 +165,8 @@ EXEEXT = @EXEEXT@
 F77 = @F77@
 FADDLIBS = @FADDLIBS@
 FFLAGS = @FFLAGS@
+FILIB_CPPFLAGS = @FILIB_CPPFLAGS@
+FILIB_LIB = @FILIB_LIB@
 GAMSIO_CPPFLAGS = @GAMSIO_CPPFLAGS@
 GAMSIO_LIBS = @GAMSIO_LIBS@
 HAVE_EXTERNALS_FALSE = @HAVE_EXTERNALS_FALSE@
@@ -205,6 +207,7 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
+RANLIBC_CPPFLAGS = @RANLIBC_CPPFLAGS@
 RANLIBC_LIB = @RANLIBC_LIB@
 RPATH_FLAGS = @RPATH_FLAGS@
 SET_MAKE = @SET_MAKE@
@@ -269,7 +272,7 @@ target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST = $(am__append_1)
 lib_LTLIBRARIES = libLaGOProblem.la
-libLaGOProblem_la_SOURCES = LaGOMINLPData.cpp
+libLaGOProblem_la_SOURCES = LaGOMINLPData.cpp LaGOSparsity.cpp
 include_HEADERS = LaGOMINLPData.hpp LaGOBlockFunction.hpp
 AM_CPPFLAGS = \
  -I`$(CYGPATH_W) $(srcdir)/../Base` \
@@ -354,6 +357,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOMINLPData.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOSparsity.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \

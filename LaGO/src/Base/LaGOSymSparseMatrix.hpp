@@ -23,6 +23,15 @@ public:
 	
 	int getDim() const { return dim; }
 	
+	/** Inserts element into matrix.
+	 * If entry exists already, the new value is added to it.
+	 * If row>col, the indices are swaped.
+	 */
+	void insert(int row, int col, double value) {
+		if (row<=col) operator[](pair<int,int>(row,col))+=value;
+		else operator[](pair<int,int>(col,row))+=value;
+	}
+	
 }; // SymSparseMatrixCreator
 
 /** A symmetric matrix in triplet format.
@@ -50,7 +59,8 @@ public:
 	
 	SymSparseMatrix(const SymSparseMatrixCreator& creator)
 	: SymMatrix(creator.getDim()), nz(0), value(NULL), rowind(NULL), colind(NULL)
-	{ }
+	{ set(creator);
+	}
 	
 	~SymSparseMatrix();
 	
@@ -79,6 +89,6 @@ public:
 };	
 	
 	
-};
+} // namespace LaGO
 
 #endif /*LAGOSYMSPARSEMATRIX_HPP_*/

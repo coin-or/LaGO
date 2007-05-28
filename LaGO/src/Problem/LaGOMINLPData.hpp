@@ -55,6 +55,8 @@ public:
 		double getLower() const { return lower; }
 		double getUpper() const { return upper; }
 		
+		const string& getName() const { return name; }
+		
 		friend ostream& operator<<(ostream& out, const Variable& var);
 	};
 	
@@ -83,6 +85,10 @@ public:
 		vector<SmartPtr<BlockFunction> > decompfuncNL;
 		SmartPtr<SparseVector> decompfuncLin;
 		double decompfuncConstant;
+		/** Tells for each variable in which blocks at which position it appears.
+		 * for (k,j) in decompmapping[i]: decompfuncNL[k]->indices[j]==i
+		 */ 
+		vector<vector<pair<int,int> > > decompmapping;
 
 	public:
 		ObjCon(const SmartPtr<Function>& origfuncNL_=NULL, const SmartPtr<SparseVector>& origfuncLin_=NULL, double origfuncConstant_=0., const string& name_=string());
@@ -91,7 +97,9 @@ public:
 		
 		bool isLinear() { return IsNull(origfuncNL); }
 		bool isConstant() { return IsNull(origfuncLin) && IsNull(origfuncNL); }
-				
+		
+		void print(ostream& out, const vector<MINLPData::Variable>& var) const;
+
 		friend ostream& operator<<(ostream& out, const ObjCon& objcon);
 	};
 
@@ -112,6 +120,8 @@ public:
 		  const string& name_=string())
 		: ObjCon(origfuncNL_, origfuncLin_, origfuncConstant_, name_), index(index_), lower(lower_), upper(upper_)
 		{ }
+
+		void print(ostream& out, const vector<MINLPData::Variable>& var) const;
 
 		friend ostream& operator<<(ostream& out, const Constraint& con);
 	};

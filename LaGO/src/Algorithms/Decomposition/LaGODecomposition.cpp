@@ -6,9 +6,8 @@
 
 #include "LaGODecomposition.hpp"
 #include "LaGOSampling.hpp"
-
-// connected component finder from Cgc
-#include "ConnComp.h"
+#include "LaGORestrictedFunction.hpp"
+#include "LaGOSymSparseMatrix.hpp"
 
 namespace LaGO {
 
@@ -20,17 +19,15 @@ void Decomposition::decompose() {
 
 void Decomposition::decompose(MINLPData::ObjCon& objcon) {
 	objcon.decompfuncConstant=objcon.origfuncConstant;
-	if (IsNull(objcon.origfuncNL)) {
+	if (objcon.isLinear()) { // easy case
 		objcon.decompfuncLin=objcon.origfuncLin;
+		if (IsNull(objcon.sparsitygraph))
+			objcon.sparsitygraph=new SparsityGraph(0,0);
 		return;
 	}
-	if (IsValid(objcon.origfuncLin))
-		objcon.decompfuncLin=new SparseVector(*objcon.origfuncLin);
-	else
-		objcon.decompfuncLin=new SparseVector();
 	
-	
-	vector<int> nonzeros_dummy; // if the function does not know its sparsity pattern, we assume a dense function
+	// if the function does not know its sparsity pattern, we assume a dense function
+	vector<int> nonzeros_dummy;
 	if (!objcon.origfuncNL->haveSparsity()) {
 		nonzeros_dummy.reserve(data.numVariables());
 		for (int i=0; i<data.numVariables(); ++i) nonzeros_dummy.push_back(i);
@@ -46,24 +43,41 @@ void Decomposition::decompose(MINLPData::ObjCon& objcon) {
 	Sampling sampling;
 	sampling.addVector(samplepoints, data.start_points);
 	assert(!data.start_points.empty());
-	sampling.monteCarlo(samplepoints, data.start_points.front(), nonzeros, lower, upper, 20); 
 	
 	// compute sparsity graph
-	if (IsNull(objcon.sparsitygraph))
-		computeSparsityGraph(objcon, samplepoints, nonzeros);
+	list<int> lin_nonzeros; // list of variables in nonzeros which turn out to be linear
+	if (IsNull(objcon.sparsitygraph)) {
+		sampling.monteCarlo(samplepoints, data.start_points.front(), nonzeros, lower, upper, 20); 
+		computeSparsityGraph(objcon, lin_nonzeros, samplepoints, nonzeros);
+	} else {
+		cerr << "Not implemented yet: Filling of lin_nonzeros = nonzeros - nodes in graph" << endl;
+		exit(EXIT_FAILURE);
+	}
+	SparsityGraph& graph(*objcon.sparsitygraph);
+//	clog << "Sparsity graph for constraint " << objcon.name << ": " << endl << *objcon.sparsitygraph;
 
 	// find connected components
-	
-	// distinguish between nonquadratic and quadratic components
-	
-	// decompose function
+	vector<bool> component_isnonquad;
+	findConnectedComponents(component_isnonquad, graph);
+	// mark all variables in nonquad. components as nonquadratic
+	bool have_quadratic_component=false;
+	for (SparsityGraph::iterator it_node(graph.begin()); it_node!=graph.end(); ++it_node) {
+		const SparsityGraphNode& node(**it_node);
+		if (node.isquad)
+			if (component_isnonquad[node.component])
+				const_cast<SparsityGraphNode&>(node).isquad=false;
+			else
+				have_quadratic_component=true;
+//		clog << node << endl;
+	}
 
-	
+	// decompose function
+	createDecomposedFunctions(objcon, samplepoints.front(), nonzeros, lin_nonzeros, component_isnonquad, have_quadratic_component); 
 }
 
 
-void Decomposition::computeSparsityGraph(MINLPData::ObjCon& objcon, list<DenseVector>& samplepoints, const vector<int>& nonzeros) {
-	SmartPtr<SparsityGraph> graph=new SparsityGraph(nonzeros.size(),nonzeros.size());
+void Decomposition::computeSparsityGraph(MINLPData::ObjCon& objcon, list<int>& lin_nonzeros, list<DenseVector>& samplepoints, const vector<int>& nonzeros) {
+	SmartPtr<SparsityGraph> graph=new SparsityGraph(nonzeros.size(), 2*nonzeros.size());
 	vector<SparsityGraph::iterator> nodeits(nonzeros.size(), graph->end());
 
 	DenseVector e(data.numVariables()); // storage for hessian multiplier
@@ -107,45 +121,28 @@ void Decomposition::computeSparsityGraph(MINLPData::ObjCon& objcon, list<DenseVe
 		e[nonzeros[i]]=0.;
 	}
 	
-	clog << "Sparsity graph for constraint " << objcon.name << ": " << endl << *graph;
-	
-	// search for connected components
-	findConnectedComponents(*graph);
-	for (unsigned int i=0; i<nodeits.size(); ++i)
-		if (nodeits[i]!=graph->end()) clog << **nodeits[i] << endl;
-			
-#if 0
-	if (!quadratic->empty()) { // linear coefficients for quadratic variables
-		dvector try_point(sample_set.front());
-		for (map<int, QuadraticVariable>::iterator it(quadratic->begin()); it!=quadratic->end(); ++it)
-			try_point[it->first]=0.;
-		dvector grad(try_point.dim());
-		f.grad(grad, try_point);
-		for (map<int, QuadraticVariable>::iterator it(quadratic->begin()); it!=quadratic->end(); ++it)
-			it->second.coeff_lin=grad(it->first);
+	if (samplepoints.empty() || ++samplepoints.begin()==samplepoints.end()) {
+		cerr << "Not enough sample points to generate a reliable sparsity graph." << endl;
+		exit(EXIT_FAILURE);   		
 	}
-#endif	
+
+	// generate list of variables that are nonzero	
+	if (graph->size()<nonzeros.size())
+		for (unsigned int i=0; i<nodeits.size(); ++i)
+			if (nodeits[i]==graph->end()) lin_nonzeros.push_back(i);
 	
 	objcon.sparsitygraph=graph;
 }
 
-
-void Decomposition::findConnectedComponents(SparsityGraph& graph) {
+void Decomposition::findConnectedComponents(vector<bool>& component_isnonquad, SparsityGraph& graph) {
 	int nrcomp=0;
 	SparsityGraph::iterator it_n(graph.begin());
 	while (it_n!=graph.end()) {
 		if((**it_n).component>=0) { ++it_n; continue; }
-		bool isnonquad=setComponent(*it_n, nrcomp);
-		
-		if (isnonquad) {	// mark all variables in this component as nonquadratic; TODO: find a nicer way to do it 
-			for(SparsityGraph::iterator it(it_n); it!=graph.end(); ++it)
-				if ((**it).component==nrcomp && (**it).isquad)
-					const_cast<SparsityGraphNode&>(**it).isquad=false;
-		}
-		
+		component_isnonquad.push_back(setComponent(*it_n, nrcomp));
 		++it_n;
 		++nrcomp;
-	}	
+	}
 }
 
 bool Decomposition::setComponent(const SparsityGraph::Node& node, int comp) {
@@ -157,6 +154,89 @@ bool Decomposition::setComponent(const SparsityGraph::Node& node, int comp) {
 		if (setComponent(*(*it).head(),comp)) isnonquad=true;
 
 	return isnonquad;
+}
+
+void Decomposition::createDecomposedFunctions(MINLPData::ObjCon& objcon, DenseVector& refpoint, const vector<int>& nonzeros, const list<int>& lin_nonzeros, const vector<bool>& component_isnonquad, bool have_quadratic_component) {
+	assert(IsValid(objcon.sparsitygraph));
+	SparsityGraph& graph(*objcon.sparsitygraph);
+	int nr_components=component_isnonquad.size();
+
+	objcon.decompfuncConstant=objcon.origfuncConstant;
+
+	SparseVectorCreator decompfuncLin;
+	if (IsValid(objcon.origfuncLin)) decompfuncLin.add(*objcon.origfuncLin);
+
+	// setup reference point: 0 for linear and quadratic variables 
+	for (list<int>::const_iterator it(lin_nonzeros.begin()); it!=lin_nonzeros.end(); ++it)
+		refpoint[nonzeros[*it]]=0.;
+	if (have_quadratic_component)
+		for (SparsityGraph::iterator it_node(graph.begin()); it_node!=graph.end(); ++it_node) {
+			const SparsityGraphNode& node(**it_node);
+			if (node.isquad) refpoint[node.varindex]=0.;
+		}
+
+	// coefficients of linear part for linear and quadratic variables
+	DenseVector grad;
+	if (have_quadratic_component || !lin_nonzeros.empty()) {
+		grad.resize(refpoint.size());
+		objcon.origfuncNL->gradient(grad, refpoint);
+		
+		for (list<int>::const_iterator it(lin_nonzeros.begin()); it!=lin_nonzeros.end(); ++it)
+			decompfuncLin[nonzeros[*it]]+=grad[nonzeros[*it]];
+	}
+	
+	objcon.decompfuncNL.reserve(nr_components);
+	objcon.decompmapping.resize(data.numVariables());
+	
+	int nr_nonquad_components=0;
+	for (int comp=0; comp<nr_components; ++comp) {
+		SmartPtr<BlockFunction> blockfunc=new BlockFunction();
+		objcon.decompfuncNL.push_back(blockfunc);		
+
+		// sparsity graph for block
+		blockfunc->sparsitygraph=graph.getComponent(comp);
+		SparsityGraph& comp_graph(*blockfunc->sparsitygraph);
+
+		// indices for block and linear coefficients for quad. variables
+		blockfunc->indices.reserve(comp_graph.size());
+		for (SparsityGraph::iterator it(comp_graph.begin()); it!=comp_graph.end(); ++it) {
+			const SparsityGraphNode& node(**it);
+			blockfunc->indices.push_back(node.varindex);
+			if (!component_isnonquad[comp]) decompfuncLin[node.varindex]+=grad[node.varindex];						
+
+			objcon.decompmapping[node.varindex].push_back(pair<int,int>(comp, blockfunc->indices.size()-1));
+			const_cast<SparsityGraphNode&>(node).varindex=blockfunc->indices.size()-1;
+		}
+		
+		// function for block
+		if (component_isnonquad[comp]) { // nonquadratic
+			blockfunc->nonquad=new RestrictedFunction(GetRawPtr(objcon.origfuncNL), blockfunc->indices, refpoint);
+			++nr_nonquad_components;
+						
+		}	else { // quadratic
+			SymSparseMatrixCreator creator(blockfunc->indices.size());
+			for (SparsityGraph::arc_iterator it_arc(comp_graph.arc_begin()); it_arc!=comp_graph.arc_end(); ++it_arc) {
+				const SparsityGraphNode& node1(**(*it_arc).head());
+				const SparsityGraphNode& node2(**(*it_arc).tail());
+				double coeff=(**it_arc).hessian_entry/2.;
+				if (coeff) 
+					creator.insert(node1.varindex, node2.varindex, coeff);
+			}
+			blockfunc->quad=new SymSparseMatrix(creator);
+		}
+	}
+	objcon.decompfuncLin=new SparseVector(decompfuncLin);
+	
+	// correct constant term
+	if (nr_nonquad_components!=1) {
+		double val=objcon.origfuncNL->eval(refpoint);
+		if (nr_nonquad_components==0) { // function is quadratic
+			objcon.decompfuncConstant+=val;
+		} else { // function has more then one nonquadratic block
+			objcon.decompfuncConstant+=(nr_nonquad_components-1)*val;
+		}
+	}
+	
 }
 	
 } // namespace LaGO

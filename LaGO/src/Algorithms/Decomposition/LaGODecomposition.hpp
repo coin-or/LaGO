@@ -16,8 +16,15 @@ class Decomposition {
 private:
 	MINLPData& data;
 	
-	void findConnectedComponents(SparsityGraph& graph);
+	/** Finds connected components in a sparsity graph and checks whether they belong to quadratic or nonquadratic parts of the function.
+	 */
+	void findConnectedComponents(vector<bool>& component_isnonquad, SparsityGraph& graph);
+	/** Does a depth-first-search to find all nodes in a component. 
+	 * @return True if the component found is nonquadratic, false else.
+	 */
 	bool setComponent(const SparsityGraph::Node& node, int comp);
+
+	void createDecomposedFunctions(MINLPData::ObjCon& objcon, DenseVector& refpoint, const vector<int>& nonzeros, const list<int>& lin_nonzeros, const vector<bool>& component_isnonquad, bool have_quadratic_component);	
 public:
 	Decomposition(MINLPData& data_)
 	: data(data_)
@@ -27,9 +34,7 @@ public:
 	
 	void decompose(MINLPData::ObjCon& objcon);
 	
-	void computeSparsityGraph(MINLPData::ObjCon& objcon, list<DenseVector>& samplepoints, const vector<int>& nonzeros);
-	
-	
+	void computeSparsityGraph(MINLPData::ObjCon& objcon, list<int>& lin_nonzeros, list<DenseVector>& samplepoints, const vector<int>& nonzeros);
 }; // class Decomposition
 	
 } // namespace LaGO

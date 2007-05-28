@@ -11,7 +11,9 @@ AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST =
 
 lib_LTLIBRARIES = libLaGOAlgorithms.la
-libLaGOAlgorithms_la_SOURCES = Decomposition/LaGODecomposition.cpp Sampling/LaGOSampling.cpp
+libLaGOAlgorithms_la_SOURCES = \
+	Decomposition/LaGODecomposition.cpp Decomposition/LaGORestrictedFunction.cpp \
+	Sampling/LaGOSampling.cpp
 
 include_HEADERS = 
 

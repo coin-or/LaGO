@@ -77,7 +77,8 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libLaGOAlgorithms_la_LIBADD =
-am_libLaGOAlgorithms_la_OBJECTS = LaGODecomposition.lo LaGOSampling.lo
+am_libLaGOAlgorithms_la_OBJECTS = LaGODecomposition.lo \
+	LaGORestrictedFunction.lo LaGOSampling.lo
 libLaGOAlgorithms_la_OBJECTS = $(am_libLaGOAlgorithms_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
@@ -165,6 +166,8 @@ EXEEXT = @EXEEXT@
 F77 = @F77@
 FADDLIBS = @FADDLIBS@
 FFLAGS = @FFLAGS@
+FILIB_CPPFLAGS = @FILIB_CPPFLAGS@
+FILIB_LIB = @FILIB_LIB@
 GAMSIO_CPPFLAGS = @GAMSIO_CPPFLAGS@
 GAMSIO_LIBS = @GAMSIO_LIBS@
 HAVE_EXTERNALS_FALSE = @HAVE_EXTERNALS_FALSE@
@@ -205,6 +208,7 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
+RANLIBC_CPPFLAGS = @RANLIBC_CPPFLAGS@
 RANLIBC_LIB = @RANLIBC_LIB@
 RPATH_FLAGS = @RPATH_FLAGS@
 SET_MAKE = @SET_MAKE@
@@ -269,7 +273,10 @@ target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST = $(am__append_1)
 lib_LTLIBRARIES = libLaGOAlgorithms.la
-libLaGOAlgorithms_la_SOURCES = Decomposition/LaGODecomposition.cpp Sampling/LaGOSampling.cpp
+libLaGOAlgorithms_la_SOURCES = \
+	Decomposition/LaGODecomposition.cpp Decomposition/LaGORestrictedFunction.cpp \
+	Sampling/LaGOSampling.cpp
+
 include_HEADERS = 
 AM_CPPFLAGS = \
  -I`$(CYGPATH_W) $(srcdir)/Decomposition` \
@@ -357,6 +364,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGODecomposition.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGORestrictedFunction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOSampling.Plo@am__quote@
 
 .cpp.o:
@@ -386,6 +394,13 @@ LaGODecomposition.lo: Decomposition/LaGODecomposition.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Decomposition/LaGODecomposition.cpp' object='LaGODecomposition.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o LaGODecomposition.lo `test -f 'Decomposition/LaGODecomposition.cpp' || echo '$(srcdir)/'`Decomposition/LaGODecomposition.cpp
+
+LaGORestrictedFunction.lo: Decomposition/LaGORestrictedFunction.cpp
+@am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT LaGORestrictedFunction.lo -MD -MP -MF "$(DEPDIR)/LaGORestrictedFunction.Tpo" -c -o LaGORestrictedFunction.lo `test -f 'Decomposition/LaGORestrictedFunction.cpp' || echo '$(srcdir)/'`Decomposition/LaGORestrictedFunction.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/LaGORestrictedFunction.Tpo" "$(DEPDIR)/LaGORestrictedFunction.Plo"; else rm -f "$(DEPDIR)/LaGORestrictedFunction.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Decomposition/LaGORestrictedFunction.cpp' object='LaGORestrictedFunction.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o LaGORestrictedFunction.lo `test -f 'Decomposition/LaGORestrictedFunction.cpp' || echo '$(srcdir)/'`Decomposition/LaGORestrictedFunction.cpp
 
 LaGOSampling.lo: Sampling/LaGOSampling.cpp
 @am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT LaGOSampling.lo -MD -MP -MF "$(DEPDIR)/LaGOSampling.Tpo" -c -o LaGOSampling.lo `test -f 'Sampling/LaGOSampling.cpp' || echo '$(srcdir)/'`Sampling/LaGOSampling.cpp; \

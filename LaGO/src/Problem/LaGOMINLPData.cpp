@@ -14,6 +14,46 @@ MINLPData::ObjCon::ObjCon(const SmartPtr<Function>& origfuncNL_, const SmartPtr<
 
 MINLPData::ObjCon::~ObjCon() { }
 
+void printSparseVector(ostream& out, const SparseVector& v, const vector<MINLPData::Variable>& var) {
+	for (int i=0; i<v.getNumElements(); ++i) {
+		double coeff=v.getElements()[i];
+		if (coeff==1) out << '+';
+		else if (coeff==-1) out << '-';
+		else if (coeff>=0) out << '+' << coeff << '*';
+		else out << coeff << '*'; 
+		out << var[v.getIndices()[i]].getName();
+	}
+}
+
+void MINLPData::ObjCon::print(ostream& out, const vector<MINLPData::Variable>& var) const {
+	out << name << ": " << origfuncConstant;
+	if (IsValid(origfuncLin))
+		printSparseVector(out, *origfuncLin, var);
+	if (IsValid(origfuncNL))
+		out << '+' << *origfuncNL;
+	out << endl;
+		
+	if (IsValid(sparsitygraph) && sparsitygraph->size())
+		out << "Sparsitygraph: " << *sparsitygraph;
+	 
+	if (!decompfuncNL.empty()) {
+		out << "Decomposed function: linear=" << decompfuncConstant;
+		if (IsValid(decompfuncLin))
+			printSparseVector(out, *decompfuncLin, var);
+		out << endl;
+		for (unsigned int k=0; k<decompfuncNL.size(); ++k)
+			out << "Block " << k << ": " << *decompfuncNL[k];
+		out << "Variables mapping:";
+		for (unsigned int i=0; i<decompmapping.size(); ++i) {
+			if (decompmapping[i].empty()) continue;
+			out << ' ' << var[i].getName() << "->";
+			for (unsigned int j=0; j<decompmapping[i].size(); ++j)
+				out << '(' << decompmapping[i][j].first << ',' << decompmapping[i][j].second << ')';
+		}			  
+		out << endl;
+	}	 
+}
+
 ostream& operator<<(ostream& out, const MINLPData::ObjCon& objcon) {
 	out << objcon.name << endl;
 	return out;
@@ -24,6 +64,11 @@ ostream& operator<<(ostream& out, const MINLPData::Variable& var) {
 	if (var.discrete) out << "discrete";
 	out << endl;
 	return out;	
+}
+
+void MINLPData::Constraint::print(ostream& out, const vector<MINLPData::Variable>& var) const {
+	out << index << ": [" << lower << ", " << upper << "] ";
+	MINLPData::ObjCon::print(out, var);
 }
 
 ostream& operator<<(ostream& out, const MINLPData::Constraint& con) {
@@ -52,10 +97,11 @@ ostream& operator<<(ostream& out, const MINLPData& data) {
 	out << data.var.size() << " variables:" << endl;
 	for (unsigned int i=0; i<data.var.size(); ++i)
 		out << data.var[i];
-	out << "Objective: " << data.obj;
+	out << "Objective: ";
+	data.obj.print(out, data.var);
 	out << data.con.size() << " constraints:" << endl;
 	for (unsigned int c=0; c<data.con.size(); ++c)
-		out << data.con[c];
+		data.con[c].print(out, data.var);
 	out << data.start_points.size() << " start points:" << endl;
 	for (unsigned int i=0; i<data.start_points.size(); ++i)
 		out << data.start_points[i] << endl;

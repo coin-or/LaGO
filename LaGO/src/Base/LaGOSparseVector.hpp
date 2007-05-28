@@ -39,6 +39,8 @@ public:
 	void insert(int index, double value) {
 		map<int,double>::insert(pair<int, double>(index, value));
 	}
+	
+	void add(const SparseVector& v);
 };	
 
 	

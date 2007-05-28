@@ -234,29 +234,28 @@ AC_ARG_WITH([ranlib],
 
 AC_LANG_PUSH(C)						
 						
-AC_MSG_CHECKING([whether ranlib.c library at $ranlib_dir works])
-
 if test x"$ranlib_dir" = x"BUILD"; then
-	RANLIBC_LIB="$coin_ranlibdir/.libs/libranlib.c.a -lm"
+	AC_CHECK_FILE([$coin_ranlibsrcdir/ranlib.c/src/ranlib.h],,
+		AC_MSG_ERROR([sources for library RANLIB.C not available at $coin_ranlibsrcdir]))
+	RANLIBC_LIB="../../$coin_ranlibdir/libranlib.c.la -lm"
 	RANLIBC_CPPFLAGS="-I$coin_ranlibsrcdir/ranlib.c/src"
 else
+  AC_MSG_CHECKING([whether ranlib.c library at $ranlib_dir works])
+
 	RANLIBC_LIB="$ranlib_dir/libranlib.c.a -lm"
 	RANLIBC_CPPFLAGS="-I$ranlib_dir/src"
+	LIBS_save="$LIBS"
+	LIBS="$RANLIBC_LIB $LIBS"
+	CPPFLAGS="$RANLIBC_CPPFLAGS $CPPFLAGS"
+	AC_TRY_LINK([#include "ranlib.h"], [genunf(0.,1.)],
+							[AC_MSG_RESULT([yes])],
+							[AC_MSG_RESULT([no])
+							AC_MSG_ERROR([ranlib.c at $use_ranlib does not work])])
+	LIBS="$LIBS_save"
 fi
 
-LIBS_save="$LIBS"
-LIBS="$RANLIBC_LIB $LIBS"
-CPPFLAGS="$RANLIBC_CPPFLAGS $CPPFLAGS"
-AC_TRY_LINK([#include "ranlib.h"], [genunf(0.,1.)],
-            [AC_MSG_RESULT([yes])],
-            [AC_MSG_RESULT([no])
-             AC_MSG_ERROR([ranlib.c at $use_ranlib does not work])])
-LIBS="$LIBS_save"
-
-if test x"$ranlib_dir" = x"BUILD"; then
-	RANLIBC_LIB="../../$coin_ranlibdir/libranlib.c.la"
-fi
 AC_SUBST(RANLIBC_LIB)
+AC_SUBST(RANLIBC_CPPFLAGS)
 
 AC_LANG_POP(C)
 
@@ -266,26 +265,35 @@ AC_LANG_POP(C)
 ###########
 
 #use path relative to directory LaGO/src/Applications where linking to the filib is done
-coin_filibdir=../../../ThirdParty/FILIB++
+coin_filibdir=../ThirdParty/FILIB++
 coin_filibsrcdir=`$CYGPATH_W $abs_source_dir/$coin_filibdir | sed -e sX\\\\\\\\X/Xg`
 
 AC_ARG_WITH([filib],
             AC_HELP_STRING([--with-filib],
                            [specify directory of FILIB++]),
-            [use_filib=$withval
-             filib_libdir=$use_filib/lib],
-	          [use_filib=$coin_filibsrcdir
-             filib_libdir=$coin_filibdir/interval
-            ])
-	          
-	          
-AC_CHECK_FILE([$use_filib/interval/interval/interval.hpp],
-               [AC_DEFINE([COIN_HAS_FILIB],[1], [If defined, the FILIB++ is available.])
-     	          coin_has_filib=yes
-                ADDLIBS="$filib_libdir/libprim.la $ADDLIBS"
-                CPPFLAGS="-I$use_filib/interval $CPPFLAGS"],
-               [coin_has_filib=no])
+            [filib_dir=$withval],
+            [filib_dir=BUILD])
 
+if test x"$filib_dir" = x"BUILD"; then
+	AC_CHECK_FILE([$coin_filibsrcdir/interval/interval/interval.hpp],
+    [coin_has_filib=yes,
+     FILIB_LIB="../../$coin_filibdir/libprim.la"
+     FILIB_CPPFLAGS="-I$coin_filibsrcdir"],
+    [coin_has_filib=no])
+else
+  AC_CHECK_FILE([$filib_dir/interval/interval/interval.hpp],
+    [coin_has_filib=yes,
+     FILIB_LIB="$filib_dir/lib/libprim.la"
+     FILIB_CPPFLAGS="-I$filib_dir/interval"],
+    [coin_has_filib=no])
+#TODO: check also whether library is working
+fi
+
+if test x"$coin_has_filib" = xyes; then
+	AC_DEFINE([COIN_HAS_FILIB],[1],[If defined, the FILIB++ is available.])
+	AC_SUBST(FILIB_LIB)
+	AC_SUBST(FILIB_CPPFLAGS)
+fi
 AM_CONDITIONAL([COIN_HAS_FILIB],[test "$coin_has_filib" = yes])
 
 ####################

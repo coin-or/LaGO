@@ -58,6 +58,8 @@ public:
 	SparsityGraph(const int numNodes,const int numArcs)
 	: Cgc::DynNet<SparsityGraphNode, SparsityGraphEdge>(numNodes, numArcs)
 	{ }
+	
+	SmartPtr<SparsityGraph> getComponent(int compnr) const;
 };
 
 } // namespace LaGO

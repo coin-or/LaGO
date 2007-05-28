@@ -431,6 +431,4 @@ GamsReader::Data::~Data() {
 	if (dict) gcdFree(dict);
 }
 
-	
-	
-}; // namespace LaGO
+} // namespace LaGO

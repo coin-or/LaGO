@@ -45,6 +45,11 @@ public:
 	 * You can only rely on the result of this function if haveSparsity() returns true.
 	 */ 	
 	const vector<int>& getSparsity() const { return func->getSparsity(); }
+	
+	void print(ostream& out) const {
+		out << factor << '*';
+		func->print(out);
+	}
 }; // class ScaledFunction
 
 } // namespace LaGO

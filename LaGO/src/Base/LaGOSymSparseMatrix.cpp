@@ -88,12 +88,14 @@ double SymSparseMatrix::xAx(const DenseVector& x) const {
 }
 
 void SymSparseMatrix::print(ostream& out) const {
+	if (!nz) return;
 	const int* rowind_=rowind;
 	const int* colind_=colind;
 	const double* value_=value;
 	
+	out << "SymSparseMatrix:";
 	for (int i=nz; i>0; --i)
-		out << '(' << *++rowind_ << ',' << *++colind_ << ")=" << *++value_ << ' ';
+		out << " (" << *rowind_++ << ',' << *colind_++ << ")=" << *value_++;
 }	
 	
 } // namespace LaGO

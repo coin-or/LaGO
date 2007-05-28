@@ -472,7 +472,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os ADDLIBS FADDLIBS ALWAYS_FALSE_TRUE ALWAYS_FALSE_FALSE CDEFS ADD_CFLAGS DBG_CFLAGS OPT_CFLAGS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT MPICC CXXDEFS ADD_CXXFLAGS DBG_CXXFLAGS OPT_CXXFLAGS CXX CXXFLAGS ac_ct_CXX MPICXX EGREP INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT LIBTOOLM4 have_autoconf have_automake have_svn BUILDTOOLSDIR AUX_DIR abs_source_dir abs_lib_dir abs_include_dir abs_bin_dir HAVE_EXTERNALS_TRUE HAVE_EXTERNALS_FALSE host host_cpu host_vendor host_os LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL ac_c_preproc_warn_flag ac_cxx_preproc_warn_flag RPATH_FLAGS LT_LDFLAGS LAGOSRCDIR LAGOOBJDIR COIN_HAS_LAGO_TRUE COIN_HAS_LAGO_FALSE CGLSRCDIR CGLOBJDIR COIN_HAS_CGL_TRUE COIN_HAS_CGL_FALSE COINUTILSSRCDIR COINUTILSOBJDIR COIN_HAS_COINUTILS_TRUE COIN_HAS_COINUTILS_FALSE OSISRCDIR OSIOBJDIR COIN_HAS_OSI_TRUE COIN_HAS_OSI_FALSE IPOPTSRCDIR IPOPTOBJDIR COIN_HAS_IPOPT_TRUE COIN_HAS_IPOPT_FALSE CLPSRCDIR CLPOBJDIR COIN_HAS_CLP_TRUE COIN_HAS_CLP_FALSE CPXINCDIR CPXLIB COIN_HAS_CPX_TRUE COIN_HAS_CPX_FALSE RANLIBC_LIB COIN_HAS_FILIB_TRUE COIN_HAS_FILIB_FALSE gamspath GAMSIO_CPPFLAGS GAMSIO_LIBS COIN_HAS_GAMSIO_TRUE COIN_HAS_GAMSIO_FALSE coin_has_gamsio COIN_HAS_GAMSCPLEXLICE_TRUE COIN_HAS_GAMSCPLEXLICE_FALSE LIBEXT VPATH_DISTCLEANFILES LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os ADDLIBS FADDLIBS ALWAYS_FALSE_TRUE ALWAYS_FALSE_FALSE CDEFS ADD_CFLAGS DBG_CFLAGS OPT_CFLAGS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT MPICC CXXDEFS ADD_CXXFLAGS DBG_CXXFLAGS OPT_CXXFLAGS CXX CXXFLAGS ac_ct_CXX MPICXX EGREP INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT LIBTOOLM4 have_autoconf have_automake have_svn BUILDTOOLSDIR AUX_DIR abs_source_dir abs_lib_dir abs_include_dir abs_bin_dir HAVE_EXTERNALS_TRUE HAVE_EXTERNALS_FALSE host host_cpu host_vendor host_os LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL ac_c_preproc_warn_flag ac_cxx_preproc_warn_flag RPATH_FLAGS LT_LDFLAGS LAGOSRCDIR LAGOOBJDIR COIN_HAS_LAGO_TRUE COIN_HAS_LAGO_FALSE CGLSRCDIR CGLOBJDIR COIN_HAS_CGL_TRUE COIN_HAS_CGL_FALSE COINUTILSSRCDIR COINUTILSOBJDIR COIN_HAS_COINUTILS_TRUE COIN_HAS_COINUTILS_FALSE OSISRCDIR OSIOBJDIR COIN_HAS_OSI_TRUE COIN_HAS_OSI_FALSE IPOPTSRCDIR IPOPTOBJDIR COIN_HAS_IPOPT_TRUE COIN_HAS_IPOPT_FALSE CLPSRCDIR CLPOBJDIR COIN_HAS_CLP_TRUE COIN_HAS_CLP_FALSE CPXINCDIR CPXLIB COIN_HAS_CPX_TRUE COIN_HAS_CPX_FALSE RANLIBC_LIB RANLIBC_CPPFLAGS FILIB_LIB FILIB_CPPFLAGS COIN_HAS_FILIB_TRUE COIN_HAS_FILIB_FALSE gamspath GAMSIO_CPPFLAGS GAMSIO_LIBS COIN_HAS_GAMSIO_TRUE COIN_HAS_GAMSIO_FALSE coin_has_gamsio COIN_HAS_GAMSCPLEXLICE_TRUE COIN_HAS_GAMSCPLEXLICE_FALSE LIBEXT VPATH_DISTCLEANFILES LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -24084,21 +24084,45 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-echo "$as_me:$LINENO: checking whether ranlib.c library at $ranlib_dir works" >&5
-echo $ECHO_N "checking whether ranlib.c library at $ranlib_dir works... $ECHO_C" >&6
-
 if test x"$ranlib_dir" = x"BUILD"; then
-	RANLIBC_LIB="$coin_ranlibdir/.libs/libranlib.c.a -lm"
-	RANLIBC_CPPFLAGS="-I$coin_ranlibsrcdir/ranlib.c/src"
+	as_ac_File=`echo "ac_cv_file_$coin_ranlibsrcdir/ranlib.c/src/ranlib.h" | $as_tr_sh`
+echo "$as_me:$LINENO: checking for $coin_ranlibsrcdir/ranlib.c/src/ranlib.h" >&5
+echo $ECHO_N "checking for $coin_ranlibsrcdir/ranlib.c/src/ranlib.h... $ECHO_C" >&6
+if eval "test \"\${$as_ac_File+set}\" = set"; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-	RANLIBC_LIB="$ranlib_dir/libranlib.c.a -lm"
-	RANLIBC_CPPFLAGS="-I$ranlib_dir/src"
+  test "$cross_compiling" = yes &&
+  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
+echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
+   { (exit 1); exit 1; }; }
+if test -r "$coin_ranlibsrcdir/ranlib.c/src/ranlib.h"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_File'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_File'}'`" >&6
+if test `eval echo '${'$as_ac_File'}'` = yes; then
+  :
+else
+  { { echo "$as_me:$LINENO: error: sources for library RANLIB.C not available at $coin_ranlibsrcdir" >&5
+echo "$as_me: error: sources for library RANLIB.C not available at $coin_ranlibsrcdir" >&2;}
+   { (exit 1); exit 1; }; }
 fi
 
-LIBS_save="$LIBS"
-LIBS="$RANLIBC_LIB $LIBS"
-CPPFLAGS="$RANLIBC_CPPFLAGS $CPPFLAGS"
-cat >conftest.$ac_ext <<_ACEOF
+	RANLIBC_LIB="../../$coin_ranlibdir/libranlib.c.la -lm"
+	RANLIBC_CPPFLAGS="-I$coin_ranlibsrcdir/ranlib.c/src"
+else
+  echo "$as_me:$LINENO: checking whether ranlib.c library at $ranlib_dir works" >&5
+echo $ECHO_N "checking whether ranlib.c library at $ranlib_dir works... $ECHO_C" >&6
+
+	RANLIBC_LIB="$ranlib_dir/libranlib.c.a -lm"
+	RANLIBC_CPPFLAGS="-I$ranlib_dir/src"
+	LIBS_save="$LIBS"
+	LIBS="$RANLIBC_LIB $LIBS"
+	CPPFLAGS="$RANLIBC_CPPFLAGS $CPPFLAGS"
+	cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
@@ -24143,17 +24167,16 @@ sed 's/^/| /' conftest.$ac_ext >&5
 
 echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
-             { { echo "$as_me:$LINENO: error: ranlib.c at $use_ranlib does not work" >&5
+							{ { echo "$as_me:$LINENO: error: ranlib.c at $use_ranlib does not work" >&5
 echo "$as_me: error: ranlib.c at $use_ranlib does not work" >&2;}
    { (exit 1); exit 1; }; }
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
-LIBS="$LIBS_save"
-
-if test x"$ranlib_dir" = x"BUILD"; then
-	RANLIBC_LIB="../../$coin_ranlibdir/libranlib.c.la"
+	LIBS="$LIBS_save"
 fi
+
+
 
 
 ac_ext=cc
@@ -24169,25 +24192,22 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 ###########
 
 #use path relative to directory LaGO/src/Applications where linking to the filib is done
-coin_filibdir=../../../ThirdParty/FILIB++
+coin_filibdir=../ThirdParty/FILIB++
 coin_filibsrcdir=`$CYGPATH_W $abs_source_dir/$coin_filibdir | sed -e sX\\\\\\\\X/Xg`
 
 
 # Check whether --with-filib or --without-filib was given.
 if test "${with_filib+set}" = set; then
   withval="$with_filib"
-  use_filib=$withval
-             filib_libdir=$use_filib/lib
+  filib_dir=$withval
 else
-  use_filib=$coin_filibsrcdir
-             filib_libdir=$coin_filibdir/interval
-
+  filib_dir=BUILD
 fi;
 
-
-as_ac_File=`echo "ac_cv_file_$use_filib/interval/interval/interval.hpp" | $as_tr_sh`
-echo "$as_me:$LINENO: checking for $use_filib/interval/interval/interval.hpp" >&5
-echo $ECHO_N "checking for $use_filib/interval/interval/interval.hpp... $ECHO_C" >&6
+if test x"$filib_dir" = x"BUILD"; then
+	as_ac_File=`echo "ac_cv_file_$coin_filibsrcdir/interval/interval/interval.hpp" | $as_tr_sh`
+echo "$as_me:$LINENO: checking for $coin_filibsrcdir/interval/interval/interval.hpp" >&5
+echo $ECHO_N "checking for $coin_filibsrcdir/interval/interval/interval.hpp... $ECHO_C" >&6
 if eval "test \"\${$as_ac_File+set}\" = set"; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
@@ -24195,7 +24215,7 @@ else
   { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
 echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
    { (exit 1); exit 1; }; }
-if test -r "$use_filib/interval/interval/interval.hpp"; then
+if test -r "$coin_filibsrcdir/interval/interval/interval.hpp"; then
   eval "$as_ac_File=yes"
 else
   eval "$as_ac_File=no"
@@ -24204,19 +24224,52 @@ fi
 echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_File'}'`" >&5
 echo "${ECHO_T}`eval echo '${'$as_ac_File'}'`" >&6
 if test `eval echo '${'$as_ac_File'}'` = yes; then
+  coin_has_filib=yes,
+     FILIB_LIB="../../$coin_filibdir/libprim.la"
+     FILIB_CPPFLAGS="-I$coin_filibsrcdir"
+else
+  coin_has_filib=no
+fi
+
+else
+  as_ac_File=`echo "ac_cv_file_$filib_dir/interval/interval/interval.hpp" | $as_tr_sh`
+echo "$as_me:$LINENO: checking for $filib_dir/interval/interval/interval.hpp" >&5
+echo $ECHO_N "checking for $filib_dir/interval/interval/interval.hpp... $ECHO_C" >&6
+if eval "test \"\${$as_ac_File+set}\" = set"; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  test "$cross_compiling" = yes &&
+  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
+echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
+   { (exit 1); exit 1; }; }
+if test -r "$filib_dir/interval/interval/interval.hpp"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_File'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_File'}'`" >&6
+if test `eval echo '${'$as_ac_File'}'` = yes; then
+  coin_has_filib=yes,
+     FILIB_LIB="$filib_dir/lib/libprim.la"
+     FILIB_CPPFLAGS="-I$filib_dir/interval"
+else
+  coin_has_filib=no
+fi
+
+#TODO: check also whether library is working
+fi
+
+if test x"$coin_has_filib" = xyes; then
 
 cat >>confdefs.h <<\_ACEOF
 #define COIN_HAS_FILIB 1
 _ACEOF
 
-     	          coin_has_filib=yes
-                ADDLIBS="$filib_libdir/libprim.la $ADDLIBS"
-                CPPFLAGS="-I$use_filib/interval $CPPFLAGS"
-else
-  coin_has_filib=no
+
+
 fi
-
-
 
 
 if test "$coin_has_filib" = yes; then
@@ -25520,6 +25573,9 @@ s,@CPXLIB@,$CPXLIB,;t t
 s,@COIN_HAS_CPX_TRUE@,$COIN_HAS_CPX_TRUE,;t t
 s,@COIN_HAS_CPX_FALSE@,$COIN_HAS_CPX_FALSE,;t t
 s,@RANLIBC_LIB@,$RANLIBC_LIB,;t t
+s,@RANLIBC_CPPFLAGS@,$RANLIBC_CPPFLAGS,;t t
+s,@FILIB_LIB@,$FILIB_LIB,;t t
+s,@FILIB_CPPFLAGS@,$FILIB_CPPFLAGS,;t t
 s,@COIN_HAS_FILIB_TRUE@,$COIN_HAS_FILIB_TRUE,;t t
 s,@COIN_HAS_FILIB_FALSE@,$COIN_HAS_FILIB_FALSE,;t t
 s,@gamspath@,$gamspath,;t t

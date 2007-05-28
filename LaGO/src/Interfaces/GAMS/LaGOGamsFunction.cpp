@@ -33,7 +33,7 @@ GamsFunction::GamsFunction(int connr_, const SmartPtr<GamsReader::Data>& data_, 
 }
 
 void GamsFunction::addRowName(string& message) const {
-	char* namebuf=new char[50];
+	char namebuf[50];
 	char* name=NULL;
 	if (data->dict)
 		name=GamsReader::getRowName(data->dict, connr, namebuf, 50);
@@ -42,7 +42,6 @@ void GamsFunction::addRowName(string& message) const {
 		name=namebuf;
 	}
 	message+=name;
-	delete[] namebuf;	
 }
 
 double GamsFunction::eval(const DenseVector& x) const {
@@ -114,6 +113,15 @@ void GamsFunction::hessianVectorProduct(DenseVector& product, const DenseVector&
 		throw FunctionEvaluationError(message, "GamsFunction", "hessianVectorProduct");
 	}
 }
+
+void GamsFunction::print(ostream& out) const {
+	char namebuf[50];
+	if (data->dict && GamsReader::getRowName(data->dict, connr, namebuf, 50))
+		out << namebuf;
+	else
+		out << "GamsFunction " << connr;	
+}	
+
 
 //#ifdef FILIB_AVAILABLE
 //interval<double> gamsFunc::eval(const IntervalVector& x) const {

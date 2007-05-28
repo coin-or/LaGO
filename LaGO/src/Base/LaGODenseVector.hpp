@@ -33,11 +33,23 @@ public:
 		return getElements()[index];
 	}
 	
-	void setBlock(const DenseVector& v, const vector<int>& indices) {
-		resize(indices.size());
-		for (unsigned int i=0; i<indices.size(); ++i)
-			getElements()[i]=v(indices[i]);
+	void setToBlock(const DenseVector& v, const vector<int>& indices) {
+		unsigned int N=indices.size();
+		resize(N);
+		double* elem=getElements();
+		for (unsigned int i=0; i<N; ++i, ++elem)
+			*elem=v(indices[i]);
 	}
+	
+	void setElementsOfBlock(const DenseVector& v, const vector<int>& indices) {
+		int N=indices.size();
+		assert(v.getNumElements()==N);
+		const double* v_elem=v.getElements();
+		for (int i=0; i<N; ++i, ++v_elem) {
+			assert(indices[i]>=0 && indices[i]<getNumElements()); 
+			getElements()[indices[i]]=*v_elem;
+		}
+	} 
 	
 	void setRandom(const DenseVector& lower, const DenseVector& upper);
 	

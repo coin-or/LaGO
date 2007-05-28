@@ -11,6 +11,8 @@ LaGO/configure.ac -text
 LaGO/inc/config_lago.h.in -text
 LaGO/src/Algorithms/Decomposition/LaGODecomposition.cpp -text
 LaGO/src/Algorithms/Decomposition/LaGODecomposition.hpp -text
+LaGO/src/Algorithms/Decomposition/LaGORestrictedFunction.cpp -text
+LaGO/src/Algorithms/Decomposition/LaGORestrictedFunction.hpp -text
 LaGO/src/Algorithms/Makefile.am -text
 LaGO/src/Algorithms/Makefile.in -text
 LaGO/src/Algorithms/Sampling/LaGOSampling.cpp -text
@@ -49,6 +51,7 @@ LaGO/src/Makefile.in -text
 LaGO/src/Problem/LaGOBlockFunction.hpp -text
 LaGO/src/Problem/LaGOMINLPData.cpp -text
 LaGO/src/Problem/LaGOMINLPData.hpp -text
+LaGO/src/Problem/LaGOSparsity.cpp -text
 LaGO/src/Problem/LaGOSparsity.hpp -text
 LaGO/src/Problem/Makefile.am -text
 LaGO/src/Problem/Makefile.in -text

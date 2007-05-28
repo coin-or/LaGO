@@ -18,7 +18,7 @@ include_HEADERS = ../../inc/config_lago.h LaGOConfig.h LaGObase.hpp LaGOSmartPtr
   LaGODenseVector.hpp LaGOSparseVector.hpp LaGOMatrix.hpp LaGOSymMatrix.hpp LaGOSymSparseMatrix.hpp \
   LaGOFunction.hpp LaGOScaledFunction.hpp LaGORandomNumber.hpp
 
-AM_CPPFLAGS = \
+AM_CPPFLAGS = $(RANLIBC_CPPFLAGS) \
  -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` \
  -I`$(CYGPATH_W) $(COINUTILSOBJDIR)/inc` \
  -I`$(CYGPATH_W) $(LAGOSRCDIR)/../Cgc/src` \

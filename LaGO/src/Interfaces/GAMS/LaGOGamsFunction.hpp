@@ -36,7 +36,9 @@ public:
 
 	bool haveSparsity() const { return true; }
 
-	const vector<int>& getSparsity() const { return sparsity; }	
+	const vector<int>& getSparsity() const { return sparsity; }
+	
+	void print(ostream& out) const;	
 }; // class GamsFunction
 
 

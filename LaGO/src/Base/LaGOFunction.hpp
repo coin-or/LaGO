@@ -20,18 +20,24 @@ public:
 	: CoinError(message, methodName, className)
 	{ }
 
-	friend ostream& operator<<(ostream& out, FunctionEvaluationError& error);
+	friend ostream& operator<<(ostream& out, FunctionEvaluationError& error) {
+		out << error.className() << "::" << error.methodName() << ": " << error.message();
+		return out;
+	}
 }; // class FunctionEvaluationError 
 
 /** Abstract base class for a function.
  */	
 class Function : public ReferencedObject {
-public:	
+public:
 	virtual double eval(const DenseVector& x) const=0;
 	
 	virtual void gradient(DenseVector& grad, const DenseVector& x) const=0;
 	
-	inline virtual void evalAndGradient(double& value, DenseVector& grad, const DenseVector& x) const;
+	virtual void evalAndGradient(double& value, DenseVector& grad, const DenseVector& x) const {
+		value=eval(x);
+		gradient(grad,x);
+	}
 
 	virtual void hessianVectorProduct(DenseVector& product, const DenseVector& x, const DenseVector& factor) const=0;
 	
@@ -42,16 +48,14 @@ public:
 	/** Returns a list of variable indices that appear in this function.
 	 * You can only rely on the result of this function if haveSparsity() returns true.
 	 */ 	
-	virtual const vector<int>& getSparsity() const { throw CoinError("sparsity information not available", "getSparsity()", "Function"); }	
+	virtual const vector<int>& getSparsity() const { throw CoinError("sparsity information not available", "getSparsity()", "Function"); }
+	
+	virtual void print(ostream& out) const=0;	
+
+	friend ostream& operator<<(ostream& out, const Function& f) { f.print(out); return out; }
 
 //	virtual void fullHessian(const DenseVector& x) throw FunctionEvaluationError const=0;	
 }; // class Function
-
-void Function::evalAndGradient(double& value, DenseVector& grad, const DenseVector& x) const {
-	value=eval(x);
-	gradient(grad,x);
-};
-
 	
 } // namespace LaGO
 

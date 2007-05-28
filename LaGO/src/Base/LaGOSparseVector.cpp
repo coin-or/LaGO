@@ -21,4 +21,11 @@ SparseVector::SparseVector(const SparseVectorCreator& creator)
 	}	
 }
 
-}; // namespace LaGO
+void SparseVectorCreator::add(const SparseVector& v) {
+	const int* indices=v.getIndices();
+	const double* elements=v.getElements();
+	for (int i=v.getNumElements(); i>0; --i, ++indices, ++elements)
+		operator[](*indices)+=*elements;
+}
+
+} // namespace LaGO

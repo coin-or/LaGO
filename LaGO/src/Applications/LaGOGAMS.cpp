@@ -21,12 +21,11 @@ int main(int argc, char** argv) {
 
 	GamsReader interface;
 	SmartPtr<MINLPData> prob(interface.getProblem(argv[1]));
-
-	cout << *prob;
 	
 	Decomposition decomp(*prob);
 	decomp.decompose();
-	
+
+	cout << *prob;
 
 	cout << "LaGO finished." << endl;
 	return EXIT_SUCCESS;	
