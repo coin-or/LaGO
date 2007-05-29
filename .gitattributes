@@ -13,6 +13,8 @@ LaGO/src/Algorithms/Decomposition/LaGODecomposition.cpp -text
 LaGO/src/Algorithms/Decomposition/LaGODecomposition.hpp -text
 LaGO/src/Algorithms/Decomposition/LaGORestrictedFunction.cpp -text
 LaGO/src/Algorithms/Decomposition/LaGORestrictedFunction.hpp -text
+LaGO/src/Algorithms/LaGOCurvatureCheck.cpp -text
+LaGO/src/Algorithms/LaGOCurvatureCheck.hpp -text
 LaGO/src/Algorithms/Makefile.am -text
 LaGO/src/Algorithms/Makefile.in -text
 LaGO/src/Algorithms/Sampling/LaGOSampling.cpp -text
@@ -49,6 +51,7 @@ LaGO/src/Interfaces/GAMS/Makefile.in -text
 LaGO/src/Makefile.am -text
 LaGO/src/Makefile.in -text
 LaGO/src/Problem/LaGOBlockFunction.hpp -text
+LaGO/src/Problem/LaGOCurvature.hpp -text
 LaGO/src/Problem/LaGOMINLPData.cpp -text
 LaGO/src/Problem/LaGOMINLPData.hpp -text
 LaGO/src/Problem/LaGOSparsity.cpp -text

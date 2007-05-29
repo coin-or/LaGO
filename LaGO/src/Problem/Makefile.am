@@ -13,7 +13,7 @@ EXTRA_DIST =
 lib_LTLIBRARIES = libLaGOProblem.la
 libLaGOProblem_la_SOURCES = LaGOMINLPData.cpp LaGOSparsity.cpp
 
-include_HEADERS = LaGOMINLPData.hpp LaGOBlockFunction.hpp
+include_HEADERS = LaGOMINLPData.hpp LaGOBlockFunction.hpp LaGOSparsity.hpp LaGOCurvature.hpp
 
 AM_CPPFLAGS = \
  -I`$(CYGPATH_W) $(srcdir)/../Base` \

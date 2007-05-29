@@ -9,6 +9,7 @@
 #include "LaGOGamsReader.hpp"
 
 #include "LaGODecomposition.hpp"
+#include "LaGOCurvatureCheck.hpp"
 
 using namespace LaGO;
 
@@ -24,6 +25,9 @@ int main(int argc, char** argv) {
 	
 	Decomposition decomp(*prob);
 	decomp.decompose();
+	
+	CurvatureCheck curv(*prob);
+	curv.computeCurvature();
 
 	cout << *prob;
 

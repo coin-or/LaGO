@@ -78,7 +78,8 @@ libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libLaGOAlgorithms_la_LIBADD =
 am_libLaGOAlgorithms_la_OBJECTS = LaGODecomposition.lo \
-	LaGORestrictedFunction.lo LaGOSampling.lo
+	LaGORestrictedFunction.lo LaGOSampling.lo \
+	LaGOCurvatureCheck.lo
 libLaGOAlgorithms_la_OBJECTS = $(am_libLaGOAlgorithms_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
@@ -275,7 +276,7 @@ EXTRA_DIST = $(am__append_1)
 lib_LTLIBRARIES = libLaGOAlgorithms.la
 libLaGOAlgorithms_la_SOURCES = \
 	Decomposition/LaGODecomposition.cpp Decomposition/LaGORestrictedFunction.cpp \
-	Sampling/LaGOSampling.cpp
+	Sampling/LaGOSampling.cpp LaGOCurvatureCheck.cpp
 
 include_HEADERS = 
 AM_CPPFLAGS = \
@@ -363,6 +364,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOCurvatureCheck.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGODecomposition.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGORestrictedFunction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOSampling.Plo@am__quote@

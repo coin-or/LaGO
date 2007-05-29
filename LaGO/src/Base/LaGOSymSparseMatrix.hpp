@@ -22,6 +22,7 @@ public:
 	{ }
 	
 	int getDim() const { return dim; }
+	void setDim(int dim_) { dim=dim_; } 
 	
 	/** Inserts element into matrix.
 	 * If entry exists already, the new value is added to it.
@@ -84,6 +85,18 @@ public:
 	
 	double xAx(const DenseVector& x) const;
 //	double xAx(const SparseVector& x) const;
+
+	/** Computes eigenvalues and eigenvectors.
+	 * @param eigval Storage for the eigenvalues.
+	 * @param eigvec If not null, then this is storage for the eigenvectors.
+	 * @return True, if computation succeeded. False otherwise.
+	 */
+	bool computeEigenValues(DenseVector& eigval, DenseVector* eigvec=NULL) const;
+	
+	/** Computes the minimal and maximal eigenvalue.
+	 * @return True, if computation succeeded. False otherwise.
+	 */
+	bool computeMinMaxEigenValue(double& mineig, double& maxeig) const;
 
 	void print(ostream& out) const;	
 };	

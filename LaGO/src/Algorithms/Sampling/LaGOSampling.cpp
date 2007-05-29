@@ -44,6 +44,60 @@ void Sampling::monteCarlo(list<DenseVector>& samplepoints, const DenseVector& ba
 	}
 }
 
+int Sampling::addVertices(list<DenseVector>& samplepoints, const DenseVector& lower, const DenseVector& upper, int nr) {
+	DenseVector x(lower);
+	long maxnum=0;
+
+	for (int i=0; i<x.getNumElements(); ++i) {
+		if (lower[i]>-getInfinity() && upper[i]<getInfinity()) maxnum++;
+		else x[i]=getRandom(lower[i], upper[i]);
+	}
+
+	if (!maxnum) return 0; // no bounded variables w.r.t. given bounds
+
+	maxnum=(long)pow(2., (double)maxnum); // the number of vertices
 	
+	if (maxnum<=0) // we have so many vertices, that we cannot generate them all systematically
+		return addRandomVertices(samplepoints, lower, upper, nr);
+
+	long dist=maxnum<nr ? 1 : maxnum/nr; // one plus the number of vertices we skip at each iteration    
+
+	long switch_mask=0;
+	int added=0;
+	while (added<=nr) {
+		switch_mask+=dist;
+		long sm=switch_mask^(switch_mask-dist);
+		for (int i=0; i<x.getNumElements(); ++i) {
+			if (lower(i)>-getInfinity() && upper(i)<getInfinity()) {
+				if (sm%2) x[i]=lower[i]+upper[i]-x[i];
+				sm/=2;
+			}
+		}
+		samplepoints.push_back(x);
+		added++;
+	}
+
+	return added; // should be nearly the same as nr
+}
 	
+int Sampling::addRandomVertices(list<DenseVector>& samplepoints, const DenseVector& lower, const DenseVector& upper, int nr) {
+	for(int i=0; i<nr; ++i) {
+		samplepoints.push_back(lower);
+		DenseVector& x(samplepoints.back());
+		bool have_boundedvar=false;
+		for (int j=0; j<lower.getNumElements(); ++j) {
+			if (lower(j)>-getInfinity() && upper(j)<getInfinity()) {
+				if (getRandom(0.,1.)>=.5) x[j]=upper[j];
+				have_boundedvar=true;
+			} else
+				x[j]=getRandom(lower[j], upper[j]);
+		}
+		if (!have_boundedvar) { // if there is no bounded variable, we would be the same as monte carlo, so we do nothing
+			samplepoints.pop_back();
+			return 0;
+		}		
+	}
+	return nr; 
+}
+
 } // namespace LaGO

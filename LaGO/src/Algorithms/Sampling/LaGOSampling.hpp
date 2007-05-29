@@ -31,7 +31,8 @@ public:
 	 */
 	void monteCarlo(list<DenseVector>& samplepoints, const DenseVector& basisvector, const vector<int>& indices, DenseVector& lower, DenseVector& upper, int nr);
 	
-	
+	int addVertices(list<DenseVector>& samplepoints, const DenseVector& lower, const DenseVector& upper, int nr);
+	int addRandomVertices(list<DenseVector>& samplepoints, const DenseVector& lower, const DenseVector& upper, int nr);
 };
 	
 } // namespace LaGO

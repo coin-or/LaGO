@@ -13,7 +13,7 @@ EXTRA_DIST =
 lib_LTLIBRARIES = libLaGOAlgorithms.la
 libLaGOAlgorithms_la_SOURCES = \
 	Decomposition/LaGODecomposition.cpp Decomposition/LaGORestrictedFunction.cpp \
-	Sampling/LaGOSampling.cpp
+	Sampling/LaGOSampling.cpp LaGOCurvatureCheck.cpp
 
 include_HEADERS = 
 

@@ -210,6 +210,11 @@ fi
 # will hick-up
 LIBS_without_ADDLIBS="$LIBS"
 
+##################
+# LAPACK Library #
+##################
+
+#AC_COIN_HAS_LAPACK
 
 #################
 # CPLEX Library #

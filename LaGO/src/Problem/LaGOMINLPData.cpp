@@ -14,6 +14,15 @@ MINLPData::ObjCon::ObjCon(const SmartPtr<Function>& origfuncNL_, const SmartPtr<
 
 MINLPData::ObjCon::~ObjCon() { }
 
+Curvature MINLPData::ObjCon::getCurvature() const {
+	if (IsNull(origfuncNL)) return CONVEXCONCAVE; // linear constraint
+	if (decompfuncNL.empty()) return UNKNOWN; // curvature type not determined yet
+	Curvature curv=CONVEXCONCAVE;
+	for (unsigned int k=0; k<decompfuncNL.size() && curv!=UNKNOWN; ++k)
+		curv=addCurvatures(curv, decompfuncNL[k]->curvature);
+	return curv;
+}
+
 void printSparseVector(ostream& out, const SparseVector& v, const vector<MINLPData::Variable>& var) {
 	for (int i=0; i<v.getNumElements(); ++i) {
 		double coeff=v.getElements()[i];
@@ -26,7 +35,7 @@ void printSparseVector(ostream& out, const SparseVector& v, const vector<MINLPDa
 }
 
 void MINLPData::ObjCon::print(ostream& out, const vector<MINLPData::Variable>& var) const {
-	out << name << ": " << origfuncConstant;
+	out << name << ": Curvature: " << getCurvature() << " Function: " << origfuncConstant;
 	if (IsValid(origfuncLin))
 		printSparseVector(out, *origfuncLin, var);
 	if (IsValid(origfuncNL))
@@ -92,8 +101,22 @@ void MINLPData::getBox(DenseVector& lower, DenseVector& upper, const vector<int>
 	}
 }
 
+bool MINLPData::isConvex() const {
+	if (!(obj.getCurvature() & CONVEX)) return false;
+	for (unsigned int c=0; c<con.size(); ++c) {
+		Curvature curv=con[c].getCurvature();
+		// if there is a lower bound, then the constraint function need to be concave
+		if (con[c].lower>-getInfinity() && !(curv & CONCAVE)) return false;
+		// if there is an upper bound, then the constraint function need to be concave
+		if (con[c].upper< getInfinity() && !(curv & CONVEX )) return false;
+	}
+	return true;
+}
+
 ostream& operator<<(ostream& out, const MINLPData& data) {
-	out << "MINLP " << data.name << ':' << endl;
+	out << "MINLP " << data.name << ": ";
+	if (data.isConvex()) out << "is convex";
+	out << endl;
 	out << data.var.size() << " variables:" << endl;
 	for (unsigned int i=0; i<data.var.size(); ++i)
 		out << data.var[i];

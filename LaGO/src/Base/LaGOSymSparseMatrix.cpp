@@ -5,6 +5,8 @@
 // $Id$
 
 #include "LaGOSymSparseMatrix.hpp"
+// for eigenvalue computation.. just let Ipopt handle the Lapack interface :-)
+#include "IpLapack.hpp"
 
 namespace LaGO {
 
@@ -85,6 +87,55 @@ double SymSparseMatrix::xAx(const DenseVector& x) const {
 	}	
 	
 	return ret;
+}
+
+bool SymSparseMatrix::computeEigenValues(DenseVector& eigval, DenseVector* eigvec) const {
+	int dim=getNumCols();
+	if (eigval.getNumElements()<dim) eigval.resize(dim);
+	
+	double* storage;
+	if (eigvec) {
+		if (eigvec->getNumElements()<dim*dim)
+			eigvec->resize(dim*dim);
+		storage=eigvec->getElements();
+	} else {
+		storage=new double[dim*dim];
+		CoinZeroN(storage, dim*dim);
+	}
+
+  // we copy the content of the matrix into storage
+  const double* val=value;
+  const int* row=rowind;
+  const int* col=colind;
+  for (int i=nz; i>0; --i) {
+  	if (*row<*col)
+  		storage[*col*dim+*row]=*val;
+  	else
+  		storage[*row*dim+*col]=*val;
+  	++row; ++col; ++val;
+  }
+
+  int info;
+  Ipopt::IpLapackDsyev(eigvec!=NULL, dim, storage, dim, eigval.getElements(), info);
+
+  if (!eigvec) delete[] storage;
+  
+  return (info==0);	
+}
+
+bool SymSparseMatrix::computeMinMaxEigenValue(double& mineig, double& maxeig) const {
+	DenseVector eigval(getNumCols());
+	bool ret=computeEigenValues(eigval);
+	if (!ret) return false;
+	double* e=eigval.getElements();
+	mineig=*e;
+	maxeig=*e;
+	++e;
+	for (int i=getNumCols(); i>1; --i, ++e) {
+		if (*e<mineig) mineig=*e;
+		else if (*e>maxeig) maxeig=*e;
+	}
+	return true;
 }
 
 void SymSparseMatrix::print(ostream& out) const {

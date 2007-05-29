@@ -13,6 +13,7 @@
 namespace LaGO {
 
 class DenseVector;
+class SymSparseMatrixCreator;
 	
 class FunctionEvaluationError : public CoinError {
 public:
@@ -54,7 +55,7 @@ public:
 
 	friend ostream& operator<<(ostream& out, const Function& f) { f.print(out); return out; }
 
-//	virtual void fullHessian(const DenseVector& x) throw FunctionEvaluationError const=0;	
+	virtual void fullHessian(SymSparseMatrixCreator& hessian, const DenseVector& x) const;	
 }; // class Function
 	
 } // namespace LaGO

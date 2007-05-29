@@ -10,17 +10,20 @@
 #include "LaGObase.hpp"
 #include "LaGOBlockFunction.hpp"
 #include "LaGOSparsity.hpp"
+#include "LaGOCurvature.hpp"
 
 namespace LaGO {
 
 class GamsReader;
 class Decomposition;
+class CurvatureCheck;
 
 /** Storage for the data of a MINLP.
  */
 class MINLPData : public ReferencedObject {
 	friend class GamsReader;
 	friend class Decomposition;
+	friend class CurvatureCheck;
 public:
 	/** Storage for the data of a variable.
 	 */
@@ -65,6 +68,7 @@ public:
 	class ObjCon : public ReferencedObject {
 		friend class GamsReader;
 		friend class Decomposition;
+		friend class CurvatureCheck;
 	protected:
 		/** Name of the objective or constraint.
 		 */
@@ -95,8 +99,9 @@ public:
 		
 		virtual ~ObjCon();
 		
-		bool isLinear() { return IsNull(origfuncNL); }
-		bool isConstant() { return IsNull(origfuncLin) && IsNull(origfuncNL); }
+		bool isLinear() const { return IsNull(origfuncNL); }
+		bool isConstant() const { return IsNull(origfuncLin) && IsNull(origfuncNL); }
+		Curvature getCurvature() const;
 		
 		void print(ostream& out, const vector<MINLPData::Variable>& var) const;
 
@@ -178,6 +183,11 @@ public:
 	/** Creates vectors with lower and upper bounds of those variables that are listed in indices.
 	 */ 	
 	void getBox(DenseVector& lower, DenseVector& upper, const vector<int>& indices) const;
+	/** Whether the MINLP is convex.
+	 * The MINLP is convex, if each constraint by its own is convex.
+	 * If the curvature of some constraints is not known, false is returned.  
+	 */
+	bool isConvex() const;
 	
 	friend ostream& operator<<(ostream& out, const MINLPData& data);
 	
