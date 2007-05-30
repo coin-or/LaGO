@@ -64,7 +64,7 @@ int Sampling::addVertices(list<DenseVector>& samplepoints, const DenseVector& lo
 
 	long switch_mask=0;
 	int added=0;
-	while (added<=nr) {
+	while (added<=nr && added<maxnum) {
 		switch_mask+=dist;
 		long sm=switch_mask^(switch_mask-dist);
 		for (int i=0; i<x.getNumElements(); ++i) {
