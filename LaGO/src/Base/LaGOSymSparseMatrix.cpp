@@ -9,6 +9,20 @@
 #include "IpLapack.hpp"
 
 namespace LaGO {
+	
+void SymSparseMatrixCreator::add(double factor, const SymSparseMatrix& A) {
+	assert(getDim()==A.getNumCols());
+	const int* rowind=A.getRowIndices();
+	const int* colind=A.getColIndices();
+	const double* value=A.getValues();
+	for (int i=A.getNumNonzeros(); i>0; --i) {
+		if (*rowind<=*colind) operator[](pair<int,int>(*rowind,*colind))+=factor* *value;
+		else operator[](pair<int,int>(*colind,*rowind))+=factor* *value;
+		++rowind;
+		++colind;
+		++value;
+	} 
+}	
 
 SymSparseMatrix::~SymSparseMatrix() {
 	delete[] value;

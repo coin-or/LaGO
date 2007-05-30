@@ -12,14 +12,12 @@ EXTRA_DIST =
 
 lib_LTLIBRARIES = libLaGOAlgorithms.la
 libLaGOAlgorithms_la_SOURCES = \
-	Decomposition/LaGODecomposition.cpp Decomposition/LaGORestrictedFunction.cpp \
-	Sampling/LaGOSampling.cpp LaGOCurvatureCheck.cpp
+	LaGODecomposition.cpp LaGORestrictedFunction.cpp \
+	LaGOSampling.cpp LaGOCurvatureCheck.cpp
 
 include_HEADERS = 
 
 AM_CPPFLAGS = \
- -I`$(CYGPATH_W) $(srcdir)/Decomposition` \
- -I`$(CYGPATH_W) $(srcdir)/Sampling` \
  -I`$(CYGPATH_W) $(srcdir)/../Base` \
  -I`$(CYGPATH_W) $(srcdir)/../Problem` \
  -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` \

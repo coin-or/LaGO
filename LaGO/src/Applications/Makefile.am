@@ -11,7 +11,6 @@ EXTRA_DIST = gmsla_us.run install/gmsla_un.dat
 AM_CPPFLAGS = \
  -I`$(CYGPATH_W) $(srcdir)/../Base` \
  -I`$(CYGPATH_W) $(srcdir)/../Problem` \
- -I`$(CYGPATH_W) $(srcdir)/../Algorithms/Decomposition` \
  -I`$(CYGPATH_W) $(srcdir)/../Algorithms` \
  -I`$(CYGPATH_W) $(srcdir)/../Interfaces/GAMS` \
  -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` \

@@ -12,6 +12,8 @@
 
 namespace LaGO {
 	
+class SymSparseMatrix;
+	
 class SymSparseMatrixCreator : public map<pair<int,int>, double> {
 private:
 	int dim;
@@ -32,6 +34,8 @@ public:
 		if (row<=col) operator[](pair<int,int>(row,col))+=value;
 		else operator[](pair<int,int>(col,row))+=value;
 	}
+	
+	void add(double factor, const SymSparseMatrix& A);
 	
 }; // SymSparseMatrixCreator
 
@@ -70,6 +74,7 @@ public:
 	const double* getValues() const { return value; }
 	const int* getRowIndices() const { return rowind; }
 	const int* getColIndices() const { return colind; }
+	int getNumNonzeros() const { return nz; }
 
 	void addMultVector(DenseVector& y, const DenseVector& x, double a=1.) const;
 //	void addMultVector(SparseVector& y, const SparseVector& x, double a=1.) const;

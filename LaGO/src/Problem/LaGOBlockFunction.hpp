@@ -33,14 +33,23 @@ public:
 	SmartPtr<SparsityGraph> sparsitygraph;
 
 	Curvature curvature;
+	/** Minimum eigenvalue of matrix defining quadratic part.
+	 * +infinity if not known.
+	 */
+	double quad_mineig;
+	/** Maximum eigenvalue of matrix defining quadratic part.
+	 * -infinity if not known.
+	 */
+	double quad_maxeig;
 	
 	list<DenseVector> samplepoints;
 
 	BlockFunction()
+	: curvature(UNKNOWN), quad_mineig(getInfinity()), quad_maxeig(-getInfinity())
 	{ }
 		 	
 	BlockFunction(const vector<int>& indices_)
-	: indices(indices_), curvature(UNKNOWN)
+	: indices(indices_), curvature(UNKNOWN), quad_mineig(getInfinity()), quad_maxeig(-getInfinity())
 	{ }
 	
 	friend ostream& operator<<(ostream& out, const BlockFunction& block) {
