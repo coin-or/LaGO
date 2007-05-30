@@ -91,6 +91,20 @@ public:
 	double xAx(const DenseVector& x) const;
 //	double xAx(const SparseVector& x) const;
 
+#ifdef COIN_HAS_FILIB
+	bool canIntervalEvaluation() const { return true; }
+
+	void addMultVector(IntervalVector& y, const IntervalVector& x, const interval<double>& a=interval<double>(1.)) const;
+
+	void multVector(IntervalVector& y, const IntervalVector& x, const interval<double>& a=interval<double>(1.)) const {
+		y.clear();
+		addMultVector(y,x,a);
+	}
+
+	interval<double> xAx(const IntervalVector& x) const;
+	
+	interval<double> xAx_bx(const IntervalVector& x, const DenseVector& b) const;
+#endif
 	/** Computes eigenvalues and eigenvectors.
 	 * @param eigval Storage for the eigenvalues.
 	 * @param eigvec If not null, then this is storage for the eigenvectors.

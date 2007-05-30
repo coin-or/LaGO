@@ -13,6 +13,7 @@
 namespace LaGO {
 
 class DenseVector;
+class IntervalVector;
 class SymSparseMatrixCreator;
 	
 class FunctionEvaluationError : public CoinError {
@@ -42,6 +43,16 @@ public:
 
 	virtual void hessianVectorProduct(DenseVector& product, const DenseVector& x, const DenseVector& factor) const=0;
 	
+	virtual void fullHessian(SymSparseMatrixCreator& hessian, const DenseVector& x) const;
+	
+#ifdef COIN_HAS_FILIB
+	virtual bool canIntervalEvaluation() const { return false; }
+	
+	virtual interval<double> eval(const IntervalVector& x) const { throw CoinError("interval evaluation not possible", "eval(const IntervalVector&)", "Function"); }
+
+	virtual void evalAndGradient(interval<double>& value, IntervalVector& grad, const IntervalVector& x) const { throw CoinError("interval evaluation not possible", "evalAndGradient(interval<double>& value, IntervalVector&, const IntervalVector&)", "Function"); }
+#endif
+
 	/** Indicates whether the function knows about the variables that appear in it.
 	 */
 	virtual bool haveSparsity() const { return false; }
@@ -54,8 +65,6 @@ public:
 	virtual void print(ostream& out) const=0;	
 
 	friend ostream& operator<<(ostream& out, const Function& f) { f.print(out); return out; }
-
-	virtual void fullHessian(SymSparseMatrixCreator& hessian, const DenseVector& x) const;	
 }; // class Function
 	
 } // namespace LaGO

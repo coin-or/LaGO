@@ -36,5 +36,24 @@ void RestrictedFunction::hessianVectorProduct(DenseVector& product, const DenseV
 	
 	product.setToBlock(fullproduct, indices);
 }
+
+#ifdef COIN_HAS_FILIB
+interval<double> RestrictedFunction::eval(const IntervalVector& x) const {
+	IntervalVector fullintx(fullx, fullx);
+	fullintx.setElementsOfBlock(x, indices);
+	
+	return f->eval(fullintx);
+}
+
+void RestrictedFunction::evalAndGradient(interval<double>& value, IntervalVector& grad, const IntervalVector& x) const {
+	IntervalVector fullintx(fullx, fullx);
+	fullintx.setElementsOfBlock(x, indices);
+	IntervalVector fullgrad(fullx.getNumElements());
+
+	f->evalAndGradient(value, fullgrad, fullintx);
+	
+	grad.setToBlock(fullgrad, indices); 
+}
+#endif
 	
 } // namespace LaGO

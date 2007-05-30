@@ -24229,11 +24229,11 @@ fi
 echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_File'}'`" >&5
 echo "${ECHO_T}`eval echo '${'$as_ac_File'}'`" >&6
 if test `eval echo '${'$as_ac_File'}'` = yes; then
-  coin_has_filib=yes,
-     FILIB_LIB="../../$coin_filibdir/libprim.la"
-     FILIB_CPPFLAGS="-I$coin_filibsrcdir"
+  coin_has_filib="yes"
+     FILIB_LIB="../../$coin_filibdir/interval/libprim.la"
+     FILIB_CPPFLAGS="-I$coin_filibsrcdir/interval"
 else
-  coin_has_filib=no
+  coin_has_filib="no"
 fi
 
 else
@@ -24256,11 +24256,11 @@ fi
 echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_File'}'`" >&5
 echo "${ECHO_T}`eval echo '${'$as_ac_File'}'`" >&6
 if test `eval echo '${'$as_ac_File'}'` = yes; then
-  coin_has_filib=yes,
+  coin_has_filib="yes"
      FILIB_LIB="$filib_dir/lib/libprim.la"
      FILIB_CPPFLAGS="-I$filib_dir/interval"
 else
-  coin_has_filib=no
+  coin_has_filib="no"
 fi
 
 #TODO: check also whether library is working

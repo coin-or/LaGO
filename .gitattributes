@@ -9,6 +9,11 @@ LaGO/README -text
 LaGO/configure -text
 LaGO/configure.ac -text
 LaGO/inc/config_lago.h.in -text
+LaGO/src/Algorithms/LaGOAlgorithm.cpp -text
+LaGO/src/Algorithms/LaGOAlgorithm.hpp -text
+LaGO/src/Algorithms/LaGOBoxReduction.hpp -text
+LaGO/src/Algorithms/LaGOConstraintPropagation.cpp -text
+LaGO/src/Algorithms/LaGOConstraintPropagation.hpp -text
 LaGO/src/Algorithms/LaGOCurvatureCheck.cpp -text
 LaGO/src/Algorithms/LaGOCurvatureCheck.hpp -text
 LaGO/src/Algorithms/LaGODecomposition.cpp -text
@@ -29,6 +34,8 @@ LaGO/src/Base/LaGODenseVector.cpp -text
 LaGO/src/Base/LaGODenseVector.hpp -text
 LaGO/src/Base/LaGOFunction.cpp -text
 LaGO/src/Base/LaGOFunction.hpp -text
+LaGO/src/Base/LaGOIntervalVector.cpp -text
+LaGO/src/Base/LaGOIntervalVector.hpp -text
 LaGO/src/Base/LaGOMatrix.hpp -text
 LaGO/src/Base/LaGORandomNumber.cpp -text
 LaGO/src/Base/LaGORandomNumber.hpp -text
@@ -50,6 +57,7 @@ LaGO/src/Interfaces/GAMS/Makefile.am -text
 LaGO/src/Interfaces/GAMS/Makefile.in -text
 LaGO/src/Makefile.am -text
 LaGO/src/Makefile.in -text
+LaGO/src/Problem/LaGOBlockFunction.cpp -text
 LaGO/src/Problem/LaGOBlockFunction.hpp -text
 LaGO/src/Problem/LaGOCurvature.hpp -text
 LaGO/src/Problem/LaGOMINLPData.cpp -text

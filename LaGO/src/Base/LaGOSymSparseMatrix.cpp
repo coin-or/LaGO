@@ -103,6 +103,104 @@ double SymSparseMatrix::xAx(const DenseVector& x) const {
 	return ret;
 }
 
+#ifdef COIN_HAS_FILIB
+// y = y + a * Ax
+void SymSparseMatrix::addMultVector(IntervalVector& y, const IntervalVector& x, const interval<double>& a) const {
+	const int* rowind_=rowind;
+	const int* colind_=colind;
+	const double* value_=value;
+	
+	if (a.isPoint()) {
+		for (int i=nz; i>0; --i) {
+			if (*rowind_==*colind_) y[*rowind_]+=a* *value_ * x[*colind_];
+			else {
+				y[*rowind_]+=a* *value_ * x[*colind_];
+				y[*colind_]+=a* *value_ * x[*rowind_];
+			}
+			++rowind_;
+			++colind_;
+			++value_;
+		}
+	} else {
+		IntervalVector tmp(x.getNumElements());
+		addMultVector(tmp, x, interval<double>(1.)); // Ax;  for this call, a=1. is a point interval
+		y.addVector(a, tmp);		
+	}
+}
+
+interval<double> SymSparseMatrix::xAx(const IntervalVector& x) const {
+	double ret=0;
+	const int* rowind_=rowind;
+	const int* colind_=colind;
+	const double* value_=value;
+	
+	for (int i=nz; i>0; --i) {
+		if (*rowind_==*colind_) {
+			ret+=*value_ * sqr(x[*rowind_]);
+		} else {
+			ret+=(2* *value_) * (x[*rowind_] * x[*colind_]);
+		}
+		++rowind_;
+		++colind_;
+		++value_;
+	}	
+	
+	return ret;
+}
+
+/** Computes a tight interval for a*x+b where x is an interval (and a and b are not).
+ */
+interval<double> envelope(double a, double b, const interval<double>& x) {
+	double min=filib::fp_traits<double>::ninfinity();
+	double max=filib::fp_traits<double>::infinity();
+	double extreme=-b/(2*a);
+	if (extreme>=x.inf() && extreme<=x.sup()) { // extreme value in interval
+		if (a>0) min=-b*b/(4*a);
+		else 	max=-b*b/(4*a);
+	}
+	double atleft= (a*x.inf()+b)*x.inf();
+	double atright=(a*x.sup()+b)*x.sup();
+	if (atleft<min) min=atleft;
+	if (atleft>max) max=atleft;
+	if (atright<min) min=atright;
+	if (atright>max) max=atright;
+	return interval<double>(min, max);
+}
+
+interval<double> SymSparseMatrix::xAx_bx(const IntervalVector& x, const DenseVector& b) const {
+	interval<double> ret(0.);
+	const interval<double>& zero(interval<double>::ZERO());
+	
+	IntervalVector coeff(x.getNumElements());
+	DenseVector diag(x.getNumElements());
+	
+	const int* rowind_=rowind;
+	const int* colind_=colind;
+	const double* value_=value;
+	for (int i=nz; i>0; --i) {
+		if (*rowind_==*colind_) {
+			diag[*rowind_]+=*value_;
+		} else {
+			coeff[*rowind_]+=(2* *value_) * x[*colind_];
+		}
+		++rowind_;
+		++colind_;
+		++value_;
+	}
+	
+	interval<double>* coeff_=coeff.getElements();
+	double* diag_=diag.getElements();
+	const interval<double>* x_=x.getElements();
+	const double* b_=b.getElements();
+	for (int i=0; i<x.getNumElements(); ++i, ++coeff_, ++diag_, ++x_, ++b_) {
+		if (*x_==zero) continue;
+		if (x_->isPoint()) ret+=x_->inf()*(*coeff_+*diag_*x_->inf()+*b_);
+		else ret+=*x_ * *coeff_ + envelope(*diag_, *b_, *x_);
+	} 
+	return ret;
+}
+#endif // COIN_HAS_FILIB
+
 bool SymSparseMatrix::computeEigenValues(DenseVector& eigval, DenseVector* eigvec) const {
 	int dim=getNumCols();
 	if (eigval.getNumElements()<dim) eigval.resize(dim);

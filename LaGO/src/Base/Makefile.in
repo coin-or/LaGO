@@ -53,11 +53,13 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-DIST_COMMON = $(include_HEADERS) \
+@COIN_HAS_FILIB_TRUE@am__append_1 = LaGOIntervalVector.hpp
+@COIN_HAS_FILIB_TRUE@am__append_2 = LaGOIntervalVector.cpp
+DIST_COMMON = $(am__include_HEADERS_DIST) \
 	$(srcdir)/../../../BuildTools/Makemain.inc \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
-@HAVE_EXTERNALS_TRUE@am__append_1 = Externals
-@HAVE_EXTERNALS_TRUE@am__append_2 = .Externals-stamp
+@HAVE_EXTERNALS_TRUE@am__append_3 = Externals
+@HAVE_EXTERNALS_TRUE@am__append_4 = .Externals-stamp
 subdir = src/Base
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
@@ -77,8 +79,13 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libLaGOBase_la_LIBADD =
+am__libLaGOBase_la_SOURCES_DIST = LaGOSparseVector.cpp \
+	LaGODenseVector.cpp LaGOSymSparseMatrix.cpp LaGOFunction.cpp \
+	LaGORandomNumber.cpp LaGOIntervalVector.cpp
+@COIN_HAS_FILIB_TRUE@am__objects_1 = LaGOIntervalVector.lo
 am_libLaGOBase_la_OBJECTS = LaGOSparseVector.lo LaGODenseVector.lo \
-	LaGOSymSparseMatrix.lo LaGOFunction.lo LaGORandomNumber.lo
+	LaGOSymSparseMatrix.lo LaGOFunction.lo LaGORandomNumber.lo \
+	$(am__objects_1)
 libLaGOBase_la_OBJECTS = $(am_libLaGOBase_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
@@ -91,7 +98,13 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(libLaGOBase_la_SOURCES)
-DIST_SOURCES = $(libLaGOBase_la_SOURCES)
+DIST_SOURCES = $(am__libLaGOBase_la_SOURCES_DIST)
+am__include_HEADERS_DIST = ../../inc/config_lago.h LaGOConfig.h \
+	LaGObase.hpp LaGOSmartPtr.hpp LaGODenseVector.hpp \
+	LaGOSparseVector.hpp LaGOMatrix.hpp LaGOSymMatrix.hpp \
+	LaGOSymSparseMatrix.hpp LaGOFunction.hpp \
+	LaGOScaledFunction.hpp LaGORandomNumber.hpp \
+	LaGOIntervalVector.hpp
 includeHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(include_HEADERS)
 ETAGS = etags
@@ -271,16 +284,18 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
-EXTRA_DIST = $(am__append_1)
+EXTRA_DIST = $(am__append_3)
 lib_LTLIBRARIES = libLaGOBase.la
-libLaGOBase_la_SOURCES = LaGOSparseVector.cpp LaGODenseVector.cpp LaGOSymSparseMatrix.cpp \
-  LaGOFunction.cpp LaGORandomNumber.cpp
-
-include_HEADERS = ../../inc/config_lago.h LaGOConfig.h LaGObase.hpp LaGOSmartPtr.hpp \
-  LaGODenseVector.hpp LaGOSparseVector.hpp LaGOMatrix.hpp LaGOSymMatrix.hpp LaGOSymSparseMatrix.hpp \
-  LaGOFunction.hpp LaGOScaledFunction.hpp LaGORandomNumber.hpp
-
+libLaGOBase_la_SOURCES = LaGOSparseVector.cpp LaGODenseVector.cpp \
+	LaGOSymSparseMatrix.cpp LaGOFunction.cpp LaGORandomNumber.cpp \
+	$(am__append_2)
+include_HEADERS = ../../inc/config_lago.h LaGOConfig.h LaGObase.hpp \
+	LaGOSmartPtr.hpp LaGODenseVector.hpp LaGOSparseVector.hpp \
+	LaGOMatrix.hpp LaGOSymMatrix.hpp LaGOSymSparseMatrix.hpp \
+	LaGOFunction.hpp LaGOScaledFunction.hpp LaGORandomNumber.hpp \
+	$(am__append_1)
 AM_CPPFLAGS = $(RANLIBC_CPPFLAGS) \
+ $(FILIB_CPPFLAGS) \
  -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` \
  -I`$(CYGPATH_W) $(COINUTILSOBJDIR)/inc` \
  -I`$(CYGPATH_W) $(LAGOSRCDIR)/../Cgc/src` \
@@ -291,7 +306,7 @@ AM_CPPFLAGS = $(RANLIBC_CPPFLAGS) \
  -I`$(CYGPATH_W) $(IPOPTOBJDIR)/inc`
 
 DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
-DISTCLEANFILES = $(am__append_2) $(VPATH_DISTCLEANFILES)
+DISTCLEANFILES = $(am__append_4) $(VPATH_DISTCLEANFILES)
 all: all-am
 
 .SUFFIXES:
@@ -363,6 +378,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGODenseVector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOFunction.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOIntervalVector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGORandomNumber.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOSparseVector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOSymSparseMatrix.Plo@am__quote@

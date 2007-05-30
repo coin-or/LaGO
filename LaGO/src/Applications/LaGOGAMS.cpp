@@ -7,9 +7,7 @@
 #include "LaGObase.hpp"
 #include "LaGOMINLPData.hpp"
 #include "LaGOGamsReader.hpp"
-
-#include "LaGODecomposition.hpp"
-#include "LaGOCurvatureCheck.hpp"
+#include "LaGOAlgorithm.hpp"
 
 using namespace LaGO;
 
@@ -23,13 +21,10 @@ int main(int argc, char** argv) {
 	GamsReader interface;
 	SmartPtr<MINLPData> prob(interface.getProblem(argv[1]));
 	
-	Decomposition decomp(*prob);
-	decomp.decompose();
+	Algorithm alg(*prob);
+	alg.run();
 	
-	CurvatureCheck curv(*prob);
-	curv.computeCurvature();
-
-	cout << *prob;
+	// write solution file
 
 	cout << "LaGO finished." << endl;
 	return EXIT_SUCCESS;	

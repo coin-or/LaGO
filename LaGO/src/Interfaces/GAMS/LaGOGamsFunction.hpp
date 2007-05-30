@@ -34,6 +34,16 @@ public:
 
 	void hessianVectorProduct(DenseVector& product, const DenseVector& x, const DenseVector& factor) const;
 
+	//TODO: fullHessian
+	
+#ifdef COIN_HAS_FILIB
+	virtual bool canIntervalEvaluation() const { return true; }
+	
+	virtual interval<double> eval(const IntervalVector& x) const;
+
+	virtual void evalAndGradient(interval<double>& value, IntervalVector& grad, const IntervalVector& x) const;
+#endif
+
 	bool haveSparsity() const { return true; }
 
 	const vector<int>& getSparsity() const { return sparsity; }

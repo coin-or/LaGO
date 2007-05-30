@@ -77,7 +77,8 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libLaGOProblem_la_LIBADD =
-am_libLaGOProblem_la_OBJECTS = LaGOMINLPData.lo LaGOSparsity.lo
+am_libLaGOProblem_la_OBJECTS = LaGOMINLPData.lo LaGOBlockFunction.lo \
+	LaGOSparsity.lo
 libLaGOProblem_la_OBJECTS = $(am_libLaGOProblem_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
@@ -272,9 +273,10 @@ target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST = $(am__append_1)
 lib_LTLIBRARIES = libLaGOProblem.la
-libLaGOProblem_la_SOURCES = LaGOMINLPData.cpp LaGOSparsity.cpp
+libLaGOProblem_la_SOURCES = LaGOMINLPData.cpp LaGOBlockFunction.cpp LaGOSparsity.cpp
 include_HEADERS = LaGOMINLPData.hpp LaGOBlockFunction.hpp LaGOSparsity.hpp LaGOCurvature.hpp
 AM_CPPFLAGS = \
+ $(FILIB_CPPFLAGS) \
  -I`$(CYGPATH_W) $(srcdir)/../Base` \
  -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` \
  -I`$(CYGPATH_W) $(COINUTILSOBJDIR)/inc` \
@@ -356,6 +358,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOBlockFunction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOMINLPData.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOSparsity.Plo@am__quote@
 

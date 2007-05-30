@@ -91,7 +91,7 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libLaGO_la_DEPENDENCIES = ../Algorithms/libLaGOAlgorithms.la \
 	../Problem/libLaGOProblem.la ../Base/libLaGOBase.la \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_libLaGO_la_OBJECTS =
 libLaGO_la_OBJECTS = $(am_libLaGO_la_OBJECTS)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
@@ -309,9 +309,10 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 EXTRA_DIST = gmsla_us.run install/gmsla_un.dat $(am__append_7)
-AM_CPPFLAGS = -I`$(CYGPATH_W) $(srcdir)/../Base` -I`$(CYGPATH_W) \
-	$(srcdir)/../Problem` -I`$(CYGPATH_W) $(srcdir)/../Algorithms` \
-	-I`$(CYGPATH_W) $(srcdir)/../Interfaces/GAMS` -I`$(CYGPATH_W) \
+AM_CPPFLAGS = $(FILIB_CPPFLAGS) -I`$(CYGPATH_W) $(srcdir)/../Base` \
+	-I`$(CYGPATH_W) $(srcdir)/../Problem` -I`$(CYGPATH_W) \
+	$(srcdir)/../Algorithms` -I`$(CYGPATH_W) \
+	$(srcdir)/../Interfaces/GAMS` -I`$(CYGPATH_W) \
 	$(COINUTILSSRCDIR)/src` -I`$(CYGPATH_W) \
 	$(COINUTILSOBJDIR)/inc` -I`$(CYGPATH_W) \
 	$(LAGOSRCDIR)/../Cgc/src` -I`$(CYGPATH_W) \
@@ -323,7 +324,7 @@ AM_CPPFLAGS = -I`$(CYGPATH_W) $(srcdir)/../Base` -I`$(CYGPATH_W) \
 lib_LTLIBRARIES = libLaGO.la
 libLaGO_la_SOURCES = 
 libLaGO_la_LIBADD = ../Algorithms/libLaGOAlgorithms.la ../Problem/libLaGOProblem.la ../Base/libLaGOBase.la \
- $(RANLIBC_LIB)
+ $(RANLIBC_LIB) $(FILIB_LIB)
 
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_SOURCES = LaGOGAMS.cpp
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_LDADD = ../Interfaces/GAMS/libLaGOInterfaceGams.la \

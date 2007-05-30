@@ -12,16 +12,15 @@
 
 #include "CoinDenseVector.hpp"
 
-
 namespace LaGO {
 
-class DenseVector : public CoinDenseVector<double> {
+class DenseVector : public CoinDenseVector<double>, public ReferencedObject {
 public:
 	DenseVector()
 	{ }
 	
 	DenseVector(int size, double init_value=0.)
-	: CoinDenseVector<double>(size, 0.)
+	: CoinDenseVector<double>(size, init_value)
 	{ }
 
 	DenseVector(int size, double* elements)

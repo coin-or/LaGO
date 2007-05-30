@@ -8,7 +8,7 @@
 #include "LaGORandomNumber.hpp"
 
 namespace LaGO {
-
+	
 void DenseVector::setRandom(const DenseVector& lower, const DenseVector& upper) {
 	assert(lower.getNumElements()==upper.getNumElements());
 	resize(lower.getNumElements());

@@ -38,6 +38,14 @@ public:
 	void evalAndGradient(double& value, DenseVector& grad, const DenseVector& x) const;
 
 	void hessianVectorProduct(DenseVector& product, const DenseVector& x, const DenseVector& factor) const;
+
+#ifdef COIN_HAS_FILIB
+	bool canIntervalEvaluation() const { return f->canIntervalEvaluation(); }
+	
+	interval<double> eval(const IntervalVector& x) const;
+
+	void evalAndGradient(interval<double>& value, IntervalVector& grad, const IntervalVector& x) const;
+#endif
 	
 	bool haveSparsity() const { return true; } 
 

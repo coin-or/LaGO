@@ -15,6 +15,7 @@ libLaGOInterfaceGams_la_SOURCES = LaGOGamsReader.cpp LaGOGamsFunction.cpp
 include_HEADERS = LaGOGamsFunction.hpp LaGOGamsReader.hpp
 
 AM_CPPFLAGS = $(GAMSIO_CPPFLAGS) \
+ $(FILIB_CPPFLAGS) \
  -I`$(CYGPATH_W) $(srcdir)/../../Base` \
  -I`$(CYGPATH_W) $(srcdir)/../../Problem` \
  -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` \

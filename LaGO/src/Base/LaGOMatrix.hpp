@@ -73,6 +73,24 @@ public:
 //		return yAx(x,x);
 //	}	
 	
+#ifdef COIN_HAS_FILIB
+	virtual bool canIntervalEvaluation() const { return false; }
+	
+	virtual void addMultVector(IntervalVector& y, const IntervalVector& x, const interval<double>& a=interval<double>(1.)) const {
+		IntervalVector z(getNumRows());
+		multVector(z,x,a);
+		y+=z;
+	}
+
+	virtual void multVector(IntervalVector& y, const IntervalVector& x, const interval<double>& a=interval<double>(1.)) const {
+		throw CoinError("interval evaluation not possible", "multVector", "Matrix");
+	}
+
+	virtual interval<double> xAx(const IntervalVector& x) const {
+		throw CoinError("interval evaluation not possible", "xAx", "Matrix");
+	}
+#endif
+	
 }; // class Matrix	
 	
 } // namespace LaGO

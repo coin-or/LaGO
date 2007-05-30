@@ -122,68 +122,82 @@ void GamsFunction::print(ostream& out) const {
 		out << "GamsFunction " << connr;	
 }	
 
+#ifdef COIN_HAS_FILIB
+interval<double> GamsFunction::eval(const IntervalVector& x) const {
+	double* xmin=new double[x.getNumElements()];
+	double* xmax=new double[x.getNumElements()];
+	double* xmin_=xmin;
+	double* xmax_=xmax;
+	const interval<double>* x_=x.getElements();
+	for (int i=x.getNumElements(); i>0; --i) {
+		*xmin_=x_->inf();
+		*xmax_=x_->sup();
+		++xmin_;
+		++xmax_;
+		++x_;
+	}
 
-//#ifdef FILIB_AVAILABLE
-//interval<double> gamsFunc::eval(const IntervalVector& x) const {
-//	double* xmin=new double[x.dim()];
-//	double* xmax=new double[x.dim()];
-//	double valmin, valmax;
-//	for (int i=0; i<x.dim(); i++) {
-//		xmin[i]=x(i).inf();
-//		xmax[i]=x(i).sup();
-//	}
-//
-////	out_log << "Calling G2DINTERVAL0X " << connr << endl;
-//	G2DINTERVAL0X(xmin, xmax, &valmin, &valmax, data->s, data->sbar, data->instr+data->startIdx[connr]-1, &(data->numInstr[connr]), data->nlCons);
-//
-//	delete xmin;
-//	delete xmax;
-//	
-//	return interval<double>(valmin, valmax);
-//}
-//
-//int gamsFunc::valgrad(interval<double>& val, IntervalVector& y, const IntervalVector& x) const {
-//	double* xmin=new double[x.dim()];
-//	double* xmax=new double[x.dim()];
-//	double valmin, valmax;
-//	double* ymin=new double[y.dim()];
-//	double* ymax=new double[y.dim()];
-//	for (int i=0; i<x.dim(); i++) {
-//		xmin[i]=x(i).inf();
-//		xmax[i]=x(i).sup();
-//		ymin[i]=0.;
-//		ymax[i]=0.;
-//	}
-//
-////	double inf=filib::fp_traits<double>::infinity();
-////	G2DSETSLINFY(&inf);
-//
-////	out_log << "Calling G2DINTERVAL0X " << connr << endl;
-//	G2DINTERVAL0X(xmin, xmax, &valmin, &valmax, data->s, data->sbar, data->instr+data->startIdx[connr]-1, &(data->numInstr[connr]), data->nlCons);
-//
-//	double* s2=new double[data->lenins];
-//	double* sbar2=new double[data->lenins];
-//
-//	G2DINTERVAL1X(xmin, xmax, ymin, ymax, data->s, data->sbar, s2, sbar2, data->instr+data->startIdx[connr]-1, &(data->numInstr[connr]), data->nlCons);
-//
-//	val=interval<double>(valmin, valmax);
-//	for (int i=0; i<y.dim(); i++) {
-//		if (ymin[i]==-1E+20) ymin[i]=filib::fp_traits<double>::ninfinity();
-//		if (ymax[i]==1E+20) ymax[i]=filib::fp_traits<double>::infinity();
-//		y.SetElement(i, interval<double>(ymin[i], ymax[i]));
-//	}
-//
-//	delete xmin;
-//	delete xmax;
-//	delete ymin;
-//	delete ymax;
-//	delete s2;
-//	delete sbar2;
-//
-//	return 0;
-//}
-//#endif
+	double valmin, valmax;
+	G2DINTERVAL0X(xmin, xmax, &valmin, &valmax, data->s, data->sbar, data->instr+data->startIdx[connr]-1, &(data->numInstr[connr]), data->nlCons);
+	if (valmin==-1E+20) valmin=filib::fp_traits<double>::ninfinity();
+	if (valmax==1E+20)  valmax=filib::fp_traits<double>::infinity();
 
+	delete[] xmin;
+	delete[] xmax;
 	
+	return interval<double>(valmin, valmax);
+}
+
+void GamsFunction::evalAndGradient(interval<double>& value, IntervalVector& grad, const IntervalVector& x) const {
+	assert(x.getNumElements()==grad.getNumElements());
+	double* xmin=new double[x.getNumElements()];
+	double* xmax=new double[x.getNumElements()];
+	double* ymin=new double[x.getNumElements()];
+	double* ymax=new double[x.getNumElements()];
+	double* xmin_=xmin;
+	double* xmax_=xmax;
+	double* ymin_=ymin;
+	double* ymax_=ymax;
+	const interval<double>* x_=x.getElements();
+	for (int i=x.getNumElements(); i>0; --i) {
+		*xmin_=x_->inf();
+		*xmax_=x_->sup();
+		*ymin_=0.;
+		*ymax_=0.;
+		++xmin_;
+		++xmax_;
+		++ymin_;
+		++ymax_;
+		++x_;
+	}
+
+	double valmin, valmax;
+	G2DINTERVAL0X(xmin, xmax, &valmin, &valmax, data->s, data->sbar, data->instr+data->startIdx[connr]-1, &(data->numInstr[connr]), data->nlCons);
+	if (valmin==-1E+20) valmin=filib::fp_traits<double>::ninfinity();
+	if (valmax==1E+20)  valmax=filib::fp_traits<double>::infinity();
+	value=interval<double>(valmin, valmax);
+
+	double* s2=new double[data->lenins];
+	double* sbar2=new double[data->lenins];
+
+	G2DINTERVAL1X(xmin, xmax, ymin, ymax, data->s, data->sbar, s2, sbar2, data->instr+data->startIdx[connr]-1, &(data->numInstr[connr]), data->nlCons);
+
+	ymin_=ymin;
+	ymax_=ymax;
+	interval<double>* grad_=grad.getElements();
+	for (int i=x.getNumElements(); i>0; --i) {
+		if (*ymin_==-1E+20) *ymin_=filib::fp_traits<double>::ninfinity();
+		if (*ymax_==1E+20)  *ymax_=filib::fp_traits<double>::infinity();
+		*grad_=interval<double>(*ymin_, *ymax_);
+	}
+
+	delete[] xmin;
+	delete[] xmax;
+	delete[] ymin;
+	delete[] ymax;
+	delete[] s2;
+	delete[] sbar2;
+}
+#endif
 	
 } // namespace LaGO

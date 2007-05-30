@@ -190,16 +190,15 @@ void Decomposition::createDecomposedFunctions(MINLPData::ObjCon& objcon, DenseVe
 	
 	int nr_nonquad_components=0;
 	for (int comp=0; comp<nr_components; ++comp) {
-		SmartPtr<BlockFunction> blockfunc=new BlockFunction();
-		objcon.decompfuncNL.push_back(blockfunc);		
-
 		// sparsity graph for block
-		blockfunc->sparsitygraph=graph.getComponent(comp);
-		SparsityGraph& comp_graph(*blockfunc->sparsitygraph);
+		SmartPtr<SparsityGraph> comp_graph=graph.getComponent(comp);
+
+		SmartPtr<BlockFunction> blockfunc=new BlockFunction(comp_graph->size());
+		blockfunc->sparsitygraph=comp_graph;
 
 		// indices for block and linear coefficients for quad. variables
-		blockfunc->indices.reserve(comp_graph.size());
-		for (SparsityGraph::iterator it(comp_graph.begin()); it!=comp_graph.end(); ++it) {
+		blockfunc->indices.reserve(comp_graph->size());
+		for (SparsityGraph::iterator it(comp_graph->begin()); it!=comp_graph->end(); ++it) {
 			const SparsityGraphNode& node(**it);
 			blockfunc->indices.push_back(node.varindex);
 			if (!component_isnonquad[comp]) decompfuncLin[node.varindex]+=grad[node.varindex];						
@@ -215,7 +214,7 @@ void Decomposition::createDecomposedFunctions(MINLPData::ObjCon& objcon, DenseVe
 						
 		}	else { // quadratic
 			SymSparseMatrixCreator creator(blockfunc->indices.size());
-			for (SparsityGraph::arc_iterator it_arc(comp_graph.arc_begin()); it_arc!=comp_graph.arc_end(); ++it_arc) {
+			for (SparsityGraph::arc_iterator it_arc(comp_graph->arc_begin()); it_arc!=comp_graph->arc_end(); ++it_arc) {
 				const SparsityGraphNode& node1(**(*it_arc).head());
 				const SparsityGraphNode& node2(**(*it_arc).tail());
 				double coeff=(**it_arc).hessian_entry/2.;
@@ -224,6 +223,7 @@ void Decomposition::createDecomposedFunctions(MINLPData::ObjCon& objcon, DenseVe
 			}
 			blockfunc->quad=new SymSparseMatrix(creator);
 		}
+		objcon.decompfuncNL.push_back(blockfunc);		
 	}
 	objcon.decompfuncLin=new SparseVector(decompfuncLin);
 	

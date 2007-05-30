@@ -16,9 +16,9 @@
 #include <cassert>
 
 // to get INFINITY
-#if !defined(__GNUC__)
-#define __USE_ISOC99 1
-#endif
+//#if !defined(__GNUC__)
+//#define __USE_ISOC99 1
+//#endif
 
 #include <cmath>
 
@@ -32,19 +32,23 @@
 using namespace std;
 
 #include "LaGOConfig.h"
-//
-//#include "DenseVector.hpp"
-//#include "SparseVector.hpp"
-//#include "Timer.hpp"
 
 #include "CoinHelperFunctions.hpp"
 //#include "CoinSmartPtr.hpp"
+
+#ifdef COIN_HAS_FILIB
+#define FILIB_EXTENDED
+#include "interval/interval.hpp"
+using filib::interval;
+#endif
 
 #include "LaGOSmartPtr.hpp"
 #include "LaGODenseVector.hpp"
 #include "LaGOSparseVector.hpp"
 #include "LaGOFunction.hpp"
-
+#ifdef COIN_HAS_FILIB
+#include "LaGOIntervalVector.hpp"
+#endif
 
 namespace LaGO {
 

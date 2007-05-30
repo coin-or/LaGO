@@ -281,16 +281,16 @@ AC_ARG_WITH([filib],
 
 if test x"$filib_dir" = x"BUILD"; then
 	AC_CHECK_FILE([$coin_filibsrcdir/interval/interval/interval.hpp],
-    [coin_has_filib=yes,
-     FILIB_LIB="../../$coin_filibdir/libprim.la"
-     FILIB_CPPFLAGS="-I$coin_filibsrcdir"],
-    [coin_has_filib=no])
+    [coin_has_filib="yes"
+     FILIB_LIB="../../$coin_filibdir/interval/libprim.la"
+     FILIB_CPPFLAGS="-I$coin_filibsrcdir/interval"],
+    [coin_has_filib="no"])
 else
   AC_CHECK_FILE([$filib_dir/interval/interval/interval.hpp],
-    [coin_has_filib=yes,
+    [coin_has_filib="yes"
      FILIB_LIB="$filib_dir/lib/libprim.la"
      FILIB_CPPFLAGS="-I$filib_dir/interval"],
-    [coin_has_filib=no])
+    [coin_has_filib="no"])
 #TODO: check also whether library is working
 fi
 

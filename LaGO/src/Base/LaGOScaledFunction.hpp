@@ -36,6 +36,20 @@ public:
 		func->hessianVectorProduct(product, x, factor);
 		product*=this->factor;
 	}
+
+#ifdef COIN_HAS_FILIB
+	bool canIntervalEvaluation() const { return func->canIntervalEvaluation(); }
+	
+	interval<double> eval(const IntervalVector& x) const {
+		return factor*func->eval(x);
+	}
+
+	void evalAndGradient(interval<double>& value, IntervalVector& grad, const IntervalVector& x) const { 
+		func->evalAndGradient(value, grad, x);
+		value*=factor;
+		grad*=factor;
+	}
+#endif
 	
 	/** Indicates whether the function knows about the variables that appear in it.
 	 */

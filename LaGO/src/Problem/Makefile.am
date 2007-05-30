@@ -11,11 +11,12 @@ AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST =
 
 lib_LTLIBRARIES = libLaGOProblem.la
-libLaGOProblem_la_SOURCES = LaGOMINLPData.cpp LaGOSparsity.cpp
+libLaGOProblem_la_SOURCES = LaGOMINLPData.cpp LaGOBlockFunction.cpp LaGOSparsity.cpp
 
 include_HEADERS = LaGOMINLPData.hpp LaGOBlockFunction.hpp LaGOSparsity.hpp LaGOCurvature.hpp
 
 AM_CPPFLAGS = \
+ $(FILIB_CPPFLAGS) \
  -I`$(CYGPATH_W) $(srcdir)/../Base` \
  -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` \
  -I`$(CYGPATH_W) $(COINUTILSOBJDIR)/inc` \

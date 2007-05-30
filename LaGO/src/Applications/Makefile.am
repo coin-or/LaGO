@@ -9,6 +9,7 @@
 EXTRA_DIST = gmsla_us.run install/gmsla_un.dat
 
 AM_CPPFLAGS = \
+ $(FILIB_CPPFLAGS) \
  -I`$(CYGPATH_W) $(srcdir)/../Base` \
  -I`$(CYGPATH_W) $(srcdir)/../Problem` \
  -I`$(CYGPATH_W) $(srcdir)/../Algorithms` \
@@ -25,7 +26,7 @@ AM_CPPFLAGS = \
 lib_LTLIBRARIES = libLaGO.la
 libLaGO_la_SOURCES =
 libLaGO_la_LIBADD = ../Algorithms/libLaGOAlgorithms.la ../Problem/libLaGOProblem.la ../Base/libLaGOBase.la \
- $(RANLIBC_LIB)
+ $(RANLIBC_LIB) $(FILIB_LIB)
 
 if COIN_HAS_GAMSIO
 bin_PROGRAMS = LaGOGAMS
