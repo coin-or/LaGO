@@ -100,6 +100,15 @@ void MINLPData::getBox(DenseVector& lower, DenseVector& upper, const vector<int>
 		upper[i]=var.getUpper();
 	}
 }
+void MINLPData::getBox(DenseVector& lower, DenseVector& upper) const {
+	lower.resize(var.size());
+	upper.resize(var.size());
+	for (unsigned int i=0; i<var.size(); ++i) {
+		lower[i]=var[i].getLower();
+		upper[i]=var[i].getUpper();
+	}
+}
+
 
 bool MINLPData::isConvex() const {
 	if (!(obj.getCurvature() & CONVEX)) return false;

@@ -10,6 +10,7 @@
 #include "LaGObase.hpp"
 
 #include "CoinDenseVector.hpp"
+#include "CoinPackedVector.hpp"
 
 template <class Type>
 inline bool operator<(const interval<Type>& x, const interval<Type>& y) { return x.slt(y); };
@@ -33,6 +34,23 @@ inline interval<Type> CoinMax(const interval<Type> value) {
 
 namespace LaGO {
 
+inline double translateNInftyCoin2Filib(const double& val) {
+	if (val==-getInfinity()) return filib::fp_traits<double>::ninfinity(); 
+	return val;
+}
+inline double translatePInftyCoin2Filib(const double& val) {
+	if (val==getInfinity()) return filib::fp_traits<double>::infinity(); 
+	return val;
+}
+inline double translateNInftyFilib2Coin(const double& val) {
+	if (val==filib::fp_traits<double>::ninfinity()) return -getInfinity(); 
+	return val;
+}
+inline double translatePInftyFilib2Coin(const double& val) {
+	if (val==filib::fp_traits<double>::infinity()) return getInfinity(); 
+	return val;
+}
+
 class IntervalVector : public CoinDenseVector<interval<double> >, public ReferencedObject {
 public:
 	IntervalVector()
@@ -49,8 +67,17 @@ public:
 		const double* up_=up.getElements();
 		interval<double>* el=getElements();
 		for (int i=getNumElements(); i>0; --i, ++low_, ++up_, ++el)
-			*el=interval<double>(*low_,*up_);	
+			*el=interval<double>(translateNInftyCoin2Filib(*low_),translatePInftyCoin2Filib(*up_));	
 	}
+	
+	IntervalVector(const IntervalVector& v, const vector<int>& indices)
+	: CoinDenseVector<interval<double> >(indices.size())
+	{	interval<double>* el=getElements();
+		for (int i=0; i<getNumElements(); ++i, ++el) {
+			assert(indices[i]>=0 && indices[i]<v.getNumElements());
+			*el=v(indices[i]);
+		}
+	}	
 	
 	~IntervalVector() { }
 	
@@ -83,6 +110,17 @@ public:
 		const interval<double>* x_=getElements();
 		const interval<double>* v_=v.getElements();
 		for (int i=getNumElements(); i>0; --i, ++x_, ++v_) ret+=*x_ * *v_;
+		return ret;
+	}
+
+	interval<double> operator*(const CoinPackedVector& v) const {
+		interval<double> ret(0.);
+		const int* ind=v.getIndices();
+		const double* el=v.getElements();
+		for (int i=v.getNumElements(); i>0; --i, ++ind, ++el) {
+			assert(*ind>=0 && *ind<getNumElements());
+			ret+=*el*getElements()[*ind];
+		}
 		return ret;
 	}
 	

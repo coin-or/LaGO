@@ -11,13 +11,15 @@ namespace LaGO {
 
 class BoxReductionStatistics {
 public:
+	bool empty_box; // this indicates infeasiblity
+	
 	double avg_reduction;
 	double max_reduction;
 	int nr_fixed_var;
 	int shrinked_integer_var;
 	
 	BoxReductionStatistics()
-	: avg_reduction(0.), max_reduction(0.), nr_fixed_var(0), shrinked_integer_var(0)
+	: empty_box(false), avg_reduction(0.), max_reduction(0.), nr_fixed_var(0), shrinked_integer_var(0)
 	{ }
 	
 }; // class BoxReductionStatistics

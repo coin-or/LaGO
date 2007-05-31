@@ -36,6 +36,15 @@ using namespace std;
 #include "CoinHelperFunctions.hpp"
 //#include "CoinSmartPtr.hpp"
 
+namespace LaGO {
+inline double getInfinity() { return 1E+300; }
+
+//inline double round(const double& x) { return ::round(x); }
+inline double roundUp(const double& x) { return ceil(x); }
+inline double roundDown(const double& x) { return floor(x); }
+inline double integralityViolation(const double& x) { return CoinAbs(x-round(x)); }
+}
+
 #ifdef COIN_HAS_FILIB
 #define FILIB_EXTENDED
 #include "interval/interval.hpp"
@@ -52,7 +61,7 @@ using filib::interval;
 
 namespace LaGO {
 
-inline double getInfinity() { return 1E+300; }
+//inline double getInfinity() { return 1E+300; }
 
 //inline double relDistance(const double& value1, const double& value2, double norm, const double& invalid_norm=1E+14) {
 //	if (value1==value2) return 0.;

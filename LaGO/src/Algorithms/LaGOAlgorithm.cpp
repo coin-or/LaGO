@@ -16,6 +16,7 @@ Algorithm::Algorithm(MINLPData& data_)
 void Algorithm::preprocessing() {
 	decomp.decompose();
 	
+	conprob.initDependencyGraph();
 	conprob.reduceBox();
 	
 	curvcheck.computeCurvature();

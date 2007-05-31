@@ -69,7 +69,7 @@ public:
 		friend class GamsReader;
 		friend class Decomposition;
 		friend class CurvatureCheck;
-	protected:
+	public:
 		/** Name of the objective or constraint.
 		 */
 		string name;
@@ -183,6 +183,7 @@ public:
 	/** Creates vectors with lower and upper bounds of those variables that are listed in indices.
 	 */ 	
 	void getBox(DenseVector& lower, DenseVector& upper, const vector<int>& indices) const;
+	void getBox(DenseVector& lower, DenseVector& upper) const;
 	/** Whether the MINLP is convex.
 	 * The MINLP is convex, if each constraint by its own is convex.
 	 * If the curvature of some constraints is not known, false is returned.  
