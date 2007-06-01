@@ -7,7 +7,11 @@
 #ifndef LAGOBOXREDUCTION_HPP_
 #define LAGOBOXREDUCTION_HPP_
 
+#include "LaGObase.hpp"
+
 namespace LaGO {
+	
+class MINLPData;
 
 class BoxReductionStatistics {
 public:
@@ -22,7 +26,11 @@ public:
 	: empty_box(false), avg_reduction(0.), max_reduction(0.), nr_fixed_var(0), shrinked_integer_var(0)
 	{ }
 	
+	static void printBox(ostream& out, const MINLPData& data);
+	
 }; // class BoxReductionStatistics
+
+ostream& operator<<(ostream& out, const BoxReductionStatistics& statistics);
 
 } // namespace LaGO
 

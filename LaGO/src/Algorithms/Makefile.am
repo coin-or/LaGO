@@ -14,7 +14,8 @@ lib_LTLIBRARIES = libLaGOAlgorithms.la
 libLaGOAlgorithms_la_SOURCES = \
 	LaGOAlgorithm.cpp \
 	LaGODecomposition.cpp LaGORestrictedFunction.cpp \
-	LaGOSampling.cpp LaGOCurvatureCheck.cpp LaGOConstraintPropagation.cpp
+	LaGOSampling.cpp LaGOCurvatureCheck.cpp \
+	LaGOBoxReduction.cpp LaGOConstraintPropagation.cpp
 
 include_HEADERS = 
 

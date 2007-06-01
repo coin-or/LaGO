@@ -25,8 +25,6 @@ int ConstraintPropagation::funceval_limit=10000;
 double ConstraintPropagation::min_impr=0.01;
 
 void ConstraintPropagation::initDependencyGraph() {
-//	reduction_by_block.resize(prob->block.size());
-
 	assert(depgraph.size()==0);
 
 	vector<DependencyGraph::iterator> nodes(data.numVariables());
@@ -53,11 +51,11 @@ void ConstraintPropagation::initDependencyGraph() {
 		
 		int i_linvar=0; // runs over linear variables in con.decompfuncLin
 		for (int i=0; i<data.numVariables(); ++i) { 
-			if (linvar[i_linvar]<i && i_linvar<con.decompfuncLin->getNumElements()-1) {
+			if (i_linvar<con.decompfuncLin->getNumElements()-1 && linvar[i_linvar]<i) {
 				++i_linvar;
 				assert(linvar[i_linvar-1]<linvar[i_linvar]);
 			}
-			if (linvar[i_linvar]!=i && (con.decompfuncNL.empty() || con.decompmapping[i].empty())) continue; // variable not in function
+			if ((i_linvar>=con.decompfuncLin->getNumElements() || linvar[i_linvar]!=i) && (con.decompfuncNL.empty() || con.decompmapping[i].empty())) continue; // variable not in function
 			
 			for (int i_linvar2=0; i_linvar2<con.decompfuncLin->getNumElements(); ++i_linvar2) {
 				if (linvar[i_linvar2]==i) continue;
@@ -77,41 +75,108 @@ void ConstraintPropagation::initDependencyGraph() {
 			}			
 		}
 	}
-//	clog << depgraph;
+	if (print_level>4)
+		clog << depgraph;
 
-	clog << "ConstraintPropagation dependency graph nr. edges: " << depgraph.arc_size() << " (" << dummy_node->size() << ')' << endl;
+	if (print_level)
+		clog << "ConstraintPropagation dependency graph nr. edges: " << depgraph.arc_size() << " (" << dummy_node->size() << ')' << endl;
 }
+
+//bool ConstraintPropagation::evalConstraint(interval<double>& val, const MINLPData::Constraint& con, IntervalVector& box, int index) {
+//	val=con.decompfuncConstant;
+//	try {
+//		for (unsigned int k=0; k<con.decompfuncNL.size(); ++k) {
+//			if (!con.decompfuncNL[k]->canIntervalEvaluation()) return false;
+//			IntervalVector block(box, con.decompfuncNL[k]->indices);
+//			val+=con.decompfuncNL[k]->eval(block);					
+//		}
+//	} catch (FunctionEvaluationError error) {
+//		cerr << "Error evaluating block of constraint " << con.name << " over an interval: " << error;
+//		return false;					
+//	} 
+//	box[index]=interval<double>::ZERO();
+//	val+=box* *con.decompfuncLin;
+//	return true;
+//}
 
 bool ConstraintPropagation::evalConstraint(interval<double>& val, const MINLPData::Constraint& con, IntervalVector& box, int index) {
 	val=con.decompfuncConstant;
+	if (IsNull(con.decompfuncLin) || con.decompfuncLin->getNumElements()==0) { // easy way
+		try {
+			for (unsigned int k=0; k<con.decompfuncNL.size(); ++k) {
+				if (!con.decompfuncNL[k]->canIntervalEvaluation()) return false;
+				IntervalVector block(box, con.decompfuncNL[k]->indices);
+				val+=con.decompfuncNL[k]->eval(block);					
+			}
+		} catch (FunctionEvaluationError error) {
+			cerr << "Error evaluating block of constraint " << con.name << " over an interval: " << error;
+			return false;					
+		} 
+//		box[index]=interval<double>::ZERO();
+		return true;
+	}
+
+	DenseVector lin(data.numVariables(), *con.decompfuncLin);
+	lin[index]=0.;	
 	try {
 		for (unsigned int k=0; k<con.decompfuncNL.size(); ++k) {
-			if (!con.decompfuncNL[k]->canIntervalEvaluation()) return false;
-			IntervalVector block(box, con.decompfuncNL[k]->indices);
-			val+=con.decompfuncNL[k]->eval(block);					
+			const BlockFunction& block_func(*con.decompfuncNL[k]);
+			if (!block_func.canIntervalEvaluation()) return false;
+			IntervalVector block(box, block_func.indices);
+			if (IsValid(block_func.quad)) { // we let evaluate xAx+bx here to obtain tighter interval
+				DenseVector lin_block(lin, block_func.indices);
+				val+=block_func.quad->xAx_bx(block, lin_block);
+//					
+//				clog << "quad. over block: val= " << val << endl;
+//				clog << "x: " << block << endl;
+//				clog << *block_func.quad << endl;
+//				clog << "lin: " << lin_block << endl;
+
+				for (int i=0; i<lin_block.getNumElements(); ++i)
+					lin[block_func.indices[i]]=0.;
+			}					
+			if (IsValid(block_func.nonquad))
+				val+=block_func.nonquad->eval(block);
 		}
 	} catch (FunctionEvaluationError error) {
 		cerr << "Error evaluating block of constraint " << con.name << " over an interval: " << error;
 		return false;					
-	} 
-	box[index]=interval<double>::ZERO();
-	val+=box* *con.decompfuncLin;
+	}
+	val+=box*lin;
+//
+//	interval<double> val_save=val;	
+//	val=con.decompfuncConstant;
+//	try {
+//		for (unsigned int k=0; k<con.decompfuncNL.size(); ++k) {
+//			if (!con.decompfuncNL[k]->canIntervalEvaluation()) return false;
+//			IntervalVector block(box, con.decompfuncNL[k]->indices);
+//			val+=con.decompfuncNL[k]->eval(block);					
+//		}
+//	} catch (FunctionEvaluationError error) {
+//		cerr << "Error evaluating block of constraint " << con.name << " over an interval: " << error;
+//		return false;					
+//	} 
+//	box[index]=interval<double>::ZERO();
+//	val+=box* *con.decompfuncLin;
+//	
+//	clog << con.name << ' ' << index << ": " << val_save << '\t' << val << endl; 
+////	clog << box << endl;
+////	clog << lin;
+//	assert(val==val_save);
+	
 	return true;
 }
-
-double tiny_tol=1E-10;
 
 BoxReductionStatistics ConstraintPropagation::run(DenseVector& newlow, DenseVector& newup, const DenseVector& oldlow, const DenseVector& oldup, set<pair<const DependencyGraph::Node*, BoundType> >& nodeset) {
 	BoxReductionStatistics statistics;	
 	
 	int funceval=0;
-//	reduced_integer.clear();
 	bool box_changed=false;
 #ifdef COIN_HAS_FILIB
 	IntervalVector box(oldlow, oldup);
 
 	interval<double> oldbounds, newbounds, val;
-	while (!nodeset.empty() && funceval<funceval_limit) {
+	while (!nodeset.empty() && funceval<funceval_limit && !statistics.empty_box) {
 		const DependencyGraph::Node& node(*nodeset.begin()->first);
 		BoundType wb=nodeset.begin()->second;
 		nodeset.erase(nodeset.begin());
@@ -122,39 +187,48 @@ BoxReductionStatistics ConstraintPropagation::run(DenseVector& newlow, DenseVect
 
 		for (DependencyGraph::Node::const_iterator adj(node.begin()); adj!=node.end() && funceval<funceval_limit; ++adj) { // check each adjacent edge
 			int index=(**(*adj).head()).varindex;
+			bool low_changed=false, up_changed=false;
 			for (list<CoinTriple<int, BoundType, double> >::const_iterator it((**adj).coninfo.begin()); it!=(**adj).coninfo.end() && funceval<funceval_limit; ++it) {
-				if ((it->second & wb)==0) continue; // required and provided bound change do not match 
+				if ((it->second & wb)==0)
+					continue; // required and provided bound change do not match
 
-				interval<double> oldbounds=box(index);
-				if (oldbounds.diam()<tiny_tol) break;
-		
+				oldbounds=box(index);
+				if (oldbounds.diam()<getTinyTol()) break;
+
 				const MINLPData::Constraint& con(data.getConstraint(it->first));
 				double coeff=it->third;
 
+
+				// assume the constraint has the form a*x + h(x,y) \in [l,u], where x is given by index and a by coeff
+				// a box for h(x,y) is evaluated by evalConstraint(val, con, box, index)
+				// then a new box for x is given by eval_bounds := ([l, u] - h(x,y))/a.
+
 				++funceval;
 				if (!evalConstraint(val, con, box, index)) continue; // skip this constraint 	
-//				val/=-coeff;
 				
 				// bounds given by interval evaluation
 				interval<double> eval_bounds(translateNInftyCoin2Filib(con.lower), translatePInftyCoin2Filib(con.upper));
 				eval_bounds-=val;
-				eval_bounds/=-coeff;
+				eval_bounds/=coeff;
+
+				if (print_level>2)
+					clog << "Con. " << con.name << " Var. " << data.getVariable(index).getName() << ": value: " << val << " oldbox: " << oldbounds << " prop. box: " << eval_bounds << endl;
 				
 				newbounds=oldbounds.intersect(eval_bounds);
 				if (newbounds.isEmpty()) { // maybe rounding error, adding some tolerance
-					eval_bounds.blow(tiny_tol);
+					eval_bounds.blow(getTinyTol());
 					newbounds=oldbounds.intersect(eval_bounds);
 					if (!newbounds.isEmpty()) newbounds=newbounds.mid(); // make a point interval out of it (since it was empty before) 
 				}
 				
 				if (data.getVariable(index).isDiscrete()) {
-					if (newbounds.inf()>oldbounds.inf()+tiny_tol) {
+					if (newbounds.inf()>oldbounds.inf()+getTinyTol()) {
 						newbounds=interval<double>(roundUp(newbounds.inf()), newbounds.sup());
 						++statistics.shrinked_integer_var;
-					} else if (newbounds.sup()<oldbounds.sup()-tiny_tol) {
+					} else if (newbounds.sup()<oldbounds.sup()-getTinyTol()) {
 						newbounds=interval<double>(newbounds.inf(), roundDown(newbounds.sup()));
 						++statistics.shrinked_integer_var;
-					} else newbounds=oldbounds; // no tiny_tol's in bounds of discrete variables please
+					} else newbounds=oldbounds; // no tiny tol's in bounds of discrete variables please
 				} 
 
 				box[index]=newbounds;
@@ -162,41 +236,48 @@ BoxReductionStatistics ConstraintPropagation::run(DenseVector& newlow, DenseVect
 				if (oldbounds==newbounds) continue; // no change of box
 				box_changed=true;
 	
-				clog << con.name << ": Reduce box of " << data.getVariable(index).getName() << " from " << oldbounds << " to " << newbounds << "\t (" << val << ')';
+				if (print_level>1)
+					clog << con.name << ": Reduce box of " << data.getVariable(index).getName() << " from " << oldbounds << " to " << newbounds << "\t (val=" << val << " eval_bounds=" << eval_bounds << ')' << endl;
 				if (newbounds.isEmpty()) {
 					statistics.empty_box=true;
-					clog << endl;
+					low_changed=up_changed=true;
 					break;
 				}
 	
-				bool low_changed, up_changed;
-				if (filib::fp_traits<double>::IsInf(oldbounds.inf())) low_changed=!filib::fp_traits<double>::IsInf(newbounds.inf());
-				else if (filib::fp_traits<double>::IsInf(oldbounds.sup())) low_changed=newbounds.inf()-oldbounds.inf()>tiny_tol;
-				else low_changed=newbounds.inf()-oldbounds.inf()>min_impr*(oldbounds.diam()+1);
-				if (filib::fp_traits<double>::IsInf(oldbounds.sup())) up_changed=!filib::fp_traits<double>::IsInf(newbounds.sup());
-				else if (filib::fp_traits<double>::IsInf(oldbounds.inf())) up_changed=oldbounds.sup()-newbounds.sup()>tiny_tol;
-				else up_changed=oldbounds.sup()-newbounds.sup()>min_impr*(oldbounds.diam()+1);
-				clog << "\t low changed: " << low_changed << "\t up changed: " << up_changed << endl;
-	
-				if (low_changed || up_changed)
-					nodeset.insert(
-					pair<const DependencyGraph::Node*, BoundType>(&*(*adj).head(),
-						low_changed && up_changed ? ANY : (low_changed ? LOWER : UPPER) ));
+				if (!low_changed)
+					if (filib::fp_traits<double>::IsInf(oldbounds.inf())) low_changed=!filib::fp_traits<double>::IsInf(newbounds.inf());
+					else if (filib::fp_traits<double>::IsInf(oldbounds.sup())) low_changed=newbounds.inf()-oldbounds.inf()>getTinyTol();
+					else low_changed=newbounds.inf()-oldbounds.inf()>min_impr*(oldbounds.diam()+1);
+				if (!up_changed)
+					if (filib::fp_traits<double>::IsInf(oldbounds.sup())) up_changed=!filib::fp_traits<double>::IsInf(newbounds.sup());
+					else if (filib::fp_traits<double>::IsInf(oldbounds.inf())) up_changed=oldbounds.sup()-newbounds.sup()>getTinyTol();
+					else up_changed=oldbounds.sup()-newbounds.sup()>min_impr*(oldbounds.diam()+1);
+			}
+
+			if (statistics.empty_box) break;
+			if (low_changed || up_changed) {
+//				clog << data.getVariable(index).getName() << " low changed: " << low_changed << "\t up changed: " << up_changed << endl;
+				nodeset.insert(
+				pair<const DependencyGraph::Node*, BoundType>(&*(*adj).head(),
+					low_changed && up_changed ? ANY : (low_changed ? LOWER : UPPER) ));
 			}
 		}
 	}
 
-	clog << "IntervalReduction: " << funceval << " function evaluations";
+	if (print_level)
+		clog << "IntervalReduction: " << funceval << " function evaluations";
 	if (!box_changed) {
-		clog << "\t no reduction" << endl;
+		if (print_level)
+			clog << "\t no reduction" << endl;
 		newlow=oldlow;
 		newup=oldup;
 		return statistics;
 	}
 
-	if (statistics.shrinked_integer_var) clog << "\t reduced integers: " << statistics.shrinked_integer_var;
+	if (print_level && statistics.shrinked_integer_var) clog << "\t reduced integers: " << statistics.shrinked_integer_var;
 	if (statistics.empty_box) {
-		clog << "\t empty box!" << endl;
+		if (print_level)
+			clog << "\t empty box!" << endl;
 		statistics.avg_reduction=getInfinity();
 		statistics.max_reduction=getInfinity();
 		return statistics;
@@ -212,8 +293,8 @@ BoxReductionStatistics ConstraintPropagation::run(DenseVector& newlow, DenseVect
 	}
 	statistics.avg_reduction/=data.numVariables();
 
-	clog << "\t avg_reduction: " << statistics.avg_reduction;
-	clog << endl;
+	if (print_level)
+		clog << "\t avg_reduction: " << statistics.avg_reduction << endl;
 #else
 	newlow=oldlow;
 	newup=oldup;
@@ -231,7 +312,16 @@ BoxReductionStatistics ConstraintPropagation::reduceBox() {
 	DenseVector newlow(oldlow.getNumElements());
 	DenseVector newup(oldlow.getNumElements());
 
-	return run(newlow, newup, oldlow, oldup, nodeset);
+	BoxReductionStatistics statistics(run(newlow, newup, oldlow, oldup, nodeset));
+	
+	if (statistics.avg_reduction>0) { // some reduction achieved
+		for (int i=0; i<data.numVariables(); ++i) {
+			data.var[i].lower=newlow[i];
+			data.var[i].upper=newup[i];
+		}		
+	}
+	
+	return statistics;
 }
 
 

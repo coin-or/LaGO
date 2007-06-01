@@ -34,10 +34,10 @@ using namespace std;
 #include "LaGOConfig.h"
 
 #include "CoinHelperFunctions.hpp"
-//#include "CoinSmartPtr.hpp"
 
 namespace LaGO {
 inline double getInfinity() { return 1E+300; }
+inline double getTinyTol() { return 1E-10; }
 
 //inline double round(const double& x) { return ::round(x); }
 inline double roundUp(const double& x) { return ceil(x); }
@@ -60,8 +60,6 @@ using filib::interval;
 #endif
 
 namespace LaGO {
-
-//inline double getInfinity() { return 1E+300; }
 
 //inline double relDistance(const double& value1, const double& value2, double norm, const double& invalid_norm=1E+14) {
 //	if (value1==value2) return 0.;

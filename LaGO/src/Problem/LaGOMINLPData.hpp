@@ -17,6 +17,7 @@ namespace LaGO {
 class GamsReader;
 class Decomposition;
 class CurvatureCheck;
+class ConstraintPropagation;
 
 /** Storage for the data of a MINLP.
  */
@@ -24,11 +25,13 @@ class MINLPData : public ReferencedObject {
 	friend class GamsReader;
 	friend class Decomposition;
 	friend class CurvatureCheck;
+	friend class ConstraintPropagation;
 public:
 	/** Storage for the data of a variable.
 	 */
 	class Variable : public ReferencedObject {
 		friend class GamsReader;
+		friend class ConstraintPropagation;
 	private:
 		/** Index of variable in problem.
 		 */

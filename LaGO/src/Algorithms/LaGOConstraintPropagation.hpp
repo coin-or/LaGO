@@ -62,8 +62,10 @@ private:
 	bool evalConstraint(interval<double>& val, const MINLPData::Constraint& con, IntervalVector& box, int index);
 	
 public:
+	int print_level;
+
 	ConstraintPropagation(MINLPData& data_)
-	: data(data_), depgraph(data_.numVariables(), 3*data_.numVariables())
+	: data(data_), depgraph(data_.numVariables(), 3*data_.numVariables()), print_level(1)
 	{ }
 
 	void initDependencyGraph();

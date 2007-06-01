@@ -11,6 +11,7 @@ LaGO/configure.ac -text
 LaGO/inc/config_lago.h.in -text
 LaGO/src/Algorithms/LaGOAlgorithm.cpp -text
 LaGO/src/Algorithms/LaGOAlgorithm.hpp -text
+LaGO/src/Algorithms/LaGOBoxReduction.cpp -text
 LaGO/src/Algorithms/LaGOBoxReduction.hpp -text
 LaGO/src/Algorithms/LaGOConstraintPropagation.cpp -text
 LaGO/src/Algorithms/LaGOConstraintPropagation.hpp -text

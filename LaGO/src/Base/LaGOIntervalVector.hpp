@@ -51,6 +51,15 @@ inline double translatePInftyFilib2Coin(const double& val) {
 	return val;
 }
 
+// TODO: multiplication of infinite intervals or 0*infinite interval
+
+//#undef FILIB_UPWARD_MULTIPLIES
+//#undef FILIB_DOWNWARD_MULTIPLIES
+//#undef FILIB_RESET
+//#define FILIB_UPWARD_MULTIPLIES(R,A,B)		R=filib::fp_traits<double>::upward_multiplies(A,B)
+//#define FILIB_DOWNWARD_MULTIPLIES(R,A,B)	R=filib::fp_traits<double>::downward_multiplies(A,B)
+//#define FILIB_RESET filib::fp_traits<double>::reset()
+
 class IntervalVector : public CoinDenseVector<interval<double> >, public ReferencedObject {
 public:
 	IntervalVector()
@@ -113,13 +122,23 @@ public:
 		return ret;
 	}
 
+	interval<double> operator*(const CoinDenseVector<double>& v) const {
+		assert(getNumElements()==v.getNumElements());
+		interval<double> ret(0.);
+		const interval<double>* x_=getElements();
+		const double* v_=v.getElements();
+		for (int i=getNumElements(); i>0; --i, ++x_, ++v_)
+			if (*v_) ret+=*x_ * *v_;
+		return ret;
+	}
+
 	interval<double> operator*(const CoinPackedVector& v) const {
 		interval<double> ret(0.);
 		const int* ind=v.getIndices();
 		const double* el=v.getElements();
 		for (int i=v.getNumElements(); i>0; --i, ++ind, ++el) {
 			assert(*ind>=0 && *ind<getNumElements());
-			ret+=*el*getElements()[*ind];
+			if (*el) ret+=*el*getElements()[*ind];
 		}
 		return ret;
 	}

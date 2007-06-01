@@ -79,7 +79,8 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libLaGOAlgorithms_la_LIBADD =
 am_libLaGOAlgorithms_la_OBJECTS = LaGOAlgorithm.lo \
 	LaGODecomposition.lo LaGORestrictedFunction.lo LaGOSampling.lo \
-	LaGOCurvatureCheck.lo LaGOConstraintPropagation.lo
+	LaGOCurvatureCheck.lo LaGOBoxReduction.lo \
+	LaGOConstraintPropagation.lo
 libLaGOAlgorithms_la_OBJECTS = $(am_libLaGOAlgorithms_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
@@ -277,7 +278,8 @@ lib_LTLIBRARIES = libLaGOAlgorithms.la
 libLaGOAlgorithms_la_SOURCES = \
 	LaGOAlgorithm.cpp \
 	LaGODecomposition.cpp LaGORestrictedFunction.cpp \
-	LaGOSampling.cpp LaGOCurvatureCheck.cpp LaGOConstraintPropagation.cpp
+	LaGOSampling.cpp LaGOCurvatureCheck.cpp \
+	LaGOBoxReduction.cpp LaGOConstraintPropagation.cpp
 
 include_HEADERS = 
 AM_CPPFLAGS = $(FILIB_CPPFLAGS) \
@@ -364,6 +366,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOAlgorithm.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOBoxReduction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOConstraintPropagation.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOCurvatureCheck.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGODecomposition.Plo@am__quote@

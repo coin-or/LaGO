@@ -10,19 +10,30 @@ namespace LaGO {
 
 Algorithm::Algorithm(MINLPData& data_)
 : data(data_), decomp(data_), curvcheck(data_), conprob(data_)
-{ }
+{
+#ifdef COIN_HAS_FILIB
+	filib::fp_traits<double>::setup();
+#endif
+}
 
 	
 void Algorithm::preprocessing() {
 	decomp.decompose();
 	
+//	conprob.print_level=5;
 	conprob.initDependencyGraph();
-	conprob.reduceBox();
+	BoxReductionStatistics statistics=conprob.reduceBox();
+	cout << statistics;
+	if (statistics.empty_box) {
+		cout << "Problem infeasible." << endl;
+		return;
+	}
+	BoxReductionStatistics::printBox(cout, data);
 	
 	curvcheck.computeCurvature();
 	
 
-	cout << data;
+//	cout << data;
 };
 	
 void Algorithm::run() {

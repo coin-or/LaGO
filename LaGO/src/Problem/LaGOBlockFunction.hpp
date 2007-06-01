@@ -67,7 +67,7 @@ public:
 	void fullHessian(SymSparseMatrixCreator& hessian, const DenseVector& x) const;
 	
 #ifdef COIN_HAS_FILIB
-	bool canIntervalEvaluation() const { return false; }
+	bool canIntervalEvaluation() const { return (IsNull(quad) || quad->canIntervalEvaluation()) && (IsNull(nonquad) || nonquad->canIntervalEvaluation()); }
 	
 	interval<double> eval(const IntervalVector& x) const;
 

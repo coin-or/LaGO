@@ -178,11 +178,11 @@ interval<double> SymSparseMatrix::xAx_bx(const IntervalVector& x, const DenseVec
 	const int* colind_=colind;
 	const double* value_=value;
 	for (int i=nz; i>0; --i) {
-		if (*rowind_==*colind_) {
-			diag[*rowind_]+=*value_;
-		} else {
-			coeff[*rowind_]+=(2* *value_) * x[*colind_];
-		}
+		if (*value_)
+			if (*rowind_==*colind_)
+				diag[*rowind_]+=*value_;
+			else
+				coeff[*rowind_]+=(2* *value_) * x[*colind_];
 		++rowind_;
 		++colind_;
 		++value_;
@@ -195,7 +195,10 @@ interval<double> SymSparseMatrix::xAx_bx(const IntervalVector& x, const DenseVec
 	for (int i=0; i<x.getNumElements(); ++i, ++coeff_, ++diag_, ++x_, ++b_) {
 		if (*x_==zero) continue;
 		if (x_->isPoint()) ret+=x_->inf()*(*coeff_+*diag_*x_->inf()+*b_);
-		else ret+=*x_ * *coeff_ + envelope(*diag_, *b_, *x_);
+		else {
+//			clog << *x_ << '*' << *coeff_ << '=' << *x_ * *coeff_ << '\t' << mult(*x_,*coeff_) << endl; 
+			ret+=*x_ * *coeff_ + envelope(*diag_, *b_, *x_);
+		}
 	} 
 	return ret;
 }

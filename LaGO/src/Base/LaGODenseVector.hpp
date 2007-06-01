@@ -11,6 +11,7 @@
 #include "LaGORandomNumber.hpp"
 
 #include "CoinDenseVector.hpp"
+#include "CoinPackedVector.hpp"
 
 namespace LaGO {
 
@@ -26,6 +27,20 @@ public:
 	DenseVector(int size, double* elements)
 	: CoinDenseVector<double>(size, elements)
 	{ }
+	
+	DenseVector(int size, const CoinPackedVector& v)
+	: CoinDenseVector<double>(size)
+	{ const int* ind=v.getIndices();
+		const double* el=v.getElements();
+		for (int i=v.getNumElements(); i>0; --i, ++ind, ++el) {
+			assert(*ind>=0 && *ind<size);
+			getElements()[*ind]=*el; 
+		}
+	}
+	
+	DenseVector(const DenseVector& v, const vector<int>& indices)
+	{ setToBlock(v, indices);
+	}
 	
 	double operator()(int index) const {
 		assert(index>=0 && index<getNumElements());
