@@ -24,7 +24,7 @@ public:
 	: CoinDenseVector<double>(size, init_value)
 	{ }
 
-	DenseVector(int size, double* elements)
+	DenseVector(int size, const double* elements)
 	: CoinDenseVector<double>(size, elements)
 	{ }
 	

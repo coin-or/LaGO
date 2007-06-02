@@ -16,13 +16,27 @@ void SymSparseMatrixCreator::add(double factor, const SymSparseMatrix& A) {
 	const int* colind=A.getColIndices();
 	const double* value=A.getValues();
 	for (int i=A.getNumNonzeros(); i>0; --i) {
-		if (*rowind<=*colind) operator[](pair<int,int>(*rowind,*colind))+=factor* *value;
-		else operator[](pair<int,int>(*colind,*rowind))+=factor* *value;
+		if (*rowind<*colind) operator[](pair<int,int>(*colind,*rowind))+=factor* *value;
+		else operator[](pair<int,int>(*rowind,*colind))+=factor* *value;
 		++rowind;
 		++colind;
 		++value;
 	} 
-}	
+}
+
+void SymSparseMatrixCreator::cleanUpperDiagonal() {
+	iterator it(begin());
+	while (it!=end()) {
+		if (it->first.first<it->first.second) { // row < col
+			iterator next(it); ++next;
+			operator[](pair<int,int>(it->first.second,it->first.first))+=it->second;
+			erase(it);
+			it=next;  
+		} else
+			++it;
+	}	
+}
+	
 
 SymSparseMatrix::~SymSparseMatrix() {
 	delete[] value;

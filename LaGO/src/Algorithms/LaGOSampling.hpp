@@ -8,18 +8,15 @@
 #define SAMPLING_HPP_
 
 #include "LaGObase.hpp"
+#include "LaGOSampleSet.hpp"
 
 namespace LaGO {
+	
+class SparsityGraph;
 
 class Sampling {
 public:
-	void addSet(list<DenseVector>& samplepoints, const set<DenseVector>& pointset, const vector<int>& indices);
-	
-	void addVector(list<DenseVector>& samplepoints, const vector<DenseVector>& pointvector, const vector<int>& indices);
-
-	void addVector(list<DenseVector>& samplepoints, const vector<DenseVector>& pointvector);
-
-	void monteCarlo(list<DenseVector>& samplepoints, DenseVector& lower, DenseVector& upper, int nr);
+	void monteCarlo(SampleSet& samplepoints, DenseVector& lower, DenseVector& upper, int nr);
 
 	/** Generates points where some of their components are randomly generated.
 	 * @param samplepoints Where to add the generated points.
@@ -29,10 +26,15 @@ public:
 	 * @param upper The upper bounds for the random components (size has to be indices.size()).
 	 * @param nr The number of points to generate.
 	 */
-	void monteCarlo(list<DenseVector>& samplepoints, const DenseVector& basisvector, const vector<int>& indices, DenseVector& lower, DenseVector& upper, int nr);
+	void monteCarlo(SampleSet& samplepoints, const DenseVector& basisvector, const vector<int>& indices, DenseVector& lower, DenseVector& upper, int nr);
 	
-	int addVertices(list<DenseVector>& samplepoints, const DenseVector& lower, const DenseVector& upper, int nr);
-	int addRandomVertices(list<DenseVector>& samplepoints, const DenseVector& lower, const DenseVector& upper, int nr);
+	int addVertices(SampleSet& samplepoints, const DenseVector& lower, const DenseVector& upper, int nr);
+	int addRandomVertices(SampleSet& samplepoints, const DenseVector& lower, const DenseVector& upper, int nr);
+
+	/** Adds minimizer of a function over a box to sample set.
+	 * @return iterator of added sample point, if minimization was successfull. samplepoints.end() otherwise.
+	 */	
+	SampleSet::iterator addMinimizer(SampleSet& samplepoints, const Function& func, const DenseVector& lower, const DenseVector& upper, const SmartPtr<SparsityGraph>& sparsitygraph=NULL, const DenseVector* startpoint=NULL);
 };
 	
 } // namespace LaGO

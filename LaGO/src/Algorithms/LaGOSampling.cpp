@@ -5,46 +5,31 @@
 // $Id$
 
 #include "LaGOSampling.hpp"
+#include "LaGOBoxMinimizationProblem.hpp"
+#include "IpIpoptApplication.hpp"
 
 namespace LaGO {
-
-void Sampling::addSet(list<DenseVector>& samplepoints, const set<DenseVector>& pointset, const vector<int>& indices) {
-	for (set<DenseVector>::const_iterator it(pointset.begin()); it!=pointset.end(); ++it) {
-		samplepoints.push_back(DenseVector());
-		samplepoints.back().setToBlock(*it, indices);		
-	}
-}
-
-void Sampling::addVector(list<DenseVector>& samplepoints, const vector<DenseVector>& pointvector, const vector<int>& indices) {
-	for (vector<DenseVector>::const_iterator it(pointvector.begin()); it!=pointvector.end(); ++it) {
-		samplepoints.push_back(DenseVector());
-		samplepoints.back().setToBlock(*it, indices);		
-	}
-}
-
-void Sampling::addVector(list<DenseVector>& samplepoints, const vector<DenseVector>& pointvector) {
-	for (vector<DenseVector>::const_iterator it(pointvector.begin()); it!=pointvector.end(); ++it)
-		samplepoints.push_back(*it);
-}
 	
-void Sampling::monteCarlo(list<DenseVector>& samplepoints, DenseVector& lower, DenseVector& upper, int nr) {
+void Sampling::monteCarlo(SampleSet& samplepoints, DenseVector& lower, DenseVector& upper, int nr) {
+	DenseVector point;
 	for (int i=0; i<nr; ++i) {
-		samplepoints.push_back(DenseVector());
-		samplepoints.back().setRandom(lower, upper);
+		point.setRandom(lower, upper);
+		samplepoints.insert(point);
 	}
 }
 
-void Sampling::monteCarlo(list<DenseVector>& samplepoints, const DenseVector& basisvector, const vector<int>& indices, DenseVector& lower, DenseVector& upper, int nr) {
+void Sampling::monteCarlo(SampleSet& samplepoints, const DenseVector& basisvector, const vector<int>& indices, DenseVector& lower, DenseVector& upper, int nr) {
 	assert((int)indices.size()==lower.size());
 	assert(lower.size()==upper.size());
+	DenseVector point(basisvector);
 	for (int i=0; i<nr; ++i) {
-		samplepoints.push_back(basisvector);
 		for (unsigned int j=0; j<indices.size(); ++j) 
-			samplepoints.back()[indices[j]]=getRandom(lower(j), upper(j));
+			point[indices[j]]=getRandom(lower(j), upper(j));
+		samplepoints.insert(point);
 	}
 }
 
-int Sampling::addVertices(list<DenseVector>& samplepoints, const DenseVector& lower, const DenseVector& upper, int nr) {
+int Sampling::addVertices(SampleSet& samplepoints, const DenseVector& lower, const DenseVector& upper, int nr) {
 	DenseVector x(lower);
 	long maxnum=0;
 
@@ -73,31 +58,53 @@ int Sampling::addVertices(list<DenseVector>& samplepoints, const DenseVector& lo
 				sm/=2;
 			}
 		}
-		samplepoints.push_back(x);
+		samplepoints.insert(x);
 		added++;
 	}
 
 	return added; // should be nearly the same as nr
 }
 	
-int Sampling::addRandomVertices(list<DenseVector>& samplepoints, const DenseVector& lower, const DenseVector& upper, int nr) {
+int Sampling::addRandomVertices(SampleSet& samplepoints, const DenseVector& lower, const DenseVector& upper, int nr) {
+	DenseVector x(lower.getNumElements());
 	for(int i=0; i<nr; ++i) {
-		samplepoints.push_back(lower);
-		DenseVector& x(samplepoints.back());
 		bool have_boundedvar=false;
 		for (int j=0; j<lower.getNumElements(); ++j) {
 			if (lower(j)>-getInfinity() && upper(j)<getInfinity()) {
 				if (getRandom(0.,1.)>=.5) x[j]=upper[j];
+				else x[j]=lower[j];
 				have_boundedvar=true;
 			} else
 				x[j]=getRandom(lower[j], upper[j]);
 		}
-		if (!have_boundedvar) { // if there is no bounded variable, we would be the same as monte carlo, so we do nothing
-			samplepoints.pop_back();
+		if (!have_boundedvar) // if there is no bounded variable, we would be the same as monte carlo, so we do nothing
 			return 0;
-		}		
+		samplepoints.insert(x);		
 	}
 	return nr; 
+}
+
+SampleSet::iterator Sampling::addMinimizer(SampleSet& samplepoints, const Function& func, const DenseVector& lower, const DenseVector& upper, const SmartPtr<SparsityGraph>& sparsitygraph, const DenseVector* startpoint) {
+	SmartPtr<BoxMinimizationProblem> prob(new BoxMinimizationProblem(func, lower, upper, sparsitygraph));
+	prob->startpoint=startpoint;
+	
+	Ipopt::IpoptApplication ipopt;
+	ipopt.Initialize(); // this reads ipopt.opt
+	
+	SmartPtr<Ipopt::TNLP> tnlp(GetRawPtr(prob));
+	Ipopt::ApplicationReturnStatus ret=ipopt.OptimizeTNLP(tnlp);
+	
+	switch (ret) {
+		case Ipopt::Solve_Succeeded:
+		case Ipopt::Solved_To_Acceptable_Level:
+		case Ipopt::Maximum_Iterations_Exceeded: {
+			SampleSet::iterator it=samplepoints.insert(prob->getSolution()).first;
+			it->funcvalue=prob->getOptimalValue();		
+			return it;
+		}
+		default:
+			return samplepoints.end();
+	}
 }
 
 } // namespace LaGO

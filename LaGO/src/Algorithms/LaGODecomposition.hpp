@@ -34,7 +34,7 @@ public:
 	
 	void decompose(MINLPData::ObjCon& objcon);
 	
-	void computeSparsityGraph(MINLPData::ObjCon& objcon, list<int>& lin_nonzeros, list<DenseVector>& samplepoints, const vector<int>& nonzeros);
+	void computeSparsityGraph(MINLPData::ObjCon& objcon, list<int>& lin_nonzeros, SampleSet& samplepoints, const vector<int>& nonzeros);
 }; // class Decomposition
 	
 } // namespace LaGO

@@ -18,6 +18,8 @@ class GamsReader;
 class Decomposition;
 class CurvatureCheck;
 class ConstraintPropagation;
+class BoxReductionGuessing;
+class QuadraticEstimation;
 
 /** Storage for the data of a MINLP.
  */
@@ -26,12 +28,15 @@ class MINLPData : public ReferencedObject {
 	friend class Decomposition;
 	friend class CurvatureCheck;
 	friend class ConstraintPropagation;
+	friend class BoxReductionGuessing;
+	friend class QuadraticEstimation;
 public:
 	/** Storage for the data of a variable.
 	 */
 	class Variable : public ReferencedObject {
 		friend class GamsReader;
 		friend class ConstraintPropagation;
+		friend class BoxReductionGuessing;
 	private:
 		/** Index of variable in problem.
 		 */
@@ -50,13 +55,18 @@ public:
 		/** Discrete or not.
 		 */
 		bool discrete;
+		
+		/** Whether it appears nonlinear in the MINLP or not.
+		 */ 
+		bool nonlinear;
 
 	public:
-		Variable(int index_, double lower_, double upper_, bool discrete_=false, const string& name_=string())
-		: index(index_), name(name_), lower(lower_), upper(upper_), discrete(discrete_)
+		Variable(int index_, double lower_, double upper_, bool discrete_=false, bool nonlinear_=true, const string& name_=string())
+		: index(index_), name(name_), lower(lower_), upper(upper_), discrete(discrete_), nonlinear(nonlinear_)
 		{ }
 		
 		bool isDiscrete() const { return discrete; }
+		bool isNonlinear() const { return nonlinear; }
 		
 		double getLower() const { return lower; }
 		double getUpper() const { return upper; }
@@ -72,6 +82,7 @@ public:
 		friend class GamsReader;
 		friend class Decomposition;
 		friend class CurvatureCheck;
+		friend class QuadraticEstimation;
 	public:
 		/** Name of the objective or constraint.
 		 */

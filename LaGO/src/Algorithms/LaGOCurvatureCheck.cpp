@@ -28,10 +28,10 @@ void CurvatureCheck::computeCurvature(MINLPData::ObjCon& objcon) {
 void CurvatureCheck::computeCurvature(BlockFunction& blockfunc) {
 	// need sample points if nonquadratic
 	if (IsValid(blockfunc.nonquad) && blockfunc.samplepoints.empty()) {
+		blockfunc.samplepoints.addVector(data.start_points, blockfunc.indices, true);
 		DenseVector lower, upper;
 		data.getBox(lower, upper, blockfunc.indices);
 		Sampling sampling;
-		sampling.addVector(blockfunc.samplepoints, data.start_points, blockfunc.indices);
 		sampling.monteCarlo(blockfunc.samplepoints, lower, upper, 20);
 		sampling.addVertices(blockfunc.samplepoints, lower, upper, 256);
 //		clog << "Sampleset of size " << blockfunc.samplepoints.size() << " created." << endl; 
@@ -48,7 +48,7 @@ void CurvatureCheck::computeCurvature(BlockFunction& blockfunc) {
 		mineig*=2; // we actually wanted the eigenvalue of the hessian
 		maxeig*=2;
 	} else {
-		list<DenseVector>::iterator it_sp(blockfunc.samplepoints.begin());
+		SampleSet::iterator it_sp(blockfunc.samplepoints.begin());
 		SymSparseMatrixCreator hessian_creator;			
 		int eigval_successes=0; // number of successful eigenvalue computations
 		while (it_sp!=blockfunc.samplepoints.end()) {
@@ -56,7 +56,7 @@ void CurvatureCheck::computeCurvature(BlockFunction& blockfunc) {
 				blockfunc.nonquad->fullHessian(hessian_creator, *it_sp);
 			} catch (FunctionEvaluationError error) {
 				cerr << "CurvatureCheck::computeCurvature: skip sample point due to " << error << endl;
-				it_sp=blockfunc.samplepoints.erase(it_sp);
+				it_sp=blockfunc.samplepoints.eraseAndGetNext(it_sp);
 				continue;								
 			}
 			if (IsValid(blockfunc.quad)) // add quadratic term
@@ -74,7 +74,7 @@ void CurvatureCheck::computeCurvature(BlockFunction& blockfunc) {
 						
 			++it_sp;
 		};
-		if (blockfunc.samplepoints.empty() || ++blockfunc.samplepoints.begin()==blockfunc.samplepoints.end()) {
+		if (blockfunc.samplepoints.size()<2) {
 			cerr << "Not enough sample points for reliable computation of curvature type." << endl;
 			exit(EXIT_FAILURE);   		
 		}		

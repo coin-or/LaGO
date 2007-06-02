@@ -13,24 +13,24 @@
 #include "CoinPackedVector.hpp"
 
 template <class Type>
-inline bool operator<(const interval<Type>& x, const interval<Type>& y) { return x.slt(y); };
+inline bool operator<(const interval<Type>& x, const interval<Type>& y) { return x.slt(y); }
 template <class Type>
-inline bool operator>(const interval<Type>& x, const interval<Type>& y) { return y.slt(x); };
+inline bool operator>(const interval<Type>& x, const interval<Type>& y) { return y.slt(x); }
 template <class Type>
 inline Type& operator+=(Type& x, const interval<Type>& y) { 
 	throw CoinError("Type += interval<Type> is not defined", "Type& operator+=(Type&, const interval<Type>&)", "");
 	return x;
-};
+}
 template <class Type>
 inline interval<Type> CoinAbs(const interval<Type> value) {
 	throw CoinError("CoinAbs not defined for an interval", "interval<Type> CoinAbs(const interval<Type> value)", "");
   return interval<Type>(0);
-};
+}
 template <class Type>
 inline interval<Type> CoinMax(const interval<Type> value) {
 	throw CoinError("CoinMax not defined for an interval", "interval<Type> CoinMax(const interval<Type> value)", "");
   return interval<Type>(0);
-};
+}
 
 namespace LaGO {
 

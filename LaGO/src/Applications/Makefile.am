@@ -13,9 +13,12 @@ AM_CPPFLAGS = \
  -I`$(CYGPATH_W) $(srcdir)/../Base` \
  -I`$(CYGPATH_W) $(srcdir)/../Problem` \
  -I`$(CYGPATH_W) $(srcdir)/../Algorithms` \
+ -I`$(CYGPATH_W) $(srcdir)/../Interfaces` \
  -I`$(CYGPATH_W) $(srcdir)/../Interfaces/GAMS` \
  -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` \
  -I`$(CYGPATH_W) $(COINUTILSOBJDIR)/inc` \
+ -I`$(CYGPATH_W) $(OSISRCDIR)/src` \
+ -I`$(CYGPATH_W) $(OSIOBJDIR)/inc` \
  -I`$(CYGPATH_W) $(LAGOSRCDIR)/../Cgc/src` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Interfaces` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Common` \
@@ -23,9 +26,15 @@ AM_CPPFLAGS = \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Algorithm` \
  -I`$(CYGPATH_W) $(IPOPTOBJDIR)/inc`
 
+if COIN_HAS_CPX
+AM_CPPFLAGS += -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiCpx` -I`$(CYGPATH_W) $(CPXINCDIR)`
+else
+AM_CPPFLAGS += -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiClp` -I`$(CYGPATH_W) $(CLPSRCDIR)/src` -I`$(CYGPATH_W) $(CLPOBJDIR)/inc`
+endif
+
 lib_LTLIBRARIES = libLaGO.la
 libLaGO_la_SOURCES =
-libLaGO_la_LIBADD = ../Algorithms/libLaGOAlgorithms.la ../Problem/libLaGOProblem.la ../Base/libLaGOBase.la \
+libLaGO_la_LIBADD = ../Algorithms/libLaGOAlgorithms.la ../Interfaces/libLaGOInterfaces.la ../Problem/libLaGOProblem.la ../Base/libLaGOBase.la \
  $(RANLIBC_LIB) $(FILIB_LIB)
 
 if COIN_HAS_GAMSIO
@@ -35,14 +44,12 @@ LaGOGAMS_SOURCES = LaGOGAMS.cpp
 LaGOGAMS_LDADD = ../Interfaces/GAMS/libLaGOInterfaceGams.la libLaGO.la
  
 if COIN_HAS_CPX
-#AM_CPPFLAGS += -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiCpx` -I`$(CYGPATH_W) $(CPXINCDIR)`
 LaGOGAMS_LDADD += $(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la
 #Cgl seems to insist on OsiClp library, and OsiClp depends on Clp
-LaGOGAMS_LDADD += $(CLPOBJDIR)/src/libClp.la $(OSIOBJDIR)/src/OsiClp/libOsiClp.la
+LaGOGAMS_LDADD += $(OSIOBJDIR)/src/OsiClp/libOsiClp.la $(CLPOBJDIR)/src/libClp.la
 ADDLIBS += `cat $(CLPOBJDIR)/clp_addlibs.txt`
 else
-AM_CPPFLAGS += -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiClp` -I`$(CYGPATH_W) $(CLPSRCDIR)/src` -I`$(CYGPATH_W) $(CLPOBJDIR)/inc`
-LaGOGAMS_LDADD += $(CLPOBJDIR)/src/libClp.la $(OSIOBJDIR)/src/OsiClp/libOsiClp.la
+LaGOGAMS_LDADD += $(OSIOBJDIR)/src/OsiClp/libOsiClp.la $(CLPOBJDIR)/src/libClp.la
 ADDLIBS += `cat $(CLPOBJDIR)/clp_addlibs.txt`
 endif
 

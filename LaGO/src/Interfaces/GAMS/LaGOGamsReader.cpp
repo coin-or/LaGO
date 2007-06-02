@@ -274,21 +274,25 @@ SmartPtr<MINLPData> GamsReader::getProblem(char* cntr_file) {
 
 		if (data->dict && !(name=getColName(data->dict, i, namebuf, 50)))
 			cerr << "Couldn't retrieve name for variable " << i << endl;
-		prob->var.push_back(MINLPData::Variable(i, low, up, coldata.idata[3], name));
-		if (coldata.idata[3]) prob->discrete_var.push_back(i);  
 		start[i]=coldata.cdata[2];
 
 		double coeff;
 		int index;
 		int nltyp;
+		bool isnonlinear=false; // whether the variable appears nonlinear in one of the rows
 		for (int r=0; r<coldata.idata[1]; r++) {
 			gfrcof(&coeff, &index, &nltyp);
 			if (nltyp==0) // linear variable
 				conLin[index-1].insert(i, coeff);
-			else
+			else {
+				isnonlinear=true;
 				conSparsity[index-1].insert(i);
+			}
 			if (index-1==objcon && i==objvar) reformed&=(nltyp==0); // objective variable appears linear
 		}
+
+		prob->var.push_back(MINLPData::Variable(i, low, up, coldata.idata[3], isnonlinear, name));
+		if (coldata.idata[3]) prob->discrete_var.push_back(i);  
 	}
 	cout << "Discrete variables: " << prob->discrete_var.size() << endl;
 

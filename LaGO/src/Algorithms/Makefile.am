@@ -15,22 +15,34 @@ libLaGOAlgorithms_la_SOURCES = \
 	LaGOAlgorithm.cpp \
 	LaGODecomposition.cpp LaGORestrictedFunction.cpp \
 	LaGOSampling.cpp LaGOCurvatureCheck.cpp \
-	LaGOBoxReduction.cpp LaGOConstraintPropagation.cpp
+	LaGOBoxReduction.cpp LaGOConstraintPropagation.cpp \
+	LaGOQuadraticEstimation.cpp
 
 include_HEADERS = 
 
 AM_CPPFLAGS = $(FILIB_CPPFLAGS) \
  -I`$(CYGPATH_W) $(srcdir)/../Base` \
  -I`$(CYGPATH_W) $(srcdir)/../Problem` \
+ -I`$(CYGPATH_W) $(srcdir)/../Interfaces` \
  -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` \
  -I`$(CYGPATH_W) $(COINUTILSOBJDIR)/inc` \
+ -I`$(CYGPATH_W) $(OSISRCDIR)/src` \
+ -I`$(CYGPATH_W) $(OSIOBJDIR)/inc` \
  -I`$(CYGPATH_W) $(LAGOSRCDIR)/../Cgc/src` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Interfaces` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Common` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/LinAlg` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Algorithm` \
  -I`$(CYGPATH_W) $(IPOPTOBJDIR)/inc`
- 
+
+if COIN_HAS_CPX
+AM_CPPFLAGS += -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiCpx` \
+ -I`$(CYGPATH_W) $(CPXINCDIR)`
+else
+AM_CPPFLAGS += -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiClp` \
+ -I`$(CYGPATH_W) $(CLPSRCDIR)/src` \
+ -I`$(CYGPATH_W) $(CLPOBJDIR)/inc`
+endif
 
 DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
 

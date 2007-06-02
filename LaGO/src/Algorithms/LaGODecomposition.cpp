@@ -39,14 +39,14 @@ void Decomposition::decompose(MINLPData::ObjCon& objcon) {
 	data.getBox(lower, upper, nonzeros);
 	
 	// generate sample points (w.r.t. origfuncNL->sparsity)
-	list<DenseVector> samplepoints; 
-	Sampling sampling;
-	sampling.addVector(samplepoints, data.start_points);
 	assert(!data.start_points.empty());
+	SampleSet samplepoints; 
+	samplepoints.addVector(data.start_points, true);
 	
 	// compute sparsity graph
 	list<int> lin_nonzeros; // list of variables in nonzeros which turn out to be linear
 	if (IsNull(objcon.sparsitygraph)) {
+		Sampling sampling;
 		sampling.monteCarlo(samplepoints, data.start_points.front(), nonzeros, lower, upper, 20); 
 		computeSparsityGraph(objcon, lin_nonzeros, samplepoints, nonzeros);
 	} else {
@@ -72,11 +72,11 @@ void Decomposition::decompose(MINLPData::ObjCon& objcon) {
 	}
 
 	// decompose function
-	createDecomposedFunctions(objcon, samplepoints.front(), nonzeros, lin_nonzeros, component_isnonquad, have_quadratic_component); 
+	createDecomposedFunctions(objcon, data.start_points.front(), nonzeros, lin_nonzeros, component_isnonquad, have_quadratic_component); 
 }
 
 
-void Decomposition::computeSparsityGraph(MINLPData::ObjCon& objcon, list<int>& lin_nonzeros, list<DenseVector>& samplepoints, const vector<int>& nonzeros) {
+void Decomposition::computeSparsityGraph(MINLPData::ObjCon& objcon, list<int>& lin_nonzeros, SampleSet& samplepoints, const vector<int>& nonzeros) {
 	SmartPtr<SparsityGraph> graph=new SparsityGraph(nonzeros.size(), 2*nonzeros.size());
 	vector<SparsityGraph::iterator> nodeits(nonzeros.size(), graph->end());
 
@@ -84,13 +84,13 @@ void Decomposition::computeSparsityGraph(MINLPData::ObjCon& objcon, list<int>& l
 	DenseVector hm(data.numVariables()); // storage for hessian-vector product
 	for (unsigned int i=0; i<nonzeros.size(); ++i) {
 		e[nonzeros[i]]=1.;
-		list<DenseVector>::iterator it_sp(samplepoints.begin());
+		SampleSet::iterator it_sp(samplepoints.begin());
 		while (it_sp!=samplepoints.end()) {
 			try {
 				objcon.origfuncNL->hessianVectorProduct(hm, *it_sp, e);
 			} catch (FunctionEvaluationError error) {
 				clog << "computeSparsityPattern for " << objcon.name << ": skip sample point due to " << error << endl;
-				it_sp=samplepoints.erase(it_sp);
+				it_sp=samplepoints.eraseAndGetNext(it_sp);
 				continue;
 			}
 			
@@ -121,7 +121,7 @@ void Decomposition::computeSparsityGraph(MINLPData::ObjCon& objcon, list<int>& l
 		e[nonzeros[i]]=0.;
 	}
 	
-	if (samplepoints.empty() || ++samplepoints.begin()==samplepoints.end()) {
+	if (samplepoints.size()<2) {
 		cerr << "Not enough sample points to generate a reliable sparsity graph." << endl;
 		exit(EXIT_FAILURE);   		
 	}

@@ -53,11 +53,18 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@COIN_HAS_CPX_TRUE@am__append_1 = -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiCpx` \
+@COIN_HAS_CPX_TRUE@ -I`$(CYGPATH_W) $(CPXINCDIR)`
+
+@COIN_HAS_CPX_FALSE@am__append_2 = -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiClp` \
+@COIN_HAS_CPX_FALSE@ -I`$(CYGPATH_W) $(CLPSRCDIR)/src` \
+@COIN_HAS_CPX_FALSE@ -I`$(CYGPATH_W) $(CLPOBJDIR)/inc`
+
 DIST_COMMON = $(include_HEADERS) \
 	$(srcdir)/../../../BuildTools/Makemain.inc \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
-@HAVE_EXTERNALS_TRUE@am__append_1 = Externals
-@HAVE_EXTERNALS_TRUE@am__append_2 = .Externals-stamp
+@HAVE_EXTERNALS_TRUE@am__append_3 = Externals
+@HAVE_EXTERNALS_TRUE@am__append_4 = .Externals-stamp
 subdir = src/Algorithms
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
@@ -80,7 +87,7 @@ libLaGOAlgorithms_la_LIBADD =
 am_libLaGOAlgorithms_la_OBJECTS = LaGOAlgorithm.lo \
 	LaGODecomposition.lo LaGORestrictedFunction.lo LaGOSampling.lo \
 	LaGOCurvatureCheck.lo LaGOBoxReduction.lo \
-	LaGOConstraintPropagation.lo
+	LaGOConstraintPropagation.lo LaGOQuadraticEstimation.lo
 libLaGOAlgorithms_la_OBJECTS = $(am_libLaGOAlgorithms_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
@@ -273,29 +280,30 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
-EXTRA_DIST = $(am__append_1)
+EXTRA_DIST = $(am__append_3)
 lib_LTLIBRARIES = libLaGOAlgorithms.la
 libLaGOAlgorithms_la_SOURCES = \
 	LaGOAlgorithm.cpp \
 	LaGODecomposition.cpp LaGORestrictedFunction.cpp \
 	LaGOSampling.cpp LaGOCurvatureCheck.cpp \
-	LaGOBoxReduction.cpp LaGOConstraintPropagation.cpp
+	LaGOBoxReduction.cpp LaGOConstraintPropagation.cpp \
+	LaGOQuadraticEstimation.cpp
 
 include_HEADERS = 
-AM_CPPFLAGS = $(FILIB_CPPFLAGS) \
- -I`$(CYGPATH_W) $(srcdir)/../Base` \
- -I`$(CYGPATH_W) $(srcdir)/../Problem` \
- -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` \
- -I`$(CYGPATH_W) $(COINUTILSOBJDIR)/inc` \
- -I`$(CYGPATH_W) $(LAGOSRCDIR)/../Cgc/src` \
- -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Interfaces` \
- -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Common` \
- -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/LinAlg` \
- -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Algorithm` \
- -I`$(CYGPATH_W) $(IPOPTOBJDIR)/inc`
-
+AM_CPPFLAGS = $(FILIB_CPPFLAGS) -I`$(CYGPATH_W) $(srcdir)/../Base` \
+	-I`$(CYGPATH_W) $(srcdir)/../Problem` -I`$(CYGPATH_W) \
+	$(srcdir)/../Interfaces` -I`$(CYGPATH_W) \
+	$(COINUTILSSRCDIR)/src` -I`$(CYGPATH_W) \
+	$(COINUTILSOBJDIR)/inc` -I`$(CYGPATH_W) $(OSISRCDIR)/src` \
+	-I`$(CYGPATH_W) $(OSIOBJDIR)/inc` -I`$(CYGPATH_W) \
+	$(LAGOSRCDIR)/../Cgc/src` -I`$(CYGPATH_W) \
+	$(IPOPTSRCDIR)/src/Interfaces` -I`$(CYGPATH_W) \
+	$(IPOPTSRCDIR)/src/Common` -I`$(CYGPATH_W) \
+	$(IPOPTSRCDIR)/src/LinAlg` -I`$(CYGPATH_W) \
+	$(IPOPTSRCDIR)/src/Algorithm` -I`$(CYGPATH_W) \
+	$(IPOPTOBJDIR)/inc` $(am__append_1) $(am__append_2)
 DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
-DISTCLEANFILES = $(am__append_2) $(VPATH_DISTCLEANFILES)
+DISTCLEANFILES = $(am__append_4) $(VPATH_DISTCLEANFILES)
 all: all-am
 
 .SUFFIXES:
@@ -370,6 +378,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOConstraintPropagation.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOCurvatureCheck.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGODecomposition.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOQuadraticEstimation.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGORestrictedFunction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOSampling.Plo@am__quote@
 

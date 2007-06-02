@@ -32,6 +32,23 @@ public:
 
 ostream& operator<<(ostream& out, const BoxReductionStatistics& statistics);
 
+/** Sets unbounded nonlinear variables to a guessed bound.
+ */
+class BoxReductionGuessing {
+private:
+	MINLPData& data;
+public:
+	BoxReductionGuessing(MINLPData& data_)
+	: data(data_)
+	{ }
+
+	/** Guesses bounds of unbounded nonlinear variables. 
+	 * @return the number of variables where at least one of its bounds was guessed.
+	 */	
+	int guessBounds();
+
+};
+
 } // namespace LaGO
 
 #endif /*LAGOBOXREDUCTION_HPP_*/

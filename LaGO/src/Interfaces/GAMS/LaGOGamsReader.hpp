@@ -61,17 +61,16 @@ private:
 
 	/** get name of row i
 	    @param dict
-	    @param gi row index, [0..nRows)
+	    @param i row index, [0..nRows)
 	    @param bufLen size of target buffer
 			@param name target buffer for row name
-			@param type
       @return name on success, NULL on failure
 	*/
 	static char* getRowName (struct dictRec* dict, int i, char *name, int bufLen);
 
 	/** get name of column j
 	    @param dict
-	    @param gj column index, [0..nCols)
+	    @param j column index, [0..nCols)
 	    @param bufLen size of target buffer
 			@param name target buffer for column name
       @return name on success, NULL on failure

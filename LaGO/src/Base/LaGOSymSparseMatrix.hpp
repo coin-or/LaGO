@@ -28,14 +28,18 @@ public:
 	
 	/** Inserts element into matrix.
 	 * If entry exists already, the new value is added to it.
-	 * If row>col, the indices are swaped.
+	 * If row<col (in upper triangle), the indices are swaped.
 	 */
 	void insert(int row, int col, double value) {
-		if (row<=col) operator[](pair<int,int>(row,col))+=value;
-		else operator[](pair<int,int>(col,row))+=value;
+		if (row<col) operator[](pair<int,int>(col,row))+=value;
+		else operator[](pair<int,int>(row,col))+=value;
 	}
 	
 	void add(double factor, const SymSparseMatrix& A);
+	
+	/** Adds all elements in upper diagonal part into lower diagonal part.
+	 */ 
+	void cleanUpperDiagonal();
 	
 }; // SymSparseMatrixCreator
 

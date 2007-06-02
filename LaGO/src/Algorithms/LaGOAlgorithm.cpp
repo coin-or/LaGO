@@ -9,7 +9,7 @@
 namespace LaGO {
 
 Algorithm::Algorithm(MINLPData& data_)
-: data(data_), decomp(data_), curvcheck(data_), conprob(data_)
+: data(data_), decomp(data_), curvcheck(data_), conprob(data_), quadest(data_)
 {
 #ifdef COIN_HAS_FILIB
 	filib::fp_traits<double>::setup();
@@ -30,14 +30,20 @@ void Algorithm::preprocessing() {
 	}
 	BoxReductionStatistics::printBox(cout, data);
 	
+	BoxReductionGuessing guess(data);
+	int guess_nr=guess.guessBounds();
+	cout << "Variables with guessed bounds: " << guess_nr << endl; 
+	
 	curvcheck.computeCurvature();
 	
+	quadest.computeEstimators();
+	
 
-//	cout << data;
-};
+	cout << data;
+}
 	
 void Algorithm::run() {
 	preprocessing();
-};
+}
 	
 } // namespace LaGO

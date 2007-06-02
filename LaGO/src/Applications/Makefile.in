@@ -54,22 +54,21 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@COIN_HAS_CPX_TRUE@am__append_1 = -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiCpx` -I`$(CYGPATH_W) $(CPXINCDIR)`
+@COIN_HAS_CPX_FALSE@am__append_2 = -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiClp` -I`$(CYGPATH_W) $(CLPSRCDIR)/src` -I`$(CYGPATH_W) $(CLPOBJDIR)/inc`
 @COIN_HAS_GAMSIO_TRUE@bin_PROGRAMS = LaGOGAMS$(EXEEXT)
-
-#AM_CPPFLAGS += -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiCpx` -I`$(CYGPATH_W) $(CPXINCDIR)`
 #Cgl seems to insist on OsiClp library, and OsiClp depends on Clp
-@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@am__append_1 = $(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la \
-@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	$(CLPOBJDIR)/src/libClp.la \
-@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/OsiClp/libOsiClp.la
-@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@am__append_2 = `cat $(CLPOBJDIR)/clp_addlibs.txt`
-@COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@am__append_3 = -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiClp` -I`$(CYGPATH_W) $(CLPSRCDIR)/src` -I`$(CYGPATH_W) $(CLPOBJDIR)/inc`
-@COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@am__append_4 = $(CLPOBJDIR)/src/libClp.la $(OSIOBJDIR)/src/OsiClp/libOsiClp.la
-@COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@am__append_5 = `cat $(CLPOBJDIR)/clp_addlibs.txt`
-@COIN_HAS_GAMSIO_TRUE@am__append_6 = `cat $(COINUTILSOBJDIR)/coinutils_addlibs.txt $(CGLOBJDIR)/cgl_addlibs.txt $(OSIOBJDIR)/osi_addlibs.txt $(IPOPTOBJDIR)/src/Interfaces/ipopt_addlibs_cpp.txt`
+@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@am__append_3 = $(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la \
+@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/OsiClp/libOsiClp.la \
+@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	$(CLPOBJDIR)/src/libClp.la
+@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@am__append_4 = `cat $(CLPOBJDIR)/clp_addlibs.txt`
+@COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@am__append_5 = $(OSIOBJDIR)/src/OsiClp/libOsiClp.la $(CLPOBJDIR)/src/libClp.la
+@COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@am__append_6 = `cat $(CLPOBJDIR)/clp_addlibs.txt`
+@COIN_HAS_GAMSIO_TRUE@am__append_7 = `cat $(COINUTILSOBJDIR)/coinutils_addlibs.txt $(CGLOBJDIR)/cgl_addlibs.txt $(OSIOBJDIR)/osi_addlibs.txt $(IPOPTOBJDIR)/src/Interfaces/ipopt_addlibs_cpp.txt`
 DIST_COMMON = $(srcdir)/../../../BuildTools/Makemain.inc \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
-@HAVE_EXTERNALS_TRUE@am__append_7 = Externals
-@HAVE_EXTERNALS_TRUE@am__append_8 = .Externals-stamp
+@HAVE_EXTERNALS_TRUE@am__append_8 = Externals
+@HAVE_EXTERNALS_TRUE@am__append_9 = .Externals-stamp
 subdir = src/Applications
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
@@ -90,6 +89,7 @@ libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libLaGO_la_DEPENDENCIES = ../Algorithms/libLaGOAlgorithms.la \
+	../Interfaces/libLaGOInterfaces.la \
 	../Problem/libLaGOProblem.la ../Base/libLaGOBase.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_libLaGO_la_OBJECTS =
@@ -100,10 +100,10 @@ am__LaGOGAMS_SOURCES_DIST = LaGOGAMS.cpp
 @COIN_HAS_GAMSIO_TRUE@am_LaGOGAMS_OBJECTS = LaGOGAMS.$(OBJEXT)
 LaGOGAMS_OBJECTS = $(am_LaGOGAMS_OBJECTS)
 @COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@am__DEPENDENCIES_2 = $(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la \
-@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	$(CLPOBJDIR)/src/libClp.la \
-@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/OsiClp/libOsiClp.la
-@COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@am__DEPENDENCIES_3 = $(CLPOBJDIR)/src/libClp.la \
-@COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/OsiClp/libOsiClp.la
+@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/OsiClp/libOsiClp.la \
+@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	$(CLPOBJDIR)/src/libClp.la
+@COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@am__DEPENDENCIES_3 = $(OSIOBJDIR)/src/OsiClp/libOsiClp.la \
+@COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@	$(CLPOBJDIR)/src/libClp.la
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_DEPENDENCIES = ../Interfaces/GAMS/libLaGOInterfaceGams.la \
 @COIN_HAS_GAMSIO_TRUE@	libLaGO.la $(am__DEPENDENCIES_2) \
 @COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_3) \
@@ -136,7 +136,7 @@ ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
-ADDLIBS = @ADDLIBS@ $(am__append_2) $(am__append_5) $(am__append_6)
+ADDLIBS = @ADDLIBS@ $(am__append_4) $(am__append_6) $(am__append_7)
 ADD_CFLAGS = @ADD_CFLAGS@
 ADD_CXXFLAGS = @ADD_CXXFLAGS@
 ALWAYS_FALSE_FALSE = @ALWAYS_FALSE_FALSE@
@@ -308,28 +308,30 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-EXTRA_DIST = gmsla_us.run install/gmsla_un.dat $(am__append_7)
+EXTRA_DIST = gmsla_us.run install/gmsla_un.dat $(am__append_8)
 AM_CPPFLAGS = $(FILIB_CPPFLAGS) -I`$(CYGPATH_W) $(srcdir)/../Base` \
 	-I`$(CYGPATH_W) $(srcdir)/../Problem` -I`$(CYGPATH_W) \
 	$(srcdir)/../Algorithms` -I`$(CYGPATH_W) \
+	$(srcdir)/../Interfaces` -I`$(CYGPATH_W) \
 	$(srcdir)/../Interfaces/GAMS` -I`$(CYGPATH_W) \
 	$(COINUTILSSRCDIR)/src` -I`$(CYGPATH_W) \
-	$(COINUTILSOBJDIR)/inc` -I`$(CYGPATH_W) \
+	$(COINUTILSOBJDIR)/inc` -I`$(CYGPATH_W) $(OSISRCDIR)/src` \
+	-I`$(CYGPATH_W) $(OSIOBJDIR)/inc` -I`$(CYGPATH_W) \
 	$(LAGOSRCDIR)/../Cgc/src` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/Interfaces` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/Common` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/LinAlg` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/Algorithm` -I`$(CYGPATH_W) \
-	$(IPOPTOBJDIR)/inc` $(am__append_3)
+	$(IPOPTOBJDIR)/inc` $(am__append_1) $(am__append_2)
 lib_LTLIBRARIES = libLaGO.la
 libLaGO_la_SOURCES = 
-libLaGO_la_LIBADD = ../Algorithms/libLaGOAlgorithms.la ../Problem/libLaGOProblem.la ../Base/libLaGOBase.la \
+libLaGO_la_LIBADD = ../Algorithms/libLaGOAlgorithms.la ../Interfaces/libLaGOInterfaces.la ../Problem/libLaGOProblem.la ../Base/libLaGOBase.la \
  $(RANLIBC_LIB) $(FILIB_LIB)
 
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_SOURCES = LaGOGAMS.cpp
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_LDADD = ../Interfaces/GAMS/libLaGOInterfaceGams.la \
-@COIN_HAS_GAMSIO_TRUE@	libLaGO.la $(am__append_1) \
-@COIN_HAS_GAMSIO_TRUE@	$(am__append_4) \
+@COIN_HAS_GAMSIO_TRUE@	libLaGO.la $(am__append_3) \
+@COIN_HAS_GAMSIO_TRUE@	$(am__append_5) \
 @COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/libOsi.la \
 @COIN_HAS_GAMSIO_TRUE@	$(CGLOBJDIR)/src/libCgl.la \
 @COIN_HAS_GAMSIO_TRUE@	$(COINUTILSOBJDIR)/src/libCoinUtils.la \
@@ -337,7 +339,7 @@ libLaGO_la_LIBADD = ../Algorithms/libLaGOAlgorithms.la ../Problem/libLaGOProblem
 @COIN_HAS_GAMSIO_TRUE@	$(GAMSIO_LIBS)
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_LDFLAGS = $(ADDLIBS) -rpath $(libdir)
 DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
-DISTCLEANFILES = $(am__append_8) $(VPATH_DISTCLEANFILES)
+DISTCLEANFILES = $(am__append_9) $(VPATH_DISTCLEANFILES)
 all: all-am
 
 .SUFFIXES:

@@ -70,6 +70,8 @@ ostream& operator<<(ostream& out, const MINLPData::ObjCon& objcon) {
 
 ostream& operator<<(ostream& out, const MINLPData::Variable& var) {
 	out << var.index << ": " << var.name << " [" << var.lower << ", " << var.upper << "] ";
+	if (var.nonlinear) out << "nonlinear ";
+	else out << "linear ";
 	if (var.discrete) out << "discrete";
 	out << endl;
 	return out;	

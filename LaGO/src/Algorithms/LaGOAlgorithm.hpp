@@ -12,6 +12,7 @@
 #include "LaGODecomposition.hpp"
 #include "LaGOCurvatureCheck.hpp"
 #include "LaGOConstraintPropagation.hpp"
+#include "LaGOQuadraticEstimation.hpp"
 
 namespace LaGO {
 
@@ -24,6 +25,7 @@ private:
 	Decomposition decomp;
 	CurvatureCheck curvcheck;
 	ConstraintPropagation conprob;
+	QuadraticEstimation quadest;
 	
 	void preprocessing();
 	

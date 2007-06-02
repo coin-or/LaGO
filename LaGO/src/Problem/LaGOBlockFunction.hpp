@@ -11,6 +11,8 @@
 #include "LaGOSymSparseMatrix.hpp"
 #include "LaGOSparsity.hpp"
 #include "LaGOCurvature.hpp"
+#include "LaGOSampleSet.hpp"
+#include "LaGOQuadraticUnderestimator.hpp"
 
 namespace LaGO {
 
@@ -44,7 +46,15 @@ public:
 	 */
 	double quad_maxeig;
 	
-	list<DenseVector> samplepoints;
+	SampleSet samplepoints;
+
+	/** Underestimators of nonquad.
+	 */	
+	list<QuadraticUnderestimator> underestimators;
+
+	/** Overestimators of nonquad.
+	 */
+	list<QuadraticUnderestimator> overestimators;
 
 	BlockFunction(int dim)
 	: sparsity(dim), curvature(UNKNOWN), quad_mineig(getInfinity()), quad_maxeig(-getInfinity())

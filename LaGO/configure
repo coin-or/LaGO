@@ -24665,7 +24665,7 @@ if test $coin_vpath_config = yes; then
 fi
 
 
-                                                                      ac_config_files="$ac_config_files Makefile src/Makefile src/Base/Makefile src/Problem/Makefile src/Algorithms/Makefile src/Interfaces/GAMS/Makefile src/Applications/Makefile"
+                                                                                ac_config_files="$ac_config_files Makefile src/Makefile src/Base/Makefile src/Problem/Makefile src/Algorithms/Makefile src/Interfaces/Makefile src/Interfaces/GAMS/Makefile src/Applications/Makefile"
 
 
           ac_config_headers="$ac_config_headers inc/config_lago.h"
@@ -25362,6 +25362,7 @@ do
   "src/Base/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Base/Makefile" ;;
   "src/Problem/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Problem/Makefile" ;;
   "src/Algorithms/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Algorithms/Makefile" ;;
+  "src/Interfaces/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Interfaces/Makefile" ;;
   "src/Interfaces/GAMS/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Interfaces/GAMS/Makefile" ;;
   "src/Applications/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Applications/Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
