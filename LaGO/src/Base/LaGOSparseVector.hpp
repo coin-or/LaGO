@@ -28,6 +28,14 @@ public:
 	: CoinPackedVector(1, &index, &value, false)
 	{ }
 	
+	friend ostream& operator<<(ostream& out, const SparseVector& v) {
+		const int* ind=v.getIndices();
+		const double* el=v.getElements();
+		for (int i=v.getNumElements(); i>0; --i, ++ind, ++el)
+			out << '(' << *ind << ',' << *el << ')' << ' ';
+		return out; 
+	} 
+	
 }; // class SparseVector
 
 class SparseVectorCreator : public map<int,double> {

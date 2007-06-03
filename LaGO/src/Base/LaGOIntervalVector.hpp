@@ -159,6 +159,16 @@ public:
 		const interval<double>* v_=v.getElements();
 		for (int i=getNumElements(); i>0; --i, ++x_, ++v_) *x_+=(factor* *v_);
 	}
+
+	IntervalVector& operator+=(const CoinPackedVector& v) {
+		const int* ind=v.getIndices();
+		const double* el=v.getElements();
+		for (int i=v.getNumElements(); i>0; --i, ++ind, ++el) {
+			assert(*ind>=0 && *ind<getNumElements());
+			if (*el) getElements()[*ind]+=*el;
+		}
+		return *this;
+	}
 };
 	
 	

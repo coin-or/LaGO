@@ -75,6 +75,17 @@ public:
 		for (int i=getNumElements(); i>0; --i, ++x_, ++v_) ret+=*x_ * *v_;
 		return ret;
 	}
+
+	double operator*(const CoinPackedVector& v) const {
+		double ret=0;
+		const double* v_el=v.getElements();
+		const int* v_ind=v.getIndices();
+		for (int i=v.getNumElements(); i>0; --i, ++v_el, ++v_ind) {
+			assert(0<=*v_ind && *v_ind<getNumElements());
+			ret+=getElements()[*v_ind] * *v_el;
+		}
+		return ret;
+	}
 	
 	DenseVector& operator+=(const DenseVector& v) {
 		assert(getNumElements()==v.getNumElements());
@@ -83,6 +94,35 @@ public:
 		for (int i=getNumElements(); i>0; --i, ++x_, ++v_) *x_+=*v_;
 		return *this;
 	}
+	
+	DenseVector& operator+=(const CoinPackedVector& v) {
+		const double* v_el=v.getElements();
+		const int* v_ind=v.getIndices();
+		for (int i=v.getNumElements(); i>0; --i, ++v_el, ++v_ind) {
+			assert(0<=*v_ind && *v_ind<getNumElements());
+			getElements()[*v_ind]+=*v_el;
+		}
+		return *this;
+	}
+
+	void addVector(double factor, const DenseVector& v) {
+		if (factor==1.) operator+=(v);
+		if (factor==0.) return;
+		assert(getNumElements()==v.getNumElements());
+		double* x_=getElements();
+		const double* v_=v.getElements();
+		for (int i=getNumElements(); i>0; --i, ++x_, ++v_) *x_+=factor**v_;
+	}
+	
+	double euclidianDistance(const DenseVector& v) const {
+		assert(getNumElements()==v.getNumElements());
+		double ret=0.;
+		const double* x_=getElements();
+		const double* v_=v.getElements();
+		for (int i=getNumElements(); i>0; --i, ++x_, ++v_) ret+=(*x_-*v_)*(*x_-*v_);
+		return sqrt(ret);
+	}
+	
 };
 
 template<class T>

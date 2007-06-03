@@ -13,7 +13,7 @@ EXTRA_DIST =
 lib_LTLIBRARIES = libLaGOProblem.la
 libLaGOProblem_la_SOURCES = LaGOMINLPData.cpp LaGOBlockFunction.cpp LaGOSparsity.cpp LaGOSampleSet.cpp LaGOBoxMinimizationProblem.cpp
 
-include_HEADERS = LaGOMINLPData.hpp LaGOBlockFunction.hpp LaGOSparsity.hpp LaGOCurvature.hpp LaGOQuadraticUnderestimator.hpp LaGOSampleSet.hpp
+include_HEADERS = LaGOMINLPData.hpp LaGOBlockFunction.hpp LaGOSparsity.hpp LaGOCurvature.hpp LaGOQuadraticFunction.hpp LaGOSampleSet.hpp
 
 AM_CPPFLAGS = \
  $(FILIB_CPPFLAGS) \

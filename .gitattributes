@@ -25,6 +25,7 @@ LaGO/src/Algorithms/LaGORestrictedFunction.cpp -text
 LaGO/src/Algorithms/LaGORestrictedFunction.hpp -text
 LaGO/src/Algorithms/LaGOSampling.cpp -text
 LaGO/src/Algorithms/LaGOSampling.hpp -text
+LaGO/src/Algorithms/LaGOSumFunction.hpp -text
 LaGO/src/Algorithms/Makefile.am -text
 LaGO/src/Algorithms/Makefile.in -text
 LaGO/src/Applications/LaGOGAMS.cpp -text
@@ -71,7 +72,7 @@ LaGO/src/Problem/LaGOBoxMinimizationProblem.hpp -text
 LaGO/src/Problem/LaGOCurvature.hpp -text
 LaGO/src/Problem/LaGOMINLPData.cpp -text
 LaGO/src/Problem/LaGOMINLPData.hpp -text
-LaGO/src/Problem/LaGOQuadraticUnderestimator.hpp -text
+LaGO/src/Problem/LaGOQuadraticFunction.hpp -text
 LaGO/src/Problem/LaGOSampleSet.cpp -text
 LaGO/src/Problem/LaGOSampleSet.hpp -text
 LaGO/src/Problem/LaGOSparsity.cpp -text
