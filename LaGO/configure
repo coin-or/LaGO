@@ -24415,7 +24415,7 @@ fi;
 		echo "$as_me:$LINENO: checking whether GAMS I/O libraries at $use_gamsio and $use_gamssys works" >&5
 echo $ECHO_N "checking whether GAMS I/O libraries at $use_gamsio and $use_gamssys works... $ECHO_C" >&6
 		if test x"$GAMSIO_CODE" = xLX3; then
-		  GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/libg2d.a -ldl -L$use_gamssys -lifcore -limf"
+		  GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/libg2d.a -ldl -L$use_gamssys -lifcore -limf -lirc"
 		elif test x"$GAMSIO_CODE" = xLEI; then
 		  GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/libg2d.a -ldl -L$use_gamssys -lifcore -limf -lirc"
 		fi

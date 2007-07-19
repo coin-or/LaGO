@@ -360,7 +360,7 @@ if test x"$use_gamsio" != x; then
 	if test x"$use_gamssys" != x; then
 		AC_MSG_CHECKING([whether GAMS I/O libraries at $use_gamsio and $use_gamssys works])
 		if test x"$GAMSIO_CODE" = xLX3; then
-		  GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/libg2d.a -ldl -L$use_gamssys -lifcore -limf"
+		  GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/libg2d.a -ldl -L$use_gamssys -lifcore -limf -lirc"
 		elif test x"$GAMSIO_CODE" = xLEI; then
 		  GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/libg2d.a -ldl -L$use_gamssys -lifcore -limf -lirc"
 		fi
