@@ -191,7 +191,7 @@ void IpOptProblem::set_hessian(const SepQcFunc& func, int blocknr, Number* value
 		if (add) *diagval+=factor*y[col]; else *diagval=factor*y[col]; // diagonal values
 		while (it_spfunc!=spfunc.end() && (it_spfunc->first.first==col)) {
 			while (it_spall->first.second!=it_spfunc->first.second) { // skip nonzeros not in this function
-				++it_spall; //assert(it_spall!=spall.end()); 
+				++it_spall; //assert(it_spall!=spall.end());
 				if (!add) *values=0.; ++values;
 			}
 			if (add) *values+=factor*y[it_spfunc->first.second]; else *values=factor*y[it_spfunc->first.second];
@@ -232,7 +232,7 @@ void IpOptProblem::set_hessianquad(const SepQcFunc& func, int blocknr, Number* v
 			if (!add) *values=0.; ++values;
 		}
 		// ipopt copies these elements to the upper right part; so set only to half values
-		if (add) *values+=factor*it_spfunc->second.coeff; 
+		if (add) *values+=factor*it_spfunc->second.coeff;
 		else *values=factor*it_spfunc->second.coeff;
 		++it_spfunc; ++it_spall; ++values;
 	}
@@ -303,7 +303,7 @@ bool IpOptProblem::eval_h(Index n, const Number* x, bool new_x,
 				for (int c=0; c<m; ++c) {
 					if (!lambda[c]) continue;
 					if (prob->con[c]->s[k]) {
-						if (!xx) { 
+						if (!xx) {
 							xx=new dvector(prob->block[k].size());
 							for (int i=xx->dim()-1; i>=0; --i) (*xx)[i]=x[prob->block[k][i]];
 							z=new dvector(xx->dim());
@@ -317,7 +317,7 @@ bool IpOptProblem::eval_h(Index n, const Number* x, bool new_x,
 			} else {
 				oldcount=count;
 				if (obj_factor && (prob->obj->A[k] || prob->obj->s[k])) {
-					if (!xx) { 
+					if (!xx) {
 						xx=new dvector(prob->block[k].size());
 						for (int i=xx->dim()-1; i>=0; --i) {
 							(*xx)[i]=x[prob->block[k][i]];
@@ -344,7 +344,7 @@ bool IpOptProblem::eval_h(Index n, const Number* x, bool new_x,
 				for (int c=0; c<m; ++c) {
 					oldcount=count;
 					if (lambda[c] && (prob->con[c]->A[k] || prob->con[c]->s[k])) {
-						if (!xx) { 
+						if (!xx) {
 							xx=new dvector(prob->block[k].size());
 							for (int i=xx->dim()-1; i>=0; --i) (*xx)[i]=x[prob->block[k][i]];
 							z=new dvector(xx->dim());
@@ -375,7 +375,8 @@ bool IpOptProblem::eval_h(Index n, const Number* x, bool new_x,
 
 void IpOptProblem::finalize_solution(SolverReturn status,
 	Index n, const Number* x, const Number* z_L, const Number* z_U,
-	Index m, const Number* g, const Number* lambda, Number obj_value)
+	Index m, const Number* g, const Number* lambda, Number obj_value,
+	const IpoptData* data, IpoptCalculatedQuantities* cq)
 {
 	ipopt.sol_point.set(x, n);
 	ipopt.lambda.set(lambda,m);
@@ -407,7 +408,7 @@ IpOpt::IpOpt(const Pointer<MinlpProblem> prob_, Pointer<Param> param_, Pointer<o
 	ipoptproblem=new IpOptProblem(prob_, *this);
 	sol_point=prob_->primal_point;
 	reinit();
-	
+
 	ipopt->Initialize();
 }
 
