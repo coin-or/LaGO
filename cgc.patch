@@ -1,0 +1,30 @@
+Index: Cgc/src/DynNet.h
+===================================================================
+--- Cgc/src/DynNet.h	(revision 14)
++++ Cgc/src/DynNet.h	(working copy)
+@@ -377,6 +377,7 @@
+         {	
+             if(nodeIter == otherIter.nodeIter)
+             {
++            		if (nodeIter == net->end()) return true;
+                 if(arcIter == otherIter.arcIter)
+                 {
+                     return true;	
+@@ -709,6 +710,17 @@
+             else
+                 return arc_iterator(*netpnt,tail,arcFound);
+         }
++        arc_iterator arc_find(const_iterator& tail, const_iterator& head)
++        {
++            DynNet<NodeInfo,ArcInfo> *netpnt= 
++                const_cast< DynNet<NodeInfo,ArcInfo> * >(this);
++            Arc anArc(tail,ArcInfo(),head);
++            typename Node::iterator arcFound=(*tail).findArc(&anArc);
++            if(arcFound==(*tail).end())
++                return arc_end();
++            else
++                return arc_iterator(*netpnt,tail,arcFound);
++        }
+ 
+         const_iterator find(const NodeId &id)const
+         {

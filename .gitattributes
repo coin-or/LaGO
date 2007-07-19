@@ -98,6 +98,7 @@ ThirdParty/RANLIB.C/Makefile.in -text
 ThirdParty/RANLIB.C/configure -text
 ThirdParty/RANLIB.C/configure.ac -text
 ThirdParty/RANLIB.C/get.RANLIB.C -text
+/cgc.patch -text
 /config.guess -text
 /config.sub -text
 /configure -text
