@@ -9,7 +9,7 @@
 #include "IpLapack.hpp"
 
 namespace LaGO {
-	
+
 void SymSparseMatrixCreator::add(double factor, const SymSparseMatrix& A) {
 	assert(getDim()==A.getNumCols());
 	const int* rowind=A.getRowIndices();
@@ -21,8 +21,16 @@ void SymSparseMatrixCreator::add(double factor, const SymSparseMatrix& A) {
 		++rowind;
 		++colind;
 		++value;
-	} 
+	}
 }
+
+void SymSparseMatrixCreator::scale(double factor) {
+	if (factor==0.) clear();
+	else
+		for (iterator it(begin()); it!=end(); ++it)
+			it->second*=factor;
+}
+
 
 void SymSparseMatrixCreator::cleanUpperDiagonal() {
 	iterator it(begin());
@@ -31,19 +39,19 @@ void SymSparseMatrixCreator::cleanUpperDiagonal() {
 			iterator next(it); ++next;
 			operator[](pair<int,int>(it->first.second,it->first.first))+=it->second;
 			erase(it);
-			it=next;  
+			it=next;
 		} else
 			++it;
-	}	
+	}
 }
-	
+
 
 SymSparseMatrix::~SymSparseMatrix() {
 	delete[] value;
 	delete[] rowind;
 	delete[] colind;
 }
-	
+
 void SymSparseMatrix::set(const SymSparseMatrixCreator& creator) {
 	delete[] value;
 	delete[] rowind;
@@ -57,16 +65,16 @@ void SymSparseMatrix::set(const SymSparseMatrixCreator& creator) {
 		if (it->second==0) continue;
 		rowind[nz]=it->first.first;
 		colind[nz]=it->first.second;
-		value[nz]=it->second;		
+		value[nz]=it->second;
 		++nz;
-	}	
+	}
 }
 
 void SymSparseMatrix::addMultVector(DenseVector& y, const DenseVector& x, double a) const {
 	const int* rowind_=rowind;
 	const int* colind_=colind;
 	const double* value_=value;
-	
+
 	for (int i=nz; i>0; --i) {
 		if (*rowind_==*colind_) y[*rowind_]+=a * *value_ * x[*colind_];
 		else {
@@ -76,7 +84,7 @@ void SymSparseMatrix::addMultVector(DenseVector& y, const DenseVector& x, double
 		++rowind_;
 		++colind_;
 		++value_;
-	}	
+	}
 }
 
 double SymSparseMatrix::yAx(const DenseVector& y, const DenseVector& x) const {
@@ -84,15 +92,15 @@ double SymSparseMatrix::yAx(const DenseVector& y, const DenseVector& x) const {
 	const int* rowind_=rowind;
 	const int* colind_=colind;
 	const double* value_=value;
-	
+
 	for (int i=nz; i>0; --i) {
 		if (*rowind_==*colind_) ret+=y[*rowind_]* *value_ * x[*colind_];
 		else ret+=*value_ * (y[*rowind_]*x[*colind_]+x[*rowind_]*y[*colind_]);
 		++rowind_;
 		++colind_;
 		++value_;
-	}	
-	
+	}
+
 	return ret;
 }
 
@@ -101,7 +109,7 @@ double SymSparseMatrix::xAx(const DenseVector& x) const {
 	const int* rowind_=rowind;
 	const int* colind_=colind;
 	const double* value_=value;
-	
+
 	for (int i=nz; i>0; --i) {
 		if (*rowind_==*colind_) {
 			double x_=x[*rowind_];
@@ -112,8 +120,8 @@ double SymSparseMatrix::xAx(const DenseVector& x) const {
 		++rowind_;
 		++colind_;
 		++value_;
-	}	
-	
+	}
+
 	return ret;
 }
 
@@ -123,7 +131,7 @@ void SymSparseMatrix::addMultVector(IntervalVector& y, const IntervalVector& x, 
 	const int* rowind_=rowind;
 	const int* colind_=colind;
 	const double* value_=value;
-	
+
 	if (a.isPoint()) {
 		for (int i=nz; i>0; --i) {
 			if (*rowind_==*colind_) y[*rowind_]+=a* *value_ * x[*colind_];
@@ -138,7 +146,7 @@ void SymSparseMatrix::addMultVector(IntervalVector& y, const IntervalVector& x, 
 	} else {
 		IntervalVector tmp(x.getNumElements());
 		addMultVector(tmp, x, interval<double>(1.)); // Ax;  for this call, a=1. is a point interval
-		y.addVector(a, tmp);		
+		y.addVector(a, tmp);
 	}
 }
 
@@ -147,7 +155,7 @@ interval<double> SymSparseMatrix::xAx(const IntervalVector& x) const {
 	const int* rowind_=rowind;
 	const int* colind_=colind;
 	const double* value_=value;
-	
+
 	for (int i=nz; i>0; --i) {
 		if (*rowind_==*colind_) {
 			ret+=*value_ * sqr(x[*rowind_]);
@@ -157,8 +165,8 @@ interval<double> SymSparseMatrix::xAx(const IntervalVector& x) const {
 		++rowind_;
 		++colind_;
 		++value_;
-	}	
-	
+	}
+
 	return ret;
 }
 
@@ -184,10 +192,10 @@ interval<double> envelope(double a, double b, const interval<double>& x) {
 interval<double> SymSparseMatrix::xAx_bx(const IntervalVector& x, const DenseVector& b) const {
 	interval<double> ret(0.);
 	const interval<double>& zero(interval<double>::ZERO());
-	
+
 	IntervalVector coeff(x.getNumElements());
 	DenseVector diag(x.getNumElements());
-	
+
 	const int* rowind_=rowind;
 	const int* colind_=colind;
 	const double* value_=value;
@@ -201,7 +209,7 @@ interval<double> SymSparseMatrix::xAx_bx(const IntervalVector& x, const DenseVec
 		++colind_;
 		++value_;
 	}
-	
+
 	interval<double>* coeff_=coeff.getElements();
 	double* diag_=diag.getElements();
 	const interval<double>* x_=x.getElements();
@@ -210,10 +218,10 @@ interval<double> SymSparseMatrix::xAx_bx(const IntervalVector& x, const DenseVec
 		if (*x_==zero) continue;
 		if (x_->isPoint()) ret+=x_->inf()*(*coeff_+*diag_*x_->inf()+*b_);
 		else {
-//			clog << *x_ << '*' << *coeff_ << '=' << *x_ * *coeff_ << '\t' << mult(*x_,*coeff_) << endl; 
+//			clog << *x_ << '*' << *coeff_ << '=' << *x_ * *coeff_ << '\t' << mult(*x_,*coeff_) << endl;
 			ret+=*x_ * *coeff_ + envelope(*diag_, *b_, *x_);
 		}
-	} 
+	}
 	return ret;
 }
 #endif // COIN_HAS_FILIB
@@ -221,7 +229,7 @@ interval<double> SymSparseMatrix::xAx_bx(const IntervalVector& x, const DenseVec
 bool SymSparseMatrix::computeEigenValues(DenseVector& eigval, DenseVector* eigvec) const {
 	int dim=getNumCols();
 	if (eigval.getNumElements()<dim) eigval.resize(dim);
-	
+
 	double* storage;
 	if (eigvec) {
 		if (eigvec->getNumElements()<dim*dim)
@@ -248,8 +256,8 @@ bool SymSparseMatrix::computeEigenValues(DenseVector& eigval, DenseVector* eigve
   Ipopt::IpLapackDsyev(eigvec!=NULL, dim, storage, dim, eigval.getElements(), info);
 
   if (!eigvec) delete[] storage;
-  
-  return (info==0);	
+
+  return (info==0);
 }
 
 bool SymSparseMatrix::computeMinMaxEigenValue(double& mineig, double& maxeig) const {
@@ -272,10 +280,10 @@ void SymSparseMatrix::print(ostream& out) const {
 	const int* rowind_=rowind;
 	const int* colind_=colind;
 	const double* value_=value;
-	
+
 	out << "SymSparseMatrix:";
 	for (int i=nz; i>0; --i)
 		out << " (" << *rowind_++ << ',' << *colind_++ << ")=" << *value_++;
-}	
-	
+}
+
 } // namespace LaGO

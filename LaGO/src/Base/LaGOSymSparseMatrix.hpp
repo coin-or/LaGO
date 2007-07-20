@@ -11,9 +11,9 @@
 #include "LaGOSymMatrix.hpp"
 
 namespace LaGO {
-	
+
 class SymSparseMatrix;
-	
+
 class SymSparseMatrixCreator : public map<pair<int,int>, double> {
 private:
 	int dim;
@@ -22,10 +22,10 @@ public:
 	SymSparseMatrixCreator(int dim_=0)
 	: dim(dim_)
 	{ }
-	
+
 	int getDim() const { return dim; }
-	void setDim(int dim_) { dim=dim_; } 
-	
+	void setDim(int dim_) { dim=dim_; }
+
 	/** Inserts element into matrix.
 	 * If entry exists already, the new value is added to it.
 	 * If row<col (in upper triangle), the indices are swaped.
@@ -34,13 +34,15 @@ public:
 		if (row<col) operator[](pair<int,int>(col,row))+=value;
 		else operator[](pair<int,int>(row,col))+=value;
 	}
-	
+
 	void add(double factor, const SymSparseMatrix& A);
-	
+
+	void scale(double factor);
+
 	/** Adds all elements in upper diagonal part into lower diagonal part.
-	 */ 
+	 */
 	void cleanUpperDiagonal();
-	
+
 }; // SymSparseMatrixCreator
 
 /** A symmetric matrix in triplet format.
@@ -65,16 +67,16 @@ public:
 	SymSparseMatrix(int dim=0)
 	: SymMatrix(dim), nz(0), value(NULL), rowind(NULL), colind(NULL)
 	{ }
-	
+
 	SymSparseMatrix(const SymSparseMatrixCreator& creator)
 	: SymMatrix(creator.getDim()), nz(0), value(NULL), rowind(NULL), colind(NULL)
 	{ set(creator);
 	}
-	
+
 	~SymSparseMatrix();
-	
+
 	void set(const SymSparseMatrixCreator& creator);
-	
+
 	const double* getValues() const { return value; }
 	const int* getRowIndices() const { return rowind; }
 	const int* getColIndices() const { return colind; }
@@ -91,7 +93,7 @@ public:
 
 	double yAx(const DenseVector& y, const DenseVector& x) const;
 //	double yAx(const SparseVector& y, const SparseVector& x) const;
-	
+
 	double xAx(const DenseVector& x) const;
 //	double xAx(const SparseVector& x) const;
 
@@ -106,7 +108,7 @@ public:
 	}
 
 	interval<double> xAx(const IntervalVector& x) const;
-	
+
 	interval<double> xAx_bx(const IntervalVector& x, const DenseVector& b) const;
 #endif
 	/** Computes eigenvalues and eigenvectors.
@@ -115,16 +117,16 @@ public:
 	 * @return True, if computation succeeded. False otherwise.
 	 */
 	bool computeEigenValues(DenseVector& eigval, DenseVector* eigvec=NULL) const;
-	
+
 	/** Computes the minimal and maximal eigenvalue.
 	 * @return True, if computation succeeded. False otherwise.
 	 */
 	bool computeMinMaxEigenValue(double& mineig, double& maxeig) const;
 
-	void print(ostream& out) const;	
-};	
-	
-	
+	void print(ostream& out) const;
+};
+
+
 } // namespace LaGO
 
 #endif /*LAGOSYMSPARSEMATRIX_HPP_*/
