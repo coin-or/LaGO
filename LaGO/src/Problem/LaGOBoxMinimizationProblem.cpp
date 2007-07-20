@@ -100,7 +100,10 @@ bool BoxMinimizationProblem::eval_h(Index n, const Number* x, bool new_x, Number
 					*jCol=col;
 				}
 	} else {
-		if (obj_factor==0.) return true;
+		if (obj_factor==0.) {
+			CoinZeroN(values, nele_hess);
+			return true;
+		}
 		SymSparseMatrixCreator hessian(n);
 		try {
 			DenseVector x_(n, x);
@@ -109,7 +112,7 @@ bool BoxMinimizationProblem::eval_h(Index n, const Number* x, bool new_x, Number
 			return false;
 		}
 		hessian.cleanUpperDiagonal();
-				
+
 		if (IsValid(sparsitygraph)) {
 			for (SparsityGraph::arc_iterator it(sparsitygraph->arc_begin()); it!=sparsitygraph->arc_end(); ++it) {
 				int var1=(**(*it).head()).varindex;
@@ -117,10 +120,10 @@ bool BoxMinimizationProblem::eval_h(Index n, const Number* x, bool new_x, Number
 				if (var1>var2) continue;
 				pair<int,int> col_row(var2, var1); // var2<=var1
 				map<pair<int,int>, double>::iterator it_h(hessian.find(col_row));
-				if (it_h!=hessian.end()) *values=it_h->second;
+				if (it_h!=hessian.end()) *values=obj_factor*it_h->second;
 				else *values=0.;
 				++values;
-			}			
+			}
 		} else {
 			CoinZeroN(values, nele_hess);
 			for (map<pair<int,int>, double>::iterator it_h(hessian.begin()); it_h!=hessian.end(); ++it_h) {
@@ -128,9 +131,9 @@ bool BoxMinimizationProblem::eval_h(Index n, const Number* x, bool new_x, Number
 				int col=it_h->first.second;
 				int index=row*(row+1)/2+col;
 				assert(index<nele_hess);
-				values[index]=it_h->second;
-			}			
-		}		
+				values[index]=obj_factor*it_h->second;
+			}
+		}
 	}
 	return true;
 }
@@ -140,7 +143,7 @@ void BoxMinimizationProblem::finalize_solution(SolverReturn status, Index n, con
 		CoinCopyN(x, n, solution.getElements());
 	funcvalue=obj_value;
 }
-	
+
 } // namespace LaGO
 
 #endif /*LAGOBOXMINIMIZATIONPROBLEM_CPP_*/

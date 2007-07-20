@@ -17,7 +17,7 @@ QuadraticEstimation::QuadraticEstimation(MINLPData& data_)
 { lp.messageHandler()->setLogLevel(0);
 	ipopt.Options()->SetNumericValue("tol", 1E-4);
 	ipopt.Options()->SetNumericValue("dual_inf_tol", 1E-4);
-	ipopt.Options()->SetStringValue("hessian_approximation", "limited-memory"); // seem to give better results
+//	ipopt.Options()->SetStringValue("hessian_approximation", "limited-memory"); // seem to give better results
 	ipopt.Options()->SetIntegerValue("print_level", 0);
 	ipopt.Initialize(); // this reads ipopt.opt
 }
@@ -135,44 +135,39 @@ int QuadraticEstimation::initLP(BlockFunction& func, const SampleSet::iterator& 
 
 	DenseVector collb(nr_cols, 0.);
 	DenseVector colub(nr_cols, getInfinity());
-	collb[0]=-getInfinity();
-//	for (int i=0; i<1+(int)func.indices.size(); ++i) {
-//		collb[i]=-getInfinity();
-//		collb[i]=-10000;
-//		colub[i]=10000;
+//	collb[0]=-getInfinity();
+	for (int i=0; i<1+(int)func.indices.size(); ++i)
+		collb[i]=-getInfinity();
+
+//	// setting up some bounds on the coefficients:
+//	// let coefficients in linear and quadratic part not exceed 10 times the absolute value of corresponding coefficient in reference point
+
+//	DenseVector grad_in_refpoint(func.indices.size());
+//	func.nonquad->gradient(grad_in_refpoint, *enforce_tightness);
+//	int index=1;
+//	for (; index<1+(int)func.indices.size(); ++index) {
+//		double bound=CoinMax(100., 10*CoinAbs(grad_in_refpoint(index-1)));
+//		collb[index]=-bound;
+//		colub[index]=bound;
 //	}
-
-	// setting up some bounds on the coefficients:
-	// let coefficients in linear and quadratic part not exceed 10 times the absolute value of corresponding coefficient in reference point
-
-	DenseVector grad_in_refpoint(func.indices.size());
-	func.nonquad->gradient(grad_in_refpoint, *enforce_tightness);
-	int index=1;
-	for (; index<1+(int)func.indices.size(); ++index) {
-		double bound=CoinMax(100., 10*CoinAbs(grad_in_refpoint(index-1)));
-		collb[index]=-bound;
-		colub[index]=bound;
-	}
-
-	SymSparseMatrixCreator hessian_in_refpoint(func.indices.size());
-	func.nonquad->fullHessian(hessian_in_refpoint, *enforce_tightness);
-//	int index=1+func.indices.size();
-	for (SparsityGraph::arc_iterator it_arc(func.sparsitygraph->arc_begin()); it_arc!=func.sparsitygraph->arc_end(); ++it_arc) {
-		const SparsityGraph::Arc& arc(*it_arc);
-		int var1=(**arc.head()).varindex;
-		int var2=(**arc.tail()).varindex;
-		if (var1<=var2) {
-			double hessval=hessian_in_refpoint[pair<int,int>(var2,var1)];
-			double bound=CoinMax(100., 10*CoinAbs(hessval));
-			collb[index]=-bound;
-			colub[index]=bound;
-			++index;
-		}
-	}
+//
+//	SymSparseMatrixCreator hessian_in_refpoint(func.indices.size());
+//	func.nonquad->fullHessian(hessian_in_refpoint, *enforce_tightness);
+//	for (SparsityGraph::arc_iterator it_arc(func.sparsitygraph->arc_begin()); it_arc!=func.sparsitygraph->arc_end(); ++it_arc) {
+//		const SparsityGraph::Arc& arc(*it_arc);
+//		int var1=(**arc.head()).varindex;
+//		int var2=(**arc.tail()).varindex;
+//		if (var1<=var2) {
+//			double hessval=hessian_in_refpoint[pair<int,int>(var2,var1)];
+//			double bound=CoinMax(100., 10*CoinAbs(hessval));
+//			collb[index]=-bound;
+//			colub[index]=bound;
+//			++index;
+//		}
+//	}
 
 
 	DenseVector objcoeff(nr_cols);
-//	for (int i=0; i<nr_coeff; ++i) objcoeff[i]=0.1;
 	for (int i=nr_coeff; i<nr_cols; ++i) objcoeff[i]=1.;
 
 	CoinPackedVectorBase** rows=new CoinPackedVectorBase*[nr_auxvars];
