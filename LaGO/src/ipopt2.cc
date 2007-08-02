@@ -444,12 +444,13 @@ int IpOpt::solve() {
 
 	out_solver << "IPOPT returned " << status;
 	if (status==Solve_Succeeded) {
-		iter_=ipopt->Statistics()->IterationCount();
-// 		opt_val_=ipopt->Statistics()->FinalObjective();
+		if (IsValid(ipopt->Statistics()))
+			iter_=ipopt->Statistics()->IterationCount();
+		else
+			iter_=1;
 		out_solver << "\t iter: " << iter() << "\t optval " << opt_val() << endl;
 	} else out_solver << endl;
 
-//	out_log << "sol: " << sol_point;
 	MinlpProblem& prob(*((IpOptProblem*)GetRawPtr(ipoptproblem))->prob);
 	if (status==Solve_Succeeded) prob.feasible(sol_point, 1E-4, out_log_p);
 

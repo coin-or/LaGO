@@ -521,7 +521,7 @@ void IntervalReduction::set_problem(Pointer<MinlpProblem> prob_) {
 				which_bound_type wb;
 				if (prob->con_eq[c]) wb=WHATEVER;
 				else if (it.type()&VariableIterator_Type::NONLINEAR) wb=WHATEVER; // it is nonlinear -> cannot predict
-				else wb=it.coeff_lin()*it.coeff_lin()>0 ? LOWER : UPPER; // it is linear
+				else wb=it.coeff_lin()>0 ? LOWER : UPPER; // it is linear
 
 				dependency_graph.add_edge(nodes[it()], nodes[it_lin()], EdgeData(c, wb, it_lin.coeff_lin()));
 			}
