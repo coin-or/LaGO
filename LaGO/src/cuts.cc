@@ -382,7 +382,7 @@ void CutPool::update_cuts(Pointer<MinlpNode> node, int blocknr, const dvector& l
 	if (oldcuts_nr) {
 		for (list<Pointer<LinearizationCut> >::iterator it(newcuts2.begin()); it!=newcuts2.end(); ++it)
 			add_cut(*it, node, blocknr);
-		out_log << "Replaced " << oldcuts_nr << " LinearizationCuts by " << newcuts2.size() << " updated ones." << endl;
+//		out_log << "Replaced " << oldcuts_nr << " LinearizationCuts by " << newcuts2.size() << " updated ones." << endl;
 	}
 }
 

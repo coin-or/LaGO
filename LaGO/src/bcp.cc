@@ -121,6 +121,12 @@ void MinlpBCP::init() {
 	else if (!strcmp(bcpsubdivtype, "Bisection")) subdiv_type=BisectSubdiv;
 	else if (!strcmp(bcpsubdivtype, "Violation")) subdiv_type=ViolSubdiv;
 	else subdiv_type=CostSubdivLag;
+	
+	subdiv_discrete_emphasis=param->get_i("Subdivision on discrete emphasis", 1);
+	
+	Pointer<char> nodeselecttype=param->get("BCP node selection typ", "best bound");
+	if (strcmp(nodeselecttype, "unfixed discrete")==0) nodeselect_type=UnfixedDiscrete;
+	else nodeselect_type=BestBound;
 
 	is_maxcut=param->get_i("maxcut", 0);
 
@@ -788,6 +794,24 @@ bool MinlpBCP::feasibility_check(Pointer<MinlpNode> node) {
 	return true;
 }
 
+multimap<double, Pointer<MinlpNode> >::iterator MinlpBCP::select_node() {
+	switch (nodeselect_type) {
+		case UnfixedDiscrete: {
+			for (multimap<double, Pointer<MinlpNode> >::iterator it_node(bb_tree.begin()); it_node!=bb_tree.end(); ++it_node) {
+				for (int i=0; i<orig_prob->i_discr.size(); ++i)
+					if (it_node->second->lower(orig_prob->i_discr[i])!=it_node->second->upper(orig_prob->i_discr[i])) { // found a node where not all discrete variables are fixed
+						out_log << "Node selection by discrete-first-rule: Selecting node with lower bound " << it_node->first << endl;  
+						return it_node;
+					}		
+			}
+			out_log << "Node selection by discrete-first-rule: All nodes have all discrete variables fixed. Falling back to best-bound rule." << endl; 
+		} // no break here, because we want BestBound now
+		case BestBound: 
+		default:
+			return bb_tree.begin();
+	}	
+}
+
 
 int MinlpBCP::update_subdiv_bound(int k, int i, Pointer<MinlpNode> node) {
 //	out_solver_log << "Updating bound after subdivision." << endl;
@@ -1076,8 +1100,8 @@ int MinlpBCP::bin_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Poin
 			if (!split_prob->discr[i0]) continue; // no binary
 			if (node->upper(i0)==node->lower(i0)) continue; // already fixed
 			double cost=integrality_violation(node->ref_point(i0));
-			if (subdiv_type!=BinSubdiv && !prob_is_convex) // almost integer
-				if (cost<1E-4) continue;
+			if (subdiv_type!=BinSubdiv && !prob_is_convex && subdiv_discrete_emphasis<2 && cost<1E-4) // almost integer
+				continue;
  			if (b_lag(i)>0) cost+=10*b_lag(i);
 			if (cost>max_cost) {
 				max_cost=cost;
@@ -1859,8 +1883,11 @@ double MinlpBCP::start_bb() {
 		do {
 			// (selection) Take a partition element $U$ from $L$.
 			/* take node from the tree */
-			node1=bb_tree.begin()->second;
-			bb_tree.erase(bb_tree.begin());
+			multimap<double, Pointer<MinlpNode> >::iterator node_it(select_node());
+			node1=node_it->second;
+			bb_tree.erase(node_it);
+//			node1=bb_tree.begin()->second;
+//			bb_tree.erase(bb_tree.begin());
 			clean_sub_problems();
 
 			if (out_solver_log_p) {

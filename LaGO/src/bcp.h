@@ -89,6 +89,21 @@ class LagHeu;
 		\item Bisection: Subdivides w.r.t. a variables, which boxdiameter is maximal.
 		\item Violation: Tries to subdivide w.r.t. a variable, which can minimize the violation of the reference point. If it fails to find a variable, bisection is used.
 		\end{itemize}
+		@param Subdivision on discrete emphasis
+		%options 1, 2
+		%default 1
+		%level 2
+		If set to 1, discrete variables are only chosen for subdivision, if integer-infeasible or the subdiv type is Binary.
+		If set to 2, discrete variables are also chosen for subdivision, if they are already integer-feasible.  
+    @param BCP node selection typ
+    %options best bound, unfixed discrete
+		%default best bound
+		%level 2
+		The method that selects the next node from the branch-and-bound tree.
+		\begin{itemize}
+		\item best bound: Selects node with lowest lower bound.
+		\item unfixed discrete: Selects node which does not have all discrete variables fixed yet (and among them one with the lowest lower bound). 
+		\end{itemize}
 		@param IntervalGradient cuts
     %options 0, 1
 		%default 0
@@ -261,6 +276,10 @@ class MinlpBCP : public RelaxationSolver {
 		enum { BranchCut } lagsolve_type; //BranchCut should be BCP
 		// subdiv_type
 		enum { BinSubdiv, CostSubdivLag, CostSubdivNewton, BisectSubdiv, RMPSubdiv, ViolSubdiv } subdiv_type;
+		
+		int subdiv_discrete_emphasis;
+		
+		enum { BestBound, UnfixedDiscrete } nodeselect_type; 
 
 		int upper_bound_effort_level;
 
@@ -304,6 +323,8 @@ class MinlpBCP : public RelaxationSolver {
 		/** Checks by interval arithmetic whether the box in node is feasible by evaluation the constraints over the box.
 		 */ 
 		bool feasibility_check(Pointer<MinlpNode> node);
+		
+		multimap<double, Pointer<MinlpNode> >::iterator select_node();
 
 		// --------------------- bounding
 
