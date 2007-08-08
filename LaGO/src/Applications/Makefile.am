@@ -44,7 +44,8 @@ LaGOGAMS_SOURCES = LaGOGAMS.cpp
 LaGOGAMS_LDADD = ../Interfaces/GAMS/libLaGOInterfaceGams.la libLaGO.la
  
 if COIN_HAS_CPX
-LaGOGAMS_LDADD += $(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la
+#to make sure that libOsiCpx comes in the command line before -lcplex, we have to add OsiCpx to ADDLIBS
+ADDLIBS += $(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la
 #Cgl seems to insist on OsiClp library, and OsiClp depends on Clp
 LaGOGAMS_LDADD += $(OSIOBJDIR)/src/OsiClp/libOsiClp.la $(CLPOBJDIR)/src/libClp.la
 ADDLIBS += `cat $(CLPOBJDIR)/clp_addlibs.txt`

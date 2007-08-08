@@ -57,11 +57,13 @@ host_triplet = @host@
 @COIN_HAS_CPX_TRUE@am__append_1 = -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiCpx` -I`$(CYGPATH_W) $(CPXINCDIR)`
 @COIN_HAS_CPX_FALSE@am__append_2 = -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiClp` -I`$(CYGPATH_W) $(CLPSRCDIR)/src` -I`$(CYGPATH_W) $(CLPOBJDIR)/inc`
 @COIN_HAS_GAMSIO_TRUE@bin_PROGRAMS = LaGOGAMS$(EXEEXT)
-#Cgl seems to insist on OsiClp library, and OsiClp depends on Clp
+
+#LaGOGAMS_LDADD += $(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la
 @COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@am__append_3 = $(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la \
-@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/OsiClp/libOsiClp.la \
-@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	$(CLPOBJDIR)/src/libClp.la
-@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@am__append_4 = `cat $(CLPOBJDIR)/clp_addlibs.txt`
+@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	`cat \
+@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	$(CLPOBJDIR)/clp_addlibs.txt`
+#Cgl seems to insist on OsiClp library, and OsiClp depends on Clp
+@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@am__append_4 = $(OSIOBJDIR)/src/OsiClp/libOsiClp.la $(CLPOBJDIR)/src/libClp.la
 @COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@am__append_5 = $(OSIOBJDIR)/src/OsiClp/libOsiClp.la $(CLPOBJDIR)/src/libClp.la
 @COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@am__append_6 = `cat $(CLPOBJDIR)/clp_addlibs.txt`
 @COIN_HAS_GAMSIO_TRUE@am__append_7 = `cat $(COINUTILSOBJDIR)/coinutils_addlibs.txt $(CGLOBJDIR)/cgl_addlibs.txt $(OSIOBJDIR)/osi_addlibs.txt $(IPOPTOBJDIR)/src/Interfaces/ipopt_addlibs_cpp.txt`
@@ -99,8 +101,7 @@ PROGRAMS = $(bin_PROGRAMS)
 am__LaGOGAMS_SOURCES_DIST = LaGOGAMS.cpp
 @COIN_HAS_GAMSIO_TRUE@am_LaGOGAMS_OBJECTS = LaGOGAMS.$(OBJEXT)
 LaGOGAMS_OBJECTS = $(am_LaGOGAMS_OBJECTS)
-@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@am__DEPENDENCIES_2 = $(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la \
-@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/OsiClp/libOsiClp.la \
+@COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@am__DEPENDENCIES_2 = $(OSIOBJDIR)/src/OsiClp/libOsiClp.la \
 @COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	$(CLPOBJDIR)/src/libClp.la
 @COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@am__DEPENDENCIES_3 = $(OSIOBJDIR)/src/OsiClp/libOsiClp.la \
 @COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@	$(CLPOBJDIR)/src/libClp.la
@@ -136,7 +137,7 @@ ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
-ADDLIBS = @ADDLIBS@ $(am__append_4) $(am__append_6) $(am__append_7)
+ADDLIBS = @ADDLIBS@ $(am__append_3) $(am__append_6) $(am__append_7)
 ADD_CFLAGS = @ADD_CFLAGS@
 ADD_CXXFLAGS = @ADD_CXXFLAGS@
 ALWAYS_FALSE_FALSE = @ALWAYS_FALSE_FALSE@
@@ -330,7 +331,7 @@ libLaGO_la_LIBADD = ../Algorithms/libLaGOAlgorithms.la ../Interfaces/libLaGOInte
 
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_SOURCES = LaGOGAMS.cpp
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_LDADD = ../Interfaces/GAMS/libLaGOInterfaceGams.la \
-@COIN_HAS_GAMSIO_TRUE@	libLaGO.la $(am__append_3) \
+@COIN_HAS_GAMSIO_TRUE@	libLaGO.la $(am__append_4) \
 @COIN_HAS_GAMSIO_TRUE@	$(am__append_5) \
 @COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/libOsi.la \
 @COIN_HAS_GAMSIO_TRUE@	$(CGLOBJDIR)/src/libCgl.la \
