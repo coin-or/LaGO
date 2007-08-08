@@ -19,8 +19,25 @@ namespace LaGO {
 class BoxMinimizationProblem;
 
 class QuadraticEstimation {
+public:
+	/** A class for a function and some auxiliary information that is needed to compute a quadratic estimator.  
+	 * The reason for the class is that the QuadraticEstimation method should become more independent of LaGO so that it can also be used by other packages which do not want to setup a MINLPData or BlockFunction object. 
+	 */ 
+	class NonconvexFunction : public ReferencedObject {
+	public:
+		virtual ~NonconvexFunction() { }
+		
+		virtual int dim()=0;
+		
+		virtual SmartPtr<Function> getFunction()=0;
+		
+		virtual SmartPtr<SparsityGraph> getSparsityGraph()=0;
+		
+		virtual SampleSet& getSamplePoints()=0;
+	};
+
 private:
-	MINLPData& data;
+//	MINLPData& data;
 	OsiSolver lp;
 	int nr_coeff; // number of coefficients of current quadratic function; set by initLP
 	int nr_auxvars; // number of sample points that have an extra column in the LP; set by initLP
@@ -43,27 +60,56 @@ private:
 		{ } 		
 	};
 	
-	list<SampleSetItem> sampleset_newsort;
+	class BlockFunctionWrapper : public NonconvexFunction {
+	private:
+		BlockFunction& blockfunc;
+	public:
+		BlockFunctionWrapper(BlockFunction& blockfunc_)
+		: blockfunc(blockfunc_)
+		{ }
+		
+		int dim() { return blockfunc.indices.size(); } 
+		
+		SmartPtr<Function> getFunction() { return blockfunc.nonquad; }
+
+		SmartPtr<SparsityGraph> getSparsityGraph() { return blockfunc.sparsitygraph; }
+		
+		SampleSet& getSamplePoints() { return blockfunc.samplepoints; }		
+	};
 	
+	list<SampleSetItem> sampleset_newsort;
+
 	/**
 	 * @return The column index for the constraint related to the enforce_tightness constraint.
 	 */
-	int initLP(BlockFunction& func, const SampleSet::iterator& enforce_tightness);
-	SparseVector* constructRow(BlockFunction& func, const DenseVector& point, int samplepoint_col);
-	void updateLP(BlockFunction& func, bool as_underestimator);
+	int initLP(NonconvexFunction& func, const SampleSet::iterator& enforce_tightness);
+	/** Constructs a row that can be added to the LP.
+	 * @param scale Stores the scaling factor at output.
+	 * @param samplepoint_col If not negative, then a coefficient 1 is added for column samplepoint_col.
+	 */
+	SparseVector* constructRow(NonconvexFunction& func, const DenseVector& point, int samplepoint_col, double& scale);
+	void updateLP(bool as_underestimator);
 	/** The heart.
 	 */
-	SmartPtr<QuadraticFunction> getEstimator(BlockFunction& func, bool as_underestimator, const DenseVector& lower, const DenseVector& upper);
-	bool doLocMin(SmartPtr<BoxMinimizationProblem>& prob, BlockFunction& func, const SamplePoint& sample_point, double& f_val, double& viol1, double& viol2, double& scale2, SparseVector*& row, bool do_resolve=false);  
-		
-public:
-	QuadraticEstimation(MINLPData& data_);
-	
-	void computeEstimators();
-	
-	void computeEstimators(MINLPData::ObjCon& objcon, bool need_lower, bool need_upper);
+	SmartPtr<QuadraticFunction> getEstimator(NonconvexFunction& func, bool as_underestimator, const DenseVector& lower, const DenseVector& upper);
+	bool doLocMin(SmartPtr<BoxMinimizationProblem>& prob, NonconvexFunction& func, const SamplePoint& sample_point, double& f_val, double& viol1, double& viol2, double& scale2, SparseVector*& row, bool do_resolve=false);  
 
-	void computeEstimator(BlockFunction& func, bool need_lower, bool need_upper);
+public:
+	QuadraticEstimation();
+	
+	void computeEstimators(MINLPData& data);
+	
+	void computeEstimators(MINLPData& data, MINLPData::ObjCon& objcon, bool need_lower, bool need_upper);
+
+	/** Computes quadratic under- and overestimators of a given nonconvex function.
+	 * @param func The nonconvex function.
+	 * @param lower Lower bounds on variables.
+	 * @param upper Upper bounds on variables.
+	 * @param do_lower Indicates whether an underestimator should be computed.
+	 * @param do_upper Indicates whether an overestimator should be computed.
+	 * @return The quadratic under- and overestimators, if computed. 
+	 */
+	pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > computeEstimator(NonconvexFunction& func, const DenseVector& lower, const DenseVector& upper, bool do_lower, bool do_upper);
 }; // class QuadraticEstimation
 	
 } // namespace LaGO

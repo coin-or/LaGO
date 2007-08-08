@@ -11,9 +11,9 @@
 #include "LaGOScaledFunction.hpp"
 
 namespace LaGO {
-
-QuadraticEstimation::QuadraticEstimation(MINLPData& data_)
-: data(data_), eps(1E-4), iter_max(100)
+	
+QuadraticEstimation::QuadraticEstimation()
+: eps(1E-4), iter_max(100)
 {//	ipopt.Initialize(); // this reads ipopt.opt
 	ipopt.Initialize("");
 //	ipopt.Options()->SetStringValue("hessian_approximation", "limited-memory");
@@ -22,66 +22,85 @@ QuadraticEstimation::QuadraticEstimation(MINLPData& data_)
 	ipopt.Options()->SetIntegerValue("print_level", 0); // have to put it behind Initialize to get some effect
 }
 
-void QuadraticEstimation::computeEstimators() {
-	computeEstimators(data.obj, true, false); // compute underestimators of objective
+void QuadraticEstimation::computeEstimators(MINLPData& data) {
+	computeEstimators(data, data.obj, true, false); // compute underestimators of objective
 	for (int c=0; c<data.numConstraints(); ++c)
-		computeEstimators(data.con[c], data.con[c].upper<getInfinity(), data.con[c].lower>-getInfinity());
+		computeEstimators(data, data.con[c], data.con[c].upper<getInfinity(), data.con[c].lower>-getInfinity());
 }
 
-void QuadraticEstimation::computeEstimators(MINLPData::ObjCon& objcon, bool need_lower, bool need_upper) {
+void QuadraticEstimation::computeEstimators(MINLPData& data, MINLPData::ObjCon& objcon, bool need_lower, bool need_upper) {
 	for (unsigned int k=0; k<objcon.decompfuncNL.size(); ++k) {
 		BlockFunction& func(*objcon.decompfuncNL[k]);
 		if (IsNull(func.nonquad)) continue;
 		lp.reset();
 		clog << "Quadratic Estimators " << objcon.name << " block " << k << ':' << ' ';
-		computeEstimator(func, need_lower, need_upper);
+
+		// check which kind of underestimator we really need to compute
+		bool do_lower=need_lower && !(func.curvature&CONVEX);
+		bool do_upper=need_upper && !(func.curvature&CONCAVE);
+
+		DenseVector lower, upper;
+		data.getBox(lower, upper, func.indices);
+
+		BlockFunctionWrapper funcwrap(func);
+
+		pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > estimators=computeEstimator(funcwrap, lower, upper, do_lower, do_upper);
+		if (do_lower) {
+			assert(IsValid(estimators.first));
+			func.underestimators.push_back(estimators.first);
+		}
+		if (do_upper) {
+			assert(IsValid(estimators.second));
+			func.overestimators.push_back(estimators.second);
+		}
+		
 		clog << endl;
 	}
 }
 
-void QuadraticEstimation::computeEstimator(BlockFunction& func, bool need_lower, bool need_upper) {
-	bool do_lower=need_lower && !(func.curvature&CONVEX);
-	bool do_upper=need_upper && !(func.curvature&CONCAVE);
-	if ((!do_lower) && (!do_upper)) return;
-
-	DenseVector lower, upper;
-	data.getBox(lower, upper, func.indices);
-
-	Sampling sampling;
+pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > QuadraticEstimation::computeEstimator(NonconvexFunction& func, const DenseVector& lower, const DenseVector& upper, bool do_lower, bool do_upper) {
+	pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > estimators;
+	if ((!do_lower) && (!do_upper)) return estimators; // nothing todo
 
 	// set sample point function values
-	SampleSet::iterator it_sp(func.samplepoints.begin());
-	while (it_sp!=func.samplepoints.end()) {
+	SampleSet::iterator it_sp(func.getSamplePoints().begin());
+	while (it_sp!=func.getSamplePoints().end()) {
 		try {
 			if (it_sp->funcvalue==getInfinity())
-				it_sp->funcvalue=func.nonquad->eval(*it_sp);
+				it_sp->funcvalue=func.getFunction()->eval(*it_sp);
 		} catch (FunctionEvaluationError error) {
-			cerr << "QuadraticEstimation::computeEstimator: " << error << endl;
-			it_sp=func.samplepoints.eraseAndGetNext(it_sp);
+			cerr << "QuadraticEstimation::computeEstimator: Error evaluation function in sample point, skipping point. " << error << endl;
+			it_sp=func.getSamplePoints().eraseAndGetNext(it_sp);
 			continue;
 		}
 		++it_sp;
 	}
+	
+	Sampling sampling;
 
 	if (do_lower) {
 		clog << "lower: ";
-		SampleSet::iterator enforce_tightness=sampling.addMinimizer(func.samplepoints, *func.nonquad, lower, upper, func.sparsitygraph, &func.samplepoints.begin()->getPoint());
-		if (enforce_tightness==func.samplepoints.end()) {
-			enforce_tightness=func.samplepoints.begin();
-			while (enforce_tightness!=func.samplepoints.end() && !enforce_tightness->is_startpoint)
+		// compute a local minimizer of our function and add it to the sample set
+		SampleSet::iterator enforce_tightness=sampling.addMinimizer(func.getSamplePoints(), *func.getFunction(), lower, upper, func.getSparsityGraph(), &func.getSamplePoints().begin()->getPoint());
+		// if we couldn't find one, search for a sample point that is a startingpoint of the MINLP
+		if (enforce_tightness==func.getSamplePoints().end()) {
+			enforce_tightness=func.getSamplePoints().begin();
+			while (enforce_tightness!=func.getSamplePoints().end() && !enforce_tightness->is_startpoint)
 				++enforce_tightness;
-			if (enforce_tightness==func.samplepoints.end())
-				enforce_tightness=func.samplepoints.begin();
+			// if we also don't have such one, pick just the first sample point
+			if (enforce_tightness==func.getSamplePoints().end())
+				enforce_tightness=func.getSamplePoints().begin();
 		}
 
+		// initialize the LP which we use to generate our quad. underestimator
 		int enforce_tightness_index=initLP(func, enforce_tightness);
 
-		updateLP(func, true);
+		// and set the right-hand-side such that we get an underestimator 
+		updateLP(true);
 
-		SmartPtr<QuadraticFunction> underest=getEstimator(func, true, lower, upper);
-		func.underestimators.push_back(underest);
+		estimators.first=getEstimator(func, true, lower, upper);
 
-		if (do_upper) { // release tightness
+		if (do_upper) { // release tightness in reference sample point
 			lp.setColBounds(enforce_tightness_index, 0, getInfinity());
 		}
 	}
@@ -89,16 +108,15 @@ void QuadraticEstimation::computeEstimator(BlockFunction& func, bool need_lower,
 	if (do_upper) {
 		clog << "upper: ";
 		// generate maximizer
-		ScaledFunction minusf(func.nonquad, -1.);
-		SampleSet::iterator enforce_tightness=sampling.addMinimizer(func.samplepoints, minusf, lower, upper, func.sparsitygraph, &func.samplepoints.begin()->getPoint());
+		// compute a local maximizer of our function and add it to the sample set
+		ScaledFunction minusf(func.getFunction(), -1.);
+		SampleSet::iterator enforce_tightness=sampling.addMinimizer(func.getSamplePoints(), minusf, lower, upper, func.getSparsityGraph(), &func.getSamplePoints().begin()->getPoint());
 		enforce_tightness->funcvalue*=-1;
-		if (!do_lower)
+		if (!do_lower) // if we didn't compute a lower underestimator, we need to initialize the LP
 			initLP(func, enforce_tightness);
-		else {
-			SparseVector* row=constructRow(func, *enforce_tightness, -1);
-			double scale=row->infNorm();
-			if (scale<1.) scale=1.;
-			if (scale>1.) *row/=scale; // scale row
+		else { // otherwise we add only the row corresponding to the new sample point 
+			double scale;
+			SparseVector* row=constructRow(func, *enforce_tightness, -1, scale);
 
 			double rhs=enforce_tightness->funcvalue/scale;
 			double lhs=rhs-eps*fabs(rhs);
@@ -108,25 +126,26 @@ void QuadraticEstimation::computeEstimator(BlockFunction& func, bool need_lower,
 
 			sampleset_newsort.push_front(SampleSetItem(*enforce_tightness, -1, lp.getNumRows()-1, scale));
 		}
-		updateLP(func, false);
+		// set the right-hand-side such that we get an overestimator
+		updateLP(false);
 
-		SmartPtr<QuadraticFunction> overest=getEstimator(func, false, lower, upper);
-		func.overestimators.push_back(overest);
+		estimators.second=getEstimator(func, false, lower, upper);
 	}
 
+	return estimators;
 }
 
-int QuadraticEstimation::initLP(BlockFunction& func, const SampleSet::iterator& enforce_tightness) {
+int QuadraticEstimation::initLP(NonconvexFunction& func, const SampleSet::iterator& enforce_tightness) {
 // create auxiliary LP with initial sample set
 	int hess_entries=0;
-	for (SparsityGraph::arc_iterator it_arc(func.sparsitygraph->arc_begin()); it_arc!=func.sparsitygraph->arc_end(); ++it_arc) {
+	for (SparsityGraph::arc_iterator it_arc(func.getSparsityGraph()->arc_begin()); it_arc!=func.getSparsityGraph()->arc_end(); ++it_arc) {
 		const SparsityGraph::Arc& arc(*it_arc);
 		int var1=(**arc.head()).varindex;
 		int var2=(**arc.tail()).varindex;
 		if (var1<=var2) ++hess_entries;
 	}
-	nr_coeff=1+func.indices.size()+hess_entries;
-	nr_auxvars=func.samplepoints.size();
+	nr_coeff=1+func.dim()+hess_entries;
+	nr_auxvars=func.getSamplePoints().size();
 	int nr_cols=nr_coeff+nr_auxvars;
 
 	SparseVector zero;
@@ -177,16 +196,10 @@ int QuadraticEstimation::initLP(BlockFunction& func, const SampleSet::iterator& 
 	int samplepoint_index=0;
 	int enforce_tightness_index=-1;
 	sampleset_newsort.clear();
-	for (SampleSet::iterator it(func.samplepoints.begin()); it!=func.samplepoints.end(); ++it, ++samplepoint_index) {
-		SparseVector* row=constructRow(func, *it, nr_coeff+samplepoint_index);
+	for (SampleSet::iterator it(func.getSamplePoints().begin()); it!=func.getSamplePoints().end(); ++it, ++samplepoint_index) {
+		double scale;
+		SparseVector* row=constructRow(func, *it, nr_coeff+samplepoint_index, scale);
 		rows[samplepoint_index]=row;
-
-		double scale=row->infNorm();
-		if (scale<1.) scale=1.;
-		if (scale>1.) { // scale row, except for last element (samplepoint_index)
-			for (int i=0; i<nr_coeff; ++i)
-				row->getElements()[i]/=scale;
-		}
 
 		if (it==enforce_tightness) {
 			colub[nr_coeff+samplepoint_index]=eps*CoinAbs(it->funcvalue/scale);
@@ -211,7 +224,7 @@ int QuadraticEstimation::initLP(BlockFunction& func, const SampleSet::iterator& 
 }
 
 
-SparseVector* QuadraticEstimation::constructRow(BlockFunction& func, const DenseVector& point, int samplepoint_col) {
+SparseVector* QuadraticEstimation::constructRow(NonconvexFunction& func, const DenseVector& point, int samplepoint_col, double& scale) {
 	int rownz=nr_coeff;
 	if (samplepoint_col>=0) ++rownz;
 	int* indices=new int[rownz];
@@ -222,11 +235,11 @@ SparseVector* QuadraticEstimation::constructRow(BlockFunction& func, const Dense
 	*el++=1.; // corresponding to constant term of quad. function
 
 	// corresponding to linear term of poly of quad. function == coefficients of samplepoint
-	assert(point.getNumElements()==(int)func.indices.size());
-	CoinMemcpyN(point.getElements(), func.indices.size(), el);
-	el+=func.indices.size();
+	assert(point.getNumElements()==func.dim());
+	CoinMemcpyN(point.getElements(), func.dim(), el);
+	el+=func.dim();
 
-	for (SparsityGraph::arc_iterator it_arc(func.sparsitygraph->arc_begin()); it_arc!=func.sparsitygraph->arc_end(); ++it_arc) {
+	for (SparsityGraph::arc_iterator it_arc(func.getSparsityGraph()->arc_begin()); it_arc!=func.getSparsityGraph()->arc_end(); ++it_arc) {
 		const SparsityGraph::Arc& arc(*it_arc);
 		int var1=(**arc.head()).varindex;
 		int var2=(**arc.tail()).varindex;
@@ -241,11 +254,15 @@ SparseVector* QuadraticEstimation::constructRow(BlockFunction& func, const Dense
 
 	SparseVector* row=new SparseVector;
 	row->assignVector(rownz, indices, elements, false);
+	
+	scale=row->infNorm();
+	if (scale<1.) scale=1.;
+	if (scale>1.) *row/=scale; // scale row
 
 	return row;
 }
 
-void QuadraticEstimation::updateLP(BlockFunction& func, bool as_underestimator) {
+void QuadraticEstimation::updateLP(bool as_underestimator) {
 	for (list<SampleSetItem>::iterator it(sampleset_newsort.begin()); it!=sampleset_newsort.end(); ++it) {
 		const SamplePoint& point(it->sample_point);
 		assert(point.funcvalue!=getInfinity());
@@ -258,21 +275,23 @@ void QuadraticEstimation::updateLP(BlockFunction& func, bool as_underestimator) 
 	}
 }
 
-SmartPtr<QuadraticFunction> QuadraticEstimation::getEstimator(BlockFunction& func, bool as_underestimator, const DenseVector& lower, const DenseVector& upper) {
+SmartPtr<QuadraticFunction> QuadraticEstimation::getEstimator(NonconvexFunction& func, bool as_underestimator, const DenseVector& lower, const DenseVector& upper) {
 	SmartPtr<SymSparseMatrix> best_A;
 	SmartPtr<SparseVector> best_b;
 	double best_constant=0.;
 	double best_violation=-getInfinity();
 	double best_U3_val=getInfinity();
+
+	SmartPtr<SparsityGraph> sparsitygraph(func.getSparsityGraph());
 //	Timer timer, timer2;
 
 	SmartPtr<QuadraticFunction> quadfunc=new QuadraticFunction(NULL, NULL, 0);
 
 	// f - p if underestimator; -f - p if overestimator
-	SumFunction fpdiff(as_underestimator ? 1 : -1, func.nonquad, -1, GetRawPtr(quadfunc));
+	SumFunction fpdiff(as_underestimator ? 1 : -1, func.getFunction(), -1, GetRawPtr(quadfunc));
 
 	// maximization of estimation error
-	SmartPtr<BoxMinimizationProblem> errormaxprob=new BoxMinimizationProblem(fpdiff, lower, upper, func.sparsitygraph);
+	SmartPtr<BoxMinimizationProblem> errormaxprob=new BoxMinimizationProblem(fpdiff, lower, upper, sparsitygraph);
 
 	int nr_locmin=0;
 	bool finished;
@@ -302,15 +321,15 @@ SmartPtr<QuadraticFunction> QuadraticEstimation::getEstimator(BlockFunction& fun
 		DenseVector rowact(lp.getNumRows(), lp.getRowActivity());
 
 		// setup p(x)
-		SymSparseMatrixCreator A_(func.indices.size());
+		SymSparseMatrixCreator A_(func.dim());
 		SparseVectorCreator b_;
 		double constant=coeff[0];
 
 		int coeff_index=1;
-		for (unsigned int i=0; i<func.indices.size(); ++i, ++coeff_index)
+		for (int i=0; i<func.dim(); ++i, ++coeff_index)
 			b_.insert(i, coeff[coeff_index]);
 
-		for (SparsityGraph::arc_iterator it_arc(func.sparsitygraph->arc_begin()); it_arc!=func.sparsitygraph->arc_end(); ++it_arc) {
+		for (SparsityGraph::arc_iterator it_arc(sparsitygraph->arc_begin()); it_arc!=sparsitygraph->arc_end(); ++it_arc) {
 			const SparsityGraph::Arc& arc(*it_arc);
 			int var1=(**arc.head()).varindex;
 			int var2=(**arc.tail()).varindex;
@@ -347,10 +366,9 @@ SmartPtr<QuadraticFunction> QuadraticEstimation::getEstimator(BlockFunction& fun
 			if (maxviol>viol1) { maxviol=viol1; maxviol_unscaled=errormaxprob->getOptimalValue(); }
 
 			if (viol1<-1E-2 && viol2<-1E-2) { // too large, add point to sample set and LP and restart
-				pair<set<SamplePoint>::iterator, bool> newpoint(func.samplepoints.insert(errormaxprob->getSolution()));
+				pair<set<SamplePoint>::iterator, bool> newpoint(func.getSamplePoints().insert(errormaxprob->getSolution()));
 				if (newpoint.second) {
 					newpoint.first->funcvalue=f_val;
-					*new_row/=scale2;
 					double buffer=eps*CoinMin(1., sqrt(newpoint.first->getPoint().euclidianDistance(it->sample_point)/CoinMax(1., it->sample_point.twoNorm())))*CoinAbs(f_val/scale2);
 					rhs=f_val/scale2-buffer;
 					if (!as_underestimator) rhs=-rhs;
@@ -440,7 +458,7 @@ SmartPtr<QuadraticFunction> QuadraticEstimation::getEstimator(BlockFunction& fun
 	return quadfunc;
 }
 
-bool QuadraticEstimation::doLocMin(SmartPtr<BoxMinimizationProblem>& prob, BlockFunction& func, const SamplePoint& sample_point, double& f_val, double& viol1, double& viol2, double& scale2, SparseVector*& row, bool do_resolve) {
+bool QuadraticEstimation::doLocMin(SmartPtr<BoxMinimizationProblem>& prob, NonconvexFunction& func, const SamplePoint& sample_point, double& f_val, double& viol1, double& viol2, double& scale2, SparseVector*& row, bool do_resolve) {
 //	Timer timer;
 	prob->startpoint=&sample_point.getPoint();
 
@@ -466,15 +484,13 @@ bool QuadraticEstimation::doLocMin(SmartPtr<BoxMinimizationProblem>& prob, Block
 
 	}
 
-	f_val=func.nonquad->eval(prob->getSolution());
+	f_val=func.getFunction()->eval(prob->getSolution());
 	viol1=prob->getOptimalValue()/CoinMax(1., CoinAbs(f_val));
 
 	viol2=0.;
 	scale2=1.;
 	if (viol1<-1E-4) { // compute violation according to second (LP) scaling
-		row=constructRow(func, prob->getSolution(), -1);
-		scale2=row->infNorm();
-		if (scale2<1.) scale2=1.;
+		row=constructRow(func, prob->getSolution(), -1, scale2);
 //		if (scale2>1.) *new_row/=scale2; // scale row
 		viol2=prob->getOptimalValue()/scale2;
 	}
