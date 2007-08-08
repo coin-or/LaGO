@@ -78,7 +78,7 @@ private:
 	static char* getColName (struct dictRec* dict, int j, char *name, int bufLen);
 
 #if defined(COIN_HAS_CPX) && defined(COIN_HAS_GAMSCPLEXLICE)
-	void initCPLEXLicence(int connr, int varnr, int nnz, int nlnz, int ndisc) const;
+	void initCPLEXLicense(int connr, int varnr, int nnz, int nlnz, int ndisc) const;
 #endif
 public:
   GamsReader();

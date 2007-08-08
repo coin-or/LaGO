@@ -58,7 +58,7 @@ host_triplet = @host@
 @COIN_HAS_CPX_FALSE@am__append_2 = -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiClp` -I`$(CYGPATH_W) $(CLPSRCDIR)/src` -I`$(CYGPATH_W) $(CLPOBJDIR)/inc`
 @COIN_HAS_GAMSIO_TRUE@bin_PROGRAMS = LaGOGAMS$(EXEEXT)
 
-#LaGOGAMS_LDADD += $(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la
+#to make sure that libOsiCpx comes in the command line before -lcplex, we have to add OsiCpx to ADDLIBS
 @COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@am__append_3 = $(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la \
 @COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	`cat \
 @COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	$(CLPOBJDIR)/clp_addlibs.txt`

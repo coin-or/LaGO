@@ -162,7 +162,7 @@ char* GamsReader::getColName (struct dictRec* dict, int gj, char *name, int bufL
 }
 
 #if defined(COIN_HAS_CPX) && defined(COIN_HAS_GAMSCPLEXLICE)
-void GamsReader::initCPLEXLicence(int connr, int varnr, int nnz, int nlnz, int ndisc) {
+void GamsReader::initCPLEXLicense(int connr, int varnr, int nnz, int nlnz, int ndisc) const {
 	licenseInit_t initType;
 	if (gamscplexlice(connr, varnr, nnz, nlnz, ndisc, 1, &initType, NULL, NULL, NULL, NULL, NULL, NULL)) {
 		cerr << "Could not initialize CPLEX license" << endl;
@@ -190,7 +190,7 @@ SmartPtr<MINLPData> GamsReader::getProblem(char* cntr_file) {
 	gfopst();
 
 #if defined(COIN_HAS_CPX) && defined(COIN_HAS_GAMSCPLEXLICE)
-	initCPLEXLicence(iolib.nrows, iolib.ncols, iolib.nnz, iolib.nlnz, iolib.ndisc);
+	initCPLEXLicense(iolib.nrows, iolib.ncols, iolib.nnz, iolib.nlnz, iolib.ndisc);
 #endif
 
 	int numrow=info.kgv[1];

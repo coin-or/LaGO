@@ -24,7 +24,7 @@ private:
 	 */
 	bool setComponent(const SparsityGraph::Node& node, int comp);
 
-	void createDecomposedFunctions(MINLPData::ObjCon& objcon, DenseVector& refpoint, const vector<int>& nonzeros, const list<int>& lin_nonzeros, const vector<bool>& component_isnonquad, bool have_quadratic_component);	
+	void createDecomposedFunctions(MINLPData::ObjCon& objcon, const DenseVector& refpoint, const vector<int>& nonzeros, const list<int>& lin_nonzeros, const vector<bool>& component_isnonquad, bool have_quadratic_component);	
 public:
 	Decomposition(MINLPData& data_)
 	: data(data_)

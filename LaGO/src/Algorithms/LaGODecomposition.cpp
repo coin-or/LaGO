@@ -156,7 +156,7 @@ bool Decomposition::setComponent(const SparsityGraph::Node& node, int comp) {
 	return isnonquad;
 }
 
-void Decomposition::createDecomposedFunctions(MINLPData::ObjCon& objcon, DenseVector& refpoint, const vector<int>& nonzeros, const list<int>& lin_nonzeros, const vector<bool>& component_isnonquad, bool have_quadratic_component) {
+void Decomposition::createDecomposedFunctions(MINLPData::ObjCon& objcon, const DenseVector& refpoint, const vector<int>& nonzeros, const list<int>& lin_nonzeros, const vector<bool>& component_isnonquad, bool have_quadratic_component) {
 	assert(IsValid(objcon.sparsitygraph));
 	SparsityGraph& graph(*objcon.sparsitygraph);
 	int nr_components=component_isnonquad.size();
@@ -166,20 +166,26 @@ void Decomposition::createDecomposedFunctions(MINLPData::ObjCon& objcon, DenseVe
 	SparseVectorCreator decompfuncLin;
 	if (IsValid(objcon.origfuncLin)) decompfuncLin.add(*objcon.origfuncLin);
 
+	DenseVector myrefpoint(refpoint);
 	// setup reference point: 0 for linear and quadratic variables 
 	for (list<int>::const_iterator it(lin_nonzeros.begin()); it!=lin_nonzeros.end(); ++it)
-		refpoint[nonzeros[*it]]=0.;
+		myrefpoint[nonzeros[*it]]=0.;
 	if (have_quadratic_component)
 		for (SparsityGraph::iterator it_node(graph.begin()); it_node!=graph.end(); ++it_node) {
 			const SparsityGraphNode& node(**it_node);
-			if (node.isquad) refpoint[node.varindex]=0.;
+			if (node.isquad) myrefpoint[node.varindex]=0.;
 		}
 
 	// coefficients of linear part for linear and quadratic variables
 	DenseVector grad;
 	if (have_quadratic_component || !lin_nonzeros.empty()) {
-		grad.resize(refpoint.size());
-		objcon.origfuncNL->gradient(grad, refpoint);
+		grad.resize(myrefpoint.size());
+		try {
+			objcon.origfuncNL->gradient(grad, myrefpoint);
+		} catch (FunctionEvaluationError error) {
+			cerr << "createDecomposedFunction for " << objcon.name << ": error computing gradient in reference point: " << error << endl;
+			exit(EXIT_FAILURE);
+		}
 		
 		for (list<int>::const_iterator it(lin_nonzeros.begin()); it!=lin_nonzeros.end(); ++it)
 			decompfuncLin[nonzeros[*it]]+=grad[nonzeros[*it]];
@@ -209,7 +215,7 @@ void Decomposition::createDecomposedFunctions(MINLPData::ObjCon& objcon, DenseVe
 		
 		// function for block
 		if (component_isnonquad[comp]) { // nonquadratic
-			blockfunc->nonquad=new RestrictedFunction(GetRawPtr(objcon.origfuncNL), blockfunc->indices, refpoint);
+			blockfunc->nonquad=new RestrictedFunction(GetRawPtr(objcon.origfuncNL), blockfunc->indices, myrefpoint);
 			++nr_nonquad_components;
 						
 		}	else { // quadratic
@@ -229,7 +235,7 @@ void Decomposition::createDecomposedFunctions(MINLPData::ObjCon& objcon, DenseVe
 	
 	// correct constant term
 	if (nr_nonquad_components!=1) {
-		double val=objcon.origfuncNL->eval(refpoint);
+		double val=objcon.origfuncNL->eval(myrefpoint);
 		if (nr_nonquad_components==0) { // function is quadratic
 			objcon.decompfuncConstant+=val;
 		} else { // function has more then one nonquadratic block

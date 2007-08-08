@@ -14,12 +14,12 @@ namespace LaGO {
 
 QuadraticEstimation::QuadraticEstimation(MINLPData& data_)
 : data(data_), eps(1E-4), iter_max(100)
-{ lp.messageHandler()->setLogLevel(0);
-	ipopt.Options()->SetNumericValue("tol", 1E-4);
-	ipopt.Options()->SetNumericValue("dual_inf_tol", 1E-4);
-//	ipopt.Options()->SetStringValue("hessian_approximation", "limited-memory"); // seem to give better results
-	ipopt.Options()->SetIntegerValue("print_level", 0);
-	ipopt.Initialize(); // this reads ipopt.opt
+{//	ipopt.Initialize(); // this reads ipopt.opt
+	ipopt.Initialize("");
+//	ipopt.Options()->SetStringValue("hessian_approximation", "limited-memory");
+	ipopt.Options()->SetNumericValue("tol", eps);
+	ipopt.Options()->SetNumericValue("dual_inf_tol", eps);
+	ipopt.Options()->SetIntegerValue("print_level", 0); // have to put it behind Initialize to get some effect
 }
 
 void QuadraticEstimation::computeEstimators() {
@@ -101,7 +101,7 @@ void QuadraticEstimation::computeEstimator(BlockFunction& func, bool need_lower,
 			if (scale>1.) *row/=scale; // scale row
 
 			double rhs=enforce_tightness->funcvalue/scale;
-			double lhs=rhs*(1-eps);
+			double lhs=rhs-eps*fabs(rhs);
 
 			lp.addRow(*row, lhs, rhs);
 			delete row;
@@ -136,7 +136,7 @@ int QuadraticEstimation::initLP(BlockFunction& func, const SampleSet::iterator& 
 	DenseVector collb(nr_cols, 0.);
 	DenseVector colub(nr_cols, getInfinity());
 //	collb[0]=-getInfinity();
-	for (int i=0; i<1+(int)func.indices.size(); ++i)
+	for (int i=0; i<nr_coeff; ++i)
 		collb[i]=-getInfinity();
 
 //	// setting up some bounds on the coefficients:
@@ -289,6 +289,7 @@ SmartPtr<QuadraticFunction> QuadraticEstimation::getEstimator(BlockFunction& fun
 				clog << " Keeping prior found solution with violation " << best_violation << ". ";
 				break;
 			} else {
+				lp.writeMps("U3_fail");
 				cerr << " Aborting." << endl;
 				exit(EXIT_FAILURE);
 			}
