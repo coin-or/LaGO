@@ -77,8 +77,9 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libLaGOProblem_la_LIBADD =
-am_libLaGOProblem_la_OBJECTS = LaGOMINLPData.lo LaGOBlockFunction.lo \
-	LaGOSparsity.lo LaGOSampleSet.lo LaGOBoxMinimizationProblem.lo
+am_libLaGOProblem_la_OBJECTS = LaGOMINLPData.lo LaGOSparsity.lo \
+	LaGOSampleSet.lo LaGOBlockFunction.lo \
+	LaGOBoxMinimizationProblem.lo
 libLaGOProblem_la_OBJECTS = $(am_libLaGOProblem_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
@@ -273,8 +274,13 @@ target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST = $(am__append_1)
 lib_LTLIBRARIES = libLaGOProblem.la
-libLaGOProblem_la_SOURCES = LaGOMINLPData.cpp LaGOBlockFunction.cpp LaGOSparsity.cpp LaGOSampleSet.cpp LaGOBoxMinimizationProblem.cpp
-include_HEADERS = LaGOMINLPData.hpp LaGOBlockFunction.hpp LaGOSparsity.hpp LaGOCurvature.hpp LaGOQuadraticFunction.hpp LaGOSampleSet.hpp
+libLaGOProblem_la_SOURCES = LaGOMINLPData.cpp LaGOSparsity.cpp LaGOSampleSet.cpp \
+  LaGOBlockFunction.cpp LaGOBoxMinimizationProblem.cpp
+
+include_HEADERS = LaGOMINLPData.hpp LaGOSparsity.hpp LaGOCurvature.hpp \
+  LaGOBlockFunction.hpp LaGOQuadraticFunction.hpp LaGOQuadraticEstimator.hpp \
+  LaGOSampleSet.hpp
+
 AM_CPPFLAGS = \
  $(FILIB_CPPFLAGS) \
  -I`$(CYGPATH_W) $(srcdir)/../Base` \

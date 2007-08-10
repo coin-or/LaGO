@@ -12,7 +12,7 @@
 #include "LaGOSparsity.hpp"
 #include "LaGOCurvature.hpp"
 #include "LaGOSampleSet.hpp"
-#include "LaGOQuadraticFunction.hpp"
+#include "LaGOQuadraticEstimator.hpp"
 
 namespace LaGO {
 
@@ -46,15 +46,22 @@ public:
 	 */
 	double quad_maxeig;
 	
+	/** Coefficients for convexification of quadratic part.
+	 */	
+	DenseVector alpha_convexify;
+	/** Coefficients for concavification of quadratic part.
+	 */	
+	DenseVector alpha_concavify;
+	
 	SampleSet samplepoints;
 
 	/** Underestimators of nonquad.
 	 */	
-	list<SmartPtr<QuadraticFunction> > underestimators;
+	list<SmartPtr<QuadraticEstimator> > underestimators;
 
 	/** Overestimators of nonquad.
 	 */
-	list<SmartPtr<QuadraticFunction> > overestimators;
+	list<SmartPtr<QuadraticEstimator> > overestimators;
 
 	BlockFunction(int dim)
 	: sparsity(dim), curvature(UNKNOWN), quad_mineig(getInfinity()), quad_maxeig(-getInfinity())

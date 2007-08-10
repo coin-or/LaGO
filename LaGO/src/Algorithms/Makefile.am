@@ -16,7 +16,7 @@ libLaGOAlgorithms_la_SOURCES = \
 	LaGODecomposition.cpp LaGORestrictedFunction.cpp \
 	LaGOSampling.cpp LaGOCurvatureCheck.cpp \
 	LaGOBoxReduction.cpp LaGOConstraintPropagation.cpp \
-	LaGOQuadraticEstimation.cpp
+	LaGOQuadraticEstimation.cpp LaGOConvexification.cpp
 
 include_HEADERS = 
 

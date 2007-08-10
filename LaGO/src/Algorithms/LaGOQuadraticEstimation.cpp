@@ -14,12 +14,13 @@ namespace LaGO {
 	
 QuadraticEstimation::QuadraticEstimation()
 : eps(1E-4), iter_max(100)
-{//	ipopt.Initialize(); // this reads ipopt.opt
-	ipopt.Initialize("");
+{
 //	ipopt.Options()->SetStringValue("hessian_approximation", "limited-memory");
 	ipopt.Options()->SetNumericValue("tol", eps);
 	ipopt.Options()->SetNumericValue("dual_inf_tol", eps);
-	ipopt.Options()->SetIntegerValue("print_level", 0); // have to put it behind Initialize to get some effect
+	ipopt.Options()->SetIntegerValue("print_level", 0);
+	//	ipopt.Initialize(); // this reads ipopt.opt
+	ipopt.Initialize("");
 }
 
 void QuadraticEstimation::computeEstimators(MINLPData& data) {
@@ -47,11 +48,11 @@ void QuadraticEstimation::computeEstimators(MINLPData& data, MINLPData::ObjCon& 
 		pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > estimators=computeEstimator(funcwrap, lower, upper, do_lower, do_upper);
 		if (do_lower) {
 			assert(IsValid(estimators.first));
-			func.underestimators.push_back(estimators.first);
+			func.underestimators.push_back(new QuadraticEstimator(estimators.first));
 		}
 		if (do_upper) {
 			assert(IsValid(estimators.second));
-			func.overestimators.push_back(estimators.second);
+			func.overestimators.push_back(new QuadraticEstimator(estimators.second));
 		}
 		
 		clog << endl;
@@ -297,6 +298,9 @@ SmartPtr<QuadraticFunction> QuadraticEstimation::getEstimator(NonconvexFunction&
 	bool finished;
 	int iter=0;
 	do {
+		// remind Clp about the loglevel, maybe it forgot it already
+		lp.messageHandler()->setLogLevel(0);
+
 //		timer.start();
 		if (iter==0) lp.initialSolve();
 		else lp.resolve();

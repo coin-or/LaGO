@@ -111,6 +111,17 @@ void MINLPData::getBox(DenseVector& lower, DenseVector& upper) const {
 	}
 }
 
+void MINLPData::getBoxDiameter(DenseVector& diameter, const vector<int>& indices) const {
+	diameter.resize(indices.size());
+	for (unsigned int i=0; i<indices.size(); ++i) {
+		const Variable& var(getVariable(indices[i]));
+		if (var.getLower()==-getInfinity() || var.getUpper()==getInfinity())
+			diameter[i]=getInfinity();
+		else
+			diameter[i]=var.getUpper()-var.getLower();
+	}
+}
+
 
 bool MINLPData::isConvex() const {
 	if (!(obj.getCurvature() & CONVEX)) return false;

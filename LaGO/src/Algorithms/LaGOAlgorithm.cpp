@@ -9,7 +9,7 @@
 namespace LaGO {
 
 Algorithm::Algorithm(MINLPData& data_)
-: data(data_), decomp(data_), curvcheck(data_), conprob(data_)
+: data(data_), decomp(data_), curvcheck(data_), conprob(data_), convexify(data_)
 {
 #ifdef COIN_HAS_FILIB
 	filib::fp_traits<double>::setup();
@@ -37,6 +37,8 @@ void Algorithm::preprocessing() {
 	curvcheck.computeCurvature();
 	
 	quadest.computeEstimators(data);
+	
+	convexify.convexify();
 	
 
 //	cout << data;

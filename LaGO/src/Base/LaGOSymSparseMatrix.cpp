@@ -245,15 +245,23 @@ bool SymSparseMatrix::computeEigenValues(DenseVector& eigval, DenseVector* eigve
   const int* row=rowind;
   const int* col=colind;
   for (int i=nz; i>0; --i) {
-  	if (*row<*col)
+//  	if (*row<*col)
   		storage[*col*dim+*row]=*val;
-  	else
+//  	else
   		storage[*row*dim+*col]=*val;
   	++row; ++col; ++val;
   }
+  clog << "matrix:";
+  for (int i=0; i<dim*dim; ++i)
+	 	clog << ' ' << storage[i];
+	clog << endl;
 
   int info;
   Ipopt::IpLapackDsyev(eigvec!=NULL, dim, storage, dim, eigval.getElements(), info);
+  clog << "eigenvalues:";
+  for (int i=0; i<dim; ++i)
+  	clog << ' ' << eigval[i];
+  clog << endl;
 
   if (!eigvec) delete[] storage;
 

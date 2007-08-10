@@ -85,7 +85,7 @@ void CurvatureCheck::computeCurvature(BlockFunction& blockfunc) {
 	else if (maxeig>eigenvalue_tolerance) blockfunc.curvature=CONVEX; // so min>=-eigtol
 	else blockfunc.curvature=CONVEXCONCAVE;
 
-//	clog << "mineig: " << mineig << "\t maxeig: " << maxeig << "\t curvature: " << blockfunc.curvature << endl;
+	clog << "mineig: " << mineig << "\t maxeig: " << maxeig << "\t curvature: " << blockfunc.curvature << endl;
 }
 	
 } // namespace LaGO

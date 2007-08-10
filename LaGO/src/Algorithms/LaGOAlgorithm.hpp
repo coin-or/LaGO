@@ -13,6 +13,7 @@
 #include "LaGOCurvatureCheck.hpp"
 #include "LaGOConstraintPropagation.hpp"
 #include "LaGOQuadraticEstimation.hpp"
+#include "LaGOConvexification.hpp"
 
 namespace LaGO {
 
@@ -26,6 +27,7 @@ private:
 	CurvatureCheck curvcheck;
 	ConstraintPropagation conprob;
 	QuadraticEstimation quadest;
+	Convexification convexify;
 	
 	void preprocessing();
 	

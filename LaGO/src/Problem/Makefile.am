@@ -11,9 +11,12 @@ AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST =
 
 lib_LTLIBRARIES = libLaGOProblem.la
-libLaGOProblem_la_SOURCES = LaGOMINLPData.cpp LaGOBlockFunction.cpp LaGOSparsity.cpp LaGOSampleSet.cpp LaGOBoxMinimizationProblem.cpp
+libLaGOProblem_la_SOURCES = LaGOMINLPData.cpp LaGOSparsity.cpp LaGOSampleSet.cpp \
+  LaGOBlockFunction.cpp LaGOBoxMinimizationProblem.cpp
 
-include_HEADERS = LaGOMINLPData.hpp LaGOBlockFunction.hpp LaGOSparsity.hpp LaGOCurvature.hpp LaGOQuadraticFunction.hpp LaGOSampleSet.hpp
+include_HEADERS = LaGOMINLPData.hpp LaGOSparsity.hpp LaGOCurvature.hpp \
+  LaGOBlockFunction.hpp LaGOQuadraticFunction.hpp LaGOQuadraticEstimator.hpp \
+  LaGOSampleSet.hpp
 
 AM_CPPFLAGS = \
  $(FILIB_CPPFLAGS) \

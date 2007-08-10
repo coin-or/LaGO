@@ -89,7 +89,9 @@ SampleSet::iterator Sampling::addMinimizer(SampleSet& samplepoints, const Functi
 	prob->startpoint=startpoint;
 	
 	Ipopt::IpoptApplication ipopt;
-	ipopt.Initialize(); // this reads ipopt.opt
+	ipopt.Options()->SetIntegerValue("print_level", 0);
+	ipopt.Initialize("");
+//	ipopt.Initialize(); // this reads ipopt.opt
 	
 	SmartPtr<Ipopt::TNLP> tnlp(GetRawPtr(prob));
 	Ipopt::ApplicationReturnStatus ret=ipopt.OptimizeTNLP(tnlp);

@@ -20,6 +20,7 @@ class CurvatureCheck;
 class ConstraintPropagation;
 class BoxReductionGuessing;
 class QuadraticEstimation;
+class Convexification;
 
 /** Storage for the data of a MINLP.
  */
@@ -30,6 +31,7 @@ class MINLPData : public ReferencedObject {
 	friend class ConstraintPropagation;
 	friend class BoxReductionGuessing;
 	friend class QuadraticEstimation;
+	friend class Convexification;
 public:
 	/** Storage for the data of a variable.
 	 */
@@ -83,6 +85,7 @@ public:
 		friend class Decomposition;
 		friend class CurvatureCheck;
 		friend class QuadraticEstimation;
+		friend class Convexification;
 	public:
 		/** Name of the objective or constraint.
 		 */
@@ -198,6 +201,9 @@ public:
 	 */ 	
 	void getBox(DenseVector& lower, DenseVector& upper, const vector<int>& indices) const;
 	void getBox(DenseVector& lower, DenseVector& upper) const;
+	/** Creates vector with diameter of bounds of those variables that are listed in indices.
+	 */ 	
+	void getBoxDiameter(DenseVector& diameter, const vector<int>& indices) const;
 	/** Whether the MINLP is convex.
 	 * The MINLP is convex, if each constraint by its own is convex.
 	 * If the curvature of some constraints is not known, false is returned.  

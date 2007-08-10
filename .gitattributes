@@ -15,6 +15,8 @@ LaGO/src/Algorithms/LaGOBoxReduction.cpp -text
 LaGO/src/Algorithms/LaGOBoxReduction.hpp -text
 LaGO/src/Algorithms/LaGOConstraintPropagation.cpp -text
 LaGO/src/Algorithms/LaGOConstraintPropagation.hpp -text
+LaGO/src/Algorithms/LaGOConvexification.cpp -text
+LaGO/src/Algorithms/LaGOConvexification.hpp -text
 LaGO/src/Algorithms/LaGOCurvatureCheck.cpp -text
 LaGO/src/Algorithms/LaGOCurvatureCheck.hpp -text
 LaGO/src/Algorithms/LaGODecomposition.cpp -text
@@ -72,6 +74,7 @@ LaGO/src/Problem/LaGOBoxMinimizationProblem.hpp -text
 LaGO/src/Problem/LaGOCurvature.hpp -text
 LaGO/src/Problem/LaGOMINLPData.cpp -text
 LaGO/src/Problem/LaGOMINLPData.hpp -text
+LaGO/src/Problem/LaGOQuadraticEstimator.hpp -text
 LaGO/src/Problem/LaGOQuadraticFunction.hpp -text
 LaGO/src/Problem/LaGOSampleSet.cpp -text
 LaGO/src/Problem/LaGOSampleSet.hpp -text
