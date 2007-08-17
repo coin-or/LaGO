@@ -28,4 +28,13 @@ void SparseVectorCreator::add(const SparseVector& v) {
 		operator[](*indices)+=*elements;
 }
 
+void SparseVectorCreator::addBlockVector(const SparseVector& v, const vector<int>& indices) {
+	const int* v_indices=v.getIndices();
+	const double* elements=v.getElements();
+	for (int i=v.getNumElements(); i>0; --i, ++v_indices, ++elements)
+		operator[](indices[*v_indices])+=*elements;
+}
+
+
+
 } // namespace LaGO

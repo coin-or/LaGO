@@ -24,7 +24,11 @@ AM_CPPFLAGS = \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Common` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/LinAlg` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Algorithm` \
- -I`$(CYGPATH_W) $(IPOPTOBJDIR)/inc`
+ -I`$(CYGPATH_W) $(IPOPTOBJDIR)/inc` \
+ -I`$(CYGPATH_W) $(BONMINSRCDIR)/src/Interfaces` \
+ -I`$(CYGPATH_W) $(BONMINSRCDIR)/src/Algorithms` \
+ -I`$(CYGPATH_W) $(BONMINSRCDIR)/src/CbcBonmin` \
+ -I`$(CYGPATH_W) $(BONMINOBJDIR)/inc`
 
 if COIN_HAS_CPX
 AM_CPPFLAGS += -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiCpx` -I`$(CYGPATH_W) $(CPXINCDIR)`
@@ -59,6 +63,7 @@ $(OSIOBJDIR)/src/libOsi.la \
 $(CGLOBJDIR)/src/libCgl.la \
 $(COINUTILSOBJDIR)/src/libCoinUtils.la \
 $(IPOPTOBJDIR)/src/Interfaces/libipopt.la \
+$(BONMINOBJDIR)/src/CbcBonmin/libbonmin.la \
 $(GAMSIO_LIBS)
 
 ADDLIBS += `cat $(COINUTILSOBJDIR)/coinutils_addlibs.txt $(CGLOBJDIR)/cgl_addlibs.txt $(OSIOBJDIR)/osi_addlibs.txt $(IPOPTOBJDIR)/src/Interfaces/ipopt_addlibs_cpp.txt`

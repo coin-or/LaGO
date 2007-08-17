@@ -70,7 +70,8 @@ public:
 //	const vector<int>& getSparsity() const { throw CoinError("sparsity information not available", "getSparsity()", "Function"); }
 	
 	void print(ostream& out) const {
-		out << "Quadratic Function: c=" << constant << " b=" << *b << endl << "A: " << *A; 
+		out << "Quadratic Function: c=" << constant << " b=" << *b;
+		if (A->getNumNonzeros()) out << endl << "A: " << *A; 
 	}
 	
 }; // class QuadraticFunction 

@@ -36,6 +36,9 @@ public:
 	}
 
 	void add(double factor, const SymSparseMatrix& A);
+	/** Adds A to our matrix, and also renames the indices.
+	 */
+	void addBlockMatrix(double factor, const SymSparseMatrix& A, const vector<int>& indices);
 
 	void scale(double factor);
 

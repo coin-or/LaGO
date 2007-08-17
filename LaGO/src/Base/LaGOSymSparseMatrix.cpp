@@ -24,6 +24,25 @@ void SymSparseMatrixCreator::add(double factor, const SymSparseMatrix& A) {
 	}
 }
 
+/** Adds A to our matrix, and also renames the indices.
+ */
+void SymSparseMatrixCreator::addBlockMatrix(double factor, const SymSparseMatrix& A, const vector<int>& indices) {
+	assert((int)indices.size()==A.getNumCols());
+	const int* rowind=A.getRowIndices();
+	const int* colind=A.getColIndices();
+	const double* value=A.getValues();
+	for (int i=A.getNumNonzeros(); i>0; --i) {
+		int row=indices[*rowind];
+		int col=indices[*colind];
+		assert(row<getDim() && col<getDim());
+		if (row<col) operator[](pair<int,int>(col,row))+=factor* *value;
+		else operator[](pair<int,int>(row,col))+=factor* *value;
+		++rowind;
+		++colind;
+		++value;
+	}
+}
+
 void SymSparseMatrixCreator::scale(double factor) {
 	if (factor==0.) clear();
 	else
@@ -251,17 +270,17 @@ bool SymSparseMatrix::computeEigenValues(DenseVector& eigval, DenseVector* eigve
   		storage[*row*dim+*col]=*val;
   	++row; ++col; ++val;
   }
-  clog << "matrix:";
-  for (int i=0; i<dim*dim; ++i)
-	 	clog << ' ' << storage[i];
-	clog << endl;
+//  clog << "matrix:";
+//  for (int i=0; i<dim*dim; ++i)
+//	 	clog << ' ' << storage[i];
+//	clog << endl;
 
   int info;
   Ipopt::IpLapackDsyev(eigvec!=NULL, dim, storage, dim, eigval.getElements(), info);
-  clog << "eigenvalues:";
-  for (int i=0; i<dim; ++i)
-  	clog << ' ' << eigval[i];
-  clog << endl;
+//  clog << "eigenvalues:";
+//  for (int i=0; i<dim; ++i)
+//  	clog << ' ' << eigval[i];
+//  clog << endl;
 
   if (!eigvec) delete[] storage;
 

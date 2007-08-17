@@ -13,7 +13,7 @@
 
 namespace LaGO {
 
-#define ReferencedObject Ipopt::ReferencedObject
+typedef Ipopt::ReferencedObject ReferencedObject;
 	
 template<class T>
 class SmartPtr : public Ipopt::SmartPtr<T> {

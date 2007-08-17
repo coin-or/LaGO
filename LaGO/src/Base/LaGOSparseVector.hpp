@@ -49,6 +49,8 @@ public:
 	}
 	
 	void add(const SparseVector& v);
+
+	void addBlockVector(const SparseVector& v, const vector<int>& indices);
 };	
 
 	

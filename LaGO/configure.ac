@@ -88,6 +88,8 @@ AC_COIN_HAS_PROJECT(Osi)
 AC_COIN_HAS_PROJECT(Ipopt)
 # later: this one is optional, if, e.g., CPLEX is there
 AC_COIN_HAS_PROJECT(Clp)
+AC_COIN_HAS_PROJECT(Cbc)
+AC_COIN_HAS_PROJECT(Bonmin)
 
 ############################################################################
 ############################################################################

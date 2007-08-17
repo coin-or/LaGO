@@ -112,6 +112,7 @@ LaGOGAMS_OBJECTS = $(am_LaGOGAMS_OBJECTS)
 @COIN_HAS_GAMSIO_TRUE@	$(CGLOBJDIR)/src/libCgl.la \
 @COIN_HAS_GAMSIO_TRUE@	$(COINUTILSOBJDIR)/src/libCoinUtils.la \
 @COIN_HAS_GAMSIO_TRUE@	$(IPOPTOBJDIR)/src/Interfaces/libipopt.la \
+@COIN_HAS_GAMSIO_TRUE@	$(BONMINOBJDIR)/src/CbcBonmin/libbonmin.la \
 @COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_1)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
@@ -151,7 +152,11 @@ AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AUX_DIR = @AUX_DIR@
 AWK = @AWK@
+BONMINOBJDIR = @BONMINOBJDIR@
+BONMINSRCDIR = @BONMINSRCDIR@
 BUILDTOOLSDIR = @BUILDTOOLSDIR@
+CBCOBJDIR = @CBCOBJDIR@
+CBCSRCDIR = @CBCSRCDIR@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CDEFS = @CDEFS@
@@ -162,6 +167,10 @@ CLPOBJDIR = @CLPOBJDIR@
 CLPSRCDIR = @CLPSRCDIR@
 COINUTILSOBJDIR = @COINUTILSOBJDIR@
 COINUTILSSRCDIR = @COINUTILSSRCDIR@
+COIN_HAS_BONMIN_FALSE = @COIN_HAS_BONMIN_FALSE@
+COIN_HAS_BONMIN_TRUE = @COIN_HAS_BONMIN_TRUE@
+COIN_HAS_CBC_FALSE = @COIN_HAS_CBC_FALSE@
+COIN_HAS_CBC_TRUE = @COIN_HAS_CBC_TRUE@
 COIN_HAS_CGL_FALSE = @COIN_HAS_CGL_FALSE@
 COIN_HAS_CGL_TRUE = @COIN_HAS_CGL_TRUE@
 COIN_HAS_CLP_FALSE = @COIN_HAS_CLP_FALSE@
@@ -323,7 +332,11 @@ AM_CPPFLAGS = $(FILIB_CPPFLAGS) -I`$(CYGPATH_W) $(srcdir)/../Base` \
 	$(IPOPTSRCDIR)/src/Common` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/LinAlg` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/Algorithm` -I`$(CYGPATH_W) \
-	$(IPOPTOBJDIR)/inc` $(am__append_1) $(am__append_2)
+	$(IPOPTOBJDIR)/inc` -I`$(CYGPATH_W) \
+	$(BONMINSRCDIR)/src/Interfaces` -I`$(CYGPATH_W) \
+	$(BONMINSRCDIR)/src/Algorithms` -I`$(CYGPATH_W) \
+	$(BONMINSRCDIR)/src/CbcBonmin` -I`$(CYGPATH_W) \
+	$(BONMINOBJDIR)/inc` $(am__append_1) $(am__append_2)
 lib_LTLIBRARIES = libLaGO.la
 libLaGO_la_SOURCES = 
 libLaGO_la_LIBADD = ../Algorithms/libLaGOAlgorithms.la ../Interfaces/libLaGOInterfaces.la ../Problem/libLaGOProblem.la ../Base/libLaGOBase.la \
@@ -337,6 +350,7 @@ libLaGO_la_LIBADD = ../Algorithms/libLaGOAlgorithms.la ../Interfaces/libLaGOInte
 @COIN_HAS_GAMSIO_TRUE@	$(CGLOBJDIR)/src/libCgl.la \
 @COIN_HAS_GAMSIO_TRUE@	$(COINUTILSOBJDIR)/src/libCoinUtils.la \
 @COIN_HAS_GAMSIO_TRUE@	$(IPOPTOBJDIR)/src/Interfaces/libipopt.la \
+@COIN_HAS_GAMSIO_TRUE@	$(BONMINOBJDIR)/src/CbcBonmin/libbonmin.la \
 @COIN_HAS_GAMSIO_TRUE@	$(GAMSIO_LIBS)
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_LDFLAGS = $(ADDLIBS) -rpath $(libdir)
 DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc

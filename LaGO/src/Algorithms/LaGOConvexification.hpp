@@ -21,15 +21,15 @@ public:
 	
 	/** Convexifies all nonconvex quadratic terms of a problem.
 	 */
-	void convexify();
+	void convexify(const vector<int>& bound_is_guessed=vector<int>());
 	
 	/** Convexifies all nonconvex quadratic terms of the objective or a constraint.
 	 */
-	void convexify(MINLPData::ObjCon& objcon, bool need_lower, bool need_upper);
+	void convexify(MINLPData::ObjCon& objcon, bool need_lower, bool need_upper, const vector<int>& bound_is_guessed=vector<int>());
 
 	/** Convexifies all nonconvex quadratic terms of a block function.
 	 */
-	void convexify(BlockFunction& func, bool do_lower, bool do_upper);
+	void convexify(BlockFunction& func, bool do_lower, bool do_upper, const vector<int>& bound_is_guessed=vector<int>());
 
 	/** Computes convexification and concavification parameters for a given matrix.
 	 * @param alpha_convexify If not NULL, then the convexification parameters are computed and stored in here.

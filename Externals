@@ -5,8 +5,10 @@ ThirdParty/Blas https://projects.coin-or.org/svn/BuildTools/ThirdParty/Blas/trun
 ThirdParty/Lapack https://projects.coin-or.org/svn/BuildTools/ThirdParty/Lapack/trunk
 ThirdParty/GAMSIO https://projects.coin-or.org/svn/GAMSlinks/trunk/ThirdParty/GAMSIO
 CoinUtils     https://projects.coin-or.org/svn/CoinUtils/trunk/CoinUtils
-Clp           https://projects.coin-or.org/svn/Clp/trunk/Clp
 Cgl           https://projects.coin-or.org/svn/Cgl/trunk/Cgl
+Clp           https://projects.coin-or.org/svn/Clp/trunk/Clp
+Cbc           https://projects.coin-or.org/svn/Cbc/trunk/Cbc
 Ipopt         https://projects.coin-or.org/svn/Ipopt/trunk/Ipopt
 Osi           https://projects.coin-or.org/svn/Osi/trunk/Osi
 Cgc           https://projects.coin-or.org/svn/Cgc/trunk/Cgc
+Bonmin        https://projects.coin-or.org/svn/Bonmin/trunk/Bonmin

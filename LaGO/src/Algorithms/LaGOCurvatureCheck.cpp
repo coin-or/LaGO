@@ -20,6 +20,8 @@ void CurvatureCheck::computeCurvature() {
 void CurvatureCheck::computeCurvature(MINLPData::ObjCon& objcon) {
 	// assert that function has been decomposed if nonlinear
 	assert(IsNull(objcon.origfuncNL) || !objcon.decompfuncNL.empty());
+	/*TODO: objcon.origfuncNL could have contained an actually linear function (or at least LaGO::Decomposition thought so). 
+	 * In this case objcon.decompfuncNL will be empty. (e.g. for oil2) */ 
 	
 	for (vector<SmartPtr<BlockFunction> >::iterator it(objcon.decompfuncNL.begin()); it!=objcon.decompfuncNL.end(); ++it)
 		computeCurvature(**it);
@@ -85,7 +87,7 @@ void CurvatureCheck::computeCurvature(BlockFunction& blockfunc) {
 	else if (maxeig>eigenvalue_tolerance) blockfunc.curvature=CONVEX; // so min>=-eigtol
 	else blockfunc.curvature=CONVEXCONCAVE;
 
-	clog << "mineig: " << mineig << "\t maxeig: " << maxeig << "\t curvature: " << blockfunc.curvature << endl;
+//	clog << "mineig: " << mineig << "\t maxeig: " << maxeig << "\t curvature: " << blockfunc.curvature << endl;
 }
 	
 } // namespace LaGO

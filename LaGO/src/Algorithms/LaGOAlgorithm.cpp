@@ -6,6 +6,8 @@
 
 #include "LaGOAlgorithm.hpp"
 
+#include "LaGOQuadraticOrConvexApproximation.hpp"
+
 namespace LaGO {
 
 Algorithm::Algorithm(MINLPData& data_)
@@ -38,7 +40,10 @@ void Algorithm::preprocessing() {
 	
 	quadest.computeEstimators(data);
 	
-	convexify.convexify();
+	if (guess_nr)
+		convexify.convexify(guess.bound_is_guessed);
+	else 
+		convexify.convexify();
 	
 
 //	cout << data;
@@ -46,6 +51,9 @@ void Algorithm::preprocessing() {
 	
 void Algorithm::run() {
 	preprocessing();
+	
+//	QuadraticOrConvexApproximation quad(data, true);
+//	cout << quad;
 }
 	
 } // namespace LaGO

@@ -85,10 +85,9 @@ libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libLaGOAlgorithms_la_LIBADD =
 am_libLaGOAlgorithms_la_OBJECTS = LaGOAlgorithm.lo \
-	LaGODecomposition.lo LaGORestrictedFunction.lo LaGOSampling.lo \
-	LaGOCurvatureCheck.lo LaGOBoxReduction.lo \
-	LaGOConstraintPropagation.lo LaGOQuadraticEstimation.lo \
-	LaGOConvexification.lo
+	LaGODecomposition.lo LaGOSampling.lo LaGOCurvatureCheck.lo \
+	LaGOBoxReduction.lo LaGOConstraintPropagation.lo \
+	LaGOQuadraticEstimation.lo LaGOConvexification.lo
 libLaGOAlgorithms_la_OBJECTS = $(am_libLaGOAlgorithms_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
@@ -122,7 +121,11 @@ AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AUX_DIR = @AUX_DIR@
 AWK = @AWK@
+BONMINOBJDIR = @BONMINOBJDIR@
+BONMINSRCDIR = @BONMINSRCDIR@
 BUILDTOOLSDIR = @BUILDTOOLSDIR@
+CBCOBJDIR = @CBCOBJDIR@
+CBCSRCDIR = @CBCSRCDIR@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CDEFS = @CDEFS@
@@ -133,6 +136,10 @@ CLPOBJDIR = @CLPOBJDIR@
 CLPSRCDIR = @CLPSRCDIR@
 COINUTILSOBJDIR = @COINUTILSOBJDIR@
 COINUTILSSRCDIR = @COINUTILSSRCDIR@
+COIN_HAS_BONMIN_FALSE = @COIN_HAS_BONMIN_FALSE@
+COIN_HAS_BONMIN_TRUE = @COIN_HAS_BONMIN_TRUE@
+COIN_HAS_CBC_FALSE = @COIN_HAS_CBC_FALSE@
+COIN_HAS_CBC_TRUE = @COIN_HAS_CBC_TRUE@
 COIN_HAS_CGL_FALSE = @COIN_HAS_CGL_FALSE@
 COIN_HAS_CGL_TRUE = @COIN_HAS_CGL_TRUE@
 COIN_HAS_CLP_FALSE = @COIN_HAS_CLP_FALSE@
@@ -285,7 +292,7 @@ EXTRA_DIST = $(am__append_3)
 lib_LTLIBRARIES = libLaGOAlgorithms.la
 libLaGOAlgorithms_la_SOURCES = \
 	LaGOAlgorithm.cpp \
-	LaGODecomposition.cpp LaGORestrictedFunction.cpp \
+	LaGODecomposition.cpp \
 	LaGOSampling.cpp LaGOCurvatureCheck.cpp \
 	LaGOBoxReduction.cpp LaGOConstraintPropagation.cpp \
 	LaGOQuadraticEstimation.cpp LaGOConvexification.cpp
@@ -302,7 +309,12 @@ AM_CPPFLAGS = $(FILIB_CPPFLAGS) -I`$(CYGPATH_W) $(srcdir)/../Base` \
 	$(IPOPTSRCDIR)/src/Common` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/LinAlg` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/Algorithm` -I`$(CYGPATH_W) \
-	$(IPOPTOBJDIR)/inc` $(am__append_1) $(am__append_2)
+	$(IPOPTOBJDIR)/inc` -I`$(CYGPATH_W) $(OSISRCDIR)/src` \
+	-I`$(CYGPATH_W) $(OSIOBJDIR)/inc` -I`$(CYGPATH_W) \
+	$(BONMINSRCDIR)/src/Interfaces` -I`$(CYGPATH_W) \
+	$(BONMINSRCDIR)/src/Algorithms` -I`$(CYGPATH_W) \
+	$(BONMINSRCDIR)/src/CbcBonmin` -I`$(CYGPATH_W) \
+	$(BONMINOBJDIR)/inc` $(am__append_1) $(am__append_2)
 DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
 DISTCLEANFILES = $(am__append_4) $(VPATH_DISTCLEANFILES)
 all: all-am
@@ -381,7 +393,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOCurvatureCheck.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGODecomposition.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOQuadraticEstimation.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGORestrictedFunction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOSampling.Plo@am__quote@
 
 .cpp.o:

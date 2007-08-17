@@ -13,7 +13,7 @@ EXTRA_DIST =
 lib_LTLIBRARIES = libLaGOAlgorithms.la
 libLaGOAlgorithms_la_SOURCES = \
 	LaGOAlgorithm.cpp \
-	LaGODecomposition.cpp LaGORestrictedFunction.cpp \
+	LaGODecomposition.cpp \
 	LaGOSampling.cpp LaGOCurvatureCheck.cpp \
 	LaGOBoxReduction.cpp LaGOConstraintPropagation.cpp \
 	LaGOQuadraticEstimation.cpp LaGOConvexification.cpp
@@ -33,7 +33,13 @@ AM_CPPFLAGS = $(FILIB_CPPFLAGS) \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Common` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/LinAlg` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Algorithm` \
- -I`$(CYGPATH_W) $(IPOPTOBJDIR)/inc`
+ -I`$(CYGPATH_W) $(IPOPTOBJDIR)/inc` \
+ -I`$(CYGPATH_W) $(OSISRCDIR)/src` \
+ -I`$(CYGPATH_W) $(OSIOBJDIR)/inc` \
+ -I`$(CYGPATH_W) $(BONMINSRCDIR)/src/Interfaces` \
+ -I`$(CYGPATH_W) $(BONMINSRCDIR)/src/Algorithms` \
+ -I`$(CYGPATH_W) $(BONMINSRCDIR)/src/CbcBonmin` \
+ -I`$(CYGPATH_W) $(BONMINOBJDIR)/inc`
 
 if COIN_HAS_CPX
 AM_CPPFLAGS += -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiCpx` \

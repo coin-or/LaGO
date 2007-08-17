@@ -38,6 +38,11 @@ class BoxReductionGuessing {
 private:
 	MINLPData& data;
 public:
+	/** Tells for each variable which bounds has been guessed.
+	 * 0 if no bound guessed, 1 if lower has been guessed, 2 if upper has been guessed, and 3 if both have been guessed
+	 */
+	vector<int> bound_is_guessed;
+
 	BoxReductionGuessing(MINLPData& data_)
 	: data(data_)
 	{ }

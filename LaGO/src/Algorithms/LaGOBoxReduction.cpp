@@ -27,6 +27,9 @@ void BoxReductionStatistics::printBox(ostream& out, const MINLPData& data) {
 
 
 int BoxReductionGuessing::guessBounds() {
+	if (bound_is_guessed.size()) bound_is_guessed.clear();
+	bound_is_guessed.resize(data.numVariables(), 0);
+	
 	int guessed=0;
 	bool missing_bounds=false;
 	double min_lower=-1000.; // so that unknown bounds are set to at least 10000
@@ -48,8 +51,14 @@ int BoxReductionGuessing::guessBounds() {
 			const MINLPData::Variable& var(data.getVariable(i));
 			if (!var.isNonlinear()) continue; // skip linear variables
 			if (var.getLower()<=-getInfinity() || var.getUpper()>=getInfinity()) ++guessed;
-			if (var.getLower()<=-getInfinity()) data.var[i].lower=10*min_lower;
-			if (var.getUpper()>= getInfinity()) data.var[i].upper=10*max_upper;
+			if (var.getLower()<=-getInfinity()) {
+				bound_is_guessed[i]+=1;
+				data.var[i].lower=10*min_lower;
+			}
+			if (var.getUpper()>= getInfinity()) {
+				data.var[i].upper=10*max_upper;
+				bound_is_guessed[i]+=2;
+			}
 		}
 
   return guessed;
