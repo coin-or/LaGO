@@ -779,14 +779,17 @@ bool MinlpBCP::boxreduce(Pointer<MinlpNode> node, int index, IntervalReduction::
 bool MinlpBCP::feasibility_check(Pointer<MinlpNode> node) {
 #ifdef FILIB_AVAILABLE
 	IntervalVector box(orig_prob->dim());
-	for (int i=0; i<box.dim(); ++i)
+	for (int i=0; i<box.dim(); ++i) {
 		if (node) box[i]=interval<double>(node->lower(i), node->upper(i));
 		else box[i]=interval<double>(split_prob->lower(i), split_prob->upper(i));
+//		out_log << orig_prob->var_names[i] << ": " << box[i] << endl;		
+	}
 
 	for (int c=0; c<orig_prob->con.size(); ++c) {
 		interval<double> val(orig_prob->con[c]->eval(box));
 		if (val.inf()>tol || (orig_prob->con_eq[c] && val.sup()<-tol)) {
-			out_log << "Constraint " << orig_prob->con_names[c] << " infeasible." << endl;
+			out_log << "Feasibility check by interval arithmetic: Constraint " << orig_prob->con_names[c] << " infeasible." << endl;
+			out_log << "Equality constraint: " << orig_prob->con_eq[c] << "\t Interval: " << val << endl;
 			return false;
 		}
 	}

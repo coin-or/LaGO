@@ -1105,9 +1105,8 @@ Optional Packages:
                           both]
   --with-tags[=TAGS]
                           include additional configurations [automatic]
-  --with-cplex-incdir specify the directory with the header files for library
-                          Cplex
-  --with-cplex-lib specify the flags to link with the library Cplex
+  --with-cplex-incdir specify the header file directory for library Cplex
+  --with-cplex-lib specify the flags used to link with the library Cplex
   --with-tnt              specify directory of Template Numerical Toolkit
                           (TNT) header files
   --with-ranlib           specify directory of Random Number generator library
@@ -1718,7 +1717,9 @@ if test "${enable_debug+set}" = set; then
   enableval="$enable_debug"
   case "${enableval}" in
    yes) coin_debug_compile=true
-        enable_shared=no
+        if test "${enable_shared+set}" = set; then :; else
+          enable_shared=no
+        fi
         ;;
    no)  coin_debug_compile=false
         ;;
@@ -1763,7 +1764,10 @@ fi
 # Check whether --with-lago-verbosity or --without-lago-verbosity was given.
 if test "${with_lago_verbosity+set}" = set; then
   withval="$with_lago_verbosity"
-  coin_lago_verbosity=$withval
+  if test "$withval" = yes; then
+                withval=1
+              fi
+              coin_lago_verbosity=$withval
 else
   coin_lago_verbosity=0
 fi;
@@ -1777,7 +1781,10 @@ _ACEOF
 # Check whether --with-lago-checklevel or --without-lago-checklevel was given.
 if test "${with_lago_checklevel+set}" = set; then
   withval="$with_lago_checklevel"
-  coin_lago_checklevel=$withval
+  if test "$withval" = yes; then
+                withval=1
+              fi
+              coin_lago_checklevel=$withval
 else
   coin_lago_checklevel=0
 fi;
@@ -2714,7 +2721,7 @@ rm -f conftest.err conftest.$ac_objext \
         case "$CC" in
           cl* | */cl* | CL* | */CL*)
             coin_opt_cflags='-MT -O2'
-            coin_add_cflags='-nologo -wd4996'
+            coin_add_cflags='-nologo -wd4996 -D_CRT_SECURE_NO_DEPRECATE'
             coin_dbg_cflags='-MTd'
             ;;
         esac
@@ -3449,6 +3456,14 @@ echo "$as_me: error: Failed to find a C++ compiler!" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
+# It seems that we need to cleanup something here for the Windows
+case "$CXX" in
+  cl* | */cl* | CL* | */CL* )
+    sed -e 's/^void exit (int);//' confdefs.h >> confdefs.hh
+    mv confdefs.hh confdefs.h
+    ;;
+esac
+
 # Autoconf incorrectly concludes that cl recognises -g. It doesn't.
 case "$CXX" in
   cl* | */cl* | CL* | */CL* )
@@ -3549,7 +3564,7 @@ rm -f conftest.err conftest.$ac_objext \
           cl* | */cl* | CL* | */CL*)
 	    # The MT and MTd options are mutually exclusive
             coin_opt_cxxflags='-MT -O2'
-            coin_add_cxxflags='-nologo -EHsc -GR -wd4996'
+            coin_add_cxxflags='-nologo -EHsc -GR -wd4996 -D_CRT_SECURE_NO_DEPRECATE'
             coin_dbg_cxxflags='-MTd'
             ;;
         esac
@@ -3990,7 +4005,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:3993:" \
+echo "$as_me:4008:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -4185,7 +4200,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_verb"
-(eval echo $as_me:4188: \"$ac_link\") >&5
+(eval echo $as_me:4203: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4263,7 +4278,7 @@ _ACEOF
 # flags.
 ac_save_FFLAGS=$FFLAGS
 FFLAGS="$FFLAGS $ac_cv_prog_f77_v"
-(eval echo $as_me:4266: \"$ac_link\") >&5
+(eval echo $as_me:4281: \"$ac_link\") >&5
 ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
@@ -4862,6 +4877,8 @@ ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_f77_compiler_gnu
 
 
+save_FLIBS="$FLIBS"
+
 ac_ext=f
 ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
 ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
@@ -4953,37 +4970,51 @@ ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_f77_compiler_gnu
 
 
-# This is to correct a missing exclusion in autoconf 2.59
-if test x"$FLIBS" != x; then
-  my_flibs=
-  for flag in $FLIBS; do
-    case $flag in
-      -lcrt*.o) ;;
-             *) my_flibs="$my_flibs $flag" ;;
-    esac
-  done
-  FLIBS="$my_flibs"
-fi
+if test x"$save_FLIBS" != x; then
+  FLIBS="$save_FLIBS"
+else
+  # This is to correct a missing exclusion in autoconf 2.59
+  if test x"$FLIBS" != x; then
+    my_flibs=
+    for flag in $FLIBS; do
+      case $flag in
+        -lcrt*.o) ;;
+               *) my_flibs="$my_flibs $flag" ;;
+      esac
+    done
+    FLIBS="$my_flibs"
+  fi
 
-case $build in
-# The following is a fix to define FLIBS for ifort on Windows
-   *-cygwin* | *-mingw*)
-     case "$F77" in
-       ifort* | */ifort* | IFORT* | */IFORT*)
+  case $build in
+  # The following is a fix to define FLIBS for ifort on Windows
+     *-cygwin* | *-mingw*)
+       case "$F77" in
+         ifort* | */ifort* | IFORT* | */IFORT*)
            FLIBS="-link libifcorert.lib $LIBS /NODEFAULTLIB:libc.lib";;
-     esac;;
-   *-hp-*)
-       FLIBS="$FLIBS -lm";;
-   *-ibm-*)
-       FLIBS=`echo $FLIBS | sed 's/-lc)/-lc/g'` ;;
-   *-linux-*)
-     case "$F77" in
-       pgf77* | */pgf77* | pgf90* | */pgf90*)
+         compile_f2c*)
+           FLIBS=`$F77 -FLIBS` ;;
+       esac;;
+     *-hp-*)
+         FLIBS="$FLIBS -lm";;
+     *-ibm-*)
+         FLIBS=`echo $FLIBS | sed 's/-lc)/-lc/g'` ;;
+     *-linux-*)
+       case "$F77" in
+         pgf77* | */pgf77* | pgf90* | */pgf90*)
 # ask linker to go through the archives multiple times
 # (the Fortran compiler seems to do that automatically...
-         FLIBS="-Wl,--start-group $FLIBS -Wl,--end-group" ;;
-     esac
-esac
+           FLIBS="-Wl,--start-group $FLIBS -Wl,--end-group" ;;
+       esac
+  esac
+  ac_cv_f77_libs="$FLIBS"
+fi
+
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
 
 
 
@@ -5986,28 +6017,12 @@ echo "$as_me: error: The automake executable should be picked up from \$AUTOTOOL
     fi
     correct_version='1.5.22'
     grep_version=`echo  $correct_version | sed -e 's/\\./\\\\\\./g'`
-    as_ac_File=`echo "ac_cv_file_$want_dir/libtool/ltmain.sh" | $as_tr_sh`
-echo "$as_me:$LINENO: checking for $want_dir/libtool/ltmain.sh" >&5
-echo $ECHO_N "checking for $want_dir/libtool/ltmain.sh... $ECHO_C" >&6
-if eval "test \"\${$as_ac_File+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  test "$cross_compiling" = yes &&
-  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
-echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
-   { (exit 1); exit 1; }; }
-if test -r "$want_dir/libtool/ltmain.sh"; then
-  eval "$as_ac_File=yes"
-else
-  eval "$as_ac_File=no"
-fi
-fi
-echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_File'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_File'}'`" >&6
-if test `eval echo '${'$as_ac_File'}'` = yes; then
+    if test -r $want_dir/libtool/ltmain.sh; then
   have_ltmain=yes
+  :
 else
   have_ltmain=no
+  :
 fi
 
     echo "$as_me:$LINENO: checking whether we are using the correct version ($correct_version) of libtool." >&5
@@ -6038,30 +6053,14 @@ echo "$as_me: error: I cannot find the ltmain.sh file." >&2;}
   else
     want_dir=$AUTOTOOLS_DIR/share
   fi
-  as_ac_File=`echo "ac_cv_file_$want_dir/aclocal/libtool.m4" | $as_tr_sh`
-echo "$as_me:$LINENO: checking for $want_dir/aclocal/libtool.m4" >&5
-echo $ECHO_N "checking for $want_dir/aclocal/libtool.m4... $ECHO_C" >&6
-if eval "test \"\${$as_ac_File+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  test "$cross_compiling" = yes &&
-  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
-echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
-   { (exit 1); exit 1; }; }
-if test -r "$want_dir/aclocal/libtool.m4"; then
-  eval "$as_ac_File=yes"
-else
-  eval "$as_ac_File=no"
-fi
-fi
-echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_File'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_File'}'`" >&6
-if test `eval echo '${'$as_ac_File'}'` = yes; then
+  if test -r $want_dir/aclocal/libtool.m4; then
   LIBTOOLM4="$want_dir/aclocal/libtool.m4"
+  :
 else
   { { echo "$as_me:$LINENO: error: I cannot find the libtool.m4 file." >&5
 echo "$as_me: error: I cannot find the libtool.m4 file." >&2;}
    { (exit 1); exit 1; }; }
+  :
 fi
 
 
@@ -6184,62 +6183,17 @@ fi
 
 
 
-unset ac_cv_file__________libtool
-unset ac_cv_file_______libtool
-unset ac_cv_file____libtool
-
 LIBTOOL=
-echo "$as_me:$LINENO: checking for ../libtool" >&5
-echo $ECHO_N "checking for ../libtool... $ECHO_C" >&6
-if test "${ac_cv_file____libtool+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  test "$cross_compiling" = yes &&
-  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
-echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
-   { (exit 1); exit 1; }; }
-if test -r "../libtool"; then
-  ac_cv_file____libtool=yes
-else
-  ac_cv_file____libtool=no
-fi
-fi
-echo "$as_me:$LINENO: result: $ac_cv_file____libtool" >&5
-echo "${ECHO_T}$ac_cv_file____libtool" >&6
-if test $ac_cv_file____libtool = yes; then
+if test -r ../libtool; then
   coin_config_dir=..
-               LIBTOOL='$(SHELL) $(top_builddir)/../libtool'
+  LIBTOOL='$(SHELL) $(top_builddir)/../libtool'
 fi
-
 if test "x$LIBTOOL" = x; then
-  echo "$as_me:$LINENO: checking for ../../libtool" >&5
-echo $ECHO_N "checking for ../../libtool... $ECHO_C" >&6
-if test "${ac_cv_file_______libtool+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  test "$cross_compiling" = yes &&
-  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
-echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
-   { (exit 1); exit 1; }; }
-if test -r "../../libtool"; then
-  ac_cv_file_______libtool=yes
-else
-  ac_cv_file_______libtool=no
+  if test -r ../../libtool; then
+    coin_config_dir=../..
+    LIBTOOL='$(SHELL) $(top_builddir)/../../libtool'
+  fi
 fi
-fi
-echo "$as_me:$LINENO: result: $ac_cv_file_______libtool" >&5
-echo "${ECHO_T}$ac_cv_file_______libtool" >&6
-if test $ac_cv_file_______libtool = yes; then
-  coin_config_dir=../..
-                 LIBTOOL='$(SHELL) $(top_builddir)/../../libtool'
-fi
-
-fi
-# if test "x$LIBTOOL" = x; then
-#   AC_CHECK_FILE([../../../libtool],
-#                 [coin_config_dir=../../..
-#                  LIBTOOL='$(SHELL) $(top_builddir)/../../../libtool'])
-# fi
 
 if test "x$LIBTOOL" = x; then
 # AC_MSG_NOTICE([Creating libtool script (calling COIN_PROG_LIBTOOL).])
@@ -6792,7 +6746,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 6795 "configure"' > conftest.$ac_ext
+  echo '#line 6749 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -8772,11 +8726,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8775: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8729: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:8779: \$? = $ac_status" >&5
+   echo "$as_me:8733: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -9040,11 +8994,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:9043: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8997: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:9047: \$? = $ac_status" >&5
+   echo "$as_me:9001: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -9144,11 +9098,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:9147: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:9101: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:9151: \$? = $ac_status" >&5
+   echo "$as_me:9105: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -11561,7 +11515,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 11564 "configure"
+#line 11518 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11661,7 +11615,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 11664 "configure"
+#line 11618 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12285,10 +12239,11 @@ else
 fi
 
 
-ac_ext=f
-ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
-ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_f77_compiler_gnu
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 CC="$lt_save_CC"
 
@@ -14020,11 +13975,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14023: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13978: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:14027: \$? = $ac_status" >&5
+   echo "$as_me:13982: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -14124,11 +14079,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14127: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14082: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:14131: \$? = $ac_status" >&5
+   echo "$as_me:14086: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -15311,10 +15266,11 @@ else
 fi
 
 
-ac_ext=f
-ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
-ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_f77_compiler_gnu
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 CC=$lt_save_CC
 LDCXX=$LD
@@ -15693,11 +15649,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15696: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15652: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15700: \$? = $ac_status" >&5
+   echo "$as_me:15656: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -15797,11 +15753,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15800: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15756: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:15804: \$? = $ac_status" >&5
+   echo "$as_me:15760: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -17897,10 +17853,11 @@ else
 fi
 
 
-ac_ext=f
-ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
-ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_f77_compiler_gnu
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 CC="$lt_save_CC"
 
@@ -18003,11 +17960,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:18006: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17963: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:18010: \$? = $ac_status" >&5
+   echo "$as_me:17967: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -18271,11 +18228,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:18274: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:18231: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:18278: \$? = $ac_status" >&5
+   echo "$as_me:18235: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -18375,11 +18332,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:18378: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:18335: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:18382: \$? = $ac_status" >&5
+   echo "$as_me:18339: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -18828,9 +18785,27 @@ _LT_EOF
 	allow_undefined_flag_GCJ='-berok'
        # Determine the default libpath from the value encoded in an empty executable.
        cat >conftest.$ac_ext <<_ACEOF
-      program main
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
 
-      end
+#ifdef F77_DUMMY_MAIN
+
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+
+#endif
+int
+main ()
+{
+
+  ;
+  return 0;
+}
 _ACEOF
 rm -f conftest.$ac_objext conftest$ac_exeext
 if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
@@ -18841,7 +18816,7 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   cat conftest.err >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_f77_werror_flag"
+	 { ac_try='test -z "$ac_c_werror_flag"
 			 || test ! -s conftest.err'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
@@ -18879,9 +18854,27 @@ if test -z "$aix_libpath"; then aix_libpath="/usr/lib:/lib"; fi
 	else
 	 # Determine the default libpath from the value encoded in an empty executable.
 	 cat >conftest.$ac_ext <<_ACEOF
-      program main
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
 
-      end
+#ifdef F77_DUMMY_MAIN
+
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+
+#endif
+int
+main ()
+{
+
+  ;
+  return 0;
+}
 _ACEOF
 rm -f conftest.$ac_objext conftest$ac_exeext
 if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
@@ -18892,7 +18885,7 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   cat conftest.err >&5
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_f77_werror_flag"
+	 { ac_try='test -z "$ac_c_werror_flag"
 			 || test ! -s conftest.err'
   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
   (eval $ac_try) 2>&5
@@ -20475,10 +20468,11 @@ else
 fi
 
 
-ac_ext=f
-ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
-ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_f77_compiler_gnu
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 CC="$lt_save_CC"
 
@@ -20955,10 +20949,11 @@ else
 fi
 
 
-ac_ext=f
-ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
-ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_f77_compiler_gnu
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 CC="$lt_save_CC"
 
@@ -21060,13 +21055,25 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
   # Correct cygpath for minGW (ToDo!)
   { echo "$as_me:$LINENO: Build is \"$build\"." >&5
 echo "$as_me: Build is \"$build\"." >&6;}
+  mydos2unix='| dos2unix'
   case $build in
     *-mingw*)
       CYGPATH_W=echo
+      mydos2unix=
       ;;
   esac
 
   case $build in
+    *x86_64-*)
+# Here we need to check if -m32 is specified.  If so, we need to correct sys_lib_search_path_spec
+      if test "$GCC" = yes && (echo $CXXFLAGS $CFLAGS $FFLAGS | $EGREP 'm32' >& /dev/null); then
+        { echo "$as_me:$LINENO: Applying patches to libtool for 32bit compilation" >&5
+echo "$as_me: Applying patches to libtool for 32bit compilation" >&6;}
+        sed -e 's|sys_lib_search_path_spec=".*"|sys_lib_search_path_spec="/lib /usr/lib"|' libtool > conftest.bla
+        mv conftest.bla libtool
+        chmod 755 libtool
+      fi
+      ;;
     *-cygwin* | *-mingw*)
     case "$CXX" in
       cl* | */cl* | CL* | */CL*)
@@ -21078,10 +21085,11 @@ echo "$as_me: Applying patches to libtool for cl compiler" >&6;}
             -e 's%compile_deplibs=\"\$dir/\$linklib \$compile_deplibs\"%compile_deplibs="'\`"$CYGPATH_W"' \$dir/\$linklib | sed -e '"'"'sY\\\\\\\\Y/Yg'"'"\`' \$compile_deplibs\"'% \
 	    -e 's%lib /OUT:%lib -OUT:%' \
 	    -e "s%cygpath -w%$CYGPATH_W%" \
-  	    -e 's%$AR x \\$f_ex_an_ar_oldlib%bla=\\`lib -nologo -list \\$f_ex_an_ar_oldlib | xargs echo\\`; echo \\$bla; for i in \\$bla; do lib -nologo -extract:\\$i \\$f_ex_an_ar_oldlib; done%' \
+  	    -e 's%$AR x \\$f_ex_an_ar_oldlib%bla=\\`lib -nologo -list \\$f_ex_an_ar_oldlib | xargs echo '"$mydos2unix"'\\`; echo \\$bla; for i in \\$bla; do lib -nologo -extract:\\$i \\$f_ex_an_ar_oldlib; done%' \
 	    -e 's/$AR t/lib -nologo -list/' \
 	    -e 's%f_ex_an_ar_oldlib="\($?*1*\)"%f_ex_an_ar_oldlib='\`"$CYGPATH_W"' \1`%' \
-	    -e  's%^archive_cmds=.*%archive_cmds="\\$CC -o \\$lib \\$libobjs \\$compiler_flags \\\\\\`echo \\\\\\"\\$deplibs\\\\\\" | \\$SED -e '"\'"'s/ -lc\\$//'"\'"'\\\\\\` -link -dll~linknames="%' \
+	    -e 's%^archive_cmds=.*%archive_cmds="\\$CC -o \\$lib \\$libobjs \\$compiler_flags \\\\\\`echo \\\\\\"\\$deplibs\\\\\\" | \\$SED -e '"\'"'s/ -lc\\$//'"\'"'\\\\\\` -link -dll~linknames="%' \
+	    -e 's%old_archive_cmds="lib -OUT:\\$oldlib\\$oldobjs\\$old_deplibs"%old_archive_cmds="if test -r \\$oldlib; then bla=\\"\\$oldlib\\"; else bla=; fi; lib -OUT:\\$oldlib \\\\\\$bla\\$oldobjs\\$old_deplibs"%' \
         libtool > conftest.bla
 
         mv conftest.bla libtool
@@ -21099,6 +21107,16 @@ echo "$as_me: Applying patches to libtool for GNU compiler" >&6;}
         chmod 755 libtool
         ;;
     esac
+    ;;
+    *-darwin*)
+      { echo "$as_me:$LINENO: Applying patches to libtool for Darwin" >&5
+echo "$as_me: Applying patches to libtool for Darwin" >&6;}
+      sed -e 's/verstring="${wl}-compatibility_version ${wl}$minor_current ${wl}-current_version ${wl}$minor_current.$revision"/verstring="-compatibility_version $minor_current -current_version $minor_current.$revision"/' \
+      libtool > conftest.bla
+
+      mv conftest.bla libtool
+      chmod 755 libtool
+      ;;
   esac
 # This fi matches the commented `if test "x$LIBTOOL" = x;' up at the head of
 # the macro. -- lh, 061214 --
@@ -21577,11 +21595,12 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-# if test x"" = x; then
- #  hdr="#include <cmath>"
- # else
- #   hdr=""
- # fi
+#if test x"" = x; then
+#  hdr="#include <cmath>"
+#else
+#  hdr=""
+#fi
+#AC_CHECK_HEADERS([cmath],[],[],[$hdr])
 
 for ac_header in cmath
 do
@@ -21734,11 +21753,12 @@ done
 
 
 if test "$ac_cv_header_cmath" != "yes"; then
-  # if test x"" = x; then
- #  hdr="#include <math.h>"
- # else
- #   hdr=""
- # fi
+  #if test x"" = x; then
+#  hdr="#include <math.h>"
+#else
+#  hdr=""
+#fi
+#AC_CHECK_HEADERS([math.h],[],[],[$hdr])
 
 for ac_header in math.h
 do
@@ -21904,11 +21924,12 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-# if test x"" = x; then
- #  hdr="#include <cctype>"
- # else
- #   hdr=""
- # fi
+#if test x"" = x; then
+#  hdr="#include <cctype>"
+#else
+#  hdr=""
+#fi
+#AC_CHECK_HEADERS([cctype],[],[],[$hdr])
 
 for ac_header in cctype
 do
@@ -22061,11 +22082,12 @@ done
 
 
 if test "$ac_cv_header_cctype" != "yes"; then
-  # if test x"" = x; then
- #  hdr="#include <ctype.h>"
- # else
- #   hdr=""
- # fi
+  #if test x"" = x; then
+#  hdr="#include <ctype.h>"
+#else
+#  hdr=""
+#fi
+#AC_CHECK_HEADERS([ctype.h],[],[],[$hdr])
 
 for ac_header in ctype.h
 do
@@ -22231,11 +22253,12 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-# if test x"" = x; then
- #  hdr="#include <cassert>"
- # else
- #   hdr=""
- # fi
+#if test x"" = x; then
+#  hdr="#include <cassert>"
+#else
+#  hdr=""
+#fi
+#AC_CHECK_HEADERS([cassert],[],[],[$hdr])
 
 for ac_header in cassert
 do
@@ -22388,11 +22411,12 @@ done
 
 
 if test "$ac_cv_header_cassert" != "yes"; then
-  # if test x"" = x; then
- #  hdr="#include <assert.h>"
- # else
- #   hdr=""
- # fi
+  #if test x"" = x; then
+#  hdr="#include <assert.h>"
+#else
+#  hdr=""
+#fi
+#AC_CHECK_HEADERS([assert.h],[],[],[$hdr])
 
 for ac_header in assert.h
 do
@@ -22558,11 +22582,12 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-# if test x"" = x; then
- #  hdr="#include <cstdio>"
- # else
- #   hdr=""
- # fi
+#if test x"" = x; then
+#  hdr="#include <cstdio>"
+#else
+#  hdr=""
+#fi
+#AC_CHECK_HEADERS([cstdio],[],[],[$hdr])
 
 for ac_header in cstdio
 do
@@ -22715,11 +22740,12 @@ done
 
 
 if test "$ac_cv_header_cstdio" != "yes"; then
-  # if test x"" = x; then
- #  hdr="#include <stdio.h>"
- # else
- #   hdr=""
- # fi
+  #if test x"" = x; then
+#  hdr="#include <stdio.h>"
+#else
+#  hdr=""
+#fi
+#AC_CHECK_HEADERS([stdio.h],[],[],[$hdr])
 
 for ac_header in stdio.h
 do
@@ -22885,11 +22911,12 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-# if test x"" = x; then
- #  hdr="#include <cstdlib>"
- # else
- #   hdr=""
- # fi
+#if test x"" = x; then
+#  hdr="#include <cstdlib>"
+#else
+#  hdr=""
+#fi
+#AC_CHECK_HEADERS([cstdlib],[],[],[$hdr])
 
 for ac_header in cstdlib
 do
@@ -23042,11 +23069,12 @@ done
 
 
 if test "$ac_cv_header_cstdlib" != "yes"; then
-  # if test x"" = x; then
- #  hdr="#include <stdlib.h>"
- # else
- #   hdr=""
- # fi
+  #if test x"" = x; then
+#  hdr="#include <stdlib.h>"
+#else
+#  hdr=""
+#fi
+#AC_CHECK_HEADERS([stdlib.h],[],[],[$hdr])
 
 for ac_header in stdlib.h
 do
@@ -23212,11 +23240,12 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-# if test x"" = x; then
- #  hdr="#include <cstdarg>"
- # else
- #   hdr=""
- # fi
+#if test x"" = x; then
+#  hdr="#include <cstdarg>"
+#else
+#  hdr=""
+#fi
+#AC_CHECK_HEADERS([cstdarg],[],[],[$hdr])
 
 for ac_header in cstdarg
 do
@@ -23369,11 +23398,12 @@ done
 
 
 if test "$ac_cv_header_cstdarg" != "yes"; then
-  # if test x"" = x; then
- #  hdr="#include <stdarg.h>"
- # else
- #   hdr=""
- # fi
+  #if test x"" = x; then
+#  hdr="#include <stdarg.h>"
+#else
+#  hdr=""
+#fi
+#AC_CHECK_HEADERS([stdarg.h],[],[],[$hdr])
 
 for ac_header in stdarg.h
 do
@@ -23539,11 +23569,12 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-# if test x"" = x; then
- #  hdr="#include <cfloat>"
- # else
- #   hdr=""
- # fi
+#if test x"" = x; then
+#  hdr="#include <cfloat>"
+#else
+#  hdr=""
+#fi
+#AC_CHECK_HEADERS([cfloat],[],[],[$hdr])
 
 for ac_header in cfloat
 do
@@ -23696,11 +23727,12 @@ done
 
 
 if test "$ac_cv_header_cfloat" != "yes"; then
-  # if test x"" = x; then
- #  hdr="#include <float.h>"
- # else
- #   hdr=""
- # fi
+  #if test x"" = x; then
+#  hdr="#include <float.h>"
+#else
+#  hdr=""
+#fi
+#AC_CHECK_HEADERS([float.h],[],[],[$hdr])
 
 for ac_header in float.h
 do
@@ -23866,11 +23898,12 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-# if test x"" = x; then
- #  hdr="#include <ctime>"
- # else
- #   hdr=""
- # fi
+#if test x"" = x; then
+#  hdr="#include <ctime>"
+#else
+#  hdr=""
+#fi
+#AC_CHECK_HEADERS([ctime],[],[],[$hdr])
 
 for ac_header in ctime
 do
@@ -24023,11 +24056,12 @@ done
 
 
 if test "$ac_cv_header_ctime" != "yes"; then
-  # if test x"" = x; then
- #  hdr="#include <time.h>"
- # else
- #   hdr=""
- # fi
+  #if test x"" = x; then
+#  hdr="#include <time.h>"
+#else
+#  hdr=""
+#fi
+#AC_CHECK_HEADERS([time.h],[],[],[$hdr])
 
 for ac_header in time.h
 do
@@ -24202,11 +24236,12 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-# if test x"" = x; then
- #  hdr="#include <cieeefp>"
- # else
- #   hdr=""
- # fi
+#if test x"" = x; then
+#  hdr="#include <cieeefp>"
+#else
+#  hdr=""
+#fi
+#AC_CHECK_HEADERS([cieeefp],[],[],[$hdr])
 
 for ac_header in cieeefp
 do
@@ -24359,11 +24394,12 @@ done
 
 
 if test "$ac_cv_header_cieeefp" != "yes"; then
-  # if test x"" = x; then
- #  hdr="#include <ieeefp.h>"
- # else
- #   hdr=""
- # fi
+  #if test x"" = x; then
+#  hdr="#include <ieeefp.h>"
+#else
+#  hdr=""
+#fi
+#AC_CHECK_HEADERS([ieeefp.h],[],[],[$hdr])
 
 for ac_header in ieeefp.h
 do
@@ -24833,25 +24869,30 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-echo "$as_me:$LINENO: checking if user provides library for Cplex" >&5
+  echo "$as_me:$LINENO: checking if user provides library for Cplex" >&5
 echo $ECHO_N "checking if user provides library for Cplex... $ECHO_C" >&6
 
 # Check for header file directory
+
 
 # Check whether --with-cplex-incdir or --without-cplex-incdir was given.
 if test "${with_cplex_incdir+set}" = set; then
   withval="$with_cplex_incdir"
   CPXINCDIR=`cd $withval; pwd`
 fi;
+
 # Check for library directory
+
 
 # Check whether --with-cplex-lib or --without-cplex-lib was given.
 if test "${with_cplex_lib+set}" = set; then
   withval="$with_cplex_lib"
   CPXLIB=$withval
 fi;
+
 # Switch to disable library check if requested
-# Check whether --enable-cplex-libcheck or --disable-cplex-libcheck was given.
+
+  # Check whether --enable-cplex-libcheck or --disable-cplex-libcheck was given.
 if test "${enable_cplex_libcheck+set}" = set; then
   enableval="$enable_cplex_libcheck"
   cplex_libcheck=$enableval
@@ -24859,71 +24900,69 @@ else
   cplex_libcheck=yes
 fi;
 
-if test x"$CPXINCDIR" != x || test x"$CPXLIB" != x; then
-  coin_has_cpx=true
-else
-  coin_has_cpx=false
-fi
+# At this point, if we're going to use the library, both LBRYINCDIR and
+# LBRYLIB must be defined and not empty.
 
-if test $coin_has_cpx = true; then
-# Check either both arguments or none are given
-  if test x"$CPXINCDIR" = x || test x"$CPXLIB" = x; then
-    { { echo "$as_me:$LINENO: error: You need to specify both --with-cplex-incdir and --with-cplex-lib if you want to use library Cplex" >&5
-echo "$as_me: error: You need to specify both --with-cplex-incdir and --with-cplex-lib if you want to use library Cplex" >&2;}
+  if test x"$CPXINCDIR" != x || test x"$CPXLIB" != x; then
+    if test x"$CPXINCDIR" = x || test x"$CPXLIB" = x; then
+      { { echo "$as_me:$LINENO: error: You need to specify both an include directory and link flags to use library Cplex. Use --with-cplex-incdir of environment variable $CPXINCDIR to specify the include directory. Use --with-cplex-lib or environment variable $CPXLIB to specify link flags." >&5
+echo "$as_me: error: You need to specify both an include directory and link flags to use library Cplex. Use --with-cplex-incdir of environment variable $CPXINCDIR to specify the include directory. Use --with-cplex-lib or environment variable $CPXLIB to specify link flags." >&2;}
    { (exit 1); exit 1; }; }
-  fi
-  echo "$as_me:$LINENO: result: yes" >&5
+    fi
+    coin_has_cpx=true
+    echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
-  # Check if the given header file is there
-  as_ac_File=`echo "ac_cv_file_$CPXINCDIR/cplex.h" | $as_tr_sh`
-echo "$as_me:$LINENO: checking for $CPXINCDIR/cplex.h" >&5
-echo $ECHO_N "checking for $CPXINCDIR/cplex.h... $ECHO_C" >&6
-if eval "test \"\${$as_ac_File+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  test "$cross_compiling" = yes &&
-  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
-echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
-   { (exit 1); exit 1; }; }
-if test -r "$CPXINCDIR/cplex.h"; then
-  eval "$as_ac_File=yes"
-else
-  eval "$as_ac_File=no"
-fi
-fi
-echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_File'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_File'}'`" >&6
-if test `eval echo '${'$as_ac_File'}'` = yes; then
+  else
+    coin_has_cpx=false
+    echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+  fi
+
+# If we have instructions for use, consider header and link checks.
+
+  if test $coin_has_cpx = true; then
+
+# If argument 3 (file) is given, check for the file. Typically this will be a
+# header file, but that's not assumed.
+
+    if test -r $CPXINCDIR/cplex.h; then
+
   :
 else
   { { echo "$as_me:$LINENO: error: Cannot find file cplex.h in $CPXINCDIR" >&5
 echo "$as_me: error: Cannot find file cplex.h in $CPXINCDIR" >&2;}
    { (exit 1); exit 1; }; }
+  :
 fi
 
 
-  # Check if the symbol is provided in the library
-  # ToDo: FOR NOW WE ASSUME THAT WE ARE USING THE C++ COMPILER
-  if test x"$cplex_libcheck" != xno; then
-                    coin_save_LIBS="$LIBS"
-                    LIBS="$CPXLIB $ADDLIBS"
-		    echo "$as_me:$LINENO: checking whether symbol CPXgetstat is available with CPX" >&5
-echo $ECHO_N "checking whether symbol CPXgetstat is available with CPX... $ECHO_C" >&6
-                    ac_ext=c
+# Now see if we can link the function. There are arguments for and against
+# assuming argument 3 is a header file declaring the function. A correct
+# function declaration is the main argument in favour. Having to cope with
+# possible dependencies or other oddities are the main arguments against.
+# Force the use of C as the best single choice amongst C++, C, and Fortran.
+# Obviously, this has limits.
+
+    if test x"$cplex_libcheck" != xno; then
+	   coin_save_LIBS="$LIBS"
+	   LIBS="$CPXLIB $ADDLIBS"
+	   coin_CPX_link=no
+	   ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
-# ToDo find out what to do about extern "C"
-#                    AC_TRY_LINK([extern "C" {void CPXgetstat();}],[CPXgetstat()],
-                    cat >conftest.$ac_ext <<_ACEOF
+	   for fnm in CPXgetstat ; do
+	     echo "$as_me:$LINENO: checking whether symbol $fnm is available with CPX" >&5
+echo $ECHO_N "checking whether symbol $fnm is available with CPX... $ECHO_C" >&6
+	     cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-void CPXgetstat();
+
 #ifdef F77_DUMMY_MAIN
 
 #  ifdef __cplusplus
@@ -24935,7 +24974,7 @@ void CPXgetstat();
 int
 main ()
 {
-CPXgetstat()
+$fnm()
   ;
   return 0;
 }
@@ -24964,37 +25003,48 @@ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
   (exit $ac_status); }; }; then
   echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
+		  coin_CPX_link=yes
+		  break
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
 echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
-                                 { { echo "$as_me:$LINENO: error: Cannot find symbol CPXgetstat with CPX" >&5
-echo "$as_me: error: Cannot find symbol CPXgetstat with CPX" >&2;}
-   { (exit 1); exit 1; }; }
 fi
 rm -f conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
-                    ac_ext=c
+	   done
+	   ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
-                    LIBS="$coin_save_LIBS"
-                  fi
+	   if test x"$coin_CPX_link" = xyes ; then
+	     LIBS="$coin_save_LIBS"
+	   else
+	     { { echo "$as_me:$LINENO: error: Cannot find symbol(s) CPXgetstat with CPX" >&5
+echo "$as_me: error: Cannot find symbol(s) CPXgetstat with CPX" >&2;}
+   { (exit 1); exit 1; }; }
+	   fi
+	 fi
 
-  ADDLIBS="$CPXLIB $ADDLIBS"
+
+# If we make it this far, we've verified the file and linked the function. Add
+# the necessary link flags to ADDLIBS and define the preprocessor symbol
+# COIN_HAS_LBRY.
+
+    ADDLIBS="$CPXLIB $ADDLIBS"
 
 cat >>confdefs.h <<\_ACEOF
 #define COIN_HAS_CPX 1
 _ACEOF
 
-else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-fi
+  fi
+
+# Arrange for configure to substitute LBRYINCDIR and LBRYLIB and create the
+# automake conditional. These actions must occur unconditionally.
 
 
 
@@ -25679,7 +25729,7 @@ if test "$coin_has_gamsio" = "no"; then
 coin_aslsrcdir=$srcdir/$coin_aslobjdir
 
 # Determine the name of the ASL library
-case "$CXX" in
+case "$CC" in
   cl* | */cl* | CL* | */CL*)
     ampllib=amplsolv.lib ;;
   *)
@@ -25696,109 +25746,44 @@ else
 fi;
 
 if test "$use_asldir" = BUILD; then
-  as_ac_File=`echo "ac_cv_file_$coin_aslobjdir/Makefile" | $as_tr_sh`
-echo "$as_me:$LINENO: checking for $coin_aslobjdir/Makefile" >&5
-echo $ECHO_N "checking for $coin_aslobjdir/Makefile... $ECHO_C" >&6
-if eval "test \"\${$as_ac_File+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  test "$cross_compiling" = yes &&
-  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
-echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
-   { (exit 1); exit 1; }; }
-if test -r "$coin_aslobjdir/Makefile"; then
-  eval "$as_ac_File=yes"
-else
-  eval "$as_ac_File=no"
-fi
-fi
-echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_File'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_File'}'`" >&6
-if test `eval echo '${'$as_ac_File'}'` = yes; then
-  :
-else
-  { { echo "$as_me:$LINENO: error: option \"BUILD\" specified for asldir, but directory is not configure (sources missing?)" >&5
+  if test "$PACKAGE_NAME" != ThirdPartyASL; then
+    # If we are configuring ThirdParty/ASL, don't check
+    if test -r $coin_aslobjdir/.MakeOk; then :; else
+      { { echo "$as_me:$LINENO: error: option \"BUILD\" specified for asldir, but directory is not configure (sources missing?)" >&5
 echo "$as_me: error: option \"BUILD\" specified for asldir, but directory is not configure (sources missing?)" >&2;}
    { (exit 1); exit 1; }; }
-fi
-
+    fi
+  fi
 elif test -z "$use_asldir"; then
  # try to find sources - if not given don't compile
-  as_ac_File=`echo "ac_cv_file_$coin_aslobjdir/Makefile" | $as_tr_sh`
-echo "$as_me:$LINENO: checking for $coin_aslobjdir/Makefile" >&5
-echo $ECHO_N "checking for $coin_aslobjdir/Makefile... $ECHO_C" >&6
-if eval "test \"\${$as_ac_File+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  test "$cross_compiling" = yes &&
-  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
-echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
-   { (exit 1); exit 1; }; }
-if test -r "$coin_aslobjdir/Makefile"; then
-  eval "$as_ac_File=yes"
-else
-  eval "$as_ac_File=no"
-fi
-fi
-echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_File'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_File'}'`" >&6
-if test `eval echo '${'$as_ac_File'}'` = yes; then
-  use_asldir=BUILD
-else
-  use_asldir=no
-fi
-
+  if test "$PACKAGE_NAME" != ThirdPartyASL; then
+    if test -r $coin_aslobjdir/.MakeOk; then
+      use_asldir=BUILD
+    else
+      use_asldir=no
+    fi
+  else
+    use_asldir=no
+  fi
 elif test "$use_asldir" != "no"; then
-  as_ac_File=`echo "ac_cv_file_$use_asldir/$ampllib" | $as_tr_sh`
-echo "$as_me:$LINENO: checking for $use_asldir/$ampllib" >&5
-echo $ECHO_N "checking for $use_asldir/$ampllib... $ECHO_C" >&6
-if eval "test \"\${$as_ac_File+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  test "$cross_compiling" = yes &&
-  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
-echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
-   { (exit 1); exit 1; }; }
-if test -r "$use_asldir/$ampllib"; then
-  eval "$as_ac_File=yes"
-else
-  eval "$as_ac_File=no"
-fi
-fi
-echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_File'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_File'}'`" >&6
-if test `eval echo '${'$as_ac_File'}'` = yes; then
+  if test -r $use_asldir/$ampllib; then
+
   :
 else
   { { echo "$as_me:$LINENO: error: ASL directory \"$use_asldir\" specified, but library missing" >&5
 echo "$as_me: error: ASL directory \"$use_asldir\" specified, but library missing" >&2;}
    { (exit 1); exit 1; }; }
+  :
 fi
 
-  as_ac_File=`echo "ac_cv_file_$use_asldir/asl.h" | $as_tr_sh`
-echo "$as_me:$LINENO: checking for $use_asldir/asl.h" >&5
-echo $ECHO_N "checking for $use_asldir/asl.h... $ECHO_C" >&6
-if eval "test \"\${$as_ac_File+set}\" = set"; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  test "$cross_compiling" = yes &&
-  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
-echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
-   { (exit 1); exit 1; }; }
-if test -r "$use_asldir/asl.h"; then
-  eval "$as_ac_File=yes"
-else
-  eval "$as_ac_File=no"
-fi
-fi
-echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_File'}'`" >&5
-echo "${ECHO_T}`eval echo '${'$as_ac_File'}'`" >&6
-if test `eval echo '${'$as_ac_File'}'` = yes; then
+  if test -r $use_asldir/asl.h; then
+
   :
 else
   { { echo "$as_me:$LINENO: error: ASL directory \"$use_asldir\" specified, but header files are missing" >&5
 echo "$as_me: error: ASL directory \"$use_asldir\" specified, but header files are missing" >&2;}
    { (exit 1); exit 1; }; }
+  :
 fi
 
   use_asldir=`cd $use_asldir; pwd`
@@ -25961,10 +25946,11 @@ fi
 # END PART #
 ############
 
-ac_ext=f
-ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
-ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_f77_compiler_gnu
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 echo "$as_me:$LINENO: checking whether this is a VPATH configuration" >&5
@@ -26005,25 +25991,63 @@ fi
 
 
 
-FADDLIBS="$ADDLIBS"
-if test x"$coin_need_flibs" = xyes; then
-  ADDLIBS="$ADDLIBS $FLIBS"
+
+
+
+echo "$as_me:$LINENO: checking which command should be used to link input files" >&5
+echo $ECHO_N "checking which command should be used to link input files... $ECHO_C" >&6
+coin_link_input_cmd="$LN_S"
+if test "$enable_doscompile" = mingw; then
+  coin_link_input_cmd=cp
 fi
-
-# library extension
-
 case "$CC" in
   cl* | */cl* | CL* | */CL*)
-       LIBEXT=lib ;;
-    *) LIBEXT=a ;;
+    coin_link_input_cmd=cp ;;
 esac
+echo "$as_me:$LINENO: result: $coin_link_input_cmd" >&5
+echo "${ECHO_T}$coin_link_input_cmd" >&6
 
-# Define VPATH_DISTCLEANFILES to be everything that needs to be
-# cleaned for distclean in a vpath configuration
 
-VPATH_DISTCLEANFILES="$coin_vpath_link_files"
 
-cat >confcache <<\_ACEOF
+if test x$coin_skip_ac_output != xyes; then
+
+  FADDLIBS="$ADDLIBS"
+  if test x"$coin_need_flibs" = xyes; then
+    ADDLIBS="$ADDLIBS $FLIBS"
+  fi
+
+  # library extension
+
+  case "$CC" in
+    cl* | */cl* | CL* | */CL*)
+         LIBEXT=lib ;;
+      *) LIBEXT=a ;;
+  esac
+
+  # Define VPATH_DISTCLEANFILES to be everything that needs to be
+  # cleaned for distclean in a vpath configuration
+
+  VPATH_DISTCLEANFILES="$coin_vpath_link_files"
+
+  # Take out subdirectories if their configuration concluded that they
+  # don't need to be compiled
+  if test x"$coin_ac_skip_subdirs" != x; then
+    new_subdirs=
+    for i in $subdirs; do
+      skipme=no
+      for j in $coin_ac_skip_subdirs; do
+        if test $i = $j; then
+          skipme=yes;
+        fi
+      done
+      if test $skipme = no; then
+        new_subdirs="$new_subdirs $i"
+      fi
+    done
+    subdirs="$new_subdirs"
+  fi
+
+  cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
 # scripts and configure runs, see configure's option --config-cache.
@@ -27634,36 +27658,17 @@ if test "$no_create" != yes; then
 fi
 
 
-if test x"$coin_vpath_link_files" = x; then : ; else
-  lnkcmd=
-  if test "$enable_doscompile" = yes; then
-    lnkcmd=cp
-  fi
-  case "$CC" in
-    cl* | */cl* | CL* | */CL*)
-      lnkcmd=cp ;;
-  esac
-  if test "$lnkcmd" = cp; then
-    { echo "$as_me:$LINENO: Copying data files for VPATH configuration" >&5
+  if test x"$coin_vpath_link_files" = x; then : ; else
+    lnkcmd="$coin_link_input_cmd"
+    if test "$lnkcmd" = cp; then
+      { echo "$as_me:$LINENO: Copying data files for VPATH configuration" >&5
 echo "$as_me: Copying data files for VPATH configuration" >&6;}
-  else
-    echo "$as_me:$LINENO: checking whether ln -s works" >&5
-echo $ECHO_N "checking whether ln -s works... $ECHO_C" >&6
-LN_S=$as_ln_s
-if test "$LN_S" = "ln -s"; then
-  echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
-else
-  echo "$as_me:$LINENO: result: no, using $LN_S" >&5
-echo "${ECHO_T}no, using $LN_S" >&6
-fi
-
-    { echo "$as_me:$LINENO: Creating VPATH links for data files" >&5
+    else
+      { echo "$as_me:$LINENO: Creating VPATH links for data files" >&5
 echo "$as_me: Creating VPATH links for data files" >&6;}
-    lnkcmd="$LN_S"
-  fi
-  for file in $coin_vpath_link_files; do
-    dir=`(dirname "./$file") 2>/dev/null ||
+    fi
+    for file in $coin_vpath_link_files; do
+      dir=`(dirname "./$file") 2>/dev/null ||
 $as_expr X"./$file" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
 	 X"./$file" : 'X\(//\)[^/]' \| \
 	 X"./$file" : 'X\(//\)$' \| \
@@ -27675,8 +27680,8 @@ echo X"./$file" |
   	  /^X\(\/\/\)$/{ s//\1/; q; }
   	  /^X\(\/\).*/{ s//\1/; q; }
   	  s/.*/./; q'`
-    if test -d $dir; then : ; else
-      { if $as_mkdir_p; then
+      if test -d $dir; then : ; else
+        { if $as_mkdir_p; then
     mkdir -p $dir
   else
     as_dir=$dir
@@ -27701,17 +27706,22 @@ echo X"$as_dir" |
 echo "$as_me: error: cannot create directory $dir" >&2;}
    { (exit 1); exit 1; }; }; }
 
-    fi
-    rm -f $file
-    $lnkcmd $abs_source_dir/$file $file
-  done
+      fi
+      rm -f $file
+      $lnkcmd $abs_source_dir/$file $file
+    done
+  fi
+
+  if test x$coin_projectdir = xyes; then
+    { echo "$as_me:$LINENO: Configuration of $PACKAGE_NAME successful" >&5
+echo "$as_me: Configuration of $PACKAGE_NAME successful" >&6;}
+  else
+    { echo "$as_me:$LINENO: Main configuration of $PACKAGE_NAME successful" >&5
+echo "$as_me: Main configuration of $PACKAGE_NAME successful" >&6;}
+  fi
+else
+  { echo "$as_me:$LINENO: No configuration of $PACKAGE_NAME necessary" >&5
+echo "$as_me: No configuration of $PACKAGE_NAME necessary" >&6;}
 fi
 
-if test x$coin_projectdir = xyes; then
-  { echo "$as_me:$LINENO: Configuration of $PACKAGE_NAME successful" >&5
-echo "$as_me: Configuration of $PACKAGE_NAME successful" >&6;}
-else
-  { echo "$as_me:$LINENO: Main configuration of $PACKAGE_NAME successful" >&5
-echo "$as_me: Main configuration of $PACKAGE_NAME successful" >&6;}
-fi
 
