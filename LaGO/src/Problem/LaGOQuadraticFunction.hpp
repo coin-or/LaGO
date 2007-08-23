@@ -14,6 +14,8 @@ namespace LaGO {
 /** Stores a quadratic function xAx+bx+c.
  */
 class QuadraticFunction : public Function {
+private:
+	vector<int> sparsity;
 public:
 	SmartPtr<SymSparseMatrix> A;
 	SmartPtr<SparseVector> b;
@@ -21,7 +23,10 @@ public:
 
 	QuadraticFunction(const SmartPtr<SymSparseMatrix>& A_, const SmartPtr<SparseVector>& b_, double constant_)
 	: A(A_), b(b_), constant(constant_)
-	{ } 
+	{ updateSparsity();
+	}
+	
+	void updateSparsity();
 	
 	double eval(const DenseVector& x) const {
 		return A->xAx(x)+x**b+constant;
@@ -62,12 +67,12 @@ public:
 
 	/** Indicates whether the function knows about the variables that appear in it.
 	 */
-	bool haveSparsity() const { return false; }
+	bool haveSparsity() const { return true; }
 
 	/** Returns a list of variable indices that appear in this function.
 	 * You can only rely on the result of this function if haveSparsity() returns true.
 	 */ 	
-//	const vector<int>& getSparsity() const { throw CoinError("sparsity information not available", "getSparsity()", "Function"); }
+	const vector<int>& getSparsity() const { return sparsity; }
 	
 	void print(ostream& out) const {
 		out << "Quadratic Function: c=" << constant << " b=" << *b;

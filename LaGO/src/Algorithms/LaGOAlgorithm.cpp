@@ -52,8 +52,8 @@ void Algorithm::preprocessing() {
 void Algorithm::run() {
 	preprocessing();
 	
-//	QuadraticOrConvexApproximation quad(data, true);
-//	cout << quad;
+	QuadraticOrConvexApproximation quad(data, true);
+	cout << quad;
 }
 	
 } // namespace LaGO

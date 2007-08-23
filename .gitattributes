@@ -72,6 +72,7 @@ LaGO/src/Problem/LaGOCurvature.hpp -text
 LaGO/src/Problem/LaGOMINLPData.cpp -text
 LaGO/src/Problem/LaGOMINLPData.hpp -text
 LaGO/src/Problem/LaGOQuadraticEstimator.hpp -text
+LaGO/src/Problem/LaGOQuadraticFunction.cpp -text
 LaGO/src/Problem/LaGOQuadraticFunction.hpp -text
 LaGO/src/Problem/LaGOQuadraticOrConvexApproximation.cpp -text
 LaGO/src/Problem/LaGOQuadraticOrConvexApproximation.hpp -text

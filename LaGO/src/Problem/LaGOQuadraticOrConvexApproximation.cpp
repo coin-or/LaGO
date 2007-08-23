@@ -148,6 +148,7 @@ void QuadraticOrConvexApproximation::construct() {
 					}					
 				}
 				if (IsValid(func.nonquad)) {
+					//TODO: store sparsity graph of hessian somewhere
 					nonquad.push_back(new SimpleBlockFunction(GetRawPtr(func.nonquad), func.indices));
 					++nonquad_length;
 				}
@@ -247,5 +248,95 @@ void QuadraticOrConvexApproximation::print(ostream& out) const {
 		out << endl; 		
 	}	
 }
+
+bool QuadraticOrConvexApproximation::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g, Index& nnz_h_lag, TNLP::IndexStyleEnum& index_style) {
+	n=numVariables();
+	m=numConstraints();
+	nnz_jac_g=0;
+	nnz_h_lag=0;
+	map<int,int> sparsity_hessian;
+	for (int i=0; i<objQuad->A->getNumNonzeros(); ++i)
+		sparsity_hessian.insert(pair<int,int>(objQuad->A->getRowIndices()[i], objQuad->A->getColIndices()[i])); 
+	for (int c=0; c<m; ++c) {
+		assert(conQuad[c]->haveSparsity());
+		nnz_jac_g+=conQuad[c]->getSparsity().size();
+		for (int i=0; i<conQuad[c]->A->getNumNonzeros(); ++i)
+			sparsity_hessian.insert(pair<int,int>(conQuad[c]->A->getRowIndices()[i], conQuad[c]->A->getColIndices()[i])); 
+		if (IsValid(conNonQuad[c])) {
+			assert(conNonQuad[c]->haveSparsity());
+			// let's hope that this is also ok if the sparsity of the quadratic and the nonquad. part overlap
+			nnz_jac_g+=conNonQuad[c]->getSparsity().size();
+			//TODO: add into sparsity_hessian
+		}
+	}
+	index_style=Ipopt::TNLP::C_STYLE;
+	return true;
+}
+
+bool QuadraticOrConvexApproximation::get_variables_types(Index n, VariableType* var_types) {
+	for (int i=0; i<n; ++i)
+		var_types[i]=Bonmin::TMINLP::CONTINUOUS;
+	return true;
+}
+
+bool QuadraticOrConvexApproximation::get_constraints_linearity(Index m, Ipopt::TNLP::LinearityType* const_types) {
+	for (int i=0; i<m; ++i)
+		const_types[i]=Ipopt::TNLP::NON_LINEAR;
+	return true;
+}
+
+bool QuadraticOrConvexApproximation::get_bounds_info(Index n, Number* x_l, Number* x_u, Index m, Number* g_l, Number* g_u) {
+	CoinCopyN(var_lb.getElements(), n, x_l);
+	CoinCopyN(var_ub.getElements(), n, x_u);
+	CoinCopyN(con_lb.getElements(), m, g_l);
+	CoinCopyN(con_ub.getElements(), m, g_u);
+	return true;
+}
+
+bool QuadraticOrConvexApproximation::get_starting_point(Index n, bool init_x, Number* x, bool init_z, Number* z_L, Number* z_U, Index m, bool init_lambda, Number* lambda) {
+	init_x=false;
+	assert(init_z=false);
+	assert(init_lambda=false);
+	return true;
+}
+
+bool QuadraticOrConvexApproximation::eval_f(Index n, const Number* x, bool new_x, Number& obj_value) {
+	return true;
+}
+
+bool QuadraticOrConvexApproximation::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f) {
+	return true;
+}
+
+bool QuadraticOrConvexApproximation::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g) {
+	return true;
+}
 	
+bool QuadraticOrConvexApproximation::eval_jac_g(Index n, const Number* x, bool new_x, Index m, Index nele_jac, Index* iRow, Index *jCol, Number* values) {
+	return true;
+}
+        
+bool QuadraticOrConvexApproximation::eval_h(Index n, const Number* x, bool new_x, Number obj_factor, Index m, const Number* lambda, bool new_lambda, Index nele_hess, Index* iRow, Index* jCol, Number* values) {
+	return true;
+}
+
+bool QuadraticOrConvexApproximation::eval_gi(Index n, const Number* x, bool new_x, Index i, Number& gi) {
+	return true;
+}
+
+bool QuadraticOrConvexApproximation::eval_grad_gi(Index n, const Number* x, bool new_x, Index i, Index& nele_grad_gi, Index* jCol, Number* values) {
+	return true;
+}
+
+void QuadraticOrConvexApproximation::finalize_solution(Bonmin::TMINLP::SolverReturn status, Index n, const Number* x, Number obj_value) {
+}
+
+const Bonmin::TMINLP::BranchingInfo* QuadraticOrConvexApproximation::branchingInfo() const {
+	return NULL;
+}
+
+const Bonmin::TMINLP::SosInfo* QuadraticOrConvexApproximation::sosConstraints() const {
+	return NULL;
+}
+
 } // namespace LaGO

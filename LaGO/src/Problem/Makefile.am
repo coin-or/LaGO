@@ -12,7 +12,7 @@ EXTRA_DIST =
 
 lib_LTLIBRARIES = libLaGOProblem.la
 libLaGOProblem_la_SOURCES = LaGOMINLPData.cpp LaGOSparsity.cpp LaGOSampleSet.cpp \
-  LaGOBlockFunction.cpp LaGOSimpleBlockFunction.cpp LaGORestrictedFunction.cpp \
+  LaGOBlockFunction.cpp LaGOSimpleBlockFunction.cpp LaGORestrictedFunction.cpp LaGOQuadraticFunction.cpp \
   LaGOBoxMinimizationProblem.cpp LaGOQuadraticOrConvexApproximation.cpp
 
 include_HEADERS = LaGOMINLPData.hpp LaGOSparsity.hpp LaGOCurvature.hpp \
