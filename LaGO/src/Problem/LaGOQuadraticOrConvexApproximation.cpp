@@ -66,6 +66,7 @@ void QuadraticOrConvexApproximation::construct() {
 	con_ub.resize(data.numConstraints()+nr_aux_con, +getInfinity());
 	conQuad.resize(data.numConstraints()+nr_aux_con);
 	conNonQuad.resize(data.numConstraints()+nr_aux_con);
+	conNonQuadSparsityGraph.resize(data.numConstraints()+nr_aux_con);
 	
 	// orig. variable bounds
 	for (int i=0; i<data.numVariables(); ++i) {
@@ -89,6 +90,8 @@ void QuadraticOrConvexApproximation::construct() {
 		
 		list<SmartPtr<Function> > nonquad;
 		int nonquad_length=0;
+		
+		SmartPtr<SparsityGraph> nonquad_sparsitygraph;
 		
 		for (unsigned int k=0; k<objcon.decompfuncNL.size(); ++k) {
 			BlockFunction& func(*objcon.decompfuncNL[k]);
@@ -119,6 +122,8 @@ void QuadraticOrConvexApproximation::construct() {
 						assert(func.curvature&CONVEX); // we would need underestimators if the function isn't convex
 						conQuad[aux_con_index]=new QuadraticFunction(new SymSparseMatrix(numVariables()), new SparseVector(auxvar[c][k]+data.numVariables(), -1.), 0.);
 						conNonQuad[aux_con_index]=new SimpleBlockFunction(GetRawPtr(func.nonquad), func.indices);
+						assert(IsValid(func.sparsitygraph));
+						conNonQuadSparsityGraph[aux_con_index]=new SparsityGraph(*func.sparsitygraph, func.indices);
 						con_ub[aux_con_index]=0.;
 						++aux_con_index;
 					}
@@ -132,6 +137,8 @@ void QuadraticOrConvexApproximation::construct() {
 						assert(func.curvature&CONCAVE); // we would need overestimators if the function isn't concave
 						conQuad[aux_con_index]=new QuadraticFunction(new SymSparseMatrix(numVariables()), new SparseVector(auxvar[c][k]+data.numVariables(), -1.), 0.);
 						conNonQuad[aux_con_index]=new SimpleBlockFunction(GetRawPtr(func.nonquad), func.indices);
+						assert(IsValid(func.sparsitygraph));
+						conNonQuadSparsityGraph[aux_con_index]=new SparsityGraph(*func.sparsitygraph, func.indices);
 						con_lb[aux_con_index]=0.;
 						++aux_con_index;
 					}
@@ -148,9 +155,13 @@ void QuadraticOrConvexApproximation::construct() {
 					}					
 				}
 				if (IsValid(func.nonquad)) {
-					//TODO: store sparsity graph of hessian somewhere
 					nonquad.push_back(new SimpleBlockFunction(GetRawPtr(func.nonquad), func.indices));
 					++nonquad_length;
+					assert(IsValid(func.sparsitygraph));
+					if (nonquad_length==1)
+						nonquad_sparsitygraph=new SparsityGraph(*func.sparsitygraph, func.indices);
+					else
+						nonquad_sparsitygraph->add(*func.sparsitygraph, func.indices);
 				}
 			}
 		}
@@ -162,6 +173,7 @@ void QuadraticOrConvexApproximation::construct() {
 				conNonQuad[c]=new SumFunction(nonquad);
 			else if (nonquad_length==1)
 				conNonQuad[c]=nonquad.front();
+			conNonQuadSparsityGraph[c]=nonquad_sparsitygraph;
 			con_lb[c]=data.getConstraint(c).lower;				
 			con_ub[c]=data.getConstraint(c).upper;				
 		} else { // objective
@@ -169,9 +181,12 @@ void QuadraticOrConvexApproximation::construct() {
 			if (nonquad_length>1)
 				objNonQuad=new SumFunction(nonquad);
 			else if (nonquad_length==1)
-				objNonQuad=nonquad.front();	
+				objNonQuad=nonquad.front();
+			objNonQuadSparsityGraph=nonquad_sparsitygraph;
 		}
-	}	
+	}
+	
+	initSparsityStructures();
 }
 
 // adds the constraint xAx + alpha*(x-lb x)(x-ub x) - t, lower and upper bound are set somewhere else 
@@ -246,29 +261,71 @@ void QuadraticOrConvexApproximation::print(ostream& out) const {
 		if (IsValid(conQuad[c])) out << "quad: " << *conQuad[c];
 		if (IsValid(conNonQuad[c])) out << "nonquad: " << *conNonQuad[c];
 		out << endl; 		
-	}	
+	}
+	
+	out << "Number of nonzeros in Jacobian: " << nnz_jac << endl;
+	out << "Number of nonerzos in Hessian: " << sparsity_hessian.size() << endl;
+	out << "Hessian sparsity elements: ";
+	for (map<pair<int,int>, int>::const_iterator it(sparsity_hessian.begin()); it!=sparsity_hessian.end(); ++it)
+		out << '(' << it->first.first << ',' << it->first.second << ") ";
+	out << endl;	 
+}
+
+void QuadraticOrConvexApproximation::initSparsityStructures() {
+	sparsity_hessian.clear();
+	nnz_jac=0;
+	
+	for (int i=0; i<objQuad->A->getNumNonzeros(); ++i)
+		sparsity_hessian.insert(pair<pair<int,int>, int>(pair<int,int>(objQuad->A->getRowIndices()[i], objQuad->A->getColIndices()[i]), 0)); 
+	if (IsValid(objNonQuad)) {
+		for (SparsityGraph::const_arc_iterator it_arc(objNonQuadSparsityGraph->arc_begin()); it_arc!=objNonQuadSparsityGraph->arc_end(); ++it_arc) {
+			int tail=(**(*it_arc).tail()).varindex;
+			int head=(**(*it_arc).head()).varindex;
+			if (tail<head)
+				sparsity_hessian.insert(pair<pair<int,int>, int>(pair<int,int>(head, tail), 0));
+			else
+				sparsity_hessian.insert(pair<pair<int,int>, int>(pair<int,int>(tail, head), 0));
+		}
+	}
+
+	for (int c=0; c<numConstraints(); ++c) {
+//		clog << "Con. " << c << ": ";
+		assert(conQuad[c]->haveSparsity());
+		nnz_jac+=conQuad[c]->getSparsity().size();
+//		if (conQuad[c]->A->getNumNonzeros()) clog << "\t quad: ";
+		for (int i=0; i<conQuad[c]->A->getNumNonzeros(); ++i) {
+			sparsity_hessian.insert(pair<pair<int,int>, int>(pair<int,int>(conQuad[c]->A->getRowIndices()[i], conQuad[c]->A->getColIndices()[i]), 0));
+//			clog << conQuad[c]->A->getRowIndices()[i] << ',' << conQuad[c]->A->getColIndices()[i] << ' ';
+		}
+		if (IsValid(conNonQuad[c])) {
+//			clog << "\t nonquad: ";
+			if (!conNonQuad[c]->haveSparsity()) {
+				cerr << "Do not have sparsity for nonquad. func. in con. " << c << endl;
+				cerr << *conNonQuad[c];
+			}
+			assert(conNonQuad[c]->haveSparsity());
+			// let's hope that this is also ok if the sparsity of the quadratic and the nonquad. part overlap
+			nnz_jac+=conNonQuad[c]->getSparsity().size();
+			for (SparsityGraph::const_arc_iterator it_arc(conNonQuadSparsityGraph[c]->arc_begin()); it_arc!=conNonQuadSparsityGraph[c]->arc_end(); ++it_arc) {
+				int tail=(**(*it_arc).tail()).varindex;
+				int head=(**(*it_arc).head()).varindex;
+				if (tail<head)
+					sparsity_hessian.insert(pair<pair<int,int>, int>(pair<int,int>(head, tail), 0));
+				else
+					sparsity_hessian.insert(pair<pair<int,int>, int>(pair<int,int>(tail, head), 0));
+//				clog << tail << ',' << head << ' ';
+			}
+		}
+//		clog << endl;
+	}
+	
 }
 
 bool QuadraticOrConvexApproximation::get_nlp_info(Index& n, Index& m, Index& nnz_jac_g, Index& nnz_h_lag, TNLP::IndexStyleEnum& index_style) {
 	n=numVariables();
 	m=numConstraints();
-	nnz_jac_g=0;
-	nnz_h_lag=0;
-	map<int,int> sparsity_hessian;
-	for (int i=0; i<objQuad->A->getNumNonzeros(); ++i)
-		sparsity_hessian.insert(pair<int,int>(objQuad->A->getRowIndices()[i], objQuad->A->getColIndices()[i])); 
-	for (int c=0; c<m; ++c) {
-		assert(conQuad[c]->haveSparsity());
-		nnz_jac_g+=conQuad[c]->getSparsity().size();
-		for (int i=0; i<conQuad[c]->A->getNumNonzeros(); ++i)
-			sparsity_hessian.insert(pair<int,int>(conQuad[c]->A->getRowIndices()[i], conQuad[c]->A->getColIndices()[i])); 
-		if (IsValid(conNonQuad[c])) {
-			assert(conNonQuad[c]->haveSparsity());
-			// let's hope that this is also ok if the sparsity of the quadratic and the nonquad. part overlap
-			nnz_jac_g+=conNonQuad[c]->getSparsity().size();
-			//TODO: add into sparsity_hessian
-		}
-	}
+	nnz_jac_g=nnz_jac;
+	nnz_h_lag=sparsity_hessian.size();
 	index_style=Ipopt::TNLP::C_STYLE;
 	return true;
 }
@@ -295,37 +352,133 @@ bool QuadraticOrConvexApproximation::get_bounds_info(Index n, Number* x_l, Numbe
 
 bool QuadraticOrConvexApproximation::get_starting_point(Index n, bool init_x, Number* x, bool init_z, Number* z_L, Number* z_U, Index m, bool init_lambda, Number* lambda) {
 	init_x=false;
-	assert(init_z=false);
-	assert(init_lambda=false);
+	assert(init_z==false);
+	assert(init_lambda==false);
 	return true;
 }
 
 bool QuadraticOrConvexApproximation::eval_f(Index n, const Number* x, bool new_x, Number& obj_value) {
+	DenseVector x_(n, x);
+	obj_value=objQuad->eval(x_);
+	if (IsValid(objNonQuad))
+		obj_value+=objNonQuad->eval(x_);
 	return true;
 }
 
 bool QuadraticOrConvexApproximation::eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f) {
+	DenseVector x_(n, x);
+	DenseVector grad(n);
+	objQuad->gradient(grad, x_);
+	CoinCopyN(grad.getElements(), n, grad_f);
+	if (IsValid(objNonQuad)) {
+		objNonQuad->gradient(grad, x_);
+		for (int i=0; i<n; ++i, ++grad_f)
+			*grad_f+=grad[i];
+	}
 	return true;
 }
 
 bool QuadraticOrConvexApproximation::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g) {
+	for (int c=0; c<m; ++c)
+		eval_gi(n, x, new_x, c, g[c]);
 	return true;
 }
 	
 bool QuadraticOrConvexApproximation::eval_jac_g(Index n, const Number* x, bool new_x, Index m, Index nele_jac, Index* iRow, Index *jCol, Number* values) {
+	if (values==NULL) {
+		for (int c=0; c<numConstraints(); ++c) {
+			const vector<int>& sparsity(conQuad[c]->getSparsity());
+			for (int i=0; i<(int)sparsity.size(); ++i, ++iRow, ++jCol) {
+				*iRow=c;
+				*jCol=sparsity[i];
+			}
+			if (IsValid(conNonQuad[c])) {
+				const vector<int>& sparsity(conNonQuad[c]->getSparsity());
+				for (int i=0; i<(int)sparsity.size(); ++i, ++iRow, ++jCol) {
+					*iRow=c;
+					*jCol=sparsity[i];
+				}
+			}
+		}		
+	} else {
+		DenseVector grad(n);
+		DenseVector x_(n, x);
+		for (int c=0; c<numConstraints(); ++c) {
+			conQuad[c]->gradient(grad, x_);
+			const vector<int>& sparsity(conQuad[c]->getSparsity());
+			for (int i=0; i<(int)sparsity.size(); ++i, ++values)
+				*values=grad[sparsity[i]];
+			if (IsValid(conNonQuad[c])) {
+				conNonQuad[c]->gradient(grad, x_);
+				const vector<int>& sparsity(conNonQuad[c]->getSparsity());
+				for (int i=0; i<(int)sparsity.size(); ++i, ++values)
+					*values=grad[sparsity[i]];
+			}
+		}		
+	}
 	return true;
 }
         
 bool QuadraticOrConvexApproximation::eval_h(Index n, const Number* x, bool new_x, Number obj_factor, Index m, const Number* lambda, bool new_lambda, Index nele_hess, Index* iRow, Index* jCol, Number* values) {
+	if (values==NULL) {
+		int k=0;
+		for (map<pair<int,int>, int>::iterator it(sparsity_hessian.begin()); it!=sparsity_hessian.end(); ++it, ++iRow, ++jCol, ++k) {
+			*iRow=it->first.first;
+			*jCol=it->first.second;
+			it->second=k;
+		}
+		assert(k==nele_hess);
+	} else {
+		CoinZeroN(values, nele_hess);
+		DenseVector x_(n, x);
+		if (obj_factor) { 
+			addToHessian(values, 2*obj_factor, *objQuad->A);
+			if (IsValid(objNonQuad)) {
+				SymSparseMatrixCreator mat;
+				objNonQuad->fullHessian(mat, x_);
+				addToHessian(values, obj_factor, mat);
+			}
+		}
+		for (int c=0; c<numConstraints(); ++c) {
+			if (!lambda[c]) continue;
+			addToHessian(values, 2*lambda[c], *conQuad[c]->A);
+			if (IsValid(conNonQuad[c])) {
+				SymSparseMatrixCreator mat;
+				conNonQuad[c]->fullHessian(mat, x_);
+				addToHessian(values, lambda[c], mat);
+			}
+		}
+	}
+	
 	return true;
 }
 
+void QuadraticOrConvexApproximation::addToHessian(double* values, double factor, SymSparseMatrix& A) {
+	for (int i=0; i<A.getNumNonzeros(); ++i) {
+		map<pair<int,int>, int>::iterator it(sparsity_hessian.find(pair<int,int>(A.getRowIndices()[i], A.getColIndices()[i])));
+		assert(it!=sparsity_hessian.end());
+		values[it->second]=factor*A.getValues()[i];
+	}
+}
+
+void QuadraticOrConvexApproximation::addToHessian(double* values, double factor, SymSparseMatrixCreator& A) {
+	for (SymSparseMatrixCreator::iterator it_A(A.begin()); it_A!=A.end(); ++it_A) {
+		map<pair<int,int>, int>::iterator it(sparsity_hessian.find(it_A->first));
+		assert(it!=sparsity_hessian.end());
+		values[it->second]=factor*it_A->second;
+	}
+}
+
 bool QuadraticOrConvexApproximation::eval_gi(Index n, const Number* x, bool new_x, Index i, Number& gi) {
+	DenseVector x_(n, x);
+	gi=conQuad[i]->eval(x_);
+	if (IsValid(conNonQuad[i]))
+		gi+=conNonQuad[i]->eval(x_);
 	return true;
 }
 
 bool QuadraticOrConvexApproximation::eval_grad_gi(Index n, const Number* x, bool new_x, Index i, Index& nele_grad_gi, Index* jCol, Number* values) {
-	return true;
+	return false;
 }
 
 void QuadraticOrConvexApproximation::finalize_solution(Bonmin::TMINLP::SolverReturn status, Index n, const Number* x, Number obj_value) {

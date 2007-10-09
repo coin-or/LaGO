@@ -31,6 +31,10 @@ public:
 		out << "var " << node.varindex << " in comp. " << node.component << (node.isquad ? " is quad." : " is nonquad.");
 		return out;
 	}
+	
+	bool operator==(const SparsityGraphNode& node) const {
+		return varindex==node.varindex;
+	}
 }; // SparsityGraphNode
 
 
@@ -59,8 +63,12 @@ public:
 	: Cgc::DynNet<SparsityGraphNode, SparsityGraphEdge>(numNodes, numArcs)
 	{ }
 	
+	SparsityGraph(SparsityGraph& graph, vector<int>& indices_map);
+	
 	SmartPtr<SparsityGraph> getComponent(int compnr) const;
-};
+	
+	void add(SparsityGraph& graph, vector<int>& indices_map);
+}; // SparsityGraph
 
 } // namespace LaGO
 

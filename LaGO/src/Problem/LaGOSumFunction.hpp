@@ -17,25 +17,16 @@ private:
 //	SmartPtr<Function> f, g;
 	list<SmartPtr<Function> > functions;
 	list<double> factors;
+	
+	vector<int> sparsity;
+	bool have_sparsity;
+	
+	void setupSparsity();
 
 public:
-	SumFunction(double a, const SmartPtr<Function>& f, double b, const SmartPtr<Function>& g) {
-		if (a && IsValid(f)) {
-			functions.push_back(f);
-			factors.push_back(a);
-		}
-		if (b && IsValid(g)) {
-			functions.push_back(g);
-			factors.push_back(b);
-		}
-	}
+	SumFunction(double a, const SmartPtr<Function>& f, double b, const SmartPtr<Function>& g);
 	
-	SumFunction(const list<SmartPtr<Function> >& functions_, const list<double>& factors_=list<double>())
-	: functions(functions_), factors(factors_)
-	{ if (factors.empty())
-			for (list<SmartPtr<Function> >::iterator it(functions.begin()); it!=functions.end(); ++it)
-				factors.push_back(1.);
-	}
+	SumFunction(const list<SmartPtr<Function> >& functions_, const list<double>& factors_=list<double>());
 
 	double eval(const DenseVector& x) const {
 		list<SmartPtr<Function> >::const_iterator it_func(functions.begin());
@@ -107,23 +98,7 @@ public:
 		}
 	}
 
-	void fullHessian(SymSparseMatrixCreator& hessian, const DenseVector& x) const {
-		list<SmartPtr<Function> >::const_iterator it_func(functions.begin());
-		list<double>::const_iterator it_factor(factors.begin());
-
-		(*it_func)->fullHessian(hessian, x);
-		hessian.scale(*it_factor);
-		++it_func; ++it_factor;
-		
-		if (it_func!=functions.end()) {
-			SymSparseMatrixCreator g_hessian(hessian.getDim());
-			do {
-				(*it_func)->fullHessian(g_hessian,x);
-				hessian.add(*it_factor, g_hessian);
-				++it_func; ++it_factor;
-			} while(it_func!=functions.end());
-		}
-	}
+	void fullHessian(SymSparseMatrixCreator& hessian, const DenseVector& x) const;
 
 #ifdef COIN_HAS_FILIB
 	virtual bool canIntervalEvaluation() const {
@@ -172,25 +147,15 @@ public:
 
 	/** Indicates whether the function knows about the variables that appear in it.
 	 */
-	bool haveSparsity() const { return false; }
+	bool haveSparsity() const { return have_sparsity; }
 
 	/** Returns a list of variable indices that appear in this function.
 	 * You can only rely on the result of this function if haveSparsity() returns true.
 	 */
-//	virtual const vector<int>& getSparsity() const { throw CoinError("sparsity information not available", "getSparsity()", "Function"); }
+	virtual const vector<int>& getSparsity() const { return sparsity; }
 
-	void print(ostream& out) const {
-		out << "SumFunction: " << endl;
-		list<SmartPtr<Function> >::const_iterator it_func(functions.begin());
-		list<double>::const_iterator it_factor(factors.begin());
-		int counter=0;
-		while (it_func!=functions.end()) {
-			out << counter << ". summand: factor = " << *it_factor << "\t function = " << **it_func << endl;
-			++counter;
-			++it_func;
-			++it_factor;
-		}
-	}
+	void print(ostream& out) const;
+
 }; // class SumFunction
 
 } // namespace LaGO

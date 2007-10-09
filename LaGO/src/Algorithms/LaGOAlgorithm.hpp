@@ -17,6 +17,8 @@
 
 namespace LaGO {
 
+class QuadraticOrConvexApproximation;
+
 /** LaGOs main algorithm: preprocessing and call of branch-and-cut.
  */
 class Algorithm {
@@ -30,6 +32,8 @@ private:
 	Convexification convexify;
 	
 	void preprocessing();
+	
+	void solve_relax(SmartPtr<QuadraticOrConvexApproximation> quad);
 	
 public:
 	Algorithm(MINLPData& data_);

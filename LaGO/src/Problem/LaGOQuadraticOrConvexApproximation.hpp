@@ -46,12 +46,18 @@ private:
 	/** Convex nonquadratic part of objective function.
 	 */
 	SmartPtr<Function> objNonQuad;
+	/** Sparsity graph of nonquadratic part of constraints.
+	 */
+	SmartPtr<SparsityGraph> objNonQuadSparsityGraph;
 	/** Quadratic (and linear and constant) part of constraints.
 	 */
 	vector<SmartPtr<QuadraticFunction> > conQuad;
 	/** Convex nonquadratic part of constraints.
 	 */
 	vector<SmartPtr<Function> > conNonQuad;
+	/** Sparsity graph of nonquadratic part of constraints.
+	 */
+	vector<SmartPtr<SparsityGraph> > conNonQuadSparsityGraph;
 	// TODO: something for discrete var
 	
 	/** The number of original variables, i.e., variables that appear in MINLPData.
@@ -68,6 +74,11 @@ private:
 	 */
 	vector<pair<int,int> > blockfunc;
 	
+	map<pair<int,int>, int> sparsity_hessian;
+	int nnz_jac;
+
+
+
 	/** Constructs the quadratic approximation from a MINLPData object.
 	 */
 	void construct();
@@ -75,7 +86,13 @@ private:
 	void addQuadEstConstraint(int con_nr, SymSparseMatrix& A, DenseVector& alpha, vector<int>& indices, int auxvar_index);
 	void addQuadEstConstraint(int con_nr, QuadraticFunction& quad, DenseVector* alpha, vector<int>& indices, int auxvar_index);  
 	void addConvexificationTerm(SymSparseMatrixCreator& A, SparseVectorCreator& b, double& constant, const DenseVector& alpha, const vector<int>& indices);
+	/** Initialize sparsity_hessian.
+	 */
+	void initSparsityStructures();
 	
+	void addToHessian(double* values, double factor, SymSparseMatrix& A);
+	void addToHessian(double* values, double factor, SymSparseMatrixCreator& A);
+		
 public:
 	QuadraticOrConvexApproximation(MINLPData& data_, bool use_convex_);
 	
@@ -113,7 +130,6 @@ public:
 	const Bonmin::TMINLP::BranchingInfo* branchingInfo() const;
 
 	const Bonmin::TMINLP::SosInfo* sosConstraints() const;
-
 	
 }; // class QuadraticOrConvexApproximation 
 	

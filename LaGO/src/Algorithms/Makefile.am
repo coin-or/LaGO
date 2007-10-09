@@ -28,14 +28,16 @@ AM_CPPFLAGS = $(FILIB_CPPFLAGS) \
  -I`$(CYGPATH_W) $(COINUTILSOBJDIR)/inc` \
  -I`$(CYGPATH_W) $(OSISRCDIR)/src` \
  -I`$(CYGPATH_W) $(OSIOBJDIR)/inc` \
+ -I`$(CYGPATH_W) $(CGLSRCDIR)/src` \
+ -I`$(CYGPATH_W) $(CGLOBJDIR)/inc` \
+ -I`$(CYGPATH_W) $(CBCSRCDIR)/src` \
+ -I`$(CYGPATH_W) $(CBCOBJDIR)/inc` \
  -I`$(CYGPATH_W) $(LAGOSRCDIR)/../Cgc/src` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Interfaces` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Common` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/LinAlg` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Algorithm` \
  -I`$(CYGPATH_W) $(IPOPTOBJDIR)/inc` \
- -I`$(CYGPATH_W) $(OSISRCDIR)/src` \
- -I`$(CYGPATH_W) $(OSIOBJDIR)/inc` \
  -I`$(CYGPATH_W) $(BONMINSRCDIR)/src/Interfaces` \
  -I`$(CYGPATH_W) $(BONMINSRCDIR)/src/Algorithms` \
  -I`$(CYGPATH_W) $(BONMINSRCDIR)/src/CbcBonmin` \

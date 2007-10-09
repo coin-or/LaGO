@@ -11,11 +11,15 @@ namespace LaGO {
 void QuadraticFunction::updateSparsity() {
 	sparsity.clear();
 	set<int> indices;
-	for (int i=0; i<b->getNumElements(); ++i)
-		indices.insert(b->getIndices()[i]);
-	for (int i=0: i<A->getNumNonzeros(); ++i) {
-		indices.insert(A->getRowIndices()[i]);
-		indices.insert(A->getColIndices()[i]);
+	if (IsValid(b)) {
+		for (int i=0; i<b->getNumElements(); ++i)
+			indices.insert(b->getIndices()[i]);
+	}
+	if (IsValid(A)) {
+		for (int i=0; i<A->getNumNonzeros(); ++i) {
+			indices.insert(A->getRowIndices()[i]);
+			indices.insert(A->getColIndices()[i]);
+		}
 	}
 	sparsity.reserve(indices.size());
 	for (set<int>::iterator it(indices.begin()); it!=indices.end(); ++it)

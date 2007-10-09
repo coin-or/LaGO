@@ -66,7 +66,7 @@ host_triplet = @host@
 @COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@am__append_4 = $(OSIOBJDIR)/src/OsiClp/libOsiClp.la $(CLPOBJDIR)/src/libClp.la
 @COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@am__append_5 = $(OSIOBJDIR)/src/OsiClp/libOsiClp.la $(CLPOBJDIR)/src/libClp.la
 @COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@am__append_6 = `cat $(CLPOBJDIR)/clp_addlibs.txt`
-@COIN_HAS_GAMSIO_TRUE@am__append_7 = `cat $(COINUTILSOBJDIR)/coinutils_addlibs.txt $(CGLOBJDIR)/cgl_addlibs.txt $(OSIOBJDIR)/osi_addlibs.txt $(IPOPTOBJDIR)/src/Interfaces/ipopt_addlibs_cpp.txt`
+@COIN_HAS_GAMSIO_TRUE@am__append_7 = `cat $(COINUTILSOBJDIR)/coinutils_addlibs.txt $(CGLOBJDIR)/cgl_addlibs.txt $(CBCOBJDIR)/cbc_addlibs.txt $(OSIOBJDIR)/osi_addlibs.txt $(IPOPTOBJDIR)/src/Interfaces/ipopt_addlibs_cpp.txt`
 DIST_COMMON = $(srcdir)/../../../BuildTools/Makemain.inc \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
 @HAVE_EXTERNALS_TRUE@am__append_8 = Externals
@@ -106,14 +106,16 @@ LaGOGAMS_OBJECTS = $(am_LaGOGAMS_OBJECTS)
 @COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@am__DEPENDENCIES_3 = $(OSIOBJDIR)/src/OsiClp/libOsiClp.la \
 @COIN_HAS_CPX_FALSE@@COIN_HAS_GAMSIO_TRUE@	$(CLPOBJDIR)/src/libClp.la
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_DEPENDENCIES = ../Interfaces/GAMS/libLaGOInterfaceGams.la \
-@COIN_HAS_GAMSIO_TRUE@	libLaGO.la $(am__DEPENDENCIES_2) \
-@COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_3) \
-@COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/libOsi.la \
+@COIN_HAS_GAMSIO_TRUE@	libLaGO.la \
+@COIN_HAS_GAMSIO_TRUE@	$(BONMINOBJDIR)/src/CbcBonmin/libbonmin.la \
+@COIN_HAS_GAMSIO_TRUE@	$(CBCOBJDIR)/src/libCbc.la \
 @COIN_HAS_GAMSIO_TRUE@	$(CGLOBJDIR)/src/libCgl.la \
+@COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/libOsi.la \
 @COIN_HAS_GAMSIO_TRUE@	$(COINUTILSOBJDIR)/src/libCoinUtils.la \
 @COIN_HAS_GAMSIO_TRUE@	$(IPOPTOBJDIR)/src/Interfaces/libipopt.la \
-@COIN_HAS_GAMSIO_TRUE@	$(BONMINOBJDIR)/src/CbcBonmin/libbonmin.la \
-@COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_1)
+@COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_1) \
+@COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_2) \
+@COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_3)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -344,14 +346,15 @@ libLaGO_la_LIBADD = ../Algorithms/libLaGOAlgorithms.la ../Interfaces/libLaGOInte
 
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_SOURCES = LaGOGAMS.cpp
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_LDADD = ../Interfaces/GAMS/libLaGOInterfaceGams.la \
-@COIN_HAS_GAMSIO_TRUE@	libLaGO.la $(am__append_4) \
-@COIN_HAS_GAMSIO_TRUE@	$(am__append_5) \
-@COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/libOsi.la \
+@COIN_HAS_GAMSIO_TRUE@	libLaGO.la \
+@COIN_HAS_GAMSIO_TRUE@	$(BONMINOBJDIR)/src/CbcBonmin/libbonmin.la \
+@COIN_HAS_GAMSIO_TRUE@	$(CBCOBJDIR)/src/libCbc.la \
 @COIN_HAS_GAMSIO_TRUE@	$(CGLOBJDIR)/src/libCgl.la \
+@COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/libOsi.la \
 @COIN_HAS_GAMSIO_TRUE@	$(COINUTILSOBJDIR)/src/libCoinUtils.la \
 @COIN_HAS_GAMSIO_TRUE@	$(IPOPTOBJDIR)/src/Interfaces/libipopt.la \
-@COIN_HAS_GAMSIO_TRUE@	$(BONMINOBJDIR)/src/CbcBonmin/libbonmin.la \
-@COIN_HAS_GAMSIO_TRUE@	$(GAMSIO_LIBS)
+@COIN_HAS_GAMSIO_TRUE@	$(GAMSIO_LIBS) $(am__append_4) \
+@COIN_HAS_GAMSIO_TRUE@	$(am__append_5)
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_LDFLAGS = $(ADDLIBS) -rpath $(libdir)
 DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
 DISTCLEANFILES = $(am__append_9) $(VPATH_DISTCLEANFILES)

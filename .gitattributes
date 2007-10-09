@@ -84,6 +84,7 @@ LaGO/src/Problem/LaGOSimpleBlockFunction.cpp -text
 LaGO/src/Problem/LaGOSimpleBlockFunction.hpp -text
 LaGO/src/Problem/LaGOSparsity.cpp -text
 LaGO/src/Problem/LaGOSparsity.hpp -text
+LaGO/src/Problem/LaGOSumFunction.cpp -text
 LaGO/src/Problem/LaGOSumFunction.hpp -text
 LaGO/src/Problem/Makefile.am -text
 LaGO/src/Problem/Makefile.in -text

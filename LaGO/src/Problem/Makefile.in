@@ -79,8 +79,9 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libLaGOProblem_la_LIBADD =
 am_libLaGOProblem_la_OBJECTS = LaGOMINLPData.lo LaGOSparsity.lo \
 	LaGOSampleSet.lo LaGOBlockFunction.lo \
-	LaGOSimpleBlockFunction.lo LaGORestrictedFunction.lo \
-	LaGOQuadraticFunction.lo LaGOBoxMinimizationProblem.lo \
+	LaGOSimpleBlockFunction.lo LaGOSumFunction.lo \
+	LaGORestrictedFunction.lo LaGOQuadraticFunction.lo \
+	LaGOBoxMinimizationProblem.lo \
 	LaGOQuadraticOrConvexApproximation.lo
 libLaGOProblem_la_OBJECTS = $(am_libLaGOProblem_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
@@ -285,7 +286,7 @@ AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST = $(am__append_1)
 lib_LTLIBRARIES = libLaGOProblem.la
 libLaGOProblem_la_SOURCES = LaGOMINLPData.cpp LaGOSparsity.cpp LaGOSampleSet.cpp \
-  LaGOBlockFunction.cpp LaGOSimpleBlockFunction.cpp LaGORestrictedFunction.cpp LaGOQuadraticFunction.cpp \
+  LaGOBlockFunction.cpp LaGOSimpleBlockFunction.cpp LaGOSumFunction.cpp LaGORestrictedFunction.cpp LaGOQuadraticFunction.cpp \
   LaGOBoxMinimizationProblem.cpp LaGOQuadraticOrConvexApproximation.cpp
 
 include_HEADERS = LaGOMINLPData.hpp LaGOSparsity.hpp LaGOCurvature.hpp \
@@ -390,6 +391,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOSampleSet.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOSimpleBlockFunction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOSparsity.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOSumFunction.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \

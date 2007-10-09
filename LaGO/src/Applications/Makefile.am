@@ -46,6 +46,15 @@ bin_PROGRAMS = LaGOGAMS
 LaGOGAMS_SOURCES = LaGOGAMS.cpp
 
 LaGOGAMS_LDADD = ../Interfaces/GAMS/libLaGOInterfaceGams.la libLaGO.la
+
+LaGOGAMS_LDADD += \
+$(BONMINOBJDIR)/src/CbcBonmin/libbonmin.la \
+$(CBCOBJDIR)/src/libCbc.la \
+$(CGLOBJDIR)/src/libCgl.la \
+$(OSIOBJDIR)/src/libOsi.la \
+$(COINUTILSOBJDIR)/src/libCoinUtils.la \
+$(IPOPTOBJDIR)/src/Interfaces/libipopt.la \
+$(GAMSIO_LIBS)
  
 if COIN_HAS_CPX
 #to make sure that libOsiCpx comes in the command line before -lcplex, we have to add OsiCpx to ADDLIBS
@@ -58,15 +67,7 @@ LaGOGAMS_LDADD += $(OSIOBJDIR)/src/OsiClp/libOsiClp.la $(CLPOBJDIR)/src/libClp.l
 ADDLIBS += `cat $(CLPOBJDIR)/clp_addlibs.txt`
 endif
 
-LaGOGAMS_LDADD += \
-$(OSIOBJDIR)/src/libOsi.la \
-$(CGLOBJDIR)/src/libCgl.la \
-$(COINUTILSOBJDIR)/src/libCoinUtils.la \
-$(IPOPTOBJDIR)/src/Interfaces/libipopt.la \
-$(BONMINOBJDIR)/src/CbcBonmin/libbonmin.la \
-$(GAMSIO_LIBS)
-
-ADDLIBS += `cat $(COINUTILSOBJDIR)/coinutils_addlibs.txt $(CGLOBJDIR)/cgl_addlibs.txt $(OSIOBJDIR)/osi_addlibs.txt $(IPOPTOBJDIR)/src/Interfaces/ipopt_addlibs_cpp.txt`
+ADDLIBS += `cat $(COINUTILSOBJDIR)/coinutils_addlibs.txt $(CGLOBJDIR)/cgl_addlibs.txt $(CBCOBJDIR)/cbc_addlibs.txt $(OSIOBJDIR)/osi_addlibs.txt $(IPOPTOBJDIR)/src/Interfaces/ipopt_addlibs_cpp.txt`
 
 LaGOGAMS_LDFLAGS = $(ADDLIBS) -rpath $(libdir)
 

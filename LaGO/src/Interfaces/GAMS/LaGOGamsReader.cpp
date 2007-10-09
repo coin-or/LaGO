@@ -327,7 +327,7 @@ SmartPtr<MINLPData> GamsReader::getProblem(char* cntr_file) {
 	}
 	if (!reformed) {
 		prob->obj=MINLPData::Objective(NULL, new SparseVector(objvar, obj_factor), 0, objcon_name);
-		if (objcon_name) delete[] objcon_name;
+		if (objcon_name) free(objcon_name);
 	}
 
 	delete[] namebuf;

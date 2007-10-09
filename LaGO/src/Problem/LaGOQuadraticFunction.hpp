@@ -8,6 +8,7 @@
 #define LAGOQUADRATICFUNCTION_HPP_
 
 #include "LaGObase.hpp"
+#include "LaGOSymSparseMatrix.hpp"
 
 namespace LaGO {
 

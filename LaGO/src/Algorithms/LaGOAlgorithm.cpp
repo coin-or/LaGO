@@ -8,6 +8,9 @@
 
 #include "LaGOQuadraticOrConvexApproximation.hpp"
 
+#include "BonBonminSetup.hpp"
+#include "BonCbc.hpp"
+
 namespace LaGO {
 
 Algorithm::Algorithm(MINLPData& data_)
@@ -48,12 +51,23 @@ void Algorithm::preprocessing() {
 
 //	cout << data;
 }
+
+void Algorithm::solve_relax(SmartPtr<QuadraticOrConvexApproximation> quad) {
+	Bonmin::BonminSetup bonmin_setup;
+	bonmin_setup.initialize(GetRawPtr(quad));
+
+	Bonmin::Bab bb;
+	bb(bonmin_setup);	
+}
+
 	
 void Algorithm::run() {
 	preprocessing();
 	
-	QuadraticOrConvexApproximation quad(data, true);
-	cout << quad;
+	SmartPtr<QuadraticOrConvexApproximation> quad=new QuadraticOrConvexApproximation(data, true);
+	cout << *quad;
+	
+	solve_relax(quad);
 }
 	
 } // namespace LaGO
