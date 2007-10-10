@@ -106,7 +106,7 @@ public:
 	}
 
 	void addVector(double factor, const DenseVector& v) {
-		if (factor==1.) operator+=(v);
+		if (factor==1.) { operator+=(v); return; }
 		if (factor==0.) return;
 		assert(getNumElements()==v.getNumElements());
 		double* x_=getElements();

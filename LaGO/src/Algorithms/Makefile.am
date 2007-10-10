@@ -12,7 +12,7 @@ EXTRA_DIST =
 
 lib_LTLIBRARIES = libLaGOAlgorithms.la
 libLaGOAlgorithms_la_SOURCES = \
-	LaGOAlgorithm.cpp \
+	LaGOAlgorithm.cpp LaGOQuadraticRelaxTest.cpp \
 	LaGODecomposition.cpp \
 	LaGOSampling.cpp LaGOCurvatureCheck.cpp \
 	LaGOBoxReduction.cpp LaGOConstraintPropagation.cpp \

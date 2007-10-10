@@ -30,10 +30,7 @@ public:
 		}
 	} 
 
-	double eval(const DenseVector& x) const {
-		my_x.setToBlock(x, indices);
-		return f->eval(my_x);
-	}
+	double eval(const DenseVector& x) const;
 	
 	void gradient(DenseVector& grad, const DenseVector& x) const;
 	

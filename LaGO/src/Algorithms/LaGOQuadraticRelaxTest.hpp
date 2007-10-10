@@ -2,10 +2,10 @@
 // All Rights Reserved.
 // This code is published under the Common Public License.
 
-// $Id$
+// $Id: LaGOAlgorithm.hpp 135 2007-10-09 19:37:41Z stefan $
 
-#ifndef LAGOALGORITHM_HPP_
-#define LAGOALGORITHM_HPP_
+#ifndef LAGOQUADRATICRELAXTEST_HPP_
+#define LAGOQUADRATICRELAXTEST_HPP_
 
 #include "LaGObase.hpp"
 
@@ -17,26 +17,30 @@
 
 namespace LaGO {
 
-/** LaGOs main algorithm: preprocessing and call of branch-and-cut.
- */
-class Algorithm {
+class QuadraticOrConvexApproximation;
+	
+class QuadraticRelaxTest {
 private:
 	MINLPData& data;
-	
+
 	Decomposition decomp;
 	CurvatureCheck curvcheck;
 	ConstraintPropagation conprob;
+	BoxReductionGuessing guess;
 	QuadraticEstimation quadest;
 	Convexification convexify;
 	
 	void preprocessing();
 
-public:
-	Algorithm(MINLPData& data_);
+	void solve_relax(SmartPtr<QuadraticOrConvexApproximation> quad);
 	
-	void run();	
-}; // class Algorithm
+public:
+	QuadraticRelaxTest(MINLPData& data_);
+
+	void run();
+	
+}; // class QuadraticRelaxTest	
 	
 } // namespace LaGO
 
-#endif /*LAGOALGORITHM_HPP_*/
+#endif /*LAGOQUADRATICRELAXTEST_HPP_*/

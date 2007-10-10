@@ -8,11 +8,20 @@
 
 namespace LaGO {
 
+double SimpleBlockFunction::eval(const DenseVector& x) const {
+	my_x.setToBlock(x, indices);
+//	clog << "SimpleBlockFunction of " << *f << " value at " << my_x << " is " << f->eval(my_x) << endl;
+	return f->eval(my_x);
+}
+
 void SimpleBlockFunction::gradient(DenseVector& grad, const DenseVector& x) const {
 	my_x.setToBlock(x, indices);
 	DenseVector my_grad(my_x.getNumElements());
 
 	f->gradient(my_grad, my_x);
+
+//	clog << "SimpleBlockFunction of " << *f << " gradient at " << my_x;
+//	clog << "\t is " << my_grad << endl;
 	
 	grad.clear();
 	grad.setElementsOfBlock(my_grad, indices);	

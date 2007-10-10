@@ -23,6 +23,15 @@ Curvature MINLPData::ObjCon::getCurvature() const {
 	return curv;
 }
 
+double MINLPData::ObjCon::eval(const DenseVector& x) const {
+	double val=origfuncConstant;
+	if (IsValid(origfuncLin))
+		val+=x**origfuncLin;
+	if (IsValid(origfuncNL))
+		val+=origfuncNL->eval(x);
+	return val;
+}
+
 void printSparseVector(ostream& out, const SparseVector& v, const vector<MINLPData::Variable>& var) {
 	for (int i=0; i<v.getNumElements(); ++i) {
 		double coeff=v.getElements()[i];
@@ -75,6 +84,13 @@ ostream& operator<<(ostream& out, const MINLPData::Variable& var) {
 	if (var.discrete) out << "discrete";
 	out << endl;
 	return out;	
+}
+
+double MINLPData::Constraint::getInfeasibility(const DenseVector& x) const {
+	double val=eval(x);
+	if (val<lower) return lower-val;
+	if (val>upper) return val-upper;
+	return 0.;
 }
 
 void MINLPData::Constraint::print(ostream& out, const vector<MINLPData::Variable>& var) const {

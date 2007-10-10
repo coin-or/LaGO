@@ -91,6 +91,26 @@ void BlockFunction::evalAndGradient(interval<double>& value, IntervalVector& gra
 }
 #endif // COIN_HAS_FILIB
 
+double BlockFunction::evalUnderEstimator(DenseVector& x) const {
+	double val=-getInfinity();
+	for (list<SmartPtr<QuadraticEstimator> >::const_iterator it_est(underestimators.begin()); it_est!=underestimators.end(); ++it_est) {
+		double estval=(*it_est)->func->eval(x);
+		if (estval>val) val=estval;
+	}
+	
+	return val;
+}
+
+double BlockFunction::evalOverEstimator(DenseVector& x) const {
+	double val=getInfinity();
+	for (list<SmartPtr<QuadraticEstimator> >::const_iterator it_est(overestimators.begin()); it_est!=overestimators.end(); ++it_est) {
+		double estval=(*it_est)->func->eval(x);
+		if (estval<val) val=estval;
+	}
+
+	return val;
+}
+
 void BlockFunction::print(ostream& out) const {
 	out << "Curvature: " << curvature << " Function: ";
 	if (IsValid(quad)) out << *quad << endl;

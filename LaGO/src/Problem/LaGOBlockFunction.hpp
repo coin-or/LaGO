@@ -91,6 +91,9 @@ public:
 	void evalAndGradient(interval<double>& value, IntervalVector& grad, const IntervalVector& x) const;
 #endif
 
+	double evalUnderEstimator(DenseVector& x) const;
+	double evalOverEstimator(DenseVector& x) const;
+
 	/** Indicates whether the function knows about the variables that appear in it.
 	 */
 	bool haveSparsity() const { return true; }

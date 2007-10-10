@@ -11,7 +11,7 @@
 namespace LaGO {
 
 QuadraticOrConvexApproximation::QuadraticOrConvexApproximation(MINLPData& data_, bool use_convex_)
-: data(data_), use_convex(use_convex_)
+: data(data_), use_convex(use_convex_), solver_return(Bonmin::TMINLP::MINLP_ERROR), solution_objective(-getInfinity())
 { construct();	
 }
 
@@ -72,6 +72,7 @@ void QuadraticOrConvexApproximation::construct() {
 	for (int i=0; i<data.numVariables(); ++i) {
 		var_lb[i]=data.getVariable(i).getLower();
 		var_ub[i]=data.getVariable(i).getUpper();
+//		clog << "bounds var. " << i << ": " << var_lb[i] << '\t' << var_ub[i] << endl; 
 	}
 	
 	int aux_con_index=data.numConstraints(); // index of next aux. constraint
@@ -195,12 +196,11 @@ void QuadraticOrConvexApproximation::addQuadEstConstraint(int con_nr, SymSparseM
 	SymSparseMatrixCreator myA(numVariables());
 	SparseVectorCreator b;
 	double constant=0.;
-	
 	myA.addBlockMatrix(1., A, indices);
 	b.insert(data.numVariables()+auxvar_index, -1);
 	if (alpha.size())
 		addConvexificationTerm(myA, b, constant, alpha, indices);
-		
+
 	conQuad[con_nr]=new QuadraticFunction(new SymSparseMatrix(myA), new SparseVector(b), constant);
 }
 
@@ -228,11 +228,15 @@ void QuadraticOrConvexApproximation::addConvexificationTerm(SymSparseMatrixCreat
 		int orig_index=indices[i];
 		
 //		clog << "addConvexTerm: " << orig_index << "\t " << alpha[i] << ' ' << data.getVariable(orig_index).getLower() << ' ' << data.getVariable(orig_index).getUpper() << endl; 
-		
+
 		A[pair<int,int>(orig_index, orig_index)]-=alpha[i];
-		b[orig_index]+=alpha[i]*(data.getVariable(orig_index).getUpper()-data.getVariable(orig_index).getLower());
+		b[orig_index]+=alpha[i]*(data.getVariable(orig_index).getUpper()+data.getVariable(orig_index).getLower());
 		constant-=alpha[i]*data.getVariable(orig_index).getLower()*data.getVariable(orig_index).getUpper();
 	}
+}
+
+void QuadraticOrConvexApproximation::getSolution(DenseVector& x) const {
+	x=solution;
 }
 
 
@@ -248,7 +252,7 @@ void QuadraticOrConvexApproximation::print(ostream& out) const {
 	}
 	
 	out << "Objective: ";
-	if (IsValid(objQuad)) out << "quad: " << *objQuad;
+	if (IsValid(objQuad)) out << *objQuad;
 	if (IsValid(objNonQuad)) out << "nonquad: " << *objNonQuad;
 	out << endl;
 	
@@ -332,7 +336,10 @@ bool QuadraticOrConvexApproximation::get_nlp_info(Index& n, Index& m, Index& nnz
 
 bool QuadraticOrConvexApproximation::get_variables_types(Index n, VariableType* var_types) {
 	for (int i=0; i<n; ++i)
-		var_types[i]=Bonmin::TMINLP::CONTINUOUS;
+		if (i<data.numVariables() && data.getVariable(i).isDiscrete())
+			var_types[i]=Bonmin::TMINLP::INTEGER;
+		else
+			var_types[i]=Bonmin::TMINLP::CONTINUOUS;
 	return true;
 }
 
@@ -351,7 +358,14 @@ bool QuadraticOrConvexApproximation::get_bounds_info(Index n, Number* x_l, Numbe
 }
 
 bool QuadraticOrConvexApproximation::get_starting_point(Index n, bool init_x, Number* x, bool init_z, Number* z_L, Number* z_U, Index m, bool init_lambda, Number* lambda) {
-	init_x=false;
+	if (init_x) {
+		if (!data.getStartPoints().empty())
+			CoinCopyN(data.getStartPoints().front().getElements(), data.numVariables(), x);
+		else {
+			CoinCopyN(var_lb.getElements(), data.numVariables(), x);
+			CoinZero(x+data.numVariables(), x+n);
+		}
+	}
 	assert(init_z==false);
 	assert(init_lambda==false);
 	return true;
@@ -379,11 +393,15 @@ bool QuadraticOrConvexApproximation::eval_grad_f(Index n, const Number* x, bool 
 }
 
 bool QuadraticOrConvexApproximation::eval_g(Index n, const Number* x, bool new_x, Index m, Number* g) {
-	for (int c=0; c<m; ++c)
-		eval_gi(n, x, new_x, c, g[c]);
+	DenseVector x_(n, x);
+	for (int c=0; c<m; ++c) {
+		g[c]=conQuad[c]->eval(x_);
+		if (IsValid(conNonQuad[c]))
+			g[c]+=conNonQuad[c]->eval(x_);
+	}
 	return true;
 }
-	
+
 bool QuadraticOrConvexApproximation::eval_jac_g(Index n, const Number* x, bool new_x, Index m, Index nele_jac, Index* iRow, Index *jCol, Number* values) {
 	if (values==NULL) {
 		for (int c=0; c<numConstraints(); ++c) {
@@ -414,11 +432,11 @@ bool QuadraticOrConvexApproximation::eval_jac_g(Index n, const Number* x, bool n
 				for (int i=0; i<(int)sparsity.size(); ++i, ++values)
 					*values=grad[sparsity[i]];
 			}
-		}		
+		}
 	}
 	return true;
 }
-        
+
 bool QuadraticOrConvexApproximation::eval_h(Index n, const Number* x, bool new_x, Number obj_factor, Index m, const Number* lambda, bool new_lambda, Index nele_hess, Index* iRow, Index* jCol, Number* values) {
 	if (values==NULL) {
 		int k=0;
@@ -478,18 +496,36 @@ bool QuadraticOrConvexApproximation::eval_gi(Index n, const Number* x, bool new_
 }
 
 bool QuadraticOrConvexApproximation::eval_grad_gi(Index n, const Number* x, bool new_x, Index i, Index& nele_grad_gi, Index* jCol, Number* values) {
-	return false;
+	if (values==NULL) {
+		const vector<int>& sparsity(conQuad[i]->getSparsity());
+		for (int j=0; j<(int)sparsity.size(); ++j, ++jCol)
+			*jCol=sparsity[j];
+		if (IsValid(conNonQuad[i])) {
+			const vector<int>& sparsity(conNonQuad[i]->getSparsity());
+			for (int j=0; j<(int)sparsity.size(); ++j, ++jCol)
+				*jCol=sparsity[j];
+		}		
+	} else {
+		DenseVector grad(n);
+		DenseVector x_(n, x);
+		conQuad[i]->gradient(grad, x_);
+		const vector<int>& sparsity(conQuad[i]->getSparsity());
+		for (int j=0; j<(int)sparsity.size(); ++j, ++values)
+			*values=grad[sparsity[j]];
+		if (IsValid(conNonQuad[i])) {
+			conNonQuad[i]->gradient(grad, x_);
+			const vector<int>& sparsity(conNonQuad[i]->getSparsity());
+			for (int j=0; j<(int)sparsity.size(); ++j, ++values)
+				*values=grad[sparsity[j]];
+		}
+	}
+	return true;
 }
 
 void QuadraticOrConvexApproximation::finalize_solution(Bonmin::TMINLP::SolverReturn status, Index n, const Number* x, Number obj_value) {
-}
-
-const Bonmin::TMINLP::BranchingInfo* QuadraticOrConvexApproximation::branchingInfo() const {
-	return NULL;
-}
-
-const Bonmin::TMINLP::SosInfo* QuadraticOrConvexApproximation::sosConstraints() const {
-	return NULL;
+	solver_return=status;
+	if (x) solution.setVector(data.numVariables(), x);
+	solution_objective=obj_value;
 }
 
 } // namespace LaGO

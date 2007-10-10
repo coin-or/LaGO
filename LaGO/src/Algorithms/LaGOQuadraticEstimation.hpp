@@ -99,7 +99,14 @@ public:
 	
 	void computeEstimators(MINLPData& data);
 	
+	/** Computes additional quadratic under- and overestimators for nonquad. terms.
+	 * @return The number of computed estimators.
+	 */
+	int computeImprovingEstimators(MINLPData& data, const DenseVector& refpoint);
+
 	void computeEstimators(MINLPData& data, MINLPData::ObjCon& objcon, bool need_lower, bool need_upper);
+
+	int computeImprovingEstimators(MINLPData& data, MINLPData::ObjCon& objcon, const DenseVector& refpoint, bool need_lower, bool need_upper);
 
 	/** Computes quadratic under- and overestimators of a given nonconvex function.
 	 * @param func The nonconvex function.
@@ -109,7 +116,10 @@ public:
 	 * @param do_upper Indicates whether an overestimator should be computed.
 	 * @return The quadratic under- and overestimators, if computed. 
 	 */
-	pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > computeEstimator(NonconvexFunction& func, const DenseVector& lower, const DenseVector& upper, bool do_lower, bool do_upper);
+	pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > computeFirstEstimator(NonconvexFunction& func, const DenseVector& lower, const DenseVector& upper, bool do_lower, bool do_upper);
+
+	pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > computeAdditionalEstimator(NonconvexFunction& func, const DenseVector& lower, const DenseVector& upper, SampleSet::iterator enforce_tightness, bool do_lower, bool do_upper);
+	
 }; // class QuadraticEstimation
 	
 } // namespace LaGO

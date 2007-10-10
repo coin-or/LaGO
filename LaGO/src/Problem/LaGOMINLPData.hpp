@@ -120,6 +120,8 @@ public:
 		bool isConstant() const { return IsNull(origfuncLin) && IsNull(origfuncNL); }
 		Curvature getCurvature() const;
 		
+		double eval(const DenseVector& x) const;
+		
 		void print(ostream& out, const vector<MINLPData::Variable>& var) const;
 
 		friend ostream& operator<<(ostream& out, const ObjCon& objcon);
@@ -142,6 +144,8 @@ public:
 		  const string& name_=string())
 		: ObjCon(origfuncNL_, origfuncLin_, origfuncConstant_, name_), index(index_), lower(lower_), upper(upper_)
 		{ }
+		
+		double getInfeasibility(const DenseVector& x) const;
 
 		void print(ostream& out, const vector<MINLPData::Variable>& var) const;
 

@@ -8,6 +8,7 @@
 #include "LaGOMINLPData.hpp"
 #include "LaGOGamsReader.hpp"
 #include "LaGOAlgorithm.hpp"
+#include "LaGOQuadraticRelaxTest.hpp"
 
 using namespace LaGO;
 
@@ -21,7 +22,8 @@ int main(int argc, char** argv) {
 	GamsReader interface;
 	SmartPtr<MINLPData> prob(interface.getProblem(argv[1]));
 	
-	Algorithm alg(*prob);
+//	Algorithm alg(*prob);
+	QuadraticRelaxTest alg(*prob);
 	alg.run();
 	
 	// write solution file

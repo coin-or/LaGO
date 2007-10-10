@@ -85,9 +85,10 @@ libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libLaGOAlgorithms_la_LIBADD =
 am_libLaGOAlgorithms_la_OBJECTS = LaGOAlgorithm.lo \
-	LaGODecomposition.lo LaGOSampling.lo LaGOCurvatureCheck.lo \
-	LaGOBoxReduction.lo LaGOConstraintPropagation.lo \
-	LaGOQuadraticEstimation.lo LaGOConvexification.lo
+	LaGOQuadraticRelaxTest.lo LaGODecomposition.lo LaGOSampling.lo \
+	LaGOCurvatureCheck.lo LaGOBoxReduction.lo \
+	LaGOConstraintPropagation.lo LaGOQuadraticEstimation.lo \
+	LaGOConvexification.lo
 libLaGOAlgorithms_la_OBJECTS = $(am_libLaGOAlgorithms_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
@@ -291,7 +292,7 @@ AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST = $(am__append_3)
 lib_LTLIBRARIES = libLaGOAlgorithms.la
 libLaGOAlgorithms_la_SOURCES = \
-	LaGOAlgorithm.cpp \
+	LaGOAlgorithm.cpp LaGOQuadraticRelaxTest.cpp \
 	LaGODecomposition.cpp \
 	LaGOSampling.cpp LaGOCurvatureCheck.cpp \
 	LaGOBoxReduction.cpp LaGOConstraintPropagation.cpp \
@@ -394,6 +395,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOCurvatureCheck.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGODecomposition.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOQuadraticEstimation.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOQuadraticRelaxTest.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOSampling.Plo@am__quote@
 
 .cpp.o:

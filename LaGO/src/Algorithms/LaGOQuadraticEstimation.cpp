@@ -29,6 +29,13 @@ void QuadraticEstimation::computeEstimators(MINLPData& data) {
 		computeEstimators(data, data.con[c], data.con[c].upper<getInfinity(), data.con[c].lower>-getInfinity());
 }
 
+int QuadraticEstimation::computeImprovingEstimators(MINLPData& data, const DenseVector& x) {
+	int nr=computeImprovingEstimators(data, data.obj, x, true, false); // compute underestimators of objective
+	for (int c=0; c<data.numConstraints(); ++c)
+		nr+=computeImprovingEstimators(data, data.con[c], x, data.con[c].upper<getInfinity(), data.con[c].lower>-getInfinity());
+	return nr;
+}
+
 void QuadraticEstimation::computeEstimators(MINLPData& data, MINLPData::ObjCon& objcon, bool need_lower, bool need_upper) {
 	for (unsigned int k=0; k<objcon.decompfuncNL.size(); ++k) {
 		BlockFunction& func(*objcon.decompfuncNL[k]);
@@ -36,7 +43,7 @@ void QuadraticEstimation::computeEstimators(MINLPData& data, MINLPData::ObjCon& 
 		lp.reset();
 		clog << "Quadratic Estimators " << objcon.name << " block " << k << ':' << ' ';
 
-		// check which kind of underestimator we really need to compute
+		// check which under/overestimator we really need to compute
 		bool do_lower=need_lower && !(func.curvature&CONVEX);
 		bool do_upper=need_upper && !(func.curvature&CONCAVE);
 
@@ -45,7 +52,7 @@ void QuadraticEstimation::computeEstimators(MINLPData& data, MINLPData::ObjCon& 
 
 		BlockFunctionWrapper funcwrap(func);
 
-		pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > estimators=computeEstimator(funcwrap, lower, upper, do_lower, do_upper);
+		pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > estimators=computeFirstEstimator(funcwrap, lower, upper, do_lower, do_upper);
 		if (do_lower) {
 			assert(IsValid(estimators.first));
 			func.underestimators.push_back(new QuadraticEstimator(estimators.first));
@@ -59,7 +66,75 @@ void QuadraticEstimation::computeEstimators(MINLPData& data, MINLPData::ObjCon& 
 	}
 }
 
-pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > QuadraticEstimation::computeEstimator(NonconvexFunction& func, const DenseVector& lower, const DenseVector& upper, bool do_lower, bool do_upper) {
+int QuadraticEstimation::computeImprovingEstimators(MINLPData& data, MINLPData::ObjCon& objcon, const DenseVector& refpoint, bool need_lower, bool need_upper) {
+	int count=0;
+	for (unsigned int k=0; k<objcon.decompfuncNL.size(); ++k) {
+		BlockFunction& func(*objcon.decompfuncNL[k]);
+		if (IsNull(func.nonquad)) continue;
+		
+		DenseVector refpoint_block(refpoint, func.indices);
+		double origval=func.nonquad->eval(refpoint_block);
+		
+		bool do_lower=need_lower && !(func.curvature&CONVEX);
+		bool do_upper=need_upper && !(func.curvature&CONCAVE);
+
+		clog << "Quadratic Estimators " << objcon.name << " block " << k << ": orig. val: " << origval << '\t';
+		
+		// check which under/overestimator we want to compute
+		if (do_lower) {
+			double lowerest=func.evalUnderEstimator(refpoint_block);
+			clog << "lower est.: " << lowerest << '\t';
+			// skip new underestimator if gap is small
+			if ((origval-lowerest)<.1*origval) do_lower=false;
+		}
+		
+		if (do_upper) {
+			double upperest=func.evalOverEstimator(refpoint_block);			
+			clog << "upper est.: " << upperest << '\t';
+			// skip new overestimator if gap is small
+			if ((upperest-origval)<.1*origval) do_upper=false;
+		}
+		
+		if ((!do_lower) && (!do_upper)) {
+			clog << endl;
+			continue;
+		}
+
+		// add reference point to sample set
+		SampleSet::iterator refpoint_it=func.samplepoints.insert(refpoint_block).first;
+		refpoint_it->funcvalue=origval;
+		
+		lp.reset();
+
+		DenseVector lower, upper;
+		data.getBox(lower, upper, func.indices);
+
+		BlockFunctionWrapper funcwrap(func);
+
+		pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > estimators=computeAdditionalEstimator(funcwrap, lower, upper, refpoint_it, do_lower, do_upper);
+		if (do_lower) {
+			assert(IsValid(estimators.first));
+			func.underestimators.push_back(new QuadraticEstimator(estimators.first));
+			double lowerest=func.evalUnderEstimator(refpoint_block);
+			clog << "new lower est.: " << lowerest << '\t';
+			++count;
+		}
+		if (do_upper) {
+			assert(IsValid(estimators.second));
+			func.overestimators.push_back(new QuadraticEstimator(estimators.second));
+			double upperest=func.evalOverEstimator(refpoint_block);
+			clog << "new upper est.: " << upperest << '\t';
+			++count;
+		}
+		
+		clog << endl;
+	}
+	
+	return count;
+}
+
+
+pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > QuadraticEstimation::computeFirstEstimator(NonconvexFunction& func, const DenseVector& lower, const DenseVector& upper, bool do_lower, bool do_upper) {
 	pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > estimators;
 	if ((!do_lower) && (!do_upper)) return estimators; // nothing todo
 
@@ -135,6 +210,56 @@ pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > QuadraticEstimat
 
 	return estimators;
 }
+
+
+pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > QuadraticEstimation::computeAdditionalEstimator(NonconvexFunction& func, const DenseVector& lower, const DenseVector& upper, SampleSet::iterator enforce_tightness, bool do_lower, bool do_upper) {
+	pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > estimators;
+	if ((!do_lower) && (!do_upper)) return estimators; // nothing todo
+
+	if (do_lower) {
+		clog << "lower: ";
+		// compute a local minimizer of our function and add it to the sample set
+
+		// initialize the LP which we use to generate our quad. underestimator
+		int enforce_tightness_index=initLP(func, enforce_tightness);
+
+		// and set the right-hand-side such that we get an underestimator 
+		updateLP(true);
+
+		estimators.first=getEstimator(func, true, lower, upper);
+
+		if (do_upper) { // release tightness in reference sample point
+			lp.setColBounds(enforce_tightness_index, 0, getInfinity());
+		}
+	}
+
+	if (do_upper) {
+		clog << "upper: ";
+		// generate maximizer
+		if (!do_lower) // if we didn't compute a lower underestimator, we need to initialize the LP
+			initLP(func, enforce_tightness);
+		else { // otherwise we add only the row corresponding to the new sample point 
+//			double scale;
+//			SparseVector* row=constructRow(func, *enforce_tightness, -1, scale);
+//
+//			double rhs=enforce_tightness->funcvalue/scale;
+//			double lhs=rhs-eps*fabs(rhs);
+//
+//			lp.addRow(*row, lhs, rhs);
+//			delete row;
+//
+//			sampleset_newsort.push_front(SampleSetItem(*enforce_tightness, -1, lp.getNumRows()-1, scale));
+		}
+		// set the right-hand-side such that we get an overestimator
+		updateLP(false);
+
+		estimators.second=getEstimator(func, false, lower, upper);
+	}
+
+	return estimators;
+}
+
+
 
 int QuadraticEstimation::initLP(NonconvexFunction& func, const SampleSet::iterator& enforce_tightness) {
 // create auxiliary LP with initial sample set

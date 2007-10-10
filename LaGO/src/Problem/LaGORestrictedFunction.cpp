@@ -11,6 +11,7 @@ namespace LaGO {
 void RestrictedFunction::gradient(DenseVector& grad, const DenseVector& x) const {
 	fullx.setElementsOfBlock(x, indices);
 	DenseVector fullgrad(fullx.getNumElements());
+//	clog << "RestrictedFunction::gradient at " << x << endl;
 
 	f->gradient(fullgrad, fullx);
 

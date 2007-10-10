@@ -19,6 +19,12 @@ void Convexification::convexify(const vector<int>& bound_is_guessed) {
 	for (int c=0; c<data.numConstraints(); ++c)
 		convexify(data.con[c], data.con[c].upper<getInfinity(), data.con[c].lower>-getInfinity(), bound_is_guessed);
 }
+
+void Convexification::convexifyEstimators(const vector<int>& bound_is_guessed) {
+	convexifyEstimators(data.obj, true, false, bound_is_guessed);
+	for (int c=0; c<data.numConstraints(); ++c)
+		convexifyEstimators(data.con[c], data.con[c].upper<getInfinity(), data.con[c].lower>-getInfinity(), bound_is_guessed);
+}
 	
 void Convexification::convexify(MINLPData::ObjCon& objcon, bool need_lower, bool need_upper, const vector<int>& bound_is_guessed) {
 	for (unsigned int k=0; k<objcon.decompfuncNL.size(); ++k) {
@@ -31,6 +37,22 @@ void Convexification::convexify(MINLPData::ObjCon& objcon, bool need_lower, bool
 		if (do_lower || do_upper) {
 			clog << "Convexify " << objcon.name << " block " << k << ": ";
 			convexify(func, do_lower, do_upper, bound_is_guessed);
+			clog << endl;
+		}
+	}	
+}
+
+void Convexification::convexifyEstimators(MINLPData::ObjCon& objcon, bool need_lower, bool need_upper, const vector<int>& bound_is_guessed) {
+	for (unsigned int k=0; k<objcon.decompfuncNL.size(); ++k) {
+		BlockFunction& func(*objcon.decompfuncNL[k]);
+
+		bool do_lower=need_lower && !(func.curvature&CONVEX);
+		bool do_upper=need_upper && !(func.curvature&CONCAVE);
+//		clog << objcon.name << " block " << k << " is " << func.curvature << '\t' << do_lower << do_upper << endl;
+		
+		if (do_lower || do_upper) {
+			clog << "Convexify " << objcon.name << " block " << k << ": ";
+			convexifyEstimators(func, do_lower, do_upper, bound_is_guessed);
 			clog << endl;
 		}
 	}	
@@ -85,6 +107,28 @@ void Convexification::convexify(BlockFunction& func, bool do_lower, bool do_uppe
 			convexify(*(*it)->func->A, diam, NULL, &(*it)->alpha); 
 	}
 	
+}
+
+void Convexification::convexifyEstimators(BlockFunction& func, bool do_lower, bool do_upper, const vector<int>& bound_is_guessed) {
+	DenseVector diam;
+	data.getBoxDiameter(diam, func.indices);
+	if (bound_is_guessed.size()) // do not use diameter as scaling if bounds have been guessed
+		for (int i=0; i<(int)func.indices.size(); ++i)
+			if (bound_is_guessed[func.indices[i]]) diam[i]=1.;
+
+	if (do_lower && IsValid(func.nonquad)) {
+		assert(!func.underestimators.empty());
+		for (list<SmartPtr<QuadraticEstimator> >::iterator it(func.underestimators.begin()); it!=func.underestimators.end(); ++it)
+			if (!(*it)->alpha.size())
+				convexify(*(*it)->func->A, diam, &(*it)->alpha, NULL); 
+	}
+	
+	if (do_upper && IsValid(func.nonquad)) {
+		assert(!func.overestimators.empty());
+		for (list<SmartPtr<QuadraticEstimator> >::iterator it(func.overestimators.begin()); it!=func.overestimators.end(); ++it)
+			if (!(*it)->alpha.size())
+				convexify(*(*it)->func->A, diam, NULL, &(*it)->alpha); 
+	}	
 }
 
 void Convexification::convexify(SymSparseMatrix& matrix, const DenseVector& diam, DenseVector* alpha_convexify, DenseVector* alpha_concavify) {

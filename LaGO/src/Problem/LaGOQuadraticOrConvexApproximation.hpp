@@ -58,12 +58,6 @@ private:
 	/** Sparsity graph of nonquadratic part of constraints.
 	 */
 	vector<SmartPtr<SparsityGraph> > conNonQuadSparsityGraph;
-	// TODO: something for discrete var
-	
-	/** The number of original variables, i.e., variables that appear in MINLPData.
-	 */
-//	int nr_orig_var;
-//	int nr_aux_var;
 	
 	/** Gives for each block function in each constraint the aux. var. that was introduced for it in the MIQQP.
 	 * -1 if no auxvar was needed.
@@ -77,7 +71,9 @@ private:
 	map<pair<int,int>, int> sparsity_hessian;
 	int nnz_jac;
 
-
+	Bonmin::TMINLP::SolverReturn solver_return;
+	DenseVector solution;
+	double solution_objective;
 
 	/** Constructs the quadratic approximation from a MINLPData object.
 	 */
@@ -99,7 +95,11 @@ public:
 	int numVariables() const { return data.numVariables()+blockfunc.size(); }
 	int numConstraints() const { return conQuad.size(); }
 	
-	void print(ostream& out) const;	
+	void print(ostream& out) const;
+	
+	Bonmin::TMINLP::SolverReturn getSolutionStatus() const { return solver_return; }
+	
+	void getSolution(DenseVector& x) const;
 
 	bool get_nlp_info(Index& n, Index& m, Index& nnz_jac_g, Index& nnz_h_lag, TNLP::IndexStyleEnum& index_style);
 
@@ -127,9 +127,9 @@ public:
 
 	void finalize_solution(Bonmin::TMINLP::SolverReturn status, Index n, const Number* x, Number obj_value);
 
-	const Bonmin::TMINLP::BranchingInfo* branchingInfo() const;
+	const Bonmin::TMINLP::BranchingInfo* branchingInfo() const { return NULL; }
 
-	const Bonmin::TMINLP::SosInfo* sosConstraints() const;
+	const Bonmin::TMINLP::SosInfo* sosConstraints() const { return NULL; }
 	
 }; // class QuadraticOrConvexApproximation 
 	

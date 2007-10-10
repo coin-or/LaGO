@@ -52,6 +52,8 @@ double GamsFunction::eval(const DenseVector& x) const {
 	G2DFUNCEVAL0(x.getElements(), &value, data->s,
 	data->instr+data->startIdx[connr]-1, &(data->numInstr[connr]), data->nlCons,
 	&dt, &numerr);
+
+//	clog << "Value of gams con. " << connr << " at " << x << " is " << value << endl;
 	
 	if (numerr) {
 		data->domain_violations+=numerr;
@@ -66,7 +68,7 @@ double GamsFunction::eval(const DenseVector& x) const {
 void GamsFunction::evalAndGradient(double& value, DenseVector& grad, const DenseVector& x) const {
 	int numerr=0;
 	double dt;
-
+	
 	G2DFUNCEVAL0(x.getElements(), &value, data->s,
 		data->instr+data->startIdx[connr]-1, &(data->numInstr[connr]), data->nlCons,
 		&dt, &numerr);
@@ -81,6 +83,8 @@ void GamsFunction::evalAndGradient(double& value, DenseVector& grad, const Dense
 	G2DREVERSEEVAL1(const_cast<double*>(x.getElements()), grad.getElements(), data->s, data->sbar,
 		data->instr+data->startIdx[connr]-1, &(data->numInstr[connr]), data->nlCons,
 		&dt, &numerr);
+
+//	clog << "Grad. of gams con. " << connr << " at " << x << " is " << grad << endl;
 
 	if (numerr) {
 		data->domain_violations+=numerr;
