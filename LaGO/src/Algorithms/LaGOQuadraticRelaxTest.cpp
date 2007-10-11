@@ -73,6 +73,7 @@ void QuadraticRelaxTest::run() {
 		solve_relax(quad);
 		
 		Bonmin::TMINLP::SolverReturn status=quad->getSolutionStatus();
+		cout << "Solution status: " << status << endl;
 		if (status!=Bonmin::TMINLP::SUCCESS) return;
 
 		DenseVector x(data.numVariables());
@@ -80,7 +81,7 @@ void QuadraticRelaxTest::run() {
 		cout << "Infeasibilities: " << endl;
 		for (int c=0; c<data.numConstraints(); ++c) {
 			double infeas=data.getConstraint(c).getInfeasibility(x);
-			if (infeas)
+			if (infeas>1e-4)
 				cout << data.getConstraint(c).name << ":\t " << infeas << endl;
 		}
 		cout << "Objective function value: " << data.getObjective().eval(x) << endl;

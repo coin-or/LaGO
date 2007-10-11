@@ -237,9 +237,9 @@ void Decomposition::createDecomposedFunctions(MINLPData::ObjCon& objcon, const D
 	if (nr_nonquad_components!=1) {
 		double val=objcon.origfuncNL->eval(myrefpoint);
 		if (nr_nonquad_components==0) { // function is quadratic
-			objcon.decompfuncConstant+=val;
+			objcon.decompfuncConstant-=val;
 		} else { // function has more then one nonquadratic block
-			objcon.decompfuncConstant+=(nr_nonquad_components-1)*val;
+			objcon.decompfuncConstant-=(nr_nonquad_components-1)*val;
 		}
 	}
 	

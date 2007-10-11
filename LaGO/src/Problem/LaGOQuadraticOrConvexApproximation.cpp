@@ -241,7 +241,7 @@ void QuadraticOrConvexApproximation::getSolution(DenseVector& x) const {
 
 
 void QuadraticOrConvexApproximation::print(ostream& out) const {
-	out << "Variables: " << numVariables() << "\t Constraints: " << numConstraints();
+	out << "Variables: " << numVariables() << "\t Constraints: " << numConstraints() << endl;
 	for (int i=0; i<data.numVariables(); ++i)
 		out << data.getVariable(i); 
 	for (int i=0; i<(int)blockfunc.size(); ++i) {
@@ -257,6 +257,7 @@ void QuadraticOrConvexApproximation::print(ostream& out) const {
 	out << endl;
 	
 	for (int c=0; c<numConstraints(); ++c) {
+		out << c << ": ";
 		if (c<data.numConstraints())
 			out << data.getConstraint(c).name;
 		else
@@ -272,7 +273,7 @@ void QuadraticOrConvexApproximation::print(ostream& out) const {
 	out << "Hessian sparsity elements: ";
 	for (map<pair<int,int>, int>::const_iterator it(sparsity_hessian.begin()); it!=sparsity_hessian.end(); ++it)
 		out << '(' << it->first.first << ',' << it->first.second << ") ";
-	out << endl;	 
+	out << endl;
 }
 
 void QuadraticOrConvexApproximation::initSparsityStructures() {
@@ -344,8 +345,12 @@ bool QuadraticOrConvexApproximation::get_variables_types(Index n, VariableType* 
 }
 
 bool QuadraticOrConvexApproximation::get_constraints_linearity(Index m, Ipopt::TNLP::LinearityType* const_types) {
-	for (int i=0; i<m; ++i)
-		const_types[i]=Ipopt::TNLP::NON_LINEAR;
+	for (int i=0; i<m; ++i) {
+		if (IsValid(conNonQuad[i]) || conQuad[i]->A->getNumNonzeros())
+			const_types[i]=Ipopt::TNLP::NON_LINEAR;
+		else
+			const_types[i]=Ipopt::TNLP::LINEAR;
+	}
 	return true;
 }
 
@@ -398,6 +403,8 @@ bool QuadraticOrConvexApproximation::eval_g(Index n, const Number* x, bool new_x
 		g[c]=conQuad[c]->eval(x_);
 		if (IsValid(conNonQuad[c]))
 			g[c]+=conNonQuad[c]->eval(x_);
+//		if (g[c]<con_lb[c] || g[c]>con_ub[c])
+//			clog << "Con. " << c << " violated: " << g[c] << "\t [" << con_lb[c] << ',' << con_ub[c] << ']' << endl;
 	}
 	return true;
 }
@@ -526,6 +533,20 @@ void QuadraticOrConvexApproximation::finalize_solution(Bonmin::TMINLP::SolverRet
 	solver_return=status;
 	if (x) solution.setVector(data.numVariables(), x);
 	solution_objective=obj_value;
+
+//	if (x) {
+//		clog << *this;
+//		DenseVector x_(n, x);
+//		clog << "final point: " << x_ << endl;
+//		for (int c=0; c<numConstraints(); ++c) {
+//			double val=conQuad[c]->eval(x_);
+//			if (IsValid(conNonQuad[c]))
+//				val+=conNonQuad[c]->eval(x_);
+//			if (val<con_lb[c]-1e-4 || val>con_ub[c]+1e-4) {
+//				clog << "Con. " << c << " violated: " << val << "\t [" << con_lb[c] << ',' << con_ub[c] << ']' << endl;
+//			}
+//		}
+//	}
 }
 
 } // namespace LaGO

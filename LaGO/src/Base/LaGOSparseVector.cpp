@@ -37,4 +37,11 @@ void SparseVectorCreator::addBlockVector(const SparseVector& v, const vector<int
 
 
 
+void SparseVector::scale(double factor) {
+	if (factor==1) return;
+	double* elements=getElements();
+	for (int i=getNumElements(); i; --i, ++elements)
+		*elements*=factor;
+}
+
 } // namespace LaGO

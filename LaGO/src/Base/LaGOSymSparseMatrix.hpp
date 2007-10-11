@@ -84,6 +84,10 @@ public:
 	const int* getRowIndices() const { return rowind; }
 	const int* getColIndices() const { return colind; }
 	int getNumNonzeros() const { return nz; }
+	
+	/** Multiplies all matrix elements with a value.
+	 */
+	void scale(double factor);
 
 	void addMultVector(DenseVector& y, const DenseVector& x, double a=1.) const;
 //	void addMultVector(SparseVector& y, const SparseVector& x, double a=1.) const;

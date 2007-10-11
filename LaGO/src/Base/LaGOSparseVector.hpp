@@ -28,6 +28,8 @@ public:
 	: CoinPackedVector(1, &index, &value, false)
 	{ }
 	
+	void scale(double factor);
+	
 	friend ostream& operator<<(ostream& out, const SparseVector& v) {
 		const int* ind=v.getIndices();
 		const double* el=v.getElements();

@@ -89,6 +89,13 @@ void SymSparseMatrix::set(const SymSparseMatrixCreator& creator) {
 	}
 }
 
+void SymSparseMatrix::scale(double factor) {
+	if (factor==1) return;
+	double* value_=value;
+	for (int i=nz; i; --i, ++value_)
+		*value_*=factor;
+}
+
 void SymSparseMatrix::addMultVector(DenseVector& y, const DenseVector& x, double a) const {
 	const int* rowind_=rowind;
 	const int* colind_=colind;

@@ -85,14 +85,14 @@ int QuadraticEstimation::computeImprovingEstimators(MINLPData& data, MINLPData::
 			double lowerest=func.evalUnderEstimator(refpoint_block);
 			clog << "lower est.: " << lowerest << '\t';
 			// skip new underestimator if gap is small
-			if ((origval-lowerest)<.1*origval) do_lower=false;
+			if ((origval-lowerest)<.1*CoinAbs(origval)) do_lower=false;
 		}
 		
 		if (do_upper) {
 			double upperest=func.evalOverEstimator(refpoint_block);			
 			clog << "upper est.: " << upperest << '\t';
 			// skip new overestimator if gap is small
-			if ((upperest-origval)<.1*origval) do_upper=false;
+			if ((upperest-origval)<.1*CoinAbs(origval)) do_upper=false;
 		}
 		
 		if ((!do_lower) && (!do_upper)) {
@@ -122,7 +122,8 @@ int QuadraticEstimation::computeImprovingEstimators(MINLPData& data, MINLPData::
 		if (do_upper) {
 			assert(IsValid(estimators.second));
 			func.overestimators.push_back(new QuadraticEstimator(estimators.second));
-			double upperest=func.evalOverEstimator(refpoint_block);
+//			double upperest=func.evalOverEstimator(refpoint_block);
+			double upperest=estimators.second->eval(refpoint_block);
 			clog << "new upper est.: " << upperest << '\t';
 			++count;
 		}
@@ -523,7 +524,7 @@ SmartPtr<QuadraticFunction> QuadraticEstimation::getEstimator(NonconvexFunction&
 //				}
 //			}
 		}
-		clog << 'v' << -maxviol << ' ';
+		clog << 'v' << -maxviol_unscaled << ' ';
 
 		if (maxviol_unscaled>best_violation || finished) {
 			best_violation=maxviol_unscaled;
@@ -583,6 +584,12 @@ SmartPtr<QuadraticFunction> QuadraticEstimation::getEstimator(NonconvexFunction&
 	quadfunc->A=best_A;
 	quadfunc->b=best_b;
 	quadfunc->constant=best_constant;
+	
+	if (!as_underestimator) {
+		quadfunc->A->scale(-1);
+		quadfunc->b->scale(-1);
+		quadfunc->constant*=-1;
+	}
 
 	return quadfunc;
 }
