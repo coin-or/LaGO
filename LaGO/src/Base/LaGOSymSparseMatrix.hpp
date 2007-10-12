@@ -45,6 +45,8 @@ public:
 	/** Adds all elements in upper diagonal part into lower diagonal part.
 	 */
 	void cleanUpperDiagonal();
+	
+	void cleanTinyElements(double tol=getTinyTol());
 
 }; // SymSparseMatrixCreator
 

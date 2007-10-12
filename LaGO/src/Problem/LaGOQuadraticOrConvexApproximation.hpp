@@ -99,6 +99,8 @@ public:
 	
 	Bonmin::TMINLP::SolverReturn getSolutionStatus() const { return solver_return; }
 	
+	double getSolutionValue() const { return solution_objective; }
+	
 	void getSolution(DenseVector& x) const;
 
 	bool get_nlp_info(Index& n, Index& m, Index& nnz_jac_g, Index& nnz_h_lag, TNLP::IndexStyleEnum& index_style);
@@ -130,7 +132,7 @@ public:
 	const Bonmin::TMINLP::BranchingInfo* branchingInfo() const { return NULL; }
 
 	const Bonmin::TMINLP::SosInfo* sosConstraints() const { return NULL; }
-	
+		
 }; // class QuadraticOrConvexApproximation 
 	
 } // namespace LaGO

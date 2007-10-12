@@ -120,6 +120,9 @@ public:
 
 	pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > computeAdditionalEstimator(NonconvexFunction& func, const DenseVector& lower, const DenseVector& upper, SampleSet::iterator enforce_tightness, bool do_lower, bool do_upper);
 	
+	void testEstimators(const MINLPData& data) const;
+	
+	void testEstimator(const Function& orig, const QuadraticFunction& estimator, bool is_underestimator, const DenseVector& lower, const DenseVector& upper) const;   
 }; // class QuadraticEstimation
 	
 } // namespace LaGO

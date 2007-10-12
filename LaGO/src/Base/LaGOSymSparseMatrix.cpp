@@ -64,6 +64,18 @@ void SymSparseMatrixCreator::cleanUpperDiagonal() {
 	}
 }
 
+void SymSparseMatrixCreator::cleanTinyElements(double tol) {
+	iterator it(begin());
+	while (it!=end()) {
+		if (CoinAbs(it->second)<tol) {
+			iterator next(it); ++next;
+			erase(it);
+			it=next;
+		} else
+			++it;
+	}	
+}
+
 
 SymSparseMatrix::~SymSparseMatrix() {
 	delete[] value;

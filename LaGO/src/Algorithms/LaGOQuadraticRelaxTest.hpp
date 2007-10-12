@@ -32,7 +32,8 @@ private:
 	
 	void preprocessing();
 
-	void solve_relax(SmartPtr<QuadraticOrConvexApproximation> quad);
+	bool solveMINLPRelax(SmartPtr<QuadraticOrConvexApproximation> quad);
+	bool solveNLPRelax(SmartPtr<QuadraticOrConvexApproximation> quad);
 	
 public:
 	QuadraticRelaxTest(MINLPData& data_);

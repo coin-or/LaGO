@@ -636,5 +636,38 @@ bool QuadraticEstimation::doLocMin(SmartPtr<BoxMinimizationProblem>& prob, Nonco
 	return true;
 }
 
+void QuadraticEstimation::testEstimators(const MINLPData& data) const {
+	for (int c=0; c<=data.numConstraints(); ++c) {
+		const MINLPData::ObjCon& objcon(c<data.numConstraints() ? (MINLPData::ObjCon)data.con[c] : (MINLPData::ObjCon)data.obj);
+		for (int k=0; k<(int)objcon.decompfuncNL.size(); ++k) {
+			const BlockFunction& blockfunc(*objcon.decompfuncNL[k]);
+			if (IsNull(blockfunc.nonquad)) continue;
+			DenseVector low, up;
+			data.getBox(low, up, blockfunc.indices);
+			for (list<SmartPtr<QuadraticEstimator> >::const_iterator it(blockfunc.underestimators.begin()); it!=blockfunc.underestimators.end(); ++it)
+				testEstimator(*blockfunc.nonquad, *(*it)->func, true, low, up);
+			for (list<SmartPtr<QuadraticEstimator> >::const_iterator it(blockfunc.overestimators.begin()); it!=blockfunc.overestimators.end(); ++it)
+				testEstimator(*blockfunc.nonquad, *(*it)->func, false, low, up);
+		}
+	}
+}
+	
+void QuadraticEstimation::testEstimator(const Function& orig, const QuadraticFunction& estimator, bool is_underestimator, const DenseVector& lower, const DenseVector& upper) const {
+	DenseVector x;
+	for (int i=0; i<20; ++i) {
+		x.setRandom(lower, upper);
+		double origval=orig.eval(x);
+		double estval=estimator.eval(x);
+		double diff=(origval-estval)/(1+CoinAbs(origval));
+		if (is_underestimator) diff*=-1;
+		if (diff>1e-4) {
+			cerr << "QuadraticEstimation test: " << (is_underestimator ? "underestimator" : "overestimator") << " of function " << orig << endl;
+//			cerr << "\t Estimator: " << estimator << endl;
+			cerr << "\t Violation by rel. dist. " << diff << "\t origval: " << origval << "\t estval: " << estval << endl;
+		}
+	}
+	
+}   
+
 
 } // namespace LaGO
