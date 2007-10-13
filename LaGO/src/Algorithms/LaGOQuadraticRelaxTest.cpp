@@ -40,7 +40,8 @@ void QuadraticRelaxTest::preprocessing() {
 	
 	curvcheck.computeCurvature();
 	
-	quadest.computeEstimators(data);
+	int count=quadest.computeEstimators(data);
+	cout << "Number of quadratic estimators computed: " << count << endl; 
 	
 	if (guess.numGuessedBounds())
 		convexify.convexify(guess.bound_is_guessed);
@@ -59,9 +60,18 @@ bool QuadraticRelaxTest::solveMINLPRelax(SmartPtr<QuadraticOrConvexApproximation
 	bb(bonmin_setup);	
 
 	Bonmin::TMINLP::SolverReturn status=quad->getSolutionStatus();
-	if (status!=Bonmin::TMINLP::SUCCESS)
-		clog << "Bonmin return: " << status << endl;
-	return (status==Bonmin::TMINLP::SUCCESS);
+	switch (status) {
+		case Bonmin::TMINLP::LIMIT_EXCEEDED:
+			clog << "Bonmin: some limit exceeded." << endl;
+			if (!bb.bestSolution())
+				return false;
+		case Bonmin::TMINLP::SUCCESS:
+			clog << "Bonmin best bound: " << bb.bestBound() << endl;
+			return true;
+		default:
+			clog << "Bonmin failed. Status: " << status << endl;
+			return false;
+	}
 }
 
 bool QuadraticRelaxTest::solveNLPRelax(SmartPtr<QuadraticOrConvexApproximation> quad) {
@@ -97,7 +107,7 @@ void QuadraticRelaxTest::run() {
 		bool success=solveMINLPRelax(quad);
 		cout << "Solved: " << success << endl;
 		if (!success) {
-			cout << *quad;
+//			cout << *quad;
 			break;
 		} 
 
@@ -109,8 +119,8 @@ void QuadraticRelaxTest::run() {
 			if (infeas>1e-4)
 				cout << data.getConstraint(c).name << ":\t " << infeas << endl;
 		}
-		cout << "Relaxation optimal value: " << quad->getSolutionValue() << endl;
-		cout << "Original objective function value: " << data.getObjective().eval(x) << endl;
+		cout << "Iteration " << iter << "\t Relaxation optimal value: " << quad->getSolutionValue() << endl;
+		cout << "Iteration " << iter << "\t Original objective function value: " << data.getObjective().eval(x) << endl;
 		
 		if (++iter>3) {
 			cout << "Stop after " << iter << " iterations." << endl;
@@ -118,7 +128,7 @@ void QuadraticRelaxTest::run() {
 		}
 
 		nr_new_estimators=quadest.computeImprovingEstimators(data, x);
-		cout << "Number of generated estimators: " << nr_new_estimators << endl; 
+		cout << "Iteration " << iter << "\t Number of generated estimators: " << nr_new_estimators << endl; 
 
 		if (nr_new_estimators) {
 			if (guess.numGuessedBounds())

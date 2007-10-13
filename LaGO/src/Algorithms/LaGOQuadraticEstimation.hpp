@@ -97,14 +97,14 @@ private:
 public:
 	QuadraticEstimation();
 	
-	void computeEstimators(MINLPData& data);
+	int computeEstimators(MINLPData& data);
 	
 	/** Computes additional quadratic under- and overestimators for nonquad. terms.
 	 * @return The number of computed estimators.
 	 */
 	int computeImprovingEstimators(MINLPData& data, const DenseVector& refpoint);
 
-	void computeEstimators(MINLPData& data, MINLPData::ObjCon& objcon, bool need_lower, bool need_upper);
+	int computeEstimators(MINLPData& data, MINLPData::ObjCon& objcon, bool need_lower, bool need_upper);
 
 	int computeImprovingEstimators(MINLPData& data, MINLPData::ObjCon& objcon, const DenseVector& refpoint, bool need_lower, bool need_upper);
 

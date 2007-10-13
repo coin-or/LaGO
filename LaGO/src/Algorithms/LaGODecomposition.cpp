@@ -37,9 +37,23 @@ void Decomposition::decompose(MINLPData::ObjCon& objcon) {
 	DenseVector lower(nonzeros.size());
 	DenseVector upper(nonzeros.size());
 	data.getBox(lower, upper, nonzeros);
-	
+
 	// generate sample points (w.r.t. origfuncNL->sparsity)
 	assert(!data.start_points.empty());
+
+	bool allfixed=true;
+	for (int i=0; i<(int)nonzeros.size() && allfixed; ++i)
+		if (lower[i]!=upper[i]) allfixed=false;
+	if (allfixed) {
+		cout << "Warning: All variables in nonlinear part of function " << objcon.name << " are fixed. Replacing with constant." << endl;
+		objcon.origfuncConstant+=objcon.origfuncNL->eval(data.start_points.front());
+		objcon.origfuncNL=NULL;
+		objcon.decompfuncLin=objcon.origfuncLin;
+		objcon.decompfuncConstant=objcon.origfuncConstant;
+		objcon.sparsitygraph=new SparsityGraph(0,0);
+		return;
+	}
+
 	SampleSet samplepoints; 
 	samplepoints.addVector(data.start_points, true);
 	
@@ -48,11 +62,12 @@ void Decomposition::decompose(MINLPData::ObjCon& objcon) {
 	if (IsNull(objcon.sparsitygraph)) {
 		Sampling sampling;
 		sampling.monteCarlo(samplepoints, data.start_points.front(), nonzeros, lower, upper, 20); 
-		computeSparsityGraph(objcon, lin_nonzeros, samplepoints, nonzeros);
+		computeSparsityGraph(objcon, lin_nonzeros, samplepoints, nonzeros, allfixed);
 	} else {
 		cerr << "Not implemented yet: Filling of lin_nonzeros = nonzeros - nodes in graph" << endl;
 		exit(EXIT_FAILURE);
 	}
+
 	SparsityGraph& graph(*objcon.sparsitygraph);
 //	clog << "Sparsity graph for constraint " << objcon.name << ": " << endl << *objcon.sparsitygraph;
 
@@ -76,7 +91,7 @@ void Decomposition::decompose(MINLPData::ObjCon& objcon) {
 }
 
 
-void Decomposition::computeSparsityGraph(MINLPData::ObjCon& objcon, list<int>& lin_nonzeros, SampleSet& samplepoints, const vector<int>& nonzeros) {
+void Decomposition::computeSparsityGraph(MINLPData::ObjCon& objcon, list<int>& lin_nonzeros, SampleSet& samplepoints, const vector<int>& nonzeros, bool allfixed) {
 	SmartPtr<SparsityGraph> graph=new SparsityGraph(nonzeros.size(), 2*nonzeros.size());
 	vector<SparsityGraph::iterator> nodeits(nonzeros.size(), graph->end());
 
@@ -121,8 +136,8 @@ void Decomposition::computeSparsityGraph(MINLPData::ObjCon& objcon, list<int>& l
 		e[nonzeros[i]]=0.;
 	}
 	
-	if (samplepoints.size()<2) {
-		cerr << "Not enough sample points to generate a reliable sparsity graph." << endl;
+	if (samplepoints.size()<2 && !allfixed) {
+		cerr << "Not enough sample points to generate a reliable sparsity graph of function " << objcon.name << endl;
 		exit(EXIT_FAILURE);   		
 	}
 
