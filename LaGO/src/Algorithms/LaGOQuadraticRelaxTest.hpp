@@ -36,10 +36,11 @@ private:
 	bool solveNLPRelax(SmartPtr<QuadraticOrConvexApproximation> quad);
 	
 public:
+	DenseVector solution_candidate;
+
 	QuadraticRelaxTest(MINLPData& data_);
 
 	void run();
-	
 }; // class QuadraticRelaxTest	
 	
 } // namespace LaGO

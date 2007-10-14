@@ -12,9 +12,11 @@
 namespace LaGO {
 
 class MINLPData;
+class GamsSolver;
 
 class GamsReader {
 	friend class GamsFunction;
+	friend class GamsSolver;
 private:
 	class Data : public ReferencedObject {
 	public:
@@ -56,6 +58,10 @@ private:
 	int objcon, objvar;
 	bool is_minimization;
 	bool reformed;
+	
+	// used by GamsSolver
+	int* con_types;
+	double* con_rhs;
 
 	SmartPtr<Data> data;
 

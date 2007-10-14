@@ -10,7 +10,7 @@ AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST =
 
 lib_LTLIBRARIES = libLaGOInterfaceGams.la
-libLaGOInterfaceGams_la_SOURCES = LaGOGamsReader.cpp LaGOGamsFunction.cpp
+libLaGOInterfaceGams_la_SOURCES = LaGOGamsReader.cpp LaGOGamsFunction.cpp LaGOGamsSolver.cpp
 
 include_HEADERS = LaGOGamsFunction.hpp LaGOGamsReader.hpp
 

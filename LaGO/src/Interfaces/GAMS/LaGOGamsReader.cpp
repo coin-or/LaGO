@@ -39,7 +39,7 @@ extern "C" {
 }
 
 GamsReader::GamsReader()
-: obj_factor(1), is_minimization(true), reformed(true)
+: obj_factor(1), is_minimization(true), reformed(true), con_types(NULL), con_rhs(NULL)
 { data=new Data();
 //#ifdef GDX_AVAILABLE
 //	char* errormsg=new char[128];
@@ -53,6 +53,8 @@ GamsReader::GamsReader()
 
 GamsReader::~GamsReader() {
 	gfclos();
+	delete[] con_types;
+	delete[] con_rhs;
 }
 
 char* GamsReader::getRowName(struct dictRec* dict, int gi, char *name, int bufLen) {
@@ -213,9 +215,13 @@ SmartPtr<MINLPData> GamsReader::getProblem(char* cntr_file) {
 	// reading row informations
 	vector<double> conlhs(numrow, -getInfinity()); // lower bounds of constraints
 	vector<double> conrhs(numrow,  getInfinity()); // upper bounds of constraints
+	con_types=new int[numrow];
+	con_rhs=new double[numrow];
 	rowRec_t rowdata;
 	for (int c=0; c<numrow; c++) {
 		cioReadRow(&rowdata);
+		con_rhs[c]=rowdata.rdata[2];
+		con_types[c]=rowdata.idata[1];
 		switch (rowdata.idata[1]) {
 			case 0: // equality
 				conlhs[c]=rowdata.rdata[2];

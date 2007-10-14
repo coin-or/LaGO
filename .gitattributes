@@ -58,6 +58,8 @@ LaGO/src/Interfaces/GAMS/LaGOGamsFunction.cpp -text
 LaGO/src/Interfaces/GAMS/LaGOGamsFunction.hpp -text
 LaGO/src/Interfaces/GAMS/LaGOGamsReader.cpp -text
 LaGO/src/Interfaces/GAMS/LaGOGamsReader.hpp -text
+LaGO/src/Interfaces/GAMS/LaGOGamsSolver.cpp -text
+LaGO/src/Interfaces/GAMS/LaGOGamsSolver.hpp -text
 LaGO/src/Interfaces/GAMS/Makefile.am -text
 LaGO/src/Interfaces/GAMS/Makefile.in -text
 LaGO/src/Interfaces/LaGOOsiSolver.cpp -text

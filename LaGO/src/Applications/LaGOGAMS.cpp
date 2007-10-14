@@ -7,6 +7,7 @@
 #include "LaGObase.hpp"
 #include "LaGOMINLPData.hpp"
 #include "LaGOGamsReader.hpp"
+#include "LaGOGamsSolver.hpp"
 #include "LaGOAlgorithm.hpp"
 #include "LaGOQuadraticRelaxTest.hpp"
 
@@ -25,6 +26,23 @@ int main(int argc, char** argv) {
 //	Algorithm alg(*prob);
 	QuadraticRelaxTest alg(*prob);
 	alg.run();
+	
+	// run NLP solver if we have a startpoint
+	if (alg.solution_candidate.size()) {
+		DenseVector lower, upper;
+		prob->getBox(lower, upper);
+
+		GamsSolver solver(interface, prob->getDiscrVariables());
+		solver.setBounds(lower, upper);
+		solver.setStartPoint(alg.solution_candidate);
+		bool success=solver.callSolver();
+		if (success) {
+			clog << "GamsSolver returned with model status " << solver.getModelStatus() << " and solver status " << solver.getSolverStatus() << endl;
+			clog << "GamsSolver reports optimal value " << solver.getOptimalValue() << endl;
+		} else {
+			cerr << "Failure in calling GamsSolver." << endl;
+		}
+	}
 	
 	// write solution file
 

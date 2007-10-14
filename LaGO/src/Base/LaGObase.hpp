@@ -39,7 +39,7 @@ namespace LaGO {
 inline double getInfinity() { return 1E+300; }
 inline double getTinyTol() { return 1E-10; }
 
-//inline double round(const double& x) { return ::round(x); }
+inline double closestInteger(const double& x) { return ::round(x); }
 inline double roundUp(const double& x) { return ceil(x); }
 inline double roundDown(const double& x) { return floor(x); }
 inline double integralityViolation(const double& x) { return CoinAbs(x-round(x)); }

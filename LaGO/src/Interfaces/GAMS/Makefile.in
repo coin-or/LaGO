@@ -77,7 +77,7 @@ libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libLaGOInterfaceGams_la_LIBADD =
 am_libLaGOInterfaceGams_la_OBJECTS = LaGOGamsReader.lo \
-	LaGOGamsFunction.lo
+	LaGOGamsFunction.lo LaGOGamsSolver.lo
 libLaGOInterfaceGams_la_OBJECTS =  \
 	$(am_libLaGOInterfaceGams_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
@@ -281,7 +281,7 @@ target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST = $(am__append_1)
 lib_LTLIBRARIES = libLaGOInterfaceGams.la
-libLaGOInterfaceGams_la_SOURCES = LaGOGamsReader.cpp LaGOGamsFunction.cpp
+libLaGOInterfaceGams_la_SOURCES = LaGOGamsReader.cpp LaGOGamsFunction.cpp LaGOGamsSolver.cpp
 include_HEADERS = LaGOGamsFunction.hpp LaGOGamsReader.hpp
 AM_CPPFLAGS = $(GAMSIO_CPPFLAGS) \
  $(FILIB_CPPFLAGS) \
@@ -369,6 +369,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOGamsFunction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOGamsReader.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOGamsSolver.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \

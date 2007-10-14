@@ -60,6 +60,8 @@ bool QuadraticRelaxTest::solveMINLPRelax(SmartPtr<QuadraticOrConvexApproximation
 	bb(bonmin_setup);	
 
 	Bonmin::TMINLP::SolverReturn status=quad->getSolutionStatus();
+	if (bb.bestSolution())
+		solution_candidate.setVector(data.numVariables(), bb.bestSolution());
 	switch (status) {
 		case Bonmin::TMINLP::LIMIT_EXCEEDED:
 			clog << "Bonmin: some limit exceeded." << endl;
@@ -86,6 +88,10 @@ bool QuadraticRelaxTest::solveNLPRelax(SmartPtr<QuadraticOrConvexApproximation> 
 	Ipopt::ApplicationReturnStatus status=ipopt.OptimizeTNLP(GetRawPtr(nlp));
 	if (status!=Ipopt::Solve_Succeeded)
 		clog << "Ipopt return: " << status << endl;
+	else {
+		solution_candidate.resize(data.numVariables());
+		quad->getSolution(solution_candidate);
+	}
 	return (status==Ipopt::Solve_Succeeded);
 }
 
