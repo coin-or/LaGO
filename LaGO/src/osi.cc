@@ -126,6 +126,9 @@ bool OSISolver::lastpoint_feasible() {
 }
 
 MIPSolver::SolutionStatus OSISolver::solve() {
+#ifndef CPLEX_AVAILABLE
+	osisolver->messageHandler()->setLogLevel(0);
+#endif
 	if (cold_start) {
 		osisolver->initialSolve();
 		cold_start=false;
