@@ -332,127 +332,181 @@ AC_CHECK_FILE([$use_filib/interval/interval/interval.hpp],
 
 AM_CONDITIONAL([COIN_HAS_FILIB],[test "$coin_has_filib" = yes])
 
+###############
+# GAMS SYSTEM #
+###############
+
+AC_ARG_WITH([gamssystem],
+  AC_HELP_STRING([--with-gamssystem],[specify directory of GAMS distribution]),
+  AC_CHECK_FILE([$withval/gams],[use_gamssys=$withval],[use_gamssys=]),
+  [AC_PATH_PROG(gamspath, [gams],,,)
+   use_gamssys=${gamspath/%gams/}
+  ])
+GAMS_PATH=$use_gamssys
+
 ####################
 # GAMS I/O LIBRARY #
 ####################
 
 # This macro checks for a library containing the GAMS I/O library.
-# It adds to ADDLIBS any flags required to link with an externally provided
-# GAMS I/O.  It defines the makefile conditional and preprocessor macro
+# It defines the makefile conditional and preprocessor macro
 # COIN_HAS_GAMSIO, if GAMS I/O is available.
 
 GAMSIO_CODE=unsupportedarchitecture
-case $build in
-  x86_64-*-linux-*)
-      GAMSIO_CODE=LEI
+
+AC_ARG_WITH([gamsio-code],
+  AC_HELP_STRING([--with-gamsio-code],[specify the GAMS I/O code used to identify the GAMS I/O libraries types]),
+  [GAMSIO_CODE=$withval],
+  [case $build in
+      x86_64-*-linux-*)
+        GAMSIO_CODE=LEI
+      ;;
+      i?86-*-linux-*)
+        GAMSIO_CODE=LX3
+      ;;
+      *-cygwin* | *-mingw*)
+        GAMSIO_CODE=VIS
+      ;;
+      i?86-*-darwin*)
+        GAMSIO_CODE=DII
+      ;;
+      i?86-*-solaris*)
+        GAMSIO_CODE=SIG
+      ;;
+      *)
+        AC_MSG_WARN([Build type $build not supported by GAMS I/O libraries.])
+  esac]
+)
+
+case $GAMSIO_CODE in
+  LEI)
       gamsio_system=Linux
     ;;
-  i?86-*-linux-*)
-      GAMSIO_CODE=LX3
+  LX3)
       gamsio_system=Linux
     ;;
-#  *-cygwin* | *-mingw*)
-#      GAMSIO_CODE=VIS
-#      gamsio_system=Windows
-#    ;;
-#  *-darwin*)
-#      GAMSIO_CODE=DAR
-#      gamsio_system=Darwin
-#    ;;
+  VIS)
+      gamsio_system=Windows
+    ;;
+  DII)
+      gamsio_system=Darwin
+    ;;
+  SIG)
+      gamsio_system=Solaris
+    ;;
+  *)
+      AC_MSG_WARN([GAMS I/O libraries with system code $GAMSIO_CODE not supported.])
 esac
 
-coin_gamsioobjdir=../ThirdParty/GAMS_IO/$GAMSIO_CODE
-coin_gamsiosrcdir=$abs_source_dir/$coin_gamsioobjdir
-
-#coin_gamsioobjdir=../ThirdParty/GAMS_IO
-#coin_gamsiosrcdir=$abs_source_dir/$coin_gamsioobjdir
-
-#if user provided GAMS I/O libraries, use this one, otherwise check ThirdParty/COIN_IO directory
-AC_ARG_WITH([gamsio],
-            AC_HELP_STRING([--with-gamsio],
-                           [specify directory of GAMS I/O libraries and header files]),
-            [use_gamsio=$withval],
-	          [AC_CHECK_FILE([$coin_gamsiosrcdir/iolib.h],[use_gamsio=$coin_gamsiosrcdir],[use_gamsio=])]  )
-						
-# Check if GAMS I/O libs work
-if test x"$use_gamsio" != x; then
-
-  #but first, we also need a GAMS system
-	AC_ARG_WITH([gamssystem],
-            AC_HELP_STRING([--with-gamssystem],
-                           [specify directory of GAMS distribution]),
-            [use_gamssys=$withval],
-						[AC_PATH_PROG(gamspath, [gams],,,)
-						 use_gamssys=${gamspath/%gams/}
-             if test x"$use_gamssys" != x; then
-               AC_MSG_NOTICE([found GAMS system at $use_gamssys])
-						 else
-               AC_MSG_NOTICE([no GAMS system found])
-						 fi
-						])
-	
-	if test x"$use_gamssys" != x; then
-		AC_MSG_CHECKING([whether GAMS I/O libraries at $use_gamsio and $use_gamssys works])
-		if test x"$GAMSIO_CODE" = xLX3; then
-		  GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/gdxwrap.o $use_gamsio/libg2d.a -ldl -L$use_gamssys -lifcore -limf"
-		elif test x"$GAMSIO_CODE" = xLEI; then
-		  GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/gdxwrap.o $use_gamsio/libg2d.a -ldl -L$use_gamssys -lifcore -limf -lirc"
-		fi
-#		GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/gdxwrap.o -L$use_gamsio -lg2d -ldl -L$use_gamssys -lifcore -limf"
-		LIBS="$GAMSIO_LIBS $LIBS"
-		CPPFLAGS="-I$use_gamsio $CPPFLAGS"
-		AC_TRY_LINK([
-#include <cstdio>
-#include "iolib.h"], [gfinit()],
-											[AC_MSG_RESULT([yes])
-											ADDLIBS="$GAMSIO_LIBS $ADDLIBS"],
-											[AC_MSG_RESULT([no])
-											AC_MSG_ERROR([GAMS I/O library $use_gamsio does not work])])
-  else
- 		use_gamsio=
-  fi
+#Intel Fortran libraries (required for Linux systems when not compiling with Intel compiler)
+IFORT_LIBS=
+if test x"$gamsio_system" = xLinux; then
+	case "$CXX" in
+		icpc* | */icpc*)
+			;;
+		*)
+		  AC_ARG_WITH([ifort-libdir],
+        AC_HELP_STRING([--with-ifort-libdir],[specify directory of Intel Fortran libraries]),
+        AC_CHECK_FILE([$withval/libifcore.so],[IFORT_LIBS="-L$withval"],),
+        [if test x"$use_gamssys" != x; then
+          AC_CHECK_FILE([$use_gamssys/libifcore.so],[IFORT_LIBS="-L$use_gamssys"],)
+         else
+          AC_MSG_WARN([Path for Intel Fortran Libraries not given by --with-ifort-libdir and no GAMS system available. GAMS I/O libraries might fail to link.])
+         fi
+        ])
+      IFORT_LIBS="$IFORT_LIBS -lifcore -limf -lirc"
+	esac
 fi
 
-AM_CONDITIONAL([COIN_HAS_GAMSIO],[test x"$use_gamsio" != x])
+coin_gamsioobjdir=../ThirdParty/GAMSIO/$GAMSIO_CODE
+coin_gamsiosrcdir=`$CYGPATH_W $abs_source_dir/$coin_gamsioobjdir | sed -e sX\\\\\\\\X/Xg`
+
+#if user provided GAMS I/O libraries, use this one, otherwise check ThirdParty/GAMSIO directory
+AC_ARG_WITH([gamsio],
+  AC_HELP_STRING([--with-gamsio],[specify directory of GAMS I/O libraries and header files]),
+  [use_gamsio=$withval],
+  [AC_CHECK_FILE([$coin_gamsiosrcdir/iolib.h],[use_gamsio=$coin_gamsiosrcdir],[use_gamsio=])])
 
 if test x"$use_gamsio" = x; then
   coin_has_gamsio=no
-else
-  coin_has_gamsio=yes
-  AC_DEFINE([COIN_HAS_GAMSIO],[1],
-            [If defined, the GAMS I/O Library is available.])
-fi
-AC_SUBST(coin_has_gamsio)
+  coin_has_gamscplexlice=no
+	AC_MSG_WARN([no GAMS I/O libraries found.])
+else  # Check if GAMS I/O libs work
+	AC_MSG_CHECKING([whether GAMS I/O libraries at $use_gamsio work])
+	if test x"$GAMSIO_CODE" = xLX3; then
+	  GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a -ldl $IFORT_LIBS"
+	  SMAG_LIBS="$use_gamsio/clicelib.a $use_gamsio/libsmag.a $use_gamsio/gclib.a $use_gamsio/libg2d.a -ldl $IFORT_LIBS"
+	elif test x"$GAMSIO_CODE" = xLEI; then
+	  GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a -ldl $IFORT_LIBS"
+	  SMAG_LIBS="$use_gamsio/clicelib.a $use_gamsio/libsmag.a $use_gamsio/gclib.a $use_gamsio/libg2d.a -ldl $IFORT_LIBS"
+	elif test x"$gamsio_system" = xWindows; then
+	  GAMSIO_LIBS="$use_gamsio/iolib.lib $use_gamsio/nliolib.lib $use_gamsio/clicelib.lib $use_gamsio/gclib.lib"
+	  SMAG_LIBS="$use_gamsio/clicelib.lib $use_gamsio/smag.lib $use_gamsio/gclib.lib $use_gamsio/g2d.lib"
+	elif test x"$GAMSIO_CODE" = xDII; then
+	  GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a -ldl -lSystemStubs"
+	  SMAG_LIBS="$use_gamsio/clicelib.a $use_gamsio/libsmag.a $use_gamsio/gclib.a $use_gamsio/libg2d.a -ldl -lSystemStubs"
+	elif test x"$GAMSIO_CODE" = xSIG; then
+	  GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a"
+	  SMAG_LIBS="$use_gamsio/clicelib.a $use_gamsio/libsmag.a $use_gamsio/gclib.a $use_gamsio/libg2d.a"
+	fi
+	GAMSIO_CPPFLAGS="-I$use_gamsio"
+	LIBS="$GAMSIO_LIBS $LIBS"
+	CPPFLAGS_save=$CPPFLAGS
+	CPPFLAGS="$GAMSIO_CPPFLAGS $CPPFLAGS"
+	AC_TRY_LINK([
+#include <cstdio>
+#include "iolib.h"], [gfinit()],
+  	[AC_MSG_RESULT([yes])
+   	LIBS=$LIBS_without_ADDLIBS
+   	CPPFLAGS=$CPPFLAGS_save],
+  	[AC_MSG_RESULT([no])
+   	AC_MSG_ERROR([GAMS I/O library $use_gamsio does not work])])
 
-#check for libgamscplexlice
-if test x"$coin_has_gamsio" = xyes; then
-	if test x"$coin_has_cpx" = xtrue; then
-		AC_LANG_PUSH(C)						
+
+	coin_has_gamsio=yes
+	AC_DEFINE([COIN_HAS_GAMSIO],[1],[If defined, the GAMS I/O Library is available.])
+	AC_SUBST(coin_has_gamsio)
+	AC_SUBST(GAMS_PATH)
+	AC_SUBST(SMAG_LIBS)
+	AC_SUBST(GAMSIO_CODE)
+
+	#check for libgamscplexlice
+	if test x"$coin_has_gamsio" = xyes; then
+		if test x"$coin_has_cpx" = xtrue; then
+			AC_LANG_PUSH(C)						
 	
-		AC_MSG_CHECKING([whether GAMS/CPLEX licence library is present and working])
-		coin_save_libs=$LIBS
-		LIBS="$use_gamsio/libgamscplexlice.a $LIBS $CPXLIB"
-		AC_TRY_LINK([#include "gamscplexlice.h"], [gamscplexlice(0,0,0,0,0,0,0,0,0,0,0,0,0)],
-	  	          [AC_MSG_RESULT([yes])
-                 coin_has_gamscplexlice=yes
-                 ADDLIBS="$use_gamsio/libgamscplexlice.a $ADDLIBS"
-		             AC_DEFINE([COIN_HAS_GAMSCPLEXLICE],[1],[If defined, the GAMS/CPLEX licence library is available.])
-                ],
-      	        [AC_MSG_RESULT([no])
-                 coin_has_gamscplexlice=no
-	            	 LIBS=$coin_save_libs]);
-
-		AC_LANG_POP(C)
-		
+			AC_MSG_CHECKING([whether GAMS/CPLEX licence library is present and working])
+			coin_save_libs=$LIBS
+			coin_save_cppflags=$CPPFLAGS
+			CPPFLAGS="$GAMSIO_CPPFLAGS $CPPFLAGS"
+			LIBS="$use_gamsio/libgamscplexlice.a $LIBS $CPXLIB $GAMSIO_LIBS"
+			AC_TRY_LINK([#include "gamscplexlice.h"], [gamscplexlice(0,0,0,0,0,0,0,0,0,0,0,0,0)],
+	  		          [AC_MSG_RESULT([yes])
+        	         coin_has_gamscplexlice=yes
+        	         GAMSIO_LIBS="$use_gamsio/libgamscplexlice.a $GAMSIO_LIBS"
+		        	     AC_DEFINE([COIN_HAS_GAMSCPLEXLICE],[1],[If defined, the GAMS/CPLEX licence library is available.])
+              	  ],
+      	        	[AC_MSG_RESULT([no])
+                 	coin_has_gamscplexlice=no]
+                 );
+			LIBS=$coin_save_libs
+			CPPFLAGS=$coin_save_cppflags
+			AC_LANG_POP(C)
+		else
+			coin_has_gamscplexlice=no
+		fi
 	else
 		coin_has_gamscplexlice=no
 	fi
-else
-	coin_has_gamscplexlice=no
+
+	AC_SUBST(GAMSIO_CPPFLAGS)
+	AC_SUBST(GAMSIO_LIBS)
 fi
 
+AM_CONDITIONAL([COIN_HAS_GAMSIO],[test x"$use_gamsio" != x])
 AM_CONDITIONAL([COIN_HAS_GAMSCPLEXLICE],[test "$coin_has_gamscplexlice" = yes])
-
+AM_CONDITIONAL([GAMSIO_IS_UNIX],[test x"$gamsio_system" != xWindows])
+AM_CONDITIONAL([GAMSIO_IS_WINDOWS],[test x"$gamsio_system" = xWindows])
 
 #######################
 # AMPL SOLVER LIBRARY #
