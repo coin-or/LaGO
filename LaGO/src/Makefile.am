@@ -53,7 +53,7 @@ LaGO_LDFLAGS = $(ADDLIBS) -rpath $(libdir)
 
 if COIN_HAS_GAMSIO
 LaGO_SOURCES += gams.cc gams.h preprocessapi.h
-LaGO_LDADD += $(GAMSIO_LIBS)
+LaGO_LDADD += $(GAMSIO_LIBS) $(LAGOOBJDIR)/../ThirdParty/GAMSIO/libGamsGDX.la
 AM_CPPFLAGS += $(GAMSIO_CPPFLAGS)
 
 lib_LTLIBRARIES = libgamspreprocess.la

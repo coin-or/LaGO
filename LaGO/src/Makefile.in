@@ -67,7 +67,7 @@ bin_PROGRAMS = LaGO$(EXEEXT)
 @COIN_HAS_CPX_FALSE@am__append_5 = $(CLPOBJDIR)/src/libClp.la $(OSIOBJDIR)/src/OsiClp/libOsiClp.la
 @COIN_HAS_CPX_FALSE@am__append_6 = `cat $(CLPOBJDIR)/clp_addlibs.txt`
 @COIN_HAS_GAMSIO_TRUE@am__append_7 = gams.cc gams.h preprocessapi.h
-@COIN_HAS_GAMSIO_TRUE@am__append_8 = $(GAMSIO_LIBS)
+@COIN_HAS_GAMSIO_TRUE@am__append_8 = $(GAMSIO_LIBS) $(LAGOOBJDIR)/../ThirdParty/GAMSIO/libGamsGDX.la
 @COIN_HAS_GAMSIO_TRUE@am__append_9 = $(GAMSIO_CPPFLAGS)
 @COIN_HAS_GAMSIO_TRUE@am__append_10 = -Wl,-export-dynamic
 @COIN_HAS_GAMSIO_FALSE@am__append_11 = ampl.cc ampl.h
@@ -134,7 +134,8 @@ LaGO_OBJECTS = $(am_LaGO_OBJECTS)
 @COIN_HAS_CPX_FALSE@am__DEPENDENCIES_2 = $(CLPOBJDIR)/src/libClp.la \
 @COIN_HAS_CPX_FALSE@	$(OSIOBJDIR)/src/OsiClp/libOsiClp.la
 am__DEPENDENCIES_3 =
-@COIN_HAS_GAMSIO_TRUE@am__DEPENDENCIES_4 = $(am__DEPENDENCIES_3)
+@COIN_HAS_GAMSIO_TRUE@am__DEPENDENCIES_4 = $(am__DEPENDENCIES_3) \
+@COIN_HAS_GAMSIO_TRUE@	$(LAGOOBJDIR)/../ThirdParty/GAMSIO/libGamsGDX.la
 LaGO_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2) \
 	$(OSIOBJDIR)/src/libOsi.la $(CGLOBJDIR)/src/libCgl.la \
 	$(COINUTILSOBJDIR)/src/libCoinUtils.la \
