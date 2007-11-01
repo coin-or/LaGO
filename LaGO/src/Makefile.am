@@ -37,7 +37,7 @@ LaGO_LDADD += $(CLPOBJDIR)/src/libClp.la $(OSIOBJDIR)/src/OsiClp/libOsiClp.la
 LIBS += `cat $(CLPOBJDIR)/clp_addlibs.txt`
 else
 AM_CPPFLAGS += -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiClp` -I`$(CYGPATH_W) $(CLPSRCDIR)/src` -I`$(CYGPATH_W) $(CLPOBJDIR)/inc`
-LaGO_LDADD += $(CLPOBJDIR)/src/libClp.la $(OSIOBJDIR)/src/OsiClp/libOsiClp.la
+LaGO_LDADD += $(OSIOBJDIR)/src/OsiClp/libOsiClp.la $(CLPOBJDIR)/src/libClp.la
 LIBS += `cat $(CLPOBJDIR)/clp_addlibs.txt`
 endif
 
