@@ -335,6 +335,34 @@ const MIPSolver::RowItem* OSISolver::add_row(const UserVector<double>& row, cons
 	return &(*it);
 }
 
+void OSISolver::add_rows(const vector<pair<dvector, ivector> >& rows, const dvector& low, const dvector& up) {
+	CoinPackedVectorBase** coin_rows=new CoinPackedVectorBase*[rows.size()];
+	double* coin_lb=new double[rows.size()];
+	double* coin_ub=new double[rows.size()];
+	for (int i=0; i<rows.size(); ++i) {
+		coin_rows[i]=new CoinPackedVector(rows[i].first.size(), (Pointer<int>)rows[i].second, (Pointer<double>)rows[i].first);
+		coin_lb[i]=low[i]==-INFINITY ? -osisolver->getInfinity() : low[i];
+		coin_ub[i]=up[i]==INFINITY ? osisolver->getInfinity() : up[i];
+	}
+	osisolver->addRows(rows.size(), coin_rows, coin_lb, coin_ub);
+	delete[] coin_lb;
+	delete[] coin_ub;
+	for (int i=0; i<rows.size(); ++i)
+		delete coin_rows[i];
+	delete[] coin_rows;
+}
+
+void OSISolver::add_rows(list<const MIPSolver::RowItem*>& rowitems, const vector<pair<dvector, ivector> >& rows, const dvector& low, const dvector& up) {
+	for (int i=0; i<rows.size(); ++i) {
+		addedrows.push_back(RowItem(nr_row()-1+i));
+		list<RowItem>::iterator it(addedrows.end()); --it;
+		it->it=it;
+		rowitems.push_back(&(*it));
+	}
+	add_rows(rows, low, up);	
+}
+
+
 void OSISolver::delete_rows(const list<const MIPSolver::RowItem*>& rowitems) {
 	if (rowitems.empty()) return;
 	int num=rowitems.size();
