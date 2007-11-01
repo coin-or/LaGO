@@ -55,7 +55,7 @@ void MinlpBCP::set_convex_prob(Pointer<MinlpProblem> convex_prob_, const Pointer
 	RelaxationSolver::set_convex_prob(convex_prob_);
 	sol_C=sol_C_;
 	sol_C_is_solution=sol_C_is_solution_;
-	
+
 	if (!reform) linconcutgen.set_problem(convex_prob);
 }
 
@@ -67,7 +67,7 @@ void MinlpBCP::set_reform(Pointer<Reformulation> reform_, Pointer<dvector> sol_C
 
 void MinlpBCP::set_reform(Pointer<Reformulation> reform_) {
 	RelaxationSolver::set_reform(reform_);
-	
+
 	linconcutgen.set_problem(reform->ext_convex_prob);
 	linconcutgen.set_reform(reform);
 	intgrad_cutgen.set_problem(reform->ext_prob);
@@ -82,7 +82,7 @@ void MinlpBCP::set_linear_relax(Pointer<LinearRelax> linrelax_) {
 
 void MinlpBCP::set_MINLPData(Pointer<MINLPData> minlpdata_) {
 	RelaxationSolver::set_MINLPData(minlpdata_);
-	
+
 	linconcutgen.set_MINLPData(minlpdata);
 }
 
@@ -121,6 +121,12 @@ void MinlpBCP::init() {
 	else if (!strcmp(bcpsubdivtype, "Bisection")) subdiv_type=BisectSubdiv;
 	else if (!strcmp(bcpsubdivtype, "Violation")) subdiv_type=ViolSubdiv;
 	else subdiv_type=CostSubdivLag;
+	
+	subdiv_discrete_emphasis=param->get_i("Subdivision on discrete emphasis", 1);
+	
+	Pointer<char> nodeselecttype=param->get("BCP node selection typ", "best bound");
+	if (strcmp(nodeselecttype, "unfixed discrete")==0) nodeselect_type=UnfixedDiscrete;
+	else nodeselect_type=BestBound;
 
 	is_maxcut=param->get_i("maxcut", 0);
 
@@ -146,7 +152,7 @@ void MinlpBCP::init_block_problems() {
 	Pointer<MinlpProblem> prob(reform ? reform->ext_prob : split_prob);
 	Pointer<MinlpProblem> conv(reform ? reform->ext_convex_prob : convex_prob);
 	assert(prob->block.size()==conv->block.size());
-	
+
 	block_prob.resize(prob->block.size());
 	block_convex_prob.resize(prob->block.size());
 
@@ -653,26 +659,26 @@ int MinlpBCP::improve_LP_bound(Pointer<MinlpNode> node) {
 	bool newcuts;
 	int ret=0;
 	int iter=0;
-	
+
 	do {
 		newcuts=false;
-		
+
 		if (conv) { // adding linearization cuts
 			list<pair<LinearizationCut, pair<int, bool> > > cuts;
-			
+
 			linconcutgen.max_violation=0.;
 			linconcutgen.get_cuts(cuts, node->ref_point, node->lower, node->upper, true);
-			
+
 			int local_cuts_nr=0, global_cuts_nr=0;
 			for (list<pair<LinearizationCut, pair<int, bool> > >::iterator cutit(cuts.begin()); cutit!=cuts.end() && !linear_relax->cutlimit_reached(); ++cutit) {
 				linear_relax->add_cut(Pointer<LinearizationCut>(new LinearizationCut(cutit->first)), cutit->second.first, cutit->second.second ? NULL : node);
 				if (cutit->second.second) ++global_cuts_nr; else ++local_cuts_nr;
 			}
-				
+
 			out_log << "Added " << global_cuts_nr << '+' << local_cuts_nr << " LinearizationCuts. Max. scaled violation of (Cext) was " << linconcutgen.max_violation << ". \t";
 			if (local_cuts_nr || global_cuts_nr) newcuts=true;
 		}
-		
+
 		if (mip_cuts) {
 			ret=set_LP_bound(node);
 			if (ret) return ret;
@@ -683,12 +689,12 @@ int MinlpBCP::improve_LP_bound(Pointer<MinlpNode> node) {
 			}
 		} else if (newcuts) ret=set_LP_bound(node);
 		else out_log << endl;
-		
+
 //		out_log << "New reference point: " << node->ref_point;
-		
+
 		if (linconcutgen.max_violation>max_violation) max_violation=linconcutgen.max_violation;
 	} while (newcuts && (linconcutgen.max_violation>.1*max_violation) && max_violation>1E-4 && ret==0 && ++iter<10);
-	
+
 	return ret;
 }
 //----------------------------------------------------------------------
@@ -773,19 +779,40 @@ bool MinlpBCP::boxreduce(Pointer<MinlpNode> node, int index, IntervalReduction::
 bool MinlpBCP::feasibility_check(Pointer<MinlpNode> node) {
 #ifdef FILIB_AVAILABLE
 	IntervalVector box(orig_prob->dim());
-	for (int i=0; i<box.dim(); ++i)
+	for (int i=0; i<box.dim(); ++i) {
 		if (node) box[i]=interval<double>(node->lower(i), node->upper(i));
 		else box[i]=interval<double>(split_prob->lower(i), split_prob->upper(i));
-		
+//		out_log << orig_prob->var_names[i] << ": " << box[i] << endl;		
+	}
+
 	for (int c=0; c<orig_prob->con.size(); ++c) {
 		interval<double> val(orig_prob->con[c]->eval(box));
 		if (val.inf()>tol || (orig_prob->con_eq[c] && val.sup()<-tol)) {
-			out_log << "Constraint " << orig_prob->con_names[c] << " infeasible." << endl;
+			out_log << "Feasibility check by interval arithmetic: Constraint " << orig_prob->con_names[c] << " infeasible." << endl;
+			out_log << "Equality constraint: " << orig_prob->con_eq[c] << "\t Interval: " << val << endl;
 			return false;
-		} 	
+		}
 	}
-#endif	
+#endif
 	return true;
+}
+
+multimap<double, Pointer<MinlpNode> >::iterator MinlpBCP::select_node() {
+	switch (nodeselect_type) {
+		case UnfixedDiscrete: {
+			for (multimap<double, Pointer<MinlpNode> >::iterator it_node(bb_tree.begin()); it_node!=bb_tree.end(); ++it_node) {
+				for (int i=0; i<orig_prob->i_discr.size(); ++i)
+					if (it_node->second->lower(orig_prob->i_discr[i])!=it_node->second->upper(orig_prob->i_discr[i])) { // found a node where not all discrete variables are fixed
+						out_log << "Node selection by discrete-first-rule: Selecting node with lower bound " << it_node->first << endl;  
+						return it_node;
+					}		
+			}
+			out_log << "Node selection by discrete-first-rule: All nodes have all discrete variables fixed. Falling back to best-bound rule." << endl; 
+		} // no break here, because we want BestBound now
+		case BestBound: 
+		default:
+			return bb_tree.begin();
+	}	
 }
 
 
@@ -1076,8 +1103,8 @@ int MinlpBCP::bin_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Poin
 			if (!split_prob->discr[i0]) continue; // no binary
 			if (node->upper(i0)==node->lower(i0)) continue; // already fixed
 			double cost=integrality_violation(node->ref_point(i0));
-			if (subdiv_type!=BinSubdiv && !prob_is_convex) // almost integer
-				if (cost<1E-4) continue;
+			if (subdiv_type!=BinSubdiv && !prob_is_convex && subdiv_discrete_emphasis<2 && cost<1E-4) // almost integer
+				continue;
  			if (b_lag(i)>0) cost+=10*b_lag(i);
 			if (cost>max_cost) {
 				max_cost=cost;
@@ -1137,11 +1164,11 @@ void MinlpBCP::bisect_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, 
 				dmax_abs=dist_local;
 				kstar_abs=k; istar_abs=i;
 				cut_abs=node->lower(i0)+dist_local/2;
-			} 
+			}
 //			out_log << split_prob->var_names[i0] << ": " << dist_local << ' ' << dist << ' ' << d << ' ' << kstar << ' ' << istar << endl;
 		}
 	}
-	
+
 	// we have to balance somehow between the relative reduction (which can be meaningless if the original box is very large),
 	// and the absolute reduction (which can be meaningless if the variables are bad scaled)
 	if (dmax>1E-4 && (dmax>0.05 || dmax_abs<1.)) {
@@ -1276,17 +1303,17 @@ void MinlpBCP::viol_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Po
 	dvector x(reform ? reform->get_short_vector(node->ref_point) : node->ref_point);
 	assert(x.dim()==split_prob->dim());
 	dvector g(x.dim());
-	
+
 	MinlpProblem& ref_prob(quad_prob ? *quad_prob : *split_prob);
 
 	for (int c=0; c<ref_prob.con.size(); c++) {
 		val=ref_prob.con[c]->eval(x);
 		if (val<tol && (val>-tol || !ref_prob.con_eq[c])) continue;
-		
+
 		ref_prob.con[c]->grad(g, x);
 		double gradnorm=sqrt(g.sq_norm2());
 
-//		out_log << ref_prob.con_names[c] << ": " << val << ' ' << gradnorm << ' ' << maxviol; 
+//		out_log << ref_prob.con_names[c] << ": " << val << ' ' << gradnorm << ' ' << maxviol;
 
 		if (gradnorm<rtol) continue;
 		if (fabs(val)<maxviol*gradnorm) continue;
@@ -1362,15 +1389,15 @@ void MinlpBCP::viol_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Po
 	for (int k=0; k<split_prob->block.size(); k++) {
 		for (int i=0; i<split_prob->block[k].size(); i++) {
 			if (!split_prob->get_sparsity(k)->nonlinear->count(i)) continue; // only nonlinear variables
-						
+
 			int i0=split_prob->block[k][i];
 			double diam_local=node->upper(i0)-node->lower(i0);
 			if (diam_local<1E-4) continue; // variable bounds very close already
 			double diam=split_prob->upper(i0)-split_prob->lower(i0);
 			diam_frac[i0]=diam_local/diam;
-			
+
 			delta[i0]=(node->upper(i0)-x(i0))*(x(i0)-node->lower(i0))/(diam_local*diam_local);
-			
+
  			// in case that we have reduced this one already a lot, this variable is only 2nd choice
 //			if (diam_frac(i0)<1E-4 && delta(i0)>maxdelta2) {
 //				maxdelta2=delta[i0];
@@ -1382,19 +1409,46 @@ void MinlpBCP::viol_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Po
 
 	MinlpProblem& ref_prob(quad_prob ? *quad_prob : *split_prob);
 	dvector g(x.dim());
-
-	double val, maxviol=rtol;
 	int k_star=-1, i_star=-1;
+
+	double val=ref_prob.obj->eval(x);
+	double val_convexrelax=convex_prob->obj->eval(x);
+	double maxviol=val-val_convexrelax; // distance in objective function values between ref. problem and convex relax.
+
+	if (maxviol>tol) {
+		// compute scaling
+		ref_prob.obj->grad(g, x);
+		double scale=sqrt(g.sq_norm2());
+		if (scale<1) scale=1;
+		maxviol=fabs(maxviol/scale);
+
+		double maxdelta=0;
+		for (int k=0; k<split_prob->block.size(); k++) {
+			for (int i=0; i<split_prob->block[k].size(); i++) {
+				if (split_prob->obj->sparsity_available(k) && !split_prob->obj->get_sparsity(k).nonlinear->count(i)) continue; // no branching w.r.t. linear variables
+				int i0=split_prob->block[k][i];
+
+				if (diam_frac(i0)<1E-4 || delta(i0)<1E-4 || delta(i0)<maxdelta) continue;
+
+				maxdelta=delta(i0);
+				k_star=k;
+				i_star=i;
+			}
+		}
+	} else
+		maxviol=rtol;
+
+//	double val, maxviol=rtol;
 	for (int c=0; c<ref_prob.con.size(); c++) {
 		val=ref_prob.con[c]->eval(x);
 		if (val<tol && (val>-tol || !ref_prob.con_eq[c])) continue;
 
-		// compute scaling		
+		// compute scaling
 		ref_prob.con[c]->grad(g, x);
 		double scale=sqrt(g.sq_norm2());
 		if (scale<1) scale=1;
 
-		if (fabs(val)<maxviol*scale && k_star>=0) continue; // if we already have one with a larger violation, skip this one 
+		if (fabs(val)<maxviol*scale && k_star>=0) continue; // if we already have one with a larger violation, skip this one
 		maxviol=fabs(val/scale);
 
 		double maxdelta=0;
@@ -1404,10 +1458,10 @@ void MinlpBCP::viol_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Po
 				int i0=split_prob->block[k][i];
 
 				if (diam_frac(i0)<1E-4 || delta(i0)<1E-4 || delta(i0)<maxdelta) continue;
-				
+
 				maxdelta=delta(i0);
 				k_star=k;
-				i_star=i;				
+				i_star=i;
 			}
 		}
 	}
@@ -1423,7 +1477,7 @@ void MinlpBCP::viol_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Po
 		double dist_local=node->upper(i0)-node->lower(i0);
 		// project a bit more inside the box
 		double cut=project(x(i0), node->lower(i0)+.02*dist_local, node->upper(i0)-.02*dist_local);
-		subdiv_var=i0; 
+		subdiv_var=i0;
 		rect_subdiv(nodes, node, k_star, i_star, cut);
 	} else {
 		out_solver_log << "No Violation subdivision possible. Falling back to Bisection subdivision." << endl;
@@ -1501,7 +1555,7 @@ void MinlpBCP::init_lag_problems(Pointer<MinlpNode> node) {
 	lag_problem.reserve(prob.block.size());
 	block_sub_convex_prob.clear();
 	block_sub_convex_prob.reserve(prob.block.size());
-	
+
 	if (!block_prob.size()) init_block_problems();
 
 	for (int k=0; k<prob.block.size(); k++) {
@@ -1700,7 +1754,7 @@ void MinlpBCP::mem_check() {
 		bb_tree.erase(it);
 		assert(Pointer<MinlpNode>::count(addr)==0);
 		++removed;
-		mem=get_mem()/1024;		
+		mem=get_mem()/1024;
 	}
 
 	out_solver << "Removed " << removed << " nodes. Now using " << mem << "KB." << endl;
@@ -1790,13 +1844,13 @@ int MinlpBCP::solve() {
 		int ExtremePoints_nr=0; for (int k=0; k<ExtremePoints.size(); k++) ExtremePoints_nr+=ExtremePoints[k].size();
 		out_solver << "Final number of extreme points: " << ExtremePoints_nr << endl;
 	}
-	
+
 //	while (!bb_tree.empty()) {
 //		multimap<double, Pointer<MinlpNode> >::iterator it(bb_tree.begin());
 //		out_log << "Pruning node with " << linear_relax->nr_local_cuts(it->second) << " local cuts -> ";
 //		linear_relax->remove_node(it->second);
 //		bb_tree.erase(it);
-//		out_log << linear_relax->nr_all_cuts() << "\t global: " << linear_relax->nr_global_cuts() << endl;		
+//		out_log << linear_relax->nr_all_cuts() << "\t global: " << linear_relax->nr_global_cuts() << endl;
 //	}
 
 	return (!sol_cand.size());
@@ -1832,8 +1886,11 @@ double MinlpBCP::start_bb() {
 		do {
 			// (selection) Take a partition element $U$ from $L$.
 			/* take node from the tree */
-			node1=bb_tree.begin()->second;
-			bb_tree.erase(bb_tree.begin());
+			multimap<double, Pointer<MinlpNode> >::iterator node_it(select_node());
+			node1=node_it->second;
+			bb_tree.erase(node_it);
+//			node1=bb_tree.begin()->second;
+//			bb_tree.erase(bb_tree.begin());
 			clean_sub_problems();
 
 			if (out_solver_log_p) {
@@ -1853,11 +1910,11 @@ double MinlpBCP::start_bb() {
 //						int i0=split_prob->block[k][i];
 //						double dist=node1->upper(i0)-node1->lower(i0);
 //						if (dist>maxdiam) maxdiam=dist;
-//						out_solver_log << split_prob->var_names[i0] << "(" << node1->lower(i0) << ", " << node1->upper(i0) << ") "; 
+//						out_solver_log << split_prob->var_names[i0] << "(" << node1->lower(i0) << ", " << node1->upper(i0) << ") ";
 //					}
-//				out_solver_log << endl << "Max. box diameter for nonlinear variables: " << maxdiam << '\t'; 
+//				out_solver_log << endl << "Max. box diameter for nonlinear variables: " << maxdiam << '\t';
 			}
-			
+
 //			out_solver_log << "Box diameter (2-norm): " << sqrt((node1->upper-node1->lower).sq_norm2());
 /*			if (out_solver_log_p && node1->box_cuts.size()) {
 				out_solver_log << "Box cuts: ";
@@ -1944,7 +2001,7 @@ bool MinlpBCP::add_sol_candidate(const dvector& x) {
 	bool already_known=RelaxationSolver::add_sol_candidate(x);
 
 	if (already_known) return true;
-	
+
 	if (!linear_relax || linear_relax->cutlimit_reached()) return false;
 
 	Pointer<MinlpProblem> prob;
@@ -1961,9 +2018,9 @@ bool MinlpBCP::add_sol_candidate(const dvector& x) {
 
 	if (conv) { // adding linearization cuts
 		list<pair<LinearizationCut, pair<int, bool> > > cuts;
-		
+
 		linconcutgen.get_cuts(cuts, x, lower, upper);
-		
+
 		int local_cuts_nr=0, global_cuts_nr=0;
 		for (list<pair<LinearizationCut, pair<int, bool> > >::iterator cutit(cuts.begin()); cutit!=cuts.end() && !linear_relax->cutlimit_reached(); ++cutit) {
 			linear_relax->add_cut(Pointer<LinearizationCut>(new LinearizationCut(cutit->first)), cutit->second.first, cutit->second.second ? NULL : current_node);

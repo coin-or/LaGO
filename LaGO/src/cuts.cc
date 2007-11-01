@@ -142,6 +142,18 @@ Pointer<IntervalGradientCut> IntervalGradientCutGenerator::get_cuts(const dvecto
 
 // ---------------------------------------- SimpleCut ----------------------------------------
 
+void SimpleCut::scale(double max_coeff) {
+	double infnorm=max_coeff; // well, this is cheating, but we are interested in the inf norm only if its larger than max_coeff 
+	for (int i=0; i<coeff->dim(); ++i) {
+		double coeff_i=(*coeff)(i);
+		if (fabs(coeff_i)>infnorm) infnorm=fabs(coeff_i);
+	}
+	if (infnorm>max_coeff) {
+		*coeff/=infnorm;
+		constant/=infnorm;
+	}
+}
+
 ostream& operator<<(ostream& out, const SimpleCut& cut) {
 	if (cut.coeff)
 		for (int i=0; i<cut.coeff->dim(); ++i)
@@ -382,7 +394,7 @@ void CutPool::update_cuts(Pointer<MinlpNode> node, int blocknr, const dvector& l
 	if (oldcuts_nr) {
 		for (list<Pointer<LinearizationCut> >::iterator it(newcuts2.begin()); it!=newcuts2.end(); ++it)
 			add_cut(*it, node, blocknr);
-		out_log << "Replaced " << oldcuts_nr << " LinearizationCuts by " << newcuts2.size() << " updated ones." << endl;
+//		out_log << "Replaced " << oldcuts_nr << " LinearizationCuts by " << newcuts2.size() << " updated ones." << endl;
 	}
 }
 
@@ -449,6 +461,7 @@ LinearizationCut LinearizedConCutGenerator::get_cut(const dvector& x, int c, int
 	}
 	cut.constant-=2*(*cut.coeff*x);
 
+	cut.scale();
 	return cut;
 }
 
@@ -519,6 +532,7 @@ int LinearizedConCutGenerator::get_cuts(list<pair<LinearizationCut, pair<int, bo
 		if (tindex>=0) cut.coeff->SetElement(tindex, -.5);
 
 //		out_log << objcon.name << " block " << k << " const.= " << cut.constant << "\t coeff=" << *cut.coeff;
+		cut.scale();
 		cuts.push_back(pair<LinearizationCut, pair<int, bool> >(cut, pair<int, bool>(k, objcon.func->get_curvature(k)==Func::CONVEX)));
 		++nr;
 
@@ -606,6 +620,7 @@ int LinearizedConCutGenerator::get_cuts(list<pair<LinearizationCut, pair<int, bo
 		if (tindex>=0) cut.coeff->SetElement(tindex, .5);
 		
 //		out_log << '-' << con.name << " block " << k  << "\t const.= " << cut.constant << "\t coeff=" << *cut.coeff;
+		cut.scale();
 		cuts.push_back(pair<LinearizationCut, pair<int, bool> >(cut, pair<int, bool>(k, con.func->get_curvature(k)==Func::CONCAVE)));
 		++nr;
 
@@ -758,6 +773,7 @@ Pointer<LinearizationCut> LinearizedConCutGenerator::update_cut(LinearizationCut
 		if (tindex>=0) newcut->coeff->SetElement(tindex, .5);
 	}
 	//		out_log << objcon.name << " block " << k << " const.= " << cut.constant << "\t coeff=" << *cut.coeff;
+	if (newcut) newcut->scale();
 	return newcut;
 }
 

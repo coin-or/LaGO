@@ -291,7 +291,7 @@ bool primal_feasible=false;
 			add_con(A_split, s_split, *ext_prob, c, k);
 			if (ext_quad_prob) add_con(A_quad, s_quad, *ext_quad_prob, c, k);
 			add_con(A_convex, s_convex, *ext_convex_prob, c, k);
-			
+
 			if (!c) {
 				opt.minlpdata->obj.reformulation_constraints_lower[k]=ext_prob->con.size()-1;
 			} else {
@@ -300,7 +300,7 @@ bool primal_feasible=false;
 					opt.minlpdata->con[c-1].reformulation_constraints_upper[k]=ext_prob->con.size()-1;
 				} else
 					opt.minlpdata->con[c-1].reformulation_constraints_lower[k]=ext_prob->con.size()-1;
-			}			
+			}
 
 			related_t.push_back(ext_prob->block[k].size()-1);
 			if (c && opt.ineq_index[c-1]) related_t.push_back(ext_prob->block[k].size()-1);
@@ -370,7 +370,7 @@ bool primal_feasible=false;
 //			ext_convex_prob->con_eq[c]=related_t[c]<0 ? false : true;
 			ext_convex_prob->con_eq[c]=true;
 		}
-		
+
 		for (int d=c+1; d<opt.ineq_index.size(); d++)
 			if (opt.ineq_index[d]>opt.ineq_index[c]) opt.ineq_index[d]--;
 
@@ -382,7 +382,7 @@ bool primal_feasible=false;
 		++deleted_constraints;
 	}
 	related_t.resize(ext_prob->con.size(), -1);
-	
+
 	for (map<int,int>::iterator it(opt.minlpdata->obj.reformulation_constraints_lower.begin()); it!=opt.minlpdata->obj.reformulation_constraints_lower.end(); ++it)
 		it->second-=deleted_constraints;
 	for (int d=0; d<opt.minlpdata->con.size(); ++d) {
@@ -461,7 +461,7 @@ void LevelCutHandler::update_level_cut(double newval) {
 	for (list<Pointer<LinearRelax> >::iterator it(linrelax_with_levelcut.begin()); it!=linrelax_with_levelcut.end(); it++)
 		(*it)->update_level_cut(val);
 }
-		
+
 LevelCutHandler::~LevelCutHandler() { };
 
 // ------------------------------------ MinlpOpt -------------------------------
@@ -498,7 +498,7 @@ void MinlpOpt::decompose() {
 		Sampling(param, "Decomposition").get_points(sample_set, orig_prob->lower, orig_prob->upper, orig_prob->block);
 
 		split_prob=Decomposition(param).decompose(*orig_prob, sample_set);
-//		out_log << "Problem type: " << (split_prob->problem_type==MinlpProblem::QQP ? "MIQQP" : "MINLP") << endl; 
+//		out_log << "Problem type: " << (split_prob->problem_type==MinlpProblem::QQP ? "MIQQP" : "MINLP") << endl;
 		if (out_log_p && param->get_i("Check decomposition", 0)) { // with Decomposition check
 			out_log << "Checking decomposition..." << endl;
 /*	 		dvector x1(orig_prob->dim());
@@ -591,7 +591,7 @@ bool MinlpOpt::check_convex(MinlpProblem& prob) {
 	bool allconvex=true;
 	for (int c=0; c<=prob.con.size(); c++) {
 		out_solver_log << '.';
-//		if (c) out_solver_log << prob.con_names[c-1] << endl; 
+//		if (c) out_solver_log << prob.con_names[c-1] << endl;
 		convexify.check_convex2(min_eigval[c], max_eigval[c], c ? *prob.con[c-1] : *prob.obj, sample_set);
 		Func::CurvatureType ct=c ? prob.con[c-1]->get_curvature() : prob.obj->get_curvature();
 		if ((!(ct&Func::CONVEX)) || (c && prob.con_eq[c-1] && !(ct&Func::CONCAVE))) allconvex=false;
@@ -622,8 +622,8 @@ void MinlpOpt::quad_relax() {
 		if (!param->get("Quadratic Underestimator sample set vertices2"))
 			param->add("Quadratic Underestimator sample set vertices2", "200");
 		if (!param->get("Quadratic Underestimator sample set minimizer"))
-			param->add("Quadratic Underestimator sample set minimizer", LocOpt::nlp_solver_available() ? "1" : "0");	
-	
+			param->add("Quadratic Underestimator sample set minimizer", LocOpt::nlp_solver_available() ? "1" : "0");
+
 		QuadraticUnderestimator quaduest(param);
 		quaduest.quadratic_underestimator(*quad_prob, *minlpdata, ineq_index, quad_obj_c_add, quad_con_c_add);
 		if (t.stop()>rtol) {
@@ -659,10 +659,10 @@ void MinlpOpt::quad_relax() {
 			param->add("Polynomial Underestimator K2 sample set box ends", "0");
 		if (!param->get("Polynomial Underestimator K2 sample set vertices"))
 			param->add("Polynomial Underestimator K2 sample set vertices", "0");
-			
+
 		PolynomialUnderestimator2 polyuest(param);
 		polyuest.polynomial_underestimator(*quad_prob, *minlpdata, ineq_index, quad_obj_c_add, quad_con_c_add);
-	
+
 		if (param->get_i("Check polynomial underestimator", 0))
 			polyuest.check(*split_prob, *quad_prob, ineq_index);
 	}
@@ -910,7 +910,7 @@ Pointer<MinlpProblem> MinlpOpt::get_convex_prob(Pointer<MinlpProblem> prob, Poin
 void MinlpOpt::box_reduce0() {
 	for (int i=0; i<orig_prob->dim(); ++i)
 		if (orig_prob->lower(i)<=-INFINITY || orig_prob->upper(i)>=INFINITY) unbounded_var.push_back(i);
-	out_out << "Unbounded variables: " << (100*unbounded_var.size())/orig_prob->dim() << "\\%" << endl;
+	out_out << "Unbounded variables: " << unbounded_var.size() << " = " << (100*unbounded_var.size())/orig_prob->dim() << "\\%" << endl;
 	out_out << "Original box diameter: ";
 	if (unbounded_var.empty()) { out_out << sqrt((orig_prob->upper-orig_prob->lower).sq_norm2()) << endl; }
 	else out_out << "$\\infty$" << endl;
@@ -949,7 +949,7 @@ void MinlpOpt::box_reduce0() {
 	boxreduce_time+=t.stop();
 	print_box_reduce_quality(orig_prob->lower, orig_prob->upper, split_prob, "Boxreduction phase 0");
 	out_log << "Boxreduction phase 0 time: " << t << endl;
-	out_log << "Boxreduction phase 0 unbounded variables: " << (100*unbounded_var.size())/orig_prob->dim() << "\\%" << endl;
+	out_log << "Boxreduction phase 0 unbounded variables: " << unbounded_var.size() << " = " << (100*unbounded_var.size())/orig_prob->dim() << "\\%" << endl;
 }
 
 void MinlpOpt::box_reduce1() {
@@ -971,7 +971,7 @@ void MinlpOpt::box_reduce1() {
 		} else conv=get_convex_prob(orig_prob, split_prob);
 		conv->lower=split_prob->lower;
 		conv->upper=split_prob->upper;
-		
+
 //		out_log << *conv;
 
 		assert(orig_prob->block.size()==1);
@@ -979,10 +979,12 @@ void MinlpOpt::box_reduce1() {
 		Pointer<dvector> ref(new dvector(conv->primal_point));
 		linrelax.init(conv, split_prob->i_discr, ref, false);
 
-		IntervalGradientCutGenerator cutgen(orig_prob);
-		LinearizedConCutGenerator cutgen2(conv);
 		ref->set_random(conv->lower, conv->upper);
-		linrelax.add_cut(cutgen.get_cuts(*ref, 0, conv->lower, conv->upper), 0);
+		if (param->get_i("IntervalGradient cuts in preprocessing", 1)) {
+			IntervalGradientCutGenerator cutgen(orig_prob);
+			linrelax.add_cut(cutgen.get_cuts(*ref, 0, conv->lower, conv->upper), 0);
+		}
+		LinearizedConCutGenerator cutgen2(conv);
 		for (int c=0; c<conv->con.size(); ++c)
 			if (conv->con[c]->A[0] || conv->con[c]->s[0]) {
 				LinearizationCut cut(cutgen2.get_cut(*ref, c, 0, INFINITY));
@@ -1173,7 +1175,7 @@ void MinlpOpt::init() {
 	filib::fp_traits<double>::setup();
 #endif
 	check_initial_point();
-	
+
 	decompose();
 
 	box_reduce0();
@@ -1191,7 +1193,7 @@ void MinlpOpt::init() {
 
 /*	for (int i=0; i<split_prob->dim(); ++i)
 		out_log << split_prob->var_names[i] << ": \t" << split_prob->lower[i] << '\t' << split_prob->upper[i] << endl;*/
-	
+
 	quad_relax();
 
 	Pointer<MinlpProblem> split_prob_orig(new MinlpProblem(*split_prob));
@@ -1283,7 +1285,7 @@ void MinlpOpt::init2() {
 		sol_Cext_is_solution=(ret==0);
 		if (sol_Cext_is_solution && low_bound<locopt->opt_val()) low_bound=locopt->opt_val();
 
-//		locopt=NULL;		
+//		locopt=NULL;
 //		locopt=LocOpt::get_solver(convex_prob, param, "ConvexSolve", NULL, NULL);
 //		ret=locopt->solve(convex_prob->primal_point);
 //

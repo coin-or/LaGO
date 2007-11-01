@@ -37,7 +37,7 @@ LaGO_LDADD += $(CLPOBJDIR)/src/libClp.la $(OSIOBJDIR)/src/OsiClp/libOsiClp.la
 LIBS += `cat $(CLPOBJDIR)/clp_addlibs.txt`
 else
 AM_CPPFLAGS += -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiClp` -I`$(CYGPATH_W) $(CLPSRCDIR)/src` -I`$(CYGPATH_W) $(CLPOBJDIR)/inc`
-LaGO_LDADD += $(CLPOBJDIR)/src/libClp.la $(OSIOBJDIR)/src/OsiClp/libOsiClp.la
+LaGO_LDADD += $(OSIOBJDIR)/src/OsiClp/libOsiClp.la $(CLPOBJDIR)/src/libClp.la
 LIBS += `cat $(CLPOBJDIR)/clp_addlibs.txt`
 endif
 
@@ -52,7 +52,9 @@ ADDLIBS += `cat $(COINUTILSOBJDIR)/coinutils_addlibs.txt $(CGLOBJDIR)/cgl_addlib
 LaGO_LDFLAGS = $(ADDLIBS) -rpath $(libdir) 
 
 if COIN_HAS_GAMSIO
-LaGO_SOURCES += gams.cc gams.h preprocessapi.h 
+LaGO_SOURCES += gams.cc gams.h preprocessapi.h
+LaGO_LDADD += $(GAMSIO_LIBS) $(LAGOOBJDIR)/../ThirdParty/GAMSIO/libGamsGDX.la
+AM_CPPFLAGS += $(GAMSIO_CPPFLAGS)
 
 lib_LTLIBRARIES = libgamspreprocess.la
 libgamspreprocess_la_SOURCES = gamspreprocess.cc preprocessapi.h

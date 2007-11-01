@@ -96,7 +96,7 @@ class IpOptProblem : public TNLP {
 		virtual void finalize_solution(SolverReturn status,
 					Index n, const Number* x, const Number* z_L, const Number* z_U,
 					Index m, const Number* g, const Number* lambda,
-					Number obj_value);
+					Number obj_values, const IpoptData* data, IpoptCalculatedQuantities* cq);
 
 };
 
@@ -120,7 +120,7 @@ class IpOpt : public LocOpt {
 		int solve();
 		int solve(dvector& start);
 		dvector get_lag_multipliers() { return lambda; }
-	
+
 };
 
 #endif

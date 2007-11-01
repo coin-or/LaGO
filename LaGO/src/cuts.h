@@ -70,6 +70,10 @@ class SimpleCut {
 		bool feasible(const dvector& x, double tol) const {
 			return 2*(*coeff*x)+constant<tol;
 		}
+		
+		/** Scales the coefficients (and constant) of the generates cut such that the inf norm of the coefficients does not exceed max_coeff
+		 */
+		void scale(double max_coeff=100.);
 };
 
 class LinearizationCut : public SimpleCut {

@@ -846,8 +846,9 @@ interval<double> SparseMatrix::xAx_2bx(const IntervalVector& x, const UserVector
 			double max=-INFINITY;
 			double extreme=-b(col)/diag;
 			if (extreme>=x(col).inf() && extreme<=x(col).sup()) { // extreme value in interval
-				if (diag>0) min=-3*b(col)*b(col)/diag;
-				else 	max=-3*b(col)*b(col)/diag; //(val[j]*extreme+2*b(col))*extreme;
+// I think, the value at the extreme point is only -b(col)*b(col)/diag, not -3*b(col)*b(col)/diag !!  
+				if (diag>0) min=-b(col)*b(col)/diag;
+				else 	max=-b(col)*b(col)/diag; //(val[j]*extreme+2*b(col))*extreme;
 			}
 			double atleft=(diag*x(col).inf()+2*b(col))*x(col).inf();
 			double atright=(diag*x(col).sup()+2*b(col))*x(col).sup();

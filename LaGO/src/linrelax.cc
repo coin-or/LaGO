@@ -622,6 +622,11 @@ void LinearRelaxSolverMIP::add_intervalgradientcut(CutPool::CutInfo& cutinfo) {
 	solver->add_cols(cutinfo.colitems, w_z_low, cut.w_z_up);
 //out_log << "w z up: " << cut.w_z_up;
 
+	vector<pair<dvector, ivector> > rows(cut.coninfos.size()+2*size);
+	dvector rowlb(rows.size());
+	dvector rowub(rows.size());
+	int row_index=0;
+	
 	// main constraints
 	dvector b(bsize+2*size);
 	ivector ind(b.dim());
@@ -637,7 +642,12 @@ void LinearRelaxSolverMIP::add_intervalgradientcut(CutPool::CutInfo& cutinfo) {
 			}
 		}
 //		out_log << "row: " << b << ind;
-		cutinfo.rowitems.push_back(solver->add_row(b, ind, -INFINITY, -it->c));
+		rows[row_index].first=b;
+		rows[row_index].second=ind;
+		rowlb[row_index]=-INFINITY;
+		rowub[row_index]=-it->c;
+		++row_index;
+//		cutinfo.rowitems.push_back(solver->add_row(b, ind, -INFINITY, -it->c));
 	}
 
 	// x + w - z = ref_x constraints
@@ -649,7 +659,12 @@ void LinearRelaxSolverMIP::add_intervalgradientcut(CutPool::CutInfo& cutinfo) {
 	for (int i=0; i<size; ++i) {
 		i0=cut.indices(i);
 		ind2[0]=linrelax.obj->block[cutinfo.block_nr][i0];  // x(i)
-		cutinfo.rowitems.push_back(solver->add_row(b2, ind2, cut.ref_x(i0), cut.ref_x(i0)));
+//		cutinfo.rowitems.push_back(solver->add_row(b2, ind2, cut.ref_x(i0), cut.ref_x(i0)));
+		rows[row_index].first=b2;
+		rows[row_index].second=ind2;
+		rowlb[row_index]=cut.ref_x(i0);
+		rowub[row_index]=cut.ref_x(i0);
+		++row_index;
 		++ind2[1]; ++ind2[2];
 	}
 
@@ -659,9 +674,16 @@ void LinearRelaxSolverMIP::add_intervalgradientcut(CutPool::CutInfo& cutinfo) {
 	ind3[0]=w_z_begin; // w(i)
 	ind3[1]=w_z_begin+size; // z(i)
 	for (int i=0; i<size; ++i) {
-		cutinfo.rowitems.push_back(solver->add_row(b3, ind3, -INFINITY, MAX(cut.w_z_up(i),cut.w_z_up(size+i))));
+//		cutinfo.rowitems.push_back(solver->add_row(b3, ind3, -INFINITY, MAX(cut.w_z_up(i),cut.w_z_up(size+i))));
+		rows[row_index].first=b3;
+		rows[row_index].second=ind3;
+		rowlb[row_index]=-INFINITY;
+		rowub[row_index]=MAX(cut.w_z_up(i),cut.w_z_up(size+i));
+		++row_index;
 		++ind3[0]; ++ind3[1];
 	}
+	
+	solver->add_rows(cutinfo.rowitems, rows, rowlb, rowub);
 }
 
 void LinearRelaxSolverMIP::construct(Pointer<MinlpNode> node) {

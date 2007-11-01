@@ -452,6 +452,12 @@ class MIPSolver {
 		virtual void add_rows(const vector<Pointer<UserVector<double> > >& rows, const dvector& low, const dvector& up) {
 			for (int i=0; i<rows.size(); i++) add_row(*rows[i], low[i], up[i]);
 		}
+		virtual void add_rows(const vector<pair<dvector, ivector> >& rows, const dvector& low, const dvector& up) {
+			for (int i=0; i<rows.size(); i++) add_row(rows[i].first, rows[i].second, low[i], up[i]);
+		} 
+		virtual void add_rows(list<const RowItem*>& rowitems, const vector<pair<dvector, ivector> >& rows, const dvector& low, const dvector& up) {
+			for (int i=0; i<rows.size(); i++) rowitems.push_back(add_row(rows[i].first, rows[i].second, low[i], up[i]));
+		}
 		virtual void delete_row(const RowItem& rowitem)=0;
 		virtual void delete_rows(const list<const RowItem*>& rowitems) {
 			for (list<const RowItem*>::const_iterator it(rowitems.begin()); it!=rowitems.end(); ++it) delete_row(**it);

@@ -101,6 +101,8 @@ class OSISolver : public MIPSolver {
 
 		const MIPSolver::RowItem* add_row(const UserVector<double>& row, double low, double up);
 		const MIPSolver::RowItem* add_row(const UserVector<double>& row, const ivector& indices, double low, double up);
+		void add_rows(const vector<pair<dvector, ivector> >& rows, const dvector& low, const dvector& up);
+		void add_rows(list<const MIPSolver::RowItem*>& rowitems, const vector<pair<dvector, ivector> >& rows, const dvector& low, const dvector& up);
 		void delete_row(const MIPSolver::RowItem& rowitem) { delete_rows(list<const MIPSolver::RowItem*>(1, (RowItem*)&rowitem)); }
 		void delete_rows(const list<const MIPSolver::RowItem*>& rowitems);
 		void modify_row(const MIPSolver::RowItem& rowitem, double low, double up);

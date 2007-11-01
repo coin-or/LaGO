@@ -19,7 +19,7 @@ Pointer<MinlpProblem> ampl::get_problem() {
 
   nl = jac0dim(stubfile, (fint)strlen(stubfile));
   fgh_read(nl, 0);
-	
+
   asl->i.err_jmp_=new Jmp_buf;
   if (setjmp(asl->i.err_jmp_->jb)) {
   	out_err << "caught error in asl" << endl;
@@ -38,12 +38,12 @@ Pointer<MinlpProblem> ampl::get_problem() {
   out_log << "con: " << n_con << " nonlinear: " << nlc << endl;
 */
   int n=0;  // variable-counter
-	
+
 	for (int i=0; i<n_var; i++) {
 		if (LUv[2*i]<=-1e+99) LUv[2*i]=-INFINITY;
 		if (LUv[2*i]+1>=1e+99) LUv[2*i+1]=INFINITY;
 	}
-	
+
 //	bool integers=false; // indicates, whether we have integer-variables
   // nonlinear variables in constraints and objective
   for (int i=0; i<nlvb; i++, n++) {
@@ -55,7 +55,7 @@ Pointer<MinlpProblem> ampl::get_problem() {
 //		if (i>=nlvc-nlvb-nlvci && (LUv[2*n+1]-LUv[2*n])>1+rtol) integers=true;
     prob->add_var(n, 0, (i>=nlvc-nlvb-nlvci), LUv[2*n], LUv[2*n+1], var_name(n));
 	}
-	
+
   // nonlinear variables only in objective
   for (int i=0; i<nlvo-nlvc; i++, n++) {
 //		if (i>=nlvo-nlvc-nlvoi && (LUv[2*n+1]-LUv[2*n])>1+rtol) integers=true;
@@ -86,12 +86,19 @@ Pointer<MinlpProblem> ampl::get_problem() {
 		sparsity->nonlinear=new map<int, SparsityInfo::NonlinearVariable>;
   		for (ograd *og=Ograd[0]; og; og=og->next)
 			sparsity->nonlinear->insert(pair<int, SparsityInfo::NonlinearVariable>(og->varno, SparsityInfo::NonlinearVariable()));
-		func->s[0]=new amplObj(prob->dim(), sparsity); // if nonlinear objectives
+  		if (objtype[0]!=0) // maxmization
+  			func->s[0]=new MinusFunc(new amplObj(prob->dim(), sparsity));
+  		else
+  			func->s[0]=new amplObj(prob->dim(), sparsity); // if nonlinear objectives
 		func->set_curvature(0, Func::UNKNOWN);
   	} else {  // linear objective
-		for (ograd *og=Ograd[0]; og; og=og->next) grad->SetElement(og->varno, 0.5*og->coef);
+		for (ograd *og=Ograd[0]; og; og=og->next)
+			if (objtype[0]!=0) // maximization
+				grad->SetElement(og->varno, -0.5*og->coef);
+			else // minimization
+				grad->SetElement(og->varno, 0.5*og->coef);
 		func->b[0]=grad;
-		func->c=objconst(0);
+		func->c=objtype[0]==0 ? objconst(0) : -objconst(0);
 		func->set_curvature(0, Func::LINEAR);
 	}
 	prob->add_obj(func);
