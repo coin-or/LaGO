@@ -726,8 +726,8 @@ void MinlpOpt::convex_relax() {
 			Pointer<SepQcFunc> f(c ? convex_prob->con[c-1] : convex_prob->obj);
 			if ((f->get_curvature()&Func::CONVEX) && ((!c) || (!convex_prob->con_eq[c-1]) || (f->get_curvature()&Func::CONCAVE))) continue;
 
-/*			if (c) { out_log << "Convexifying " << prob.con_names[c-1] << ": " << endl; }
-			else out_log << "Convexifying objective: " << endl;*/
+//			if (c) { out_log << "Convexifying " << prob.con_names[c-1] << ": " << endl; }
+//			else out_log << "Convexifying objective: " << endl;
  			out_log << ".";
 
 			convexify.new_sampleset(prob.lower, prob.upper, *f);
@@ -749,13 +749,13 @@ void MinlpOpt::convex_relax() {
 				minlpdata->obj.convexification_characteristica_lower=convexify.characteristica1;
 				minlpdata->obj.convex_underestimator=p.first;
 			}
-/*
-			if (c) {
-				prob.con[c-1]->print(*out_log_p, prob.var_names);
-				p.first->print(*out_log_p, prob.var_names);
-				if (p.second) p.second->print(*out_log_p, prob.var_names);
-			}
-*/
+
+//			if (c) {
+//				prob.con[c-1]->print(*out_log_p, prob.var_names);
+//				p.first->print(*out_log_p, prob.var_names);
+//				if (p.second) p.second->print(*out_log_p, prob.var_names);
+//			}
+
 
 			for (int k=0; k<prob.block.size(); k++)
 				if (convexify.convexify_c[k].first)
@@ -945,6 +945,11 @@ void MinlpOpt::box_reduce0() {
 			if (split_prob->lower(*it)>-INFINITY && split_prob->upper(*it)<INFINITY) it=unbounded_var.erase(it);
 			else ++it;
 	}
+	
+	// move primal_point inside box
+	for (int i=0; i<split_prob->dim(); ++i)
+		if (split_prob->primal_point(i)<split_prob->lower(i)) split_prob->primal_point[i]=split_prob->lower(i);
+		else if (split_prob->primal_point(i)>split_prob->upper(i)) split_prob->primal_point[i]=split_prob->upper(i);
 
 	boxreduce_time+=t.stop();
 	print_box_reduce_quality(orig_prob->lower, orig_prob->upper, split_prob, "Boxreduction phase 0");
@@ -1034,6 +1039,11 @@ void MinlpOpt::box_reduce1() {
 			clog << split_prob->var_names[*it] << endl;
 		assert(unbounded_var.empty());
 	}
+
+	// move primal_point inside box
+	for (int i=0; i<split_prob->dim(); ++i)
+		if (split_prob->primal_point(i)<split_prob->lower(i)) split_prob->primal_point[i]=split_prob->lower(i);
+		else if (split_prob->primal_point(i)>split_prob->upper(i)) split_prob->primal_point[i]=split_prob->upper(i);
 
 	boxreduce_time+=t.stop();
 	print_box_reduce_quality(orig_prob->lower, orig_prob->upper, split_prob, "Boxreduction phase 1");
@@ -1165,6 +1175,17 @@ void MinlpOpt::box_reduce3() {
 		}
 	}
 
+	// move primal_point inside box
+	for (int i=0; i<split_prob->dim(); ++i)
+		if (split_prob->primal_point(i)<split_prob->lower(i)) {
+			reform->ext_convex_prob->primal_point[i]=convex_prob->primal_point[i]=split_prob->primal_point[i]=split_prob->lower(i);
+			if (quad_prob) reform->ext_quad_prob->primal_point[i]=quad_prob->primal_point[i]=split_prob->lower(i);
+		}
+		else if (split_prob->primal_point(i)>split_prob->upper(i)) {
+			reform->ext_convex_prob->primal_point[i]=convex_prob->primal_point[i]=split_prob->primal_point[i]=split_prob->upper(i);
+			if (quad_prob) reform->ext_quad_prob->primal_point[i]=quad_prob->primal_point[i]=split_prob->upper(i);
+		}
+	
 	sol_cand_diam=new dvector(reform->ext_convex_prob->upper);
 	*sol_cand_diam-=reform->ext_convex_prob->lower;
 	*sol_cand_diam*=param->get_d("heu close points tolerance", .001);
