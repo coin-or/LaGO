@@ -43,8 +43,19 @@ AC_COIN_CREATE_LIBTOOL
 #             Check which ThirdParty sources are available                  #
 #############################################################################
 
+
+AC_CHECK_FILE([$srcdir/ThirdParty/GAMSIO/LX3], [have_some_gamsiolibs=yes],
+[ AC_CHECK_FILE([$srcdir/ThirdParty/GAMSIO/LEI], [have_some_gamsiolibs=yes],
+[ AC_CHECK_FILE([$srcdir/ThirdParty/GAMSIO/SIG], [have_some_gamsiolibs=yes],
+[ AC_CHECK_FILE([$srcdir/ThirdParty/GAMSIO/DII], [have_some_gamsiolibs=yes],
+[ AC_CHECK_FILE([$srcdir/ThirdParty/GAMSIO/VIS], [have_some_gamsiolibs=yes],
+[ have_some_gamsiolibs=no ])
+])])])])
+
+if test x"$have_some_gamsiolibs" = xyes; then
+  AC_COIN_THIRDPARTY_SUBDIRS([GAMSIO],[ThirdParty/GAMSIO],[get.LX3])
+fi  
 AC_COIN_THIRDPARTY_SUBDIRS([ASL],[ThirdParty/ASL],[solvers/asl.h])
-AC_COIN_THIRDPARTY_SUBDIRS([GAMSIO],[ThirdParty/GAMSIO],[get.LX3])
 AC_COIN_THIRDPARTY_SUBDIRS([Blas],[ThirdParty/Blas],[daxpy.f])
 AC_COIN_THIRDPARTY_SUBDIRS([Lapack],[ThirdParty/Lapack],[LAPACK/SRC/dlarf.f])
 AC_COIN_THIRDPARTY_SUBDIRS([HSL],[ThirdParty/HSL],[configure.ac])
