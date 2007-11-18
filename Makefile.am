@@ -23,10 +23,24 @@ SUBDIRS = $(subdirs)
 #                           Extra Targets                              #
 ########################################################################
 
+test: all
+	cd LaGO; $(MAKE) test
+
+unitTest: test
+
+tests: all
+	for dir in $(subdirs); do \
+	  if test -r $$dir/test/Makefile; then \
+	    (cd $$dir; $(MAKE) test) \
+	  fi; \
+	done
+
+unitTests: tests
+
 doxydoc:
 	cd $(srcdir); doxygen doxydoc/doxygen.conf
 
-.PHONY: doxydoc
+.PHONY: test unitTest tests unitTests doxydoc
 
 ########################################################################
 #                         Maintainer Stuff                             #

@@ -786,6 +786,7 @@ bool MinlpBCP::feasibility_check(Pointer<MinlpNode> node) {
 	}
 
 	for (int c=0; c<orig_prob->con.size(); ++c) {
+		if (!orig_prob->con[c]->is_interval_compliant()) continue;
 		interval<double> val(orig_prob->con[c]->eval(box));
 		if (val.inf()>tol || (orig_prob->con_eq[c] && val.sup()<-tol)) {
 			out_log << "Feasibility check by interval arithmetic: Constraint " << orig_prob->con_names[c] << " infeasible." << endl;

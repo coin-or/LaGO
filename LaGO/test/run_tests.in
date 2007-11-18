@@ -22,6 +22,10 @@ do
 		gams $model MINLP=LAGO lo=0 > tmpfile 2>&1
 		rm -f $modelname.lst
 	else
+	  if test "$modelname" = "ex1252" ; then
+	    echo "Skip model ex1252 for ampl interface."
+	    continue
+	  fi
 		../src/LaGO $model > tmpfile 2>&1
 		rm -f $model.sol
 	fi

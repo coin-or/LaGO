@@ -573,6 +573,9 @@ void IntervalReduction::run(dvector& newlow, dvector& newup, const dvector& oldl
 			int con_nr=edge.data.con_nr;
 			double coeff=edge.data.coeff;
 
+			if (!prob->con[con_nr]->is_interval_compliant())
+				continue;
+			
 			oldbounds=box(index);
 			if (oldbounds.diam()<rtol) continue;
 
