@@ -1,0 +1,59 @@
+
+Short installation instructions for LaGO
+
+**** Requirements:
+LaGO depends on several third party packages, some of them are optional.
+The ThirdParty directory contains some scripts to download and compile some of these packages.
+
+1. The Template Numerical Toolkit (TNT) from NIST
+http://math.nist.gov/tnt
+Use the script get.TNT in ThirdParty/TNT.
+
+2. RANLIB.C - Random Number Generation
+http://www.netlib.org/random/ranlib.c.tar.gz
+Use the script get.ranlib in ThirdParty/ranlib.
+
+3. METIS - Serial Graph Partitioning and Fill-reducing Matrix Ordering
+http://glaros.dtc.umn.edu/gkhome/metis/metis/overview
+Use the script get.METIS in ThirdParty/METIS.
+
+4. AMPL interface (ASL) or GAMS interface
+If you want to interface LaGO by AMPL, then start the script get.ASL in ThirdParty/ASL.
+It downloads and compiles the AMPL Solver Library from http://www.netlib.org/ampl/.
+
+If you want to interface LaGO by GAMS, then start one of the get.??? scripts in ThirdParty/GAMSIO.
+Depending on your machine type, you will need a different script:
+ * LX3: Linux systems on a 32-bit Intel or AMD CPU.
+ * LEI: Linux systems on a 64-bit Intel or AMD CPU.
+ * SIG: Solaris 10.0 or higher systems on a 64-bit Intel or AMD CPU.
+ * DII: Darwin systems on Intel CPU.
+ * VIS: Windows XP, Windows Server 2003, and compatible on AMD- or Intel-based (x86) architectures.
+The script downloads and unpacks the GAMS I/O libraries.
+You will further need to have a GAMS system installed in your system.
+Note, that LaGO was never tested on Windows, and is likely to fail compiling there.
+
+6. optional: Interval arithmetic library FILIB++
+Use the script get.FILIB++ in ThirdParty/FILIB++.
+The presence of FILIB++ enables some interval arithmetic based features in LaGO, like a boxreduction method.
+But note that these function require that the (nonquadratic) functions of the model can be evaluated over a box.
+This feature is not available with the AMPL interface, so that LaGO with FILIB++ will only work when you use the GAMS interface, or when you solve MIQQPs only.
+
+7. optional: CPLEX
+You can buy it from ILOG.
+Then you have to provide the linking flags via --with-cplex-lib and the path of cplex.h via --with-cplex-incdir to configure.
+If CPLEX is not available for LaGO, COIN/Clp is used to solve LPs.
+
+
+**** Compilation of LaGO:
+After installation of the required third party packages, run the script configure in the main directory of your COIN/LaGO package.
+This should configure all packages, including LaGO, and generate the required makefiles.
+Then call make and make install. Now you should find a LaGO binary in the bin directory.
+If possible, LaGO uses it's GAMS interface. If this is not available, the AMPL interface will be used.
+
+
+**** Making LaGO known to GAMS:
+In the bin directory you find the file gmsla_.zip.
+It contains the LaGO binary and installation files for the GAMS installer.
+1. Copy gmsla_.zip in the directory of your GAMS distribution.
+2. Call the program gamsinst of your GAMS distribution.
+   This program will find the file gmsla_.zip and install LaGO in your GAMS system.
