@@ -115,7 +115,7 @@ void MinlpBCP::init() {
 
 	lagsolve_type=BranchCut;
 
-	Pointer<char> bcpsubdivtype=param->get("BCP subdiv type", "Binary");
+	Pointer<char> bcpsubdivtype=param->get("BCP subdiv type", "Violation");
 	if (!strcmp(bcpsubdivtype, "Binary")) subdiv_type=BinSubdiv;
 	else if (!strcmp(bcpsubdivtype, "Cost")) subdiv_type=CostSubdivLag;
 	else if (!strcmp(bcpsubdivtype, "Bisection")) subdiv_type=BisectSubdiv;
@@ -124,7 +124,7 @@ void MinlpBCP::init() {
 	
 	subdiv_discrete_emphasis=param->get_i("Subdivision on discrete emphasis", 1);
 	
-	Pointer<char> nodeselecttype=param->get("BCP node selection typ", "best bound");
+	Pointer<char> nodeselecttype=param->get("BCP node selection typ", "unfixed discrete");
 	if (strcmp(nodeselecttype, "unfixed discrete")==0) nodeselect_type=UnfixedDiscrete;
 	else nodeselect_type=BestBound;
 
@@ -786,6 +786,7 @@ bool MinlpBCP::feasibility_check(Pointer<MinlpNode> node) {
 	}
 
 	for (int c=0; c<orig_prob->con.size(); ++c) {
+		if (!orig_prob->con[c]->is_interval_compliant()) continue;
 		interval<double> val(orig_prob->con[c]->eval(box));
 		if (val.inf()>tol || (orig_prob->con_eq[c] && val.sup()<-tol)) {
 			out_log << "Feasibility check by interval arithmetic: Constraint " << orig_prob->con_names[c] << " infeasible." << endl;

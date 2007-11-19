@@ -533,6 +533,7 @@ void gams::write_gdx(const dvector& x, char* filename) {
 	TgdxStrIndex Elements;
 	for (int i=0; i<10; ++i) Elements[i]=new char[32];
 	TgdxValues Values;
+	for (int i=0; i<5; ++i) Values[i]=0.;
 	for (int i=0; i<x.dim(); ++i) {
   	if (gcdColUels(dict, i, &lSym, uelIndices, &nIndices) != 0) return;
 	  if ((s=gcdSymName(dict, lSym, tbuf, 32)) == NULL) return;

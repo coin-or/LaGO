@@ -1,7 +1,8 @@
 * text=auto !eol
 /Externals -text
+/INSTALL -text
+/LICENSE -text
 LaGO/AUTHORS -text
-LaGO/INSTALL -text
 LaGO/LICENSE -text
 LaGO/Makefile.am -text
 LaGO/Makefile.in -text
@@ -131,6 +132,7 @@ LaGO/test/ex1252.row -text
 LaGO/test/run_tests.in -text
 /Makefile.am -text
 /Makefile.in -text
+/README -text
 ThirdParty/FILIB++/Makefile.am -text
 ThirdParty/FILIB++/Makefile.in -text
 ThirdParty/FILIB++/configure -text

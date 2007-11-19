@@ -78,9 +78,9 @@ class LagHeu;
 		%default 0
 		%level 0
 		The maximum number of BCP preprocessing iterations.
-    @param BCP subdiv typ
+    @param BCP subdiv type
     %options Binary, Cost, Bisection, Violation
-		%default Binary
+		%default Violation
 		%level 2
     The branching method. First, binary (integer) subdivision is tried. If all integers are fixed, further actions depend on the value of this parameter. 
 		\begin{itemize}
@@ -97,7 +97,7 @@ class LagHeu;
 		If set to 2, discrete variables are also chosen for subdivision, if they are already integer-feasible.  
     @param BCP node selection typ
     %options best bound, unfixed discrete
-		%default best bound
+		%default unfixed discrete
 		%level 2
 		The method that selects the next node from the branch-and-bound tree.
 		\begin{itemize}

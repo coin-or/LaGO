@@ -2,7 +2,7 @@
 Short installation instructions for LaGO
 
 **** Requirements:
-LaGO depends on several third party packages, from whom some are optional.
+LaGO depends on several third party packages, some of them are optional.
 The ThirdParty directory contains some scripts to download and compile some of these packages.
 
 1. The Template Numerical Toolkit (TNT) from NIST
@@ -21,9 +21,16 @@ Use the script get.METIS in ThirdParty/METIS.
 If you want to interface LaGO by AMPL, then start the script get.ASL in ThirdParty/ASL.
 It downloads and compiles the AMPL Solver Library from http://www.netlib.org/ampl/.
 
-If you want to interface LaGO by GAMS, then start the script get.LX3 (32-bit Linux) or get.LEI (64-bit Linux) in ThirdParty/GAMS_IO.
-It downloads and unpacks the GAMS I/O libraries.
+If you want to interface LaGO by GAMS, then start one of the get.??? scripts in ThirdParty/GAMSIO.
+Depending on your machine type, you will need a different script:
+ * LX3: Linux systems on a 32-bit Intel or AMD CPU.
+ * LEI: Linux systems on a 64-bit Intel or AMD CPU.
+ * SIG: Solaris 10.0 or higher systems on a 64-bit Intel or AMD CPU.
+ * DII: Darwin systems on Intel CPU.
+ * VIS: Windows XP, Windows Server 2003, and compatible on AMD- or Intel-based (x86) architectures.
+The script downloads and unpacks the GAMS I/O libraries.
 You will further need to have a GAMS system installed in your system.
+Note, that LaGO was never tested on Windows, and is likely to fail compiling there.
 
 6. optional: Interval arithmetic library FILIB++
 Use the script get.FILIB++ in ThirdParty/FILIB++.

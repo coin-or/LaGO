@@ -21,9 +21,21 @@ EXTRA_DIST = \
 	LICENSE \
 	AUTHORS
 
-.PHONY:
-
 # tmpdir = tmpdir
+
+test: all
+	cd test; $(MAKE) test
+
+unitTest: test
+
+.PHONY: test unitTest
+
+# Stuff to clean up
+clean-local:
+	if test -r test/Makefile; then cd test; $(MAKE) clean; fi
+
+distclean-local:
+	if test -r test/Makefile; then cd test; $(MAKE) distclean; fi
 
 ########################################################################
 #                  Installation of the addlibs file                    #

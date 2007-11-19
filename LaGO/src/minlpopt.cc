@@ -139,14 +139,14 @@ bool primal_feasible=false;
 	vector<IntervalVector> box(opt.split_prob->block.size());
 	for (int k=0; k<box.size(); k++)
 		box[k]=IntervalVector(opt.split_prob->lower(opt.split_prob->block[k]), opt.split_prob->upper(opt.split_prob->block[k]));
-#else
+#endif
 	vector<Pointer<dvector> > low(opt.split_prob->block.size());
 	vector<Pointer<dvector> > up(opt.split_prob->block.size());
 	for (int k=0; k<low.size(); k++) {
 		low[k]=new dvector(opt.split_prob->lower, opt.split_prob->block[k]);
 		up[k]=new dvector(opt.split_prob->upper, opt.split_prob->block[k]);
 	}
-#endif
+///#endif
 
 	// upper bounds of objective
 	dvector obj_upper(opt.split_prob->block.size());
@@ -157,33 +157,36 @@ bool primal_feasible=false;
 		}
 	} else {
 #ifdef FILIB_AVAILABLE
-		for (int k=0; k<obj_upper.dim(); k++)
-			if (opt.split_prob->obj->A[k] || opt.split_prob->obj->s[k])
-				obj_upper[k]=opt.split_prob->obj->eval(box[k], k).sup();
-#else
-		out_out << "Computing upper bound of objective" << endl;
-		Pointer<SepQcFunc> mobj(new SepQcFunc(*opt.split_prob->obj, true)); // minus objective
-		dvector conv_mobj_c_add(mobj->block.size());
-		if (!(opt.split_prob->obj->get_curvature()&Func::CONCAVE)) { // convexifying it
-			Convexify convexify(opt.param);
-			convexify.new_sampleset(opt.split_prob->lower, opt.split_prob->upper, *mobj);
-			convexify.convexify(*mobj, false, opt.max_eigval.front(), opt.min_eigval.front(), opt.split_prob->lower, opt.split_prob->upper);
-			pair<Pointer<SepQcFunc>, Pointer<SepQcFunc> > conv(mobj, NULL);
-			convexify.get_decomposed_functions(conv);
-			mobj=conv.first;
-			for (int k=0; k<mobj->block.size(); k++)
-				conv_mobj_c_add[k]=convexify.convexify_c[k].first;
-		}
-		for (int k=0; k<obj_upper.dim(); k++)
-			if (opt.split_prob->obj->A[k] || opt.split_prob->obj->s[k]) {
-				SepQcFunc f(mobj->A[k], mobj->b[k], mobj->s[k], conv_mobj_c_add(k));
-				BoxLocOpt locopt(f, new dvector(opt.split_prob->lower, opt.split_prob->block[k]), new dvector(opt.split_prob->upper, opt.split_prob->block[k]));
-				dvector start(opt.split_prob->primal_point, opt.split_prob->block[k]);
-				int ret=locopt.solve(start);
-				if (ret) out_log << "block " << k << " LocOpt return " << ret << " \t new bound: " << -locopt.opt_val() << endl;
-				obj_upper[k]=-locopt.opt_val();
-			}
+		if (opt.split_prob->obj->is_interval_compliant()) {
+			for (int k=0; k<obj_upper.dim(); k++)
+				if (opt.split_prob->obj->A[k] || opt.split_prob->obj->s[k])
+					obj_upper[k]=opt.split_prob->obj->eval(box[k], k).sup();
+		} else
 #endif
+		{
+			out_out << "Computing upper bound of objective" << endl;
+			Pointer<SepQcFunc> mobj(new SepQcFunc(*opt.split_prob->obj, true)); // minus objective
+			dvector conv_mobj_c_add(mobj->block.size());
+			if (!(opt.split_prob->obj->get_curvature()&Func::CONCAVE)) { // convexifying it
+				Convexify convexify(opt.param);
+				convexify.new_sampleset(opt.split_prob->lower, opt.split_prob->upper, *mobj);
+				convexify.convexify(*mobj, false, opt.max_eigval.front(), opt.min_eigval.front(), opt.split_prob->lower, opt.split_prob->upper);
+				pair<Pointer<SepQcFunc>, Pointer<SepQcFunc> > conv(mobj, NULL);
+				convexify.get_decomposed_functions(conv);
+				mobj=conv.first;
+				for (int k=0; k<mobj->block.size(); k++)
+					conv_mobj_c_add[k]=convexify.convexify_c[k].first;
+			}
+			for (int k=0; k<obj_upper.dim(); k++)
+				if (opt.split_prob->obj->A[k] || opt.split_prob->obj->s[k]) {
+					SepQcFunc f(mobj->A[k], mobj->b[k], mobj->s[k], conv_mobj_c_add(k));
+					BoxLocOpt locopt(f, new dvector(opt.split_prob->lower, opt.split_prob->block[k]), new dvector(opt.split_prob->upper, opt.split_prob->block[k]));
+					dvector start(opt.split_prob->primal_point, opt.split_prob->block[k]);
+					int ret=locopt.solve(start);
+					if (ret) out_log << "block " << k << " LocOpt return " << ret << " \t new bound: " << -locopt.opt_val() << endl;
+					obj_upper[k]=-locopt.opt_val();
+				}
+		}
 	}
 
 	// lower and upper bounds for t's
@@ -198,31 +201,34 @@ bool primal_feasible=false;
 			if (!f.A[k] && !f.s[k]) continue;
 
 #ifdef FILIB_AVAILABLE
-			interval<double> tbox(f.eval(box[k], k));
-			lower[c].SetElement(k, tbox.inf());
-			upper[c].SetElement(k, tbox.sup());
-#else
-			SepQcFunc& fc(c ? *opt.convex_prob->con[c-1] : *opt.convex_prob->obj);
-			if ((!fc.A[k]) && (!fc.b[k]) && (!fc.s[k])) {
-				out_log << "Warning: Convex underestimator of block " << k << " of " << (c ? opt.split_prob->con_names[c-1] : " objective ") << " is a constant." << endl;
-				lower[c].SetElement(k, 0);
-			} else {
-				SepQcFunc fb(fc.A[k], fc.b[k], fc.s[k]);
-				BoxLocOpt locopt(fb, low[k], up[k]);
-				dvector start(opt.convex_prob->primal_point, fc.block[k]);
-				int ret=locopt.solve(start);
-				if (ret) {
-					out_log << "Computed lower bound of block " << k;
-					if (c) { out_log << " con " << opt.convex_prob->con_names[c-1]; }
-					else out_log << " objective";
-					out_log << "\t LocOpt return: " << ret << "\t value: " << locopt.opt_val() << endl;
-//					if (c && out_log_p) opt.convex_prob->con[c-1]->print(*out_log_p, opt.convex_prob->var_names);
-				}
-				lower[c].SetElement(k, locopt.opt_val());
-				upper[c].SetElement(k, INFINITY);
-				if (!c) assert(locopt.opt_val()<=obj_upper[k]);
-			}
+			if (f.is_interval_compliant()) {
+				interval<double> tbox(f.eval(box[k], k));
+				lower[c].SetElement(k, tbox.inf());
+				upper[c].SetElement(k, tbox.sup());
+			} else
 #endif
+			{
+				SepQcFunc& fc(c ? *opt.convex_prob->con[c-1] : *opt.convex_prob->obj);
+				if ((!fc.A[k]) && (!fc.b[k]) && (!fc.s[k])) {
+					out_log << "Warning: Convex underestimator of block " << k << " of " << (c ? opt.split_prob->con_names[c-1] : " objective ") << " is a constant." << endl;
+					lower[c].SetElement(k, 0);
+				} else {
+					SepQcFunc fb(fc.A[k], fc.b[k], fc.s[k]);
+					BoxLocOpt locopt(fb, low[k], up[k]);
+					dvector start(opt.convex_prob->primal_point, fc.block[k]);
+					int ret=locopt.solve(start);
+					if (ret) {
+						out_log << "Computed lower bound of block " << k;
+						if (c) { out_log << " con " << opt.convex_prob->con_names[c-1]; }
+						else out_log << " objective";
+						out_log << "\t LocOpt return: " << ret << "\t value: " << locopt.opt_val() << endl;
+						//					if (c && out_log_p) opt.convex_prob->con[c-1]->print(*out_log_p, opt.convex_prob->var_names);
+					}
+					lower[c].SetElement(k, locopt.opt_val());
+					upper[c].SetElement(k, INFINITY);
+					if (!c) assert(locopt.opt_val()<=obj_upper[k]);
+				}
+			}
 		}
 	}
 
@@ -308,15 +314,17 @@ bool primal_feasible=false;
 			if (!c) {
 				ext_convex_prob->con.back()->c = opt.conv_obj_c_add(k);
 				ext_convex_prob->obj->c-=opt.conv_obj_c_add(k);
-#ifndef FILIB_AVAILABLE
-				ext_convex_prob->lower[ext_convex_prob->lower.dim()-1] += opt.conv_obj_c_add(k);
+#ifdef FILIB_AVAILABLE
+				if (!f.is_interval_compliant())
 #endif
+				ext_convex_prob->lower[ext_convex_prob->lower.dim()-1] += opt.conv_obj_c_add(k);
 				if (ext_quad_prob) {
 					ext_quad_prob->con.back()->c = opt.quad_obj_c_add(k);
 					ext_quad_prob->obj->c-=opt.quad_obj_c_add(k);
-#ifndef FILIB_AVAILABLE
-					ext_quad_prob->lower[ext_quad_prob->lower.dim()-1] += opt.quad_obj_c_add(k);
+#ifdef FILIB_AVAILABLE
+					if (!f.is_interval_compliant())
 #endif
+					ext_quad_prob->lower[ext_quad_prob->lower.dim()-1] += opt.quad_obj_c_add(k);
 				}
 			} else { // adjust constant parts
 				if (opt.ineq_index[c-1]) {
@@ -324,30 +332,34 @@ bool primal_feasible=false;
 					ext_convex_prob->con[c-1]->c -= opt.conv_con_c_add[c-1](k);
 					ext_convex_prob->con.back()->c = opt.conv_con_c_add[opt.ineq_index[c-1]](k);
 					ext_convex_prob->con[opt.ineq_index[c-1]]->c -= opt.conv_con_c_add[opt.ineq_index[c-1]](k);
-#ifndef FILIB_AVAILABLE
-					ext_convex_prob->lower[ext_convex_prob->lower.dim()-1] += opt.conv_con_c_add[c-1](k);
+#ifdef FILIB_AVAILABLE
+					if (!f.is_interval_compliant())
 #endif
+					ext_convex_prob->lower[ext_convex_prob->lower.dim()-1] += opt.conv_con_c_add[c-1](k);
 					if (ext_quad_prob) {
 						ext_quad_prob->con[ext_quad_prob->con.size()-2]->c = opt.quad_con_c_add[c-1](k);
 						ext_quad_prob->con[c-1]->c -= opt.quad_con_c_add[c-1](k);
 						ext_quad_prob->con.back()->c = opt.quad_con_c_add[opt.ineq_index[c-1]](k);
 						ext_quad_prob->con[opt.ineq_index[c-1]]->c -= opt.quad_con_c_add[opt.ineq_index[c-1]](k);
-#ifndef FILIB_AVAILABLE
-						ext_quad_prob->lower[ext_quad_prob->lower.dim()-1] += opt.quad_con_c_add[c-1](k);
+#ifdef FILIB_AVAILABLE
+						if (!f.is_interval_compliant())
 #endif
+						ext_quad_prob->lower[ext_quad_prob->lower.dim()-1] += opt.quad_con_c_add[c-1](k);
 					}
 				} else {
 					ext_convex_prob->con.back()->c = opt.conv_con_c_add[c-1](k);
 					ext_convex_prob->con[c-1]->c -= opt.conv_con_c_add[c-1](k);
-#ifndef FILIB_AVAILABLE
-					ext_convex_prob->lower[ext_convex_prob->lower.dim()-1] += opt.conv_con_c_add[c-1](k);
+#ifdef FILIB_AVAILABLE
+					if (!f.is_interval_compliant())
 #endif
+					ext_convex_prob->lower[ext_convex_prob->lower.dim()-1] += opt.conv_con_c_add[c-1](k);
 					if (ext_quad_prob) {
 						ext_quad_prob->con.back()->c = opt.quad_con_c_add[c-1](k);
 						ext_quad_prob->con[c-1]->c -= opt.quad_con_c_add[c-1](k);
-#ifndef FILIB_AVAILABLE
-						ext_quad_prob->lower[ext_quad_prob->lower.dim()-1] += opt.quad_con_c_add[c-1](k);
+#ifdef FILIB_AVAILABLE
+						if (!f.is_interval_compliant())
 #endif
+						ext_quad_prob->lower[ext_quad_prob->lower.dim()-1] += opt.quad_con_c_add[c-1](k);
 					}
 				}
 			}
@@ -726,8 +738,8 @@ void MinlpOpt::convex_relax() {
 			Pointer<SepQcFunc> f(c ? convex_prob->con[c-1] : convex_prob->obj);
 			if ((f->get_curvature()&Func::CONVEX) && ((!c) || (!convex_prob->con_eq[c-1]) || (f->get_curvature()&Func::CONCAVE))) continue;
 
-/*			if (c) { out_log << "Convexifying " << prob.con_names[c-1] << ": " << endl; }
-			else out_log << "Convexifying objective: " << endl;*/
+//			if (c) { out_log << "Convexifying " << prob.con_names[c-1] << ": " << endl; }
+//			else out_log << "Convexifying objective: " << endl;
  			out_log << ".";
 
 			convexify.new_sampleset(prob.lower, prob.upper, *f);
@@ -749,13 +761,13 @@ void MinlpOpt::convex_relax() {
 				minlpdata->obj.convexification_characteristica_lower=convexify.characteristica1;
 				minlpdata->obj.convex_underestimator=p.first;
 			}
-/*
-			if (c) {
-				prob.con[c-1]->print(*out_log_p, prob.var_names);
-				p.first->print(*out_log_p, prob.var_names);
-				if (p.second) p.second->print(*out_log_p, prob.var_names);
-			}
-*/
+
+//			if (c) {
+//				prob.con[c-1]->print(*out_log_p, prob.var_names);
+//				p.first->print(*out_log_p, prob.var_names);
+//				if (p.second) p.second->print(*out_log_p, prob.var_names);
+//			}
+
 
 			for (int k=0; k<prob.block.size(); k++)
 				if (convexify.convexify_c[k].first)
@@ -945,6 +957,11 @@ void MinlpOpt::box_reduce0() {
 			if (split_prob->lower(*it)>-INFINITY && split_prob->upper(*it)<INFINITY) it=unbounded_var.erase(it);
 			else ++it;
 	}
+	
+	// move primal_point inside box
+	for (int i=0; i<split_prob->dim(); ++i)
+		if (split_prob->primal_point(i)<split_prob->lower(i)) split_prob->primal_point[i]=split_prob->lower(i);
+		else if (split_prob->primal_point(i)>split_prob->upper(i)) split_prob->primal_point[i]=split_prob->upper(i);
 
 	boxreduce_time+=t.stop();
 	print_box_reduce_quality(orig_prob->lower, orig_prob->upper, split_prob, "Boxreduction phase 0");
@@ -1034,6 +1051,11 @@ void MinlpOpt::box_reduce1() {
 			clog << split_prob->var_names[*it] << endl;
 		assert(unbounded_var.empty());
 	}
+
+	// move primal_point inside box
+	for (int i=0; i<split_prob->dim(); ++i)
+		if (split_prob->primal_point(i)<split_prob->lower(i)) split_prob->primal_point[i]=split_prob->lower(i);
+		else if (split_prob->primal_point(i)>split_prob->upper(i)) split_prob->primal_point[i]=split_prob->upper(i);
 
 	boxreduce_time+=t.stop();
 	print_box_reduce_quality(orig_prob->lower, orig_prob->upper, split_prob, "Boxreduction phase 1");
@@ -1165,6 +1187,17 @@ void MinlpOpt::box_reduce3() {
 		}
 	}
 
+	// move primal_point inside box
+	for (int i=0; i<split_prob->dim(); ++i)
+		if (split_prob->primal_point(i)<split_prob->lower(i)) {
+			reform->ext_convex_prob->primal_point[i]=convex_prob->primal_point[i]=split_prob->primal_point[i]=split_prob->lower(i);
+			if (quad_prob) reform->ext_quad_prob->primal_point[i]=quad_prob->primal_point[i]=split_prob->lower(i);
+		}
+		else if (split_prob->primal_point(i)>split_prob->upper(i)) {
+			reform->ext_convex_prob->primal_point[i]=convex_prob->primal_point[i]=split_prob->primal_point[i]=split_prob->upper(i);
+			if (quad_prob) reform->ext_quad_prob->primal_point[i]=quad_prob->primal_point[i]=split_prob->upper(i);
+		}
+	
 	sol_cand_diam=new dvector(reform->ext_convex_prob->upper);
 	*sol_cand_diam-=reform->ext_convex_prob->lower;
 	*sol_cand_diam*=param->get_d("heu close points tolerance", .001);
