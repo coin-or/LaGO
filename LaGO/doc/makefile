@@ -8,13 +8,13 @@ CC  = gcc
 
 doc : paramdochtml ../src/*.cc ../src/*.h
 	echo "<HTML><BODY>" > paramdoc.html
-	bash -c 'for file in ../src/*.h ../src/*.cc ; do paramdochtml < $$file >> paramdoc.html; done'
+	bash -c 'for file in ../src/*.h ../src/*.cc ; do ./paramdochtml < $$file >> paramdoc.html; done'
 	echo "</BODY></HTML>" >> paramdoc.html
 	echo "<HTML><BODY>" > shortparamdoc.html
-	bash -c 'for file in ../src/*.h ../src/*.cc ; do paramdochtml 1 < $$file >> shortparamdoc.html; done'
+	bash -c 'for file in ../src/*.h ../src/*.cc ; do ./paramdochtml 1 < $$file >> shortparamdoc.html; done'
 	echo "</BODY></HTML>" >> shortparamdoc.html
 	echo "<HTML><BODY>" > veryshortparamdoc.html
-	bash -c 'for file in ../src/*.h ../src/*.cc ; do paramdochtml 2 < $$file >> veryshortparamdoc.html; done'
+	bash -c 'for file in ../src/*.h ../src/*.cc ; do ./paramdochtml 2 < $$file >> veryshortparamdoc.html; done'
 	echo "</BODY></HTML>" >> veryshortparamdoc.html
 
 paramdochtml : paramdochtml.lex
