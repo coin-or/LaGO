@@ -115,7 +115,7 @@ void MinlpBCP::init() {
 
 	lagsolve_type=BranchCut;
 
-	Pointer<char> bcpsubdivtype=param->get("BCP subdiv type", "Binary");
+	Pointer<char> bcpsubdivtype=param->get("BCP subdiv type", "Violation");
 	if (!strcmp(bcpsubdivtype, "Binary")) subdiv_type=BinSubdiv;
 	else if (!strcmp(bcpsubdivtype, "Cost")) subdiv_type=CostSubdivLag;
 	else if (!strcmp(bcpsubdivtype, "Bisection")) subdiv_type=BisectSubdiv;
@@ -124,7 +124,7 @@ void MinlpBCP::init() {
 	
 	subdiv_discrete_emphasis=param->get_i("Subdivision on discrete emphasis", 1);
 	
-	Pointer<char> nodeselecttype=param->get("BCP node selection typ", "best bound");
+	Pointer<char> nodeselecttype=param->get("BCP node selection typ", "unfixed discrete");
 	if (strcmp(nodeselecttype, "unfixed discrete")==0) nodeselect_type=UnfixedDiscrete;
 	else nodeselect_type=BestBound;
 
