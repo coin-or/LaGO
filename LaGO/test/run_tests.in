@@ -9,6 +9,8 @@
 
 srcdir="@srcdir@"
 
+retval=0
+
 echo " "
 echo Running tests...
 echo " "
@@ -47,6 +49,7 @@ do
 		if test $rel100 -le 1 -a $rel100 -ge 0; then
 			echo "   Test passed!"
 		else
+		  retval=-1
 			echo " "
 			echo " ---- 8< ---- Start of test program output ---- 8< ----"
 			cat tmpfile
@@ -57,6 +60,7 @@ do
 			echo "Output of the test program is above."
     fi
 	else
+	  retval=-1
     echo " "
     echo " ---- 8< ---- Start of test program output ---- 8< ----"
     cat tmpfile
@@ -68,3 +72,5 @@ do
   fi
   rm -f tmpfile
 done
+
+exit $retval
