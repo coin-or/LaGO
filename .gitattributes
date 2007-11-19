@@ -3,7 +3,6 @@
 /INSTALL -text
 /LICENSE -text
 LaGO/AUTHORS -text
-LaGO/INSTALL -text
 LaGO/LICENSE -text
 LaGO/Makefile.am -text
 LaGO/Makefile.in -text
