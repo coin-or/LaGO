@@ -336,7 +336,7 @@ void QuadraticUnderestimator::quadratic_underestimator(SparseMatrix2& A, SparseV
 	for (multimap<double, dvector>::iterator it_sample_point(sample_set.begin()); it_sample_point!=sample_set.end(); ++it_sample_point, ++j) {
 		double f_val=f->eval(it_sample_point->second);
 		assert(f_val==f_val);
-
+//out_log << "f has value " << f_val << " at " << it_sample_point->second; 
 		double scale=1;
 		int i=0; // number of multiindex alpha
 		for (list<Monom>::iterator it_monom(monoms.begin()); it_monom!=monoms.end(); it_monom++, i++) {
@@ -544,6 +544,9 @@ void QuadraticUnderestimator::quadratic_underestimator(SparseMatrix2& A, SparseV
 			out_log << "Keeping solution with violation " << best_violation << ' ';
 			finished=true;
 		}
+
+//		if (iter==0)
+//			out_log << "First try quad. underestimator is " << fpdiff;
 		
 		++iter;
 	} while (!finished);
@@ -582,6 +585,26 @@ void QuadraticUnderestimator::quadratic_underestimator(SparseMatrix2& A, SparseV
 	}
 	
 	if (nr_locmin>max_locmin) max_locmin=nr_locmin;
+
+//	A.finish();
+//	out_log << "Quad. underestimator of " << *f << "lower: " << *lower << "upper: " << *upper << "matrix: " << A << "linear: " << b << "constant: " << c << endl;
+
+	
+//	for (multimap<double, dvector>::iterator it_sample_point(sample_set.begin()); it_sample_point!=sample_set.end(); ++it_sample_point, ++j) {
+////		f->eval(it_sample_point->second);
+//		double p_val=0.;
+//		int i=0;
+//		for (list<MultiIndex>::iterator it_mind(multiindices.begin()); it_mind!=multiindices.end(); ++it_mind, ++i) {
+//			switch(it_mind->size()) {
+//				case 0: p_val+=best_coeff[i]; break;
+//				case 1: p_val+=best_coeff[i]*it_sample_point->second[*it_mind->begin()]; break;
+//				case 2: int second=*(++it_mind->begin());
+//					p_val+=best_coeff[i]*it_sample_point->second[*it_mind->begin()]*it_sample_point->second[second];
+//					break;
+//			}
+//		}
+//		out_log << "q has value " << p_val << " at " << it_sample_point->second; 
+//	}
 
 }
 

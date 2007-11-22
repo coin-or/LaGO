@@ -16,7 +16,6 @@
 #ifdef CPLEX_AVAILABLE
 #include "OsiCpxSolverInterface.hpp"
 #else
-//#include "coin/OsiVolSolverInterface.hpp"
 #include "OsiClpSolverInterface.hpp"
 #endif
 #include "CoinPackedVector.hpp"
@@ -35,10 +34,8 @@ OSISolver::OSISolver(const MipProblem& mip)
 	OsiClpSolverInterface* osisolverclp=new OsiClpSolverInterface();
 //	osisolverclp->getModelPtr()->setDblParam(ClpMaxSeconds, 60.);
 	osisolverclp->getModelPtr()->setIntParam(ClpMaxNumIteration, 10000);
-//	osisolverclp->getModelPtr()->messageHandler()->setLogLevel(0);
 //	osisolverclp->setHintParam(OsiDoScale, false);
 	osisolver=osisolverclp;
-//	osisolver=new OsiVolSolverInterface();
 #endif
 	osisolver->messageHandler()->setLogLevel(0);
 	osisolver->loadProblem(mip.dim(), mip.rows(),
@@ -354,12 +351,12 @@ void OSISolver::add_rows(const vector<pair<dvector, ivector> >& rows, const dvec
 
 void OSISolver::add_rows(list<const MIPSolver::RowItem*>& rowitems, const vector<pair<dvector, ivector> >& rows, const dvector& low, const dvector& up) {
 	for (int i=0; i<rows.size(); ++i) {
-		addedrows.push_back(RowItem(nr_row()-1+i));
+		addedrows.push_back(RowItem(nr_row()+i));
 		list<RowItem>::iterator it(addedrows.end()); --it;
 		it->it=it;
 		rowitems.push_back(&(*it));
 	}
-	add_rows(rows, low, up);	
+	add_rows(rows, low, up);
 }
 
 
