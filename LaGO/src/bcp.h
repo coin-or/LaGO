@@ -115,6 +115,11 @@ class LagHeu;
 		%level 1
 		Indicates, whether to derive cuts from the LP relaxation by considering the binary restrictions in the original problem.
 		Currently, MixedIntegerRoundingCuts from the Cgl are used.
+		@param max outer approximation iterations
+    %options integer $\geq 0$
+		%default 10
+		%level 1
+		Maximal number of outer approximation iterations (cutgeneration and resolve of LP relax) for each node.
 		@param maxcut
 		%options 0, 1
 		%default 0
@@ -290,6 +295,10 @@ class MinlpBCP : public RelaxationSolver {
 		/** Indicates, whether we should add Lagrangian cuts.
 		*/
 		bool lag_cuts;
+		
+		/** Maximal number of cutgeneration rounds for each node in improve_LP_bound 
+		 */
+		int max_outerapprox_iter;
 
 		/** The number of computations of NLP-bounds or RMP-bounds, which failed, while (R[U]) was solved.
 		*/

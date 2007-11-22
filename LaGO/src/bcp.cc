@@ -132,6 +132,8 @@ void MinlpBCP::init() {
 
 	upper_bound_effort_level=param->get_i("BCP upper bound effort", is_maxcut ? 2 : 0);
 
+	max_outerapprox_iter=param->get_i("max outer approximation iterations", 10);
+	
 //	conv_rate_cntrl=param.get_i("control convergence rate", 1);
 	conv_rate_cntrl_stopping_rho=param->get_d("stopping rho", 0.1);
 	conv_rate_cntrl_minor_iter=param->get_i("minor iterations", 5);
@@ -693,7 +695,7 @@ int MinlpBCP::improve_LP_bound(Pointer<MinlpNode> node) {
 //		out_log << "New reference point: " << node->ref_point;
 
 		if (linconcutgen.max_violation>max_violation) max_violation=linconcutgen.max_violation;
-	} while (newcuts && (linconcutgen.max_violation>.1*max_violation) && max_violation>1E-4 && ret==0 && ++iter<10);
+	} while (newcuts && (linconcutgen.max_violation>.1*max_violation) && max_violation>1E-4 && ret==0 && ++iter<max_outerapprox_iter);
 
 	return ret;
 }
