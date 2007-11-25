@@ -123,12 +123,6 @@ LaGO/test/ex1223.gms -text
 LaGO/test/ex1223.mod -text
 LaGO/test/ex1223.nl -text
 LaGO/test/ex1223.row -text
-LaGO/test/ex1252.bkov -text
-LaGO/test/ex1252.col -text
-LaGO/test/ex1252.gms -text
-LaGO/test/ex1252.mod -text
-LaGO/test/ex1252.nl -text
-LaGO/test/ex1252.row -text
 LaGO/test/run_tests.in -text
 /Makefile.am -text
 /Makefile.in -text
