@@ -1,0 +1,13 @@
+Index: Bonmin/src/Interfaces/BonTMINLP2TNLP.cpp
+===================================================================
+--- Bonmin/src/Interfaces/BonTMINLP2TNLP.cpp	(Revision 956)
++++ Bonmin/src/Interfaces/BonTMINLP2TNLP.cpp	(Arbeitskopie)
+@@ -482,6 +482,8 @@
+     if (IsValid(curr_warm_starter_)) {
+       curr_warm_starter_->Finalize();
+     }
++    
++    tminlp_->finalize_solution(TMINLP::SUCCESS, n, x, obj_value);
+   }
+ 
+ 
