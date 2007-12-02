@@ -26,7 +26,7 @@ bool LocOpt::nlp_solver_available() {
 #endif
 }
 
-Pointer<LocOpt> LocOpt::get_solver(const Pointer<MinlpProblem> prob, Pointer<Param> param, char* param_prefix, Pointer<ostream> out_solver_p_, Pointer<ostream> out_solver_log_p_) {
+Pointer<LocOpt> LocOpt::get_solver(const Pointer<MinlpProblem> prob, Pointer<Param> param, const char* param_prefix, Pointer<ostream> out_solver_p_, Pointer<ostream> out_solver_log_p_) {
 #ifdef IPOPT_AVAILABLE
 	return new IpOpt(prob, param, out_solver_p_, out_solver_log_p_);
 #endif
@@ -39,11 +39,11 @@ Pointer<LocOpt> LocOpt::get_solver(const Pointer<MinlpProblem> prob, Pointer<Par
 	return NULL;
 }
 
-Pointer<LocOpt> LocOpt::get_lp_solver(const Pointer<MinlpProblem> prob, Pointer<Param> param, char* param_prefix, Pointer<ostream> out_solver_p_, Pointer<ostream> out_solver_log_p_) {
+Pointer<LocOpt> LocOpt::get_lp_solver(const Pointer<MinlpProblem> prob, Pointer<Param> param, const char* param_prefix, Pointer<ostream> out_solver_p_, Pointer<ostream> out_solver_log_p_) {
 	return new LPSolver(prob);
 }
 
-Pointer<LocOpt> LocOpt::get_solver_origprob(const Pointer<MinlpProblem> prob, Pointer<Param> param, char* param_prefix, Pointer<ostream> out_solver_p_, Pointer<ostream> out_solver_log_p_) {
+Pointer<LocOpt> LocOpt::get_solver_origprob(const Pointer<MinlpProblem> prob, Pointer<Param> param, const char* param_prefix, Pointer<ostream> out_solver_p_, Pointer<ostream> out_solver_log_p_) {
 #ifdef COIN_HAS_GAMSIO
 	if (gamsptr)
 		return new gamsLocOpt(prob, param, out_solver_p_, out_solver_log_p_);

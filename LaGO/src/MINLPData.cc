@@ -61,7 +61,7 @@ MINLPData::MINLPData(const MinlpProblem& prob)
 	discrete_var=prob.i_discr;
 	
 	for (int i=0; i<prob.dim(); ++i)
-		var.push_back(Variable(i, prob.lower(i), prob.upper(i), prob.discr[i], string(prob.var_names[i] ? prob.var_names[i] : "")));
+		var.push_back(Variable(i, prob.lower(i), prob.upper(i), prob.discr[i], string(prob.var_names[i] ? (const char*)prob.var_names[i] : "")));
 	for (int k=0; k<prob.block.size(); ++k) {
 		block[k].reserve(prob.block[k].size());
 		for (int i=0; i<prob.block[k].size(); ++i) {
@@ -73,7 +73,7 @@ MINLPData::MINLPData(const MinlpProblem& prob)
 	}
 	
 	for (int c=0; c<prob.con.size(); ++c) {
-		con.push_back(Constraint(c, prob.con[c], prob.con_eq[c], string(prob.con_names[c] ? prob.con_names[c] : "")));
+		con.push_back(Constraint(c, prob.con[c], prob.con_eq[c], string(prob.con_names[c] ? (const char*)prob.con_names[c] : "")));
 	}
 	
 	obj=Objective(prob.obj);	

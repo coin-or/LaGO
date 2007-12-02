@@ -146,7 +146,7 @@ public:
       @see Param(char*, char*)
       @see Param(Param&)
   */
-  Param() : filenr(-1), head(NULL), basedir("resource/") { }
+  Param() : filenr(-1), head(NULL), basedir(strdup("resource/")) { }
 
   /** Copy-Constructor.
       Call's Assign-Operator.

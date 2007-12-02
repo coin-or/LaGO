@@ -210,7 +210,7 @@ bool primal_feasible=false;
 			{
 				SepQcFunc& fc(c ? *opt.convex_prob->con[c-1] : *opt.convex_prob->obj);
 				if ((!fc.A[k]) && (!fc.b[k]) && (!fc.s[k])) {
-					out_log << "Warning: Convex underestimator of block " << k << " of " << (c ? opt.split_prob->con_names[c-1] : " objective ") << " is a constant." << endl;
+					out_log << "Warning: Convex underestimator of block " << k << " of " << (c ? (const char*)opt.split_prob->con_names[c-1] : " objective ") << " is a constant." << endl;
 					lower[c].SetElement(k, 0);
 				} else {
 					SepQcFunc fb(fc.A[k], fc.b[k], fc.s[k]);
@@ -817,7 +817,7 @@ void MinlpOpt::convex_relax() {
 	}
 }
 
-double MinlpOpt::print_box_reduce_quality(dvector& oldlow, dvector& oldup, Pointer<MinlpProblem> prob, char* prefix) {
+double MinlpOpt::print_box_reduce_quality(dvector& oldlow, dvector& oldup, Pointer<MinlpProblem> prob, const char* prefix) {
 	double avg_rel_impr=0.; // average relative improvement
 	double min_rel_impr=1.; // minimal relative improvement
 	int nr_real_impr=0; // number of improvements, better than 20%
@@ -1224,8 +1224,8 @@ void MinlpOpt::init() {
 	MINLP minlp(*minlpdata);
 //	out_log << minlp;
 
-/*	for (int i=0; i<split_prob->dim(); ++i)
-		out_log << split_prob->var_names[i] << ": \t" << split_prob->lower[i] << '\t' << split_prob->upper[i] << endl;*/
+//	for (int i=0; i<split_prob->dim(); ++i)
+//		out_log << split_prob->var_names[i] << ": \t" << split_prob->lower[i] << '\t' << split_prob->upper[i] << endl;
 
 	quad_relax();
 

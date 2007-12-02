@@ -302,7 +302,7 @@ class MinlpOpt : public Solver {
 		/** Gives a problem, which containts only the convex constraints from a given problem. Uses another problem as reference to get curvature information.
 		*/
 		Pointer<MinlpProblem> get_convex_prob(Pointer<MinlpProblem> prob, Pointer<MinlpProblem> prob_curv_ref);
-		double print_box_reduce_quality(dvector& oldlow, dvector& oldup, Pointer<MinlpProblem> prob, char* prefix);
+		double print_box_reduce_quality(dvector& oldlow, dvector& oldup, Pointer<MinlpProblem> prob, const char* prefix);
 
 	public:
 		/** Solution candidates.

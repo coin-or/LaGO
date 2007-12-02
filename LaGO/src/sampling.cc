@@ -8,7 +8,7 @@
 
 // ----------------------------------------------- Sampling -------------------------------------------
 
-Sampling::Sampling(Pointer<Param> param, char* param_prefix)
+Sampling::Sampling(Pointer<Param> param, const char* param_prefix)
 : midpoint(false), bounds(false), montecarlo(5), vertices(5)
 {	if (!param) return;
 
@@ -82,7 +82,7 @@ int Sampling::get_points(vector<dvector>& sample_set, const UserVector<double>& 
 
 // ----------------------------------------- Sampling_Vertices -------------------------------
 
-Sampling_Vertices::Sampling_Vertices(Pointer<Param> param, char* param_prefix)
+Sampling_Vertices::Sampling_Vertices(Pointer<Param> param, const char* param_prefix)
 : vertices(0)
 {	if (!param) return;
 	int prefix_end=param_prefix ? strlen(param_prefix)+1 : 0;
@@ -635,7 +635,7 @@ void Sampling_check::check(vector<vector<dvector> >& sample_set, const SepQcFunc
 
 // ---------------------------------- Sampling_Minimizer ---------------------------------------------------
 
-Sampling_Minimizer::Sampling_Minimizer(Pointer<Param> param_, char* param_prefix)
+Sampling_Minimizer::Sampling_Minimizer(Pointer<Param> param_, const char* param_prefix)
 : param(param_)
 {	if (!param) return;
 	int prefix_end=param_prefix ? strlen(param_prefix)+1 : 0;

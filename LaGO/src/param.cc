@@ -47,7 +47,7 @@ Param::~Param() {
 	for (int i=0; i<paramfiles.size(); i++)
 		if (paramfiles[i]) free(paramfiles[i]);
 	if (head) delete head;
-	if (basedir) delete basedir;
+	if (basedir) free(basedir);
 }
 
 int Param::read() {

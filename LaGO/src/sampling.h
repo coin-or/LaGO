@@ -67,7 +67,7 @@ class Sampling {
 		    @param param Parameters.
 		    @param param_prefix A prefix for the parameter names.
 		*/
-		Sampling(Pointer<Param> param=NULL, char* param_prefix=NULL);
+		Sampling(Pointer<Param> param=NULL, const char* param_prefix=NULL);
 		
 		/** Destructor.
 		    Does nothing.
@@ -137,7 +137,7 @@ class Sampling_Vertices {
 		    @param param Parameters.
 		    @param param_prefix A prefix for the parameter names.
 		*/
-		Sampling_Vertices(Pointer<Param> param=NULL, char* param_prefix=NULL);
+		Sampling_Vertices(Pointer<Param> param=NULL, const char* param_prefix=NULL);
 
 		void get_points(vector<vector<dvector> >& sample_set, const UserVector<double>& lower, const UserVector<double>& upper, const vector<ivector>& block, const vector<Pointer<set<int> > >& i_quad, const vector<Pointer<set<int> > > &i_nonquadlin);
 
@@ -267,7 +267,7 @@ class Sampling_Minimizer {
 		    @param param Parameters.
 		    @param param_prefix A prefix for the parameter names.
 		*/
-		Sampling_Minimizer(Pointer<Param> param_=NULL, char* param_prefix=NULL);
+		Sampling_Minimizer(Pointer<Param> param_=NULL, const char* param_prefix=NULL);
 
 		/** Uses the best sample point to start the search of a minimizer of a function to add this to the sample set.
 		    @param sample_set A sample set to pick a starting point from.

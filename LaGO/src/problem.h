@@ -225,7 +225,7 @@ class MinlpProblem {
           @see add_obj(SepQcFunc*)
           @see add_con(SepQcFunc&, bool, char*)
       */
-      virtual void add_var(int i_, int bnum, bool discr_, double lower_, double upper_, char* name=NULL);
+      virtual void add_var(int i_, int bnum, bool discr_, double lower_, double upper_, const char* name=NULL);
 
       /** Adds a constraint to the problem.
           Adds f to con, init's the Ablock of f, copys the name and add eq to con_eq.
@@ -236,7 +236,7 @@ class MinlpProblem {
           @see add_obj(SepQcFunc&)
           @see del_con(int)
       */
-      virtual void add_con(Pointer<SepQcFunc> f, bool eq=true, char* name=NULL);
+      virtual void add_con(Pointer<SepQcFunc> f, bool eq=true, const char* name=NULL);
 
       /** Deletes one constraint from the problem.
           @param connr The number of the constraint to delete.

@@ -285,16 +285,16 @@ class LocOpt : public Solver {
 		static bool nlp_solver_available();
 		/** Gives a local optimizer, if available.
 		*/
-		static Pointer<LocOpt> get_solver(const Pointer<MinlpProblem> prob, Pointer<Param> param, char* param_prefix=NULL, Pointer<ostream> out_solver_p_=out_out_p, Pointer<ostream> out_solver_log_p_=out_log_p);
+		static Pointer<LocOpt> get_solver(const Pointer<MinlpProblem> prob, Pointer<Param> param, const char* param_prefix=NULL, Pointer<ostream> out_solver_p_=out_out_p, Pointer<ostream> out_solver_log_p_=out_log_p);
 
 		/** Gives a LP solver, if available.
 		*/
-		static Pointer<LocOpt> get_lp_solver(const Pointer<MinlpProblem> prob, Pointer<Param> param, char* param_prefix=NULL, Pointer<ostream> out_solver_p_=out_out_p, Pointer<ostream> out_solver_log_p_=out_log_p);
+		static Pointer<LocOpt> get_lp_solver(const Pointer<MinlpProblem> prob, Pointer<Param> param, const char* param_prefix=NULL, Pointer<ostream> out_solver_p_=out_out_p, Pointer<ostream> out_solver_log_p_=out_log_p);
 
 		/** Gives a local optimizer for the original problem, if available.
 	      The given problem should be the original one, only the variable bounds can be different.
 		*/
-		static Pointer<LocOpt> get_solver_origprob(const Pointer<MinlpProblem> prob, Pointer<Param> param, char* param_prefix=NULL, Pointer<ostream> out_solver_p_=out_out_p, Pointer<ostream> out_solver_log_p_=out_log_p);
+		static Pointer<LocOpt> get_solver_origprob(const Pointer<MinlpProblem> prob, Pointer<Param> param, const char* param_prefix=NULL, Pointer<ostream> out_solver_p_=out_out_p, Pointer<ostream> out_solver_log_p_=out_log_p);
 
 		LocOpt(int n, Pointer<ostream> out_solver_p_=out_out_p, Pointer<ostream> out_solver_log_p_=out_log_p)
 		: Solver(n, out_solver_p_, out_solver_log_p_)

@@ -25,7 +25,7 @@ MinlpProblem::MinlpProblem(const MinlpProblem& p, int k)
 	}
 }
 
-void MinlpProblem::add_var(int i_, int bnum, bool discr_, double lower_, double upper_, char* name) {
+void MinlpProblem::add_var(int i_, int bnum, bool discr_, double lower_, double upper_, const char* name) {
   for (int i=0; i<block.size(); i++)
     for (int j=0; j<block[i].size(); j++)
       if (i_==block[i][j]) {
@@ -65,7 +65,7 @@ void MinlpProblem::add_var(int i_, int bnum, bool discr_, double lower_, double 
 	for (int c=0; c<con.size(); c++) con[c]->add_var(i_, bnum);
 };
 
-void MinlpProblem::add_con(Pointer<SepQcFunc> f, bool eq, char* name) {
+void MinlpProblem::add_con(Pointer<SepQcFunc> f, bool eq, const char* name) {
   con.push_back(f);
   con_names.push_back(name ? strdup(name) : NULL);
   con_eq.push_back(eq);
