@@ -585,6 +585,8 @@ void MinlpOpt::decompose() {
 	conv_obj_c_add=0;
 
 	intervalreduction.set_problem(orig_prob);
+	intervalreduction.min_impr=param->get_d("IntervalReduction min improvement tolerance", intervalreduction.min_impr);
+	intervalreduction.maxfunceval=param->get_i("IntervalReduction max function evaluations", intervalreduction.maxfunceval);
 }
 
 bool MinlpOpt::check_convex(MinlpProblem& prob) {

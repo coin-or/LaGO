@@ -187,6 +187,7 @@ class IntervalReduction {
 		bool do_print;
 		bool empty_boxes;
 		double min_impr;
+		int maxfunceval;
 		set<pair<int, int> > reduced_integer;
 
 		/** Stores for each block, how much it was reduced.
@@ -194,10 +195,7 @@ class IntervalReduction {
 		dvector reduction_by_block;
 		double reduction;
 
-		IntervalReduction(Pointer<MinlpProblem> prob_=NULL)
-		: do_print(false), empty_boxes(false), min_impr(.01)
-		{ if (prob_) set_problem(prob_);
-		}
+		IntervalReduction(Pointer<MinlpProblem> prob_=NULL);
 
 		void set_problem(Pointer<MinlpProblem> prob_);
 

@@ -497,6 +497,11 @@ const IntervalReduction::EdgeData& IntervalReduction::EdgeData::operator+=(const
 	return *this;
 }
 
+IntervalReduction::IntervalReduction(Pointer<MinlpProblem> prob_)
+: do_print(false), empty_boxes(false), min_impr(.01), maxfunceval(10000)
+{ if (prob_) set_problem(prob_);
+}
+
 void IntervalReduction::set_problem(Pointer<MinlpProblem> prob_) {
 	prob=prob_;
 	reduction_by_block.resize(prob->block.size());
@@ -539,7 +544,6 @@ void IntervalReduction::set_problem(Pointer<MinlpProblem> prob_) {
 
 void IntervalReduction::run(dvector& newlow, dvector& newup, const dvector& oldlow, const dvector& oldup, set<pair<const DependencyGraph::NodeType*, which_bound_type> >& nodeset) {
 	int funceval=0;
-	const int maxfunceval=10000;
 	reduced_integer.clear();
 	empty_boxes=false;
 	bool box_changed=false;
