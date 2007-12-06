@@ -1,0 +1,28 @@
+Installation of METIS subroutines.
+
+**********************************************************************
+Note: It is YOUR RESPONSIBILITY to ensure that you are entitled to
+      download and use this third party package.
+**********************************************************************
+
+If you are working under Unix/Linux-like system and you have `wget'
+installed, you can download the required source code for METIS
+by executing the included script `get.METIS' in this directory.
+
+Otherwise, follow those instructions:
+
+METIS is available at
+
+http://glaros.dtc.umn.edu/gkhome/views/metis/index.html
+
+Please download the 'http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/metis-4.0.tar.gz'
+tarball and unpack it in this directory.
+
+tar xzf metis-4.0.tar.gz
+
+As last step, compile METIS via 
+
+cd metis-4.0
+make
+
+.

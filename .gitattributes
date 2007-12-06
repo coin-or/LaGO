@@ -127,6 +127,7 @@ LaGO/test/run_tests.in -text
 /Makefile.am -text
 /Makefile.in -text
 /README -text
+ThirdParty/FILIB++/INSTALL.FILIB++ -text
 ThirdParty/FILIB++/Makefile.am -text
 ThirdParty/FILIB++/Makefile.in -text
 ThirdParty/FILIB++/configure -text
@@ -139,8 +140,11 @@ ThirdParty/FILIB++/filib.patch5 -text
 ThirdParty/FILIB++/get.FILIB++ -text
 ThirdParty/FILIB++/interval_Makefile.am -text
 ThirdParty/FILIB++/interval_Makefile.in -text
+ThirdParty/METIS/INSTALL.METIS -text
 ThirdParty/METIS/get.METIS -text
+ThirdParty/TNT/INSTALL.TNT -text
 ThirdParty/TNT/get.TNT -text
+ThirdParty/ranlib/INSTALL.ranlib -text
 ThirdParty/ranlib/get.ranlib -text
 /config.guess -text
 /config.sub -text
