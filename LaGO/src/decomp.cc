@@ -80,10 +80,12 @@ int DecompGraph::Node::set_component(int comp) {
 
 void DecompGraph::compute_connected_components() {
 	nrcomp=0;
+	largest_size=0;
 	map<int, Node>::iterator it_n(nodes.begin());
 	while (it_n!=nodes.end()) {
 		if (it_n->second.component>=0) { ++it_n; continue; }
 		int size=it_n->second.set_component(nrcomp);
+		if (size>largest_size) largest_size=size;
 //		out_log << nrcomp << ": " << size << endl;
 
 		++it_n;
@@ -424,7 +426,8 @@ Pointer<SplittingScheme2> Decomposition::get_splittingscheme(MinlpProblem& prob,
 	DecompGraph g(*si);
 	for (int i=0; i<prob.block[blocknr].size(); ++i) g.add_node(i);
 	g.compute_connected_components();
-	out_out << "Number of small blocks: " << g.nrcomp << endl;
+	out_out << "Number of small blocks: " << g.nrcomp << '\t';
+	out_out << "Size of largest component: " << g.largest_size << endl;
 
 	// merge small blocks again, which are close together
 	vector<list<int> > components;

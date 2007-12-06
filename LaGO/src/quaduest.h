@@ -94,7 +94,7 @@ class QuadraticUnderestimator {
 		SparseVector<double> c_add1, c_add2;
 		
 		double U3_time, locopt_time, max_abscoeff;
-		int max_locmin;
+		int max_locmin, nr_estimators;
 
 		QuadraticUnderestimator(Pointer<Param> param_=NULL);
 

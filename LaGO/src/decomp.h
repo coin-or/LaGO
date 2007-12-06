@@ -69,6 +69,9 @@ class DecompGraph {
 		set<Edge> edges;
 
 		int nrcomp;
+		/** The size of the largest component.
+		 */
+		int largest_size;
 
     /** Standard-Constructor.
     	  Constructs an empty graph.

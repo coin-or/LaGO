@@ -18,7 +18,7 @@ QuadraticUnderestimator::QuadraticUnderestimator(Pointer<Param> param_)
 	sampling(param_, "Quadratic Underestimator"),
 	sampling_vertices(param_, "Quadratic Underestimator"), sampling_minimizer(param_, "Quadratic Underestimator"),
 	sampling_initial(param_->get_i("Quadratic Underestimator sample set initial", 1)),
-	U3_time(0.), locopt_time(0.), max_abscoeff(0), max_locmin(0)
+	U3_time(0.), locopt_time(0.), max_abscoeff(0), max_locmin(0), nr_estimators(0)
 { }
 
 void QuadraticUnderestimator::new_multiindices(const SparsityInfo& si, int n) {
@@ -320,7 +320,9 @@ class sample_set_item {
 };
 
 void QuadraticUnderestimator::quadratic_underestimator(SparseMatrix2& A, SparseVector<double>& b, double& c, const Pointer<Func>& f, ivector& indices, const Pointer<dvector>& lower, const Pointer<dvector>& upper) {
-// create auxiliary LP with initial sample set
+	++nr_estimators;
+	
+	// create auxiliary LP with initial sample set
 	int multiindices_size=multiindices.size(); // sparsity of p(x)
 	int aux_vars=sample_set.size();
 	MipProblem lp(multiindices_size+aux_vars, sample_set.size());

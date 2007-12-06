@@ -640,6 +640,7 @@ void MinlpOpt::quad_relax() {
 
 		QuadraticUnderestimator quaduest(param);
 		quaduest.quadratic_underestimator(*quad_prob, *minlpdata, ineq_index, quad_obj_c_add, quad_con_c_add);
+		out_log << "Number of estimators: " << quaduest.nr_estimators << '\t';
 		if (t.stop()>rtol) {
 			out_log << "Time for U3: " << ((int)(1000*quaduest.U3_time/t))/10. << "\\%\t";
 			out_log << "Time for locopt: " << ((int)(1000*quaduest.locopt_time/t))/10. << "\\%\t";
