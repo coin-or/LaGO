@@ -53,7 +53,7 @@ void G2D_CALLCONV G2DINTERVAL1X(double xmin[], double xmax[], double dfdxmin[], 
 
 //GDX client
 #ifdef GDX_AVAILABLE
-#include "gdxwrap.h"
+#include "gdxcc.h"
 #endif
 }
 
@@ -201,12 +201,11 @@ gams::gams(Pointer<Param> param_)
 { assert(!gamsptr);
 	gamsptr=this;
 #ifdef GDX_AVAILABLE
-	char* errormsg=new char[128];
-	if (gdxWrapInit(NULL, errormsg, 128)) {
+	char errormsg[128];
+	if (!gdxCreate(&gdxhandle, errormsg, 128)) {
 	 	cerr << "Could not load GDX I/O library: " << errormsg << endl;
 		exit(-1);
 	}
-	delete[] errormsg;
 #endif
 }
 
@@ -447,6 +446,11 @@ Pointer<MinlpProblem> gams::get_problem(char* gamsfile) {
 gams::~gams() {
 	if (dict) gcdFree(dict);
 	gfclos();
+#ifdef GDX_AVAILABLE
+	gdxClose(gdxhandle);
+	gdxFree(&gdxhandle);
+	gdxLibraryUnload();
+#endif
 	gamsptr=NULL;
 }
 
@@ -496,12 +500,10 @@ void gams::write_gams(const dvector& x, const char* filename, const vector<bool>
 
 #ifdef GDX_AVAILABLE
 void gams::gdx_error(int n) {
-//	int n = GDXGetLastError(gdxio);
-	char* mess=new char[256];
-	if (!GDXErrorStr(n,&mess)) cout << "Could not retrieve GDXIO error message" << endl;
-	else cout << mess << endl;
+	char message[256];
+	if (!gdxErrorStr(gdxhandle, n, message)) cout << "Could not retrieve GDXIO error message" << endl;
+	else cout << message << endl;
 
-//	if (mess) delete mess;
 	exit(1);
 }
 
@@ -523,16 +525,16 @@ void gams::write_gdx(const dvector& x, char* filename, double val) {
 }
 
 void gams::write_gdx(const dvector& x, char* filename) {
-	PGXFile gdxhandle=NULL;
 	int errornr;
-	if (errornr=GDXOpenWrite(&gdxhandle, filename, "LaGO")) gdx_error(errornr);
+	gdxOpenWrite(gdxhandle, filename, "LaGO", &errornr);
+	if (errornr) gdx_error(errornr);
 //	out_log << "GDX file open." << endl;
 
   char quote, *targ, *end, *s, tbuf[32];
   int uelIndices[10], nIndices, lSym, oldSym=-1;
-	TgdxStrIndex Elements;
+	char** Elements=new char*[10];
 	for (int i=0; i<10; ++i) Elements[i]=new char[32];
-	TgdxValues Values;
+	double* Values=new double[5];
 	for (int i=0; i<5; ++i) Values[i]=0.;
 	for (int i=0; i<x.dim(); ++i) {
   	if (gcdColUels(dict, i, &lSym, uelIndices, &nIndices) != 0) return;
@@ -540,15 +542,15 @@ void gams::write_gdx(const dvector& x, char* filename) {
 
 		if (oldSym!=lSym) { // we start a new symbol
 			if (oldSym!=-1) { // close old symbol, if we are not at the first; test i==0 should do the same
-				if (!GDXDataWriteDone(gdxhandle)) {
-					out_err << "Error in GDXDataWriteDone for symbol nr. " << oldSym << endl;
+				if (!gdxDataWriteDone(gdxhandle)) {
+					out_err << "Error in gdxDataWriteDone for symbol nr. " << oldSym << endl;
 					exit(-1);
 				}
 
 //				out_log << endl;
 			}
-			if (!GDXDataWriteStrStart(gdxhandle, s, NULL, nIndices, dt_var, 0)) {
-				out_err << "Error in GDXDataWriteStrStart for symbol " << s << endl;
+			if (!gdxDataWriteStrStart(gdxhandle, s, NULL, nIndices, dt_var, 0)) {
+				out_err << "Error in gdxDataWriteStrStart for symbol " << s << endl;
 				exit(-1);
 			}
 //			out_log << "Start writing symbol " << s;
@@ -566,30 +568,32 @@ void gams::write_gdx(const dvector& x, char* filename) {
 		Values[0]=x(i);
 //		out_log << " = " << x(i) << "\t ";
 
-		if (!GDXDataWriteStr(gdxhandle, Elements, Values)) {
-			out_err << "Error in GDXDataWriteStr for symbol " << s << endl;
+		if (!gdxDataWriteStr(gdxhandle, (const char**)Elements, Values)) {
+			out_err << "Error in gdxDataWriteStr for symbol " << s << endl;
 			exit(-1);
 		}
   }
 //	out_log << endl;
-	if (!GDXDataWriteDone(gdxhandle)) { // finish last symbol
-		out_err << "Error in GDXDataWriteDone for symbol nr. " << oldSym << endl;
+	if (!gdxDataWriteDone(gdxhandle)) { // finish last symbol
+		out_err << "Error in gdxDataWriteDone for symbol nr. " << oldSym << endl;
 		exit(-1);
 	}
 
-  if (errornr=GDXClose(&gdxhandle)) gdx_error(errornr);
+  if (errornr=gdxClose(gdxhandle)) gdx_error(errornr);
 
-	for (int i=0; i<10; ++i) delete Elements[i];
+	for (int i=0; i<10; ++i) delete[] Elements[i];
+	delete[] Elements;
+	delete[] Values;
 }
 
 void gams::read_gdx(dvector& x, char* filename) {
-	PGXFile gdxhandle=NULL;
 	int errornr;
-	if (errornr=GDXOpenRead(&gdxhandle, filename)) gdx_error(errornr);
+	gdxOpenRead(gdxhandle, filename, &errornr);
+	if (errornr) gdx_error(errornr);
 //	out_log << "GDX file open." << endl;
 
 	int nrsy=0, nruel=0;
-	if (GDXSystemInfo(gdxhandle, &nrsy, &nruel)==0) {
+	if (gdxSystemInfo(gdxhandle, &nrsy, &nruel)==0) {
 		out_err << "Error retrieving symbol infos." << endl;
 		exit(-1);
 	}
@@ -599,14 +603,14 @@ void gams::read_gdx(dvector& x, char* filename) {
 	char* name=new char[255]; // buffer for symbol name
 	int dim, type;
 	int recCount; // entries per symbol
-	TgdxStrIndex Elements; // uel names
+	char** Elements=new char*[10]; // uel names
 	for (int i=0; i<10; ++i) Elements[i]=new char[32];
-	TgdxValues Values;
+	double* Values=new double[5];
 	int afdim; // index of first changed uel
 	int symIndex; // symbol index in our dictionary
 	int varIndex=-1; // last variable index
 	for (int i=1; i<=nrsy; ++i) {
-		GDXSymbolInfo(gdxhandle, i, name, &dim, &type); // get symbol from gdx file
+		gdxSymbolInfo(gdxhandle, i, name, &dim, &type); // get symbol from gdx file
 		if (type!=dt_var) continue; // skip non-variables
 
 		symIndex=gcdSymIndex(dict, name); // get local symbol index
@@ -615,12 +619,12 @@ void gams::read_gdx(dvector& x, char* filename) {
 			continue;
 		}
 
-		GDXDataReadStrStart(gdxhandle, i, &recCount); // start reading symbol from gdx file
+		gdxDataReadStrStart(gdxhandle, i, &recCount); // start reading symbol from gdx file
 
 //		out_log << "Symbol " << i << ": " << name << "\t dim: " << dim << "\t Index: " << symIndex << "\t recCount: " << recCount << endl;
 
 		for (int j=1;  j<=recCount; j++) {
-			GDXDataReadStr(gdxhandle, Elements, Values, &afdim); // read one entry from gdx file
+			gdxDataReadStr(gdxhandle, Elements, Values, &afdim); // read one entry from gdx file
 			for (int k=afdim-1; k<dim; k++) {
 				uelIndices[k]=gcdUelIndex(dict, Elements[k]); // get appropriate local uel indices
 //				out_log << Elements[k] << " -> " << uelIndices[k] << "\t ";
@@ -636,11 +640,13 @@ void gams::read_gdx(dvector& x, char* filename) {
 			x[varIndex]=Values[0];
 		}
 
-		GDXDataReadDone(gdxhandle);
+		gdxDataReadDone(gdxhandle);
 //		out_log << endl;
 	}
-  if (errornr=GDXClose(&gdxhandle)) gdx_error(errornr);
-	for (int i=0; i<10; ++i) delete Elements[i];
+  if (errornr=gdxClose(gdxhandle)) gdx_error(errornr);
+	for (int i=0; i<10; ++i) delete[] Elements[i];
+	delete[] Elements;
+	delete[] Values;
 	delete name;
 }
 #endif // GDX_AVAILABLE

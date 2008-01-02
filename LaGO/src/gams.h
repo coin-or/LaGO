@@ -20,6 +20,7 @@ class gamsLocOpt;
 class SolCandidate;
 
 extern "C" struct dictRec;
+extern "C" struct gdxRec;
 
 /** Gams interface.
 */
@@ -65,6 +66,8 @@ class gams {
 		*/
 		char* getColName (int j, char *name, int bufLen);
 #ifdef GDX_AVAILABLE
+		struct gdxRec* gdxhandle;
+		
 		void gdx_error(int n);
 #endif
 	public:
