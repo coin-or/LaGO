@@ -1,6 +1,7 @@
 #!/bin/bash
 
-
+rm -f tnt_126.zip
 wget http://math.nist.gov/tnt/tnt_126.zip
 
 unzip tnt_126.zip
+rm -f tnt_126.zip
