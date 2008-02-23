@@ -24595,10 +24595,24 @@ if test "${with_gamsio_code+set}" = set; then
 else
   case $build in
       x86_64-*-linux-*)
-        GAMSIO_CODE=LEI
+        case "$CC" in
+          icpc* | */icpc* | icc* | */icc* | icl* | */icl* )
+            GAMSIO_CODE=LEI
+            ;;
+          *)
+            GAMSIO_CODE=LEG
+            ;;
+        esac
       ;;
       i?86-*-linux-*)
-        GAMSIO_CODE=LX3
+        case "$CC" in
+          icpc* | */icpc* | icc* | */icc* | icl* | */icl* )
+            GAMSIO_CODE=LX3
+            ;;
+          *)
+            GAMSIO_CODE=LNX
+            ;;
+        esac
       ;;
       *-cygwin* | *-mingw*)
         GAMSIO_CODE=VIS
@@ -24618,11 +24632,11 @@ echo "$as_me: error: Build type $build not supported by GAMS I/O libraries." >&2
 fi;
 
 case $GAMSIO_CODE in
-  LEI)
+  LEI | LEG)
       gamsio_system=Linux
       GAMSIO_CIA=CIA_LEX
     ;;
-  LX3)
+  LX3 | LNX)
       gamsio_system=Linux
       GAMSIO_CIA=CIA_LNX
     ;;
@@ -24648,7 +24662,7 @@ esac
 
 
 
-if test x"$gamsio_system" = xDarwin; then
+if test x"$gamsio_system"  = xDarwin; then
   GAMSIO_IS_DARWIN_TRUE=
   GAMSIO_IS_DARWIN_FALSE='#'
 else
@@ -24668,7 +24682,7 @@ fi
 
 
 
-if test x"$gamsio_system" = xWindows; then
+if test x"$gamsio_system"  = xWindows; then
   GAMSIO_IS_WINDOWS_TRUE=
   GAMSIO_IS_WINDOWS_FALSE='#'
 else
@@ -24710,8 +24724,8 @@ if test `eval echo '${'$as_ac_File'}'` = yes; then
 else
 
   coin_has_gamsio=no
-	{ echo "$as_me:$LINENO: WARNING: no GAMS I/O libraries in ThirdParty/GAMSIO/$GAMSIO_CODE found. You can download them by calling $abs_source_dir/../ThirdParty/GAMSIO/get.$GAMSIO_CODE." >&5
-echo "$as_me: WARNING: no GAMS I/O libraries in ThirdParty/GAMSIO/$GAMSIO_CODE found. You can download them by calling $abs_source_dir/../ThirdParty/GAMSIO/get.$GAMSIO_CODE." >&2;}
+	{ echo "$as_me:$LINENO: WARNING: no GAMS I/O libraries in ThirdParty/GAMSIO/$GAMSIO_CODE found. You can download them by calling get.GAMSIO $GAMSIO_CODE." >&5
+echo "$as_me: WARNING: no GAMS I/O libraries in ThirdParty/GAMSIO/$GAMSIO_CODE found. You can download them by calling get.GAMSIO $GAMSIO_CODE." >&2;}
 
 fi
 
@@ -24821,19 +24835,19 @@ fi
 # setting up linker flags
 
 case $GAMSIO_CODE in
-  LX3)
+#  LX3 | LEI)
+#      GAMSIO_LIBS="$gamsio_srcdir/iolib.a $gamsio_srcdir/nliolib.a $gamsio_srcdir/clicelib.a $gamsio_srcdir/gclib.a"
+#      SMAG_LIBS="$gamsio_srcdir/clicelib.a $gamsio_srcdir/libsmag.a $gamsio_srcdir/gclib.a $gamsio_srcdir/libg2d.a"
+#      GAMSIO_ADDLIBS="-ldl"
+#    ;;
+  LNX | LEG | LX3 | LEI)
       GAMSIO_LIBS="$gamsio_srcdir/iolib.a $gamsio_srcdir/nliolib.a $gamsio_srcdir/clicelib.a $gamsio_srcdir/gclib.a"
       SMAG_LIBS="$gamsio_srcdir/clicelib.a $gamsio_srcdir/libsmag.a $gamsio_srcdir/gclib.a $gamsio_srcdir/libg2d.a"
       GAMSIO_ADDLIBS="-ldl $IFORT_LIBS"
     ;;
-  LEI)
+  SIG)
       GAMSIO_LIBS="$gamsio_srcdir/iolib.a $gamsio_srcdir/nliolib.a $gamsio_srcdir/clicelib.a $gamsio_srcdir/gclib.a"
       SMAG_LIBS="$gamsio_srcdir/clicelib.a $gamsio_srcdir/libsmag.a $gamsio_srcdir/gclib.a $gamsio_srcdir/libg2d.a"
-      GAMSIO_ADDLIBS="-ldl $IFORT_LIBS"
-    ;;
-  VIS)
-      GAMSIO_LIBS="$gamsio_srcdir/iolib.lib $gamsio_srcdir/nliolib.lib $gamsio_srcdir/clicelib.lib $gamsio_srcdir/gclib.lib"
-      SMAG_LIBS="$gamsio_srcdir/clicelib.lib $gamsio_srcdir/smag.lib $gamsio_srcdir/gclib.lib $gamsio_srcdir/g2d.lib"
       GAMSIO_ADDLIBS=""
     ;;
   DII)
@@ -24841,9 +24855,9 @@ case $GAMSIO_CODE in
       SMAG_LIBS="$gamsio_srcdir/clicelib.a $gamsio_srcdir/libsmag.a $gamsio_srcdir/gclib.a $gamsio_srcdir/libg2d.a"
       GAMSIO_ADDLIBS="-ldl -lSystemStubs $IFORT_LIBS"
     ;;
-  SIG)
-      GAMSIO_LIBS="$gamsio_srcdir/iolib.a $gamsio_srcdir/nliolib.a $gamsio_srcdir/clicelib.a $gamsio_srcdir/gclib.a"
-      SMAG_LIBS="$gamsio_srcdir/clicelib.a $gamsio_srcdir/libsmag.a $gamsio_srcdir/gclib.a $gamsio_srcdir/libg2d.a"
+  VIS)
+      GAMSIO_LIBS="$gamsio_srcdir/iolib.lib $gamsio_srcdir/nliolib.lib $gamsio_srcdir/clicelib.lib $gamsio_srcdir/gclib.lib"
+      SMAG_LIBS="$gamsio_srcdir/clicelib.lib $gamsio_srcdir/smag.lib $gamsio_srcdir/gclib.lib $gamsio_srcdir/g2d.lib"
       GAMSIO_ADDLIBS=""
     ;;
 esac
