@@ -108,7 +108,9 @@ public:
 	bool get_variables_types(Index n, VariableType* var_types);
 
 	bool get_constraints_linearity(Index m, Ipopt::TNLP::LinearityType* const_types);
-
+	//TODO
+	bool get_variables_linearity(Ipopt::Index, Ipopt::TNLP::LinearityType*) { return false; }
+	
 	bool get_bounds_info(Index n, Number* x_l, Number* x_u, Index m, Number* g_l, Number* g_u);
 
 	bool get_starting_point(Index n, bool init_x, Number* x, bool init_z, Number* z_L, Number* z_U, Index m, bool init_lambda, Number* lambda);

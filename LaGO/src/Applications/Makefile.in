@@ -21,14 +21,14 @@
 #
 # Author: Stefan Vigerske
 
-# Copyright (C) 2006 International Business Machines and others.
+# Copyright (C) 2006, 2007 International Business Machines and others.
 # All Rights Reserved.
 # This file is distributed under the Common Public License.
 
 # Author:  Andreas Waechter           IBM    2006-04-13
 
 ########################################################################
-#                         Maintainer Stuff                             #
+#                    Documentation installation                        #
 ########################################################################
 
 
@@ -73,8 +73,8 @@ DIST_COMMON = $(srcdir)/../../../BuildTools/Makemain.inc \
 @HAVE_EXTERNALS_TRUE@am__append_9 = .Externals-stamp
 subdir = src/Applications
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/m4/ac_coin_gams.m4 \
+	$(top_srcdir)/acinclude.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -113,6 +113,8 @@ LaGOGAMS_OBJECTS = $(am_LaGOGAMS_OBJECTS)
 @COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/libOsi.la \
 @COIN_HAS_GAMSIO_TRUE@	$(COINUTILSOBJDIR)/src/libCoinUtils.la \
 @COIN_HAS_GAMSIO_TRUE@	$(IPOPTOBJDIR)/src/Interfaces/libipopt.la \
+@COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_1) \
+@COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_1) \
 @COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_1) \
 @COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_2) \
 @COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_3)
@@ -154,19 +156,24 @@ AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AUX_DIR = @AUX_DIR@
 AWK = @AWK@
+BONMINDOCDIR = @BONMINDOCDIR@
 BONMINOBJDIR = @BONMINOBJDIR@
 BONMINSRCDIR = @BONMINSRCDIR@
 BUILDTOOLSDIR = @BUILDTOOLSDIR@
+CBCDOCDIR = @CBCDOCDIR@
 CBCOBJDIR = @CBCOBJDIR@
 CBCSRCDIR = @CBCSRCDIR@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CDEFS = @CDEFS@
 CFLAGS = @CFLAGS@
+CGLDOCDIR = @CGLDOCDIR@
 CGLOBJDIR = @CGLOBJDIR@
 CGLSRCDIR = @CGLSRCDIR@
+CLPDOCDIR = @CLPDOCDIR@
 CLPOBJDIR = @CLPOBJDIR@
 CLPSRCDIR = @CLPSRCDIR@
+COINUTILSDOCDIR = @COINUTILSDOCDIR@
 COINUTILSOBJDIR = @COINUTILSOBJDIR@
 COINUTILSSRCDIR = @COINUTILSSRCDIR@
 COIN_HAS_BONMIN_FALSE = @COIN_HAS_BONMIN_FALSE@
@@ -183,10 +190,13 @@ COIN_HAS_CPX_FALSE = @COIN_HAS_CPX_FALSE@
 COIN_HAS_CPX_TRUE = @COIN_HAS_CPX_TRUE@
 COIN_HAS_FILIB_FALSE = @COIN_HAS_FILIB_FALSE@
 COIN_HAS_FILIB_TRUE = @COIN_HAS_FILIB_TRUE@
-COIN_HAS_GAMSCPLEXLICE_FALSE = @COIN_HAS_GAMSCPLEXLICE_FALSE@
-COIN_HAS_GAMSCPLEXLICE_TRUE = @COIN_HAS_GAMSCPLEXLICE_TRUE@
+COIN_HAS_GAMSCPLEXLICENCE_FALSE = @COIN_HAS_GAMSCPLEXLICENCE_FALSE@
+COIN_HAS_GAMSCPLEXLICENCE_TRUE = @COIN_HAS_GAMSCPLEXLICENCE_TRUE@
+COIN_HAS_GAMSIO = @COIN_HAS_GAMSIO@
 COIN_HAS_GAMSIO_FALSE = @COIN_HAS_GAMSIO_FALSE@
 COIN_HAS_GAMSIO_TRUE = @COIN_HAS_GAMSIO_TRUE@
+COIN_HAS_GAMSSYSTEM_FALSE = @COIN_HAS_GAMSSYSTEM_FALSE@
+COIN_HAS_GAMSSYSTEM_TRUE = @COIN_HAS_GAMSSYSTEM_TRUE@
 COIN_HAS_IPOPT_FALSE = @COIN_HAS_IPOPT_FALSE@
 COIN_HAS_IPOPT_TRUE = @COIN_HAS_IPOPT_TRUE@
 COIN_HAS_LAGO_FALSE = @COIN_HAS_LAGO_FALSE@
@@ -218,16 +228,30 @@ FADDLIBS = @FADDLIBS@
 FFLAGS = @FFLAGS@
 FILIB_CPPFLAGS = @FILIB_CPPFLAGS@
 FILIB_LIB = @FILIB_LIB@
+FORTRAN_NAMEMANGLING_CFLAG = @FORTRAN_NAMEMANGLING_CFLAG@
+GAMSIO_ADDLIBS = @GAMSIO_ADDLIBS@
+GAMSIO_CIA = @GAMSIO_CIA@
+GAMSIO_CODE = @GAMSIO_CODE@
 GAMSIO_CPPFLAGS = @GAMSIO_CPPFLAGS@
+GAMSIO_IS_DARWIN_FALSE = @GAMSIO_IS_DARWIN_FALSE@
+GAMSIO_IS_DARWIN_TRUE = @GAMSIO_IS_DARWIN_TRUE@
+GAMSIO_IS_UNIX_FALSE = @GAMSIO_IS_UNIX_FALSE@
+GAMSIO_IS_UNIX_TRUE = @GAMSIO_IS_UNIX_TRUE@
+GAMSIO_IS_WINDOWS_FALSE = @GAMSIO_IS_WINDOWS_FALSE@
+GAMSIO_IS_WINDOWS_TRUE = @GAMSIO_IS_WINDOWS_TRUE@
 GAMSIO_LIBS = @GAMSIO_LIBS@
+GAMSIO_OBJDIR = @GAMSIO_OBJDIR@
+GAMS_PATH = @GAMS_PATH@
 HAVE_EXTERNALS_FALSE = @HAVE_EXTERNALS_FALSE@
 HAVE_EXTERNALS_TRUE = @HAVE_EXTERNALS_TRUE@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+IPOPTDOCDIR = @IPOPTDOCDIR@
 IPOPTOBJDIR = @IPOPTOBJDIR@
 IPOPTSRCDIR = @IPOPTSRCDIR@
+LAGODOCDIR = @LAGODOCDIR@
 LAGOOBJDIR = @LAGOOBJDIR@
 LAGOSRCDIR = @LAGOSRCDIR@
 LDFLAGS = @LDFLAGS@
@@ -248,6 +272,7 @@ MPICXX = @MPICXX@
 OBJEXT = @OBJEXT@
 OPT_CFLAGS = @OPT_CFLAGS@
 OPT_CXXFLAGS = @OPT_CXXFLAGS@
+OSIDOCDIR = @OSIDOCDIR@
 OSIOBJDIR = @OSIOBJDIR@
 OSISRCDIR = @OSISRCDIR@
 PACKAGE = @PACKAGE@
@@ -263,6 +288,7 @@ RANLIBC_LIB = @RANLIBC_LIB@
 RPATH_FLAGS = @RPATH_FLAGS@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SMAG_LIBS = @SMAG_LIBS@
 STRIP = @STRIP@
 VERSION = @VERSION@
 VPATH_DISTCLEANFILES = @VPATH_DISTCLEANFILES@
@@ -293,7 +319,6 @@ build_alias = @build_alias@
 build_cpu = @build_cpu@
 build_os = @build_os@
 build_vendor = @build_vendor@
-coin_has_gamsio = @coin_has_gamsio@
 datadir = @datadir@
 exec_prefix = @exec_prefix@
 gamspath = @gamspath@
@@ -318,6 +343,7 @@ prefix = @prefix@
 program_transform_name = @program_transform_name@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
+sol_cc_compiler = @sol_cc_compiler@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 EXTRA_DIST = gmsla_us.run install/gmsla_un.dat $(am__append_8)
@@ -353,11 +379,14 @@ libLaGO_la_LIBADD = ../Algorithms/libLaGOAlgorithms.la ../Interfaces/libLaGOInte
 @COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/libOsi.la \
 @COIN_HAS_GAMSIO_TRUE@	$(COINUTILSOBJDIR)/src/libCoinUtils.la \
 @COIN_HAS_GAMSIO_TRUE@	$(IPOPTOBJDIR)/src/Interfaces/libipopt.la \
-@COIN_HAS_GAMSIO_TRUE@	$(GAMSIO_LIBS) $(am__append_4) \
+@COIN_HAS_GAMSIO_TRUE@	$(GAMSIO_LIBS) $(SMAG_LIBS) \
+@COIN_HAS_GAMSIO_TRUE@	$(GAMSIO_ADDLIBS) $(am__append_4) \
 @COIN_HAS_GAMSIO_TRUE@	$(am__append_5)
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_LDFLAGS = $(ADDLIBS) -rpath $(libdir)
 DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
 DISTCLEANFILES = $(am__append_9) $(VPATH_DISTCLEANFILES)
+DocFiles = README AUTHORS LICENSE
+DocInstallDir = $(prefix)/share/doc/coin/$(PACKAGE_NAME)
 all: all-am
 
 .SUFFIXES:
@@ -685,6 +714,22 @@ uninstall-am: uninstall-binPROGRAMS uninstall-info-am \
 @COIN_HAS_GAMSIO_TRUE@uninstall-local:
 @COIN_HAS_GAMSIO_TRUE@	rm -f $(DESTDIR)$(bindir)/gmsla_.zip
 
+install-doc: $(DocFiles)
+	test -z "$(DocInstallDir)" || $(mkdir_p) "$(DESTDIR)$(DocInstallDir)"
+	for file in $(DocFiles); do \
+	  if test -f "$$file"; then dir=; else dir="$(srcdir)/"; fi; \
+	  if test -f "$$dir$$file"; then $(INSTALL_DATA) "$$dir$$file" "$(DESTDIR)$(DocInstallDir)/$$file"; fi; \
+	done
+
+uninstall-doc:
+	for file in $(DocFiles); do \
+	  rm -f "$(DESTDIR)$(DocInstallDir)/$$file"; \
+	done
+
+########################################################################
+#                         Maintainer Stuff                             #
+########################################################################
+
 # Make sure acinclude is using most recent coin.m4
 @MAINTAINER_MODE_TRUE@$(srcdir)/acinclude.m4: $(BUILDTOOLSDIR)/coin.m4
 @MAINTAINER_MODE_TRUE@	cat $(LIBTOOLM4) $< > $@
@@ -717,6 +762,8 @@ uninstall-am: uninstall-binPROGRAMS uninstall-info-am \
 
 @HAVE_EXTERNALS_TRUE@@MAINTAINER_MODE_TRUE@update-externals: .Externals-stamp
 @HAVE_EXTERNALS_TRUE@@MAINTAINER_MODE_TRUE@	cd $(srcdir); svn update
+
+.PHONY: install-doc uninstall-doc update-externals
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

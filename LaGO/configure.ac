@@ -1,11 +1,10 @@
-# Copyright (C) 2006 Ivo Nowak and Stefan Vigerske
+# Copyright (C) 2007-2008 Stefan Vigerske
 # All Rights Reserved.
 # This file is distributed under the Common Public License.
 #
 ## $Id$
 #
 # Author: Stefan Vigerske
-# Template from: Andreas Waechter
 
 #############################################################################
 #                       Names and other basic things                        #
@@ -16,7 +15,7 @@ AC_PREREQ(2.59)
 AC_INIT([LaGO],[0.4],[http://projects.coin-or.org/LaGO/newticket])
 
 AC_COPYRIGHT([
-Copyright 2007 Ivo Nowak and Stefan Vigerske
+Copyright 2007-2008 Stefan Vigerske
 All Rights Reserved.
 This file is part of the open source package LaGO which is distributed
 under the Common Public License.])
@@ -72,9 +71,6 @@ AC_COIN_PROG_CXX
 
 # Initialize automake and libtool
 AC_COIN_INIT_AUTO_TOOLS
-
-# A Fix for the AIX compiler
-#AM_CONDITIONAL([AIX_FIX_COMPILER_BUG], test "x$AIX_FIX_COMPILER_BUG" != x)
 
 #############################################################################
 #                              COIN components                              #
@@ -303,136 +299,24 @@ if test x"$coin_has_filib" = xyes; then
 fi
 AM_CONDITIONAL([COIN_HAS_FILIB],[test "$coin_has_filib" = yes])
 
-####################
-# GAMS I/O LIBRARY #
-####################
+####################################
+# GAMS SYSTEM and GAMS I/O LIBRARY #
+####################################
 
-# This macro checks for a library containing the GAMS I/O library.
-# It adds to ADDLIBS any flags required to link with an externally provided
-# GAMS I/O.  It defines the makefile conditional and preprocessor macro
-# COIN_HAS_GAMSIO, if GAMS I/O is available.
+AC_COIN_HAVE_GAMS
 
-GAMSIO_CODE=unsupportedarchitecture
-case $build in
-  x86_64-*-linux-*)
-      GAMSIO_CODE=LEI
-      gamsio_system=Linux
-    ;;
-  i?86-*-linux-*)
-      GAMSIO_CODE=LX3
-      gamsio_system=Linux
-    ;;
-#  *-cygwin* | *-mingw*)
-#      GAMSIO_CODE=VIS
-#      gamsio_system=Windows
-#    ;;
-#  *-darwin*)
-#      GAMSIO_CODE=DAR
-#      gamsio_system=Darwin
-#    ;;
-esac
-
-coin_gamsioobjdir=../ThirdParty/GAMSIO/$GAMSIO_CODE
-coin_gamsiosrcdir=$abs_source_dir/$coin_gamsioobjdir
-
-#if user provided GAMS I/O libraries, use this one, otherwise check ThirdParty/GAMSIO directory
-AC_ARG_WITH([gamsio],
-            AC_HELP_STRING([--with-gamsio],
-                           [specify directory of GAMS I/O libraries and header files]),
-            [use_gamsio=$withval],
-	          [AC_CHECK_FILE([$coin_gamsiosrcdir/iolib.h],[use_gamsio=$coin_gamsiosrcdir],[use_gamsio=])]  )
-						
-# Check if GAMS I/O libs work
-if test x"$use_gamsio" != x; then
-
-  #but first, we also need a GAMS system
-	AC_ARG_WITH([gamssystem],
-            AC_HELP_STRING([--with-gamssystem],
-                           [specify directory of GAMS distribution]),
-            [use_gamssys=$withval],
-						[AC_PATH_PROG(gamspath, [gams],,,)
-						 use_gamssys=${gamspath/%gams/}
-             if test x"$use_gamssys" != x; then
-               AC_MSG_NOTICE([found GAMS system at $use_gamssys])
-						 else
-               AC_MSG_NOTICE([no GAMS system found])
-						 fi
-						])
-	
-	if test x"$use_gamssys" != x; then
-		AC_MSG_CHECKING([whether GAMS I/O libraries at $use_gamsio and $use_gamssys works])
-		if test x"$GAMSIO_CODE" = xLX3; then
-		  GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/libg2d.a -ldl -L$use_gamssys -lifcore -limf -lirc"
-		elif test x"$GAMSIO_CODE" = xLEI; then
-		  GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/libg2d.a -ldl -L$use_gamssys -lifcore -limf -lirc"
-		fi
-#		GAMSIO_LIBS="$use_gamsio/iolib.a $use_gamsio/nliolib.a $use_gamsio/clicelib.a $use_gamsio/gclib.a $use_gamsio/gdxwrap.o -L$use_gamsio -lg2d -ldl -L$use_gamssys -lifcore -limf"
-		GAMSIO_CPPFLAGS="-I$use_gamsio -D$GAMSIO_CODE"
-
-		LIBS_save=$LIBS
-		CPPFLAGS_save=$CPPFLAGS
-		LIBS="$GAMSIO_LIBS $LIBS"
-		CPPFLAGS="$GAMSIO_CPPFLAGS $CPPFLAGS"
-		AC_TRY_LINK([
-#include <cstdio>
-#include "iolib.h"], [gfinit()],
-											[AC_MSG_RESULT([yes])
-#											ADDLIBS="$GAMSIO_LIBS $ADDLIBS"
-											],
-											[AC_MSG_RESULT([no])
-											AC_MSG_ERROR([GAMS I/O library $use_gamsio does not work])])
-		LIBS=$LIBS_save
-		CPPFLAGS=$CPPFLAGS_save
-		AC_SUBST(GAMSIO_CPPFLAGS)
-		AC_SUBST(GAMSIO_LIBS)
+#if we have gams i/o libraries, then use them
+if test $coin_has_gamsio = yes ; then
+  AC_COIN_USE_GAMS
+  if test x$coin_has_cpx = xtrue; then
+    AC_COIN_GAMSCPLEX_LICENCE
   else
- 		use_gamsio=
+    AM_CONDITIONAL([COIN_HAS_GAMSCPLEXLICENCE],[test 0 = 1])
   fi
-fi
-
-AM_CONDITIONAL([COIN_HAS_GAMSIO],[test x"$use_gamsio" != x])
-
-if test x"$use_gamsio" = x; then
-  coin_has_gamsio=no
 else
-  coin_has_gamsio=yes
-  AC_DEFINE([COIN_HAS_GAMSIO],[1],
-            [If defined, the GAMS I/O Library is available.])
+  AM_CONDITIONAL([COIN_HAS_GAMSIO],[test 0 = 1])
+  AM_CONDITIONAL([COIN_HAS_GAMSCPLEXLICENCE],[test 0 = 1])
 fi
-AC_SUBST(coin_has_gamsio)
-
-#check for libgamscplexlice
-if test x"$coin_has_gamsio" = xyes; then
-	if test x"$coin_has_cpx" = xtrue; then
-		AC_LANG_PUSH(C)						
-	
-		AC_MSG_CHECKING([whether GAMS/CPLEX licence library is present and working])
-		coin_save_libs="$LIBS"
-		coin_save_cppflags="$CPPFLAGS"
-		LIBS="$use_gamsio/libgamscplexlice.a $GAMSIO_LIBS $CPXLIB $LIBS"
-		CPPFLAGS="$GAMSIO_CPPFLAGS $CPPFLAGS"
-		AC_TRY_LINK([#include "gamscplexlice.h"], [gamscplexlice(0,0,0,0,0,0,0,0,0,0,0,0,0)],
-	  	          [AC_MSG_RESULT([yes])
-                 coin_has_gamscplexlice=yes
-                 ADDLIBS="$use_gamsio/libgamscplexlice.a $ADDLIBS"
-                 GAMSIO_LIBS="$use_gamsio/libgamscplexlice.a $GAMSIO_LIBS"
-		             AC_DEFINE([COIN_HAS_GAMSCPLEXLICE],[1],[If defined, the GAMS/CPLEX licence library is available.])
-                ],
-      	        [AC_MSG_RESULT([no])
-                 coin_has_gamscplexlice=no]);
-		LIBS="$coin_save_libs"
-		CPPFLAGS="$coin_save_cppflags"
-		AC_LANG_POP(C)
-		
-	else
-		coin_has_gamscplexlice=no
-	fi
-else
-	coin_has_gamscplexlice=no
-fi
-
-AM_CONDITIONAL([COIN_HAS_GAMSCPLEXLICE],[test "$coin_has_gamscplexlice" = yes])
-
 
 #######################
 # AMPL SOLVER LIBRARY #

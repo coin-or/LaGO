@@ -9,6 +9,7 @@ LaGO/README -text
 LaGO/configure -text
 LaGO/configure.ac -text
 LaGO/inc/config_lago.h.in -text
+LaGO/m4/ac_coin_gams.m4 -text
 LaGO/src/Algorithms/LaGOAlgorithm.cpp -text
 LaGO/src/Algorithms/LaGOAlgorithm.hpp -text
 LaGO/src/Algorithms/LaGOBoxReduction.cpp -text

@@ -19,7 +19,7 @@
 #include "iolib.h"
 //#include "dict.h"
 #include "nliolib.h"
-#include "gcprocs.h"
+//#include "gcprocs.h"
 //#include "g2dexports.h"
 //#include "clicelib.h"
 
@@ -67,7 +67,8 @@ GamsSolver::GamsSolver(const GamsReader& gams_, const vector<int>& discrete_var_
 
 	int slen=strlen(solvername);
 	for (int i=0; i<iolib.nosolvers; ++i)
-		if (strnicmp(solvername, iolib.line1[i], slen)==0 && isspace(iolib.line1[i][slen])) {
+		//TODO: should be case insensitive
+		if (strncmp(solvername, iolib.line1[i], slen)==0 && isspace(iolib.line1[i][slen])) {
 			subsolver=i;
 			break;
 		}

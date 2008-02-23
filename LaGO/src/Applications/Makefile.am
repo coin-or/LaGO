@@ -54,8 +54,8 @@ $(CGLOBJDIR)/src/libCgl.la \
 $(OSIOBJDIR)/src/libOsi.la \
 $(COINUTILSOBJDIR)/src/libCoinUtils.la \
 $(IPOPTOBJDIR)/src/Interfaces/libipopt.la \
-$(GAMSIO_LIBS)
- 
+$(GAMSIO_LIBS) $(SMAG_LIBS) $(GAMSIO_ADDLIBS)
+
 if COIN_HAS_CPX
 #to make sure that libOsiCpx comes in the command line before -lcplex, we have to add OsiCpx to ADDLIBS
 ADDLIBS += $(OSIOBJDIR)/src/OsiCpx/libOsiCpx.la

@@ -23,7 +23,7 @@ namespace LaGO {
 #include "iolib.h"
 #include "dict.h"
 #include "nliolib.h"
-#include "gcprocs.h"
+//#include "gcprocs.h"
 #include "g2dexports.h"
 #include "clicelib.h"
 
