@@ -1,11 +1,10 @@
-# Copyright (C) 2006 Ivo Nowak and Stefan Vigerske
+# Copyright (C) 2006-2008 Ivo Nowak and Stefan Vigerske
 # All Rights Reserved.
 # This file is distributed under the Common Public License.
 #
 ## $Id$
 #
 # Author: Stefan Vigerske
-# Template from: Andreas Waechter
 
 #############################################################################
 #                       Names and other basic things                        #
@@ -43,18 +42,7 @@ AC_COIN_CREATE_LIBTOOL
 #             Check which ThirdParty sources are available                  #
 #############################################################################
 
-
-AC_CHECK_FILE([$srcdir/ThirdParty/GAMSIO/LX3], [have_some_gamsiolibs=yes],
-[ AC_CHECK_FILE([$srcdir/ThirdParty/GAMSIO/LEI], [have_some_gamsiolibs=yes],
-[ AC_CHECK_FILE([$srcdir/ThirdParty/GAMSIO/SIG], [have_some_gamsiolibs=yes],
-[ AC_CHECK_FILE([$srcdir/ThirdParty/GAMSIO/DII], [have_some_gamsiolibs=yes],
-[ AC_CHECK_FILE([$srcdir/ThirdParty/GAMSIO/VIS], [have_some_gamsiolibs=yes],
-[ have_some_gamsiolibs=no ])
-])])])])
-
-if test x"$have_some_gamsiolibs" = xyes; then
-  AC_COIN_THIRDPARTY_SUBDIRS([GAMSIO],[ThirdParty/GAMSIO],[get.LX3])
-fi  
+AC_COIN_THIRDPARTY_SUBDIRS([GAMSIO],[ThirdParty/GAMSIO],[get.LX3])
 AC_COIN_THIRDPARTY_SUBDIRS([ASL],[ThirdParty/ASL],[solvers/asl.h])
 AC_COIN_THIRDPARTY_SUBDIRS([Blas],[ThirdParty/Blas],[daxpy.f])
 AC_COIN_THIRDPARTY_SUBDIRS([Lapack],[ThirdParty/Lapack],[LAPACK/SRC/dlarf.f])
@@ -72,7 +60,6 @@ AC_COIN_MAIN_SUBDIRS(Osi)
 AC_COIN_MAIN_SUBDIRS(Cgl)
 AC_COIN_MAIN_SUBDIRS(Ipopt)
 AC_COIN_MAIN_SUBDIRS(LaGO)
-
 
 ##############################################################################
 #                   Finishing up by writing all the output                   #

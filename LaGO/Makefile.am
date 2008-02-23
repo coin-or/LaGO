@@ -1,11 +1,10 @@
-# Copyright (C) 2006 Ivo Nowak and Stefan Vigerske
+# Copyright (C) 2006-2008 Ivo Nowak and Stefan Vigerske
 # All Rights Reserved.
 # This file is distributed under the Common Public License.
 #
 ## $Id$
 #
 # Author: Stefan Vigerske
-# Template from: Andreas Waechter
 
 AUTOMAKE_OPTIONS = foreign
 

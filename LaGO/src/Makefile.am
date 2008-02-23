@@ -1,11 +1,10 @@
-# Copyright (C) 2006 Ivo Nowak and Stefan Vigerske
+# Copyright (C) 2006-2008 Ivo Nowak and Stefan Vigerske
 # All Rights Reserved.
 # This file is distributed under the Common Public License.
 #
 ## $Id$
 #
 # Author: Stefan Vigerske
-# Template from: Andreas Waechter
 
 AUTOMAKE_OPTIONS = foreign
 
@@ -53,7 +52,8 @@ LaGO_LDFLAGS = $(ADDLIBS) -rpath $(libdir)
 
 if COIN_HAS_GAMSIO
 LaGO_SOURCES += gams.cc gams.h preprocessapi.h
-LaGO_LDADD += $(GAMSIO_LIBS) $(LAGOOBJDIR)/../ThirdParty/GAMSIO/libGamsGDX.la
+#just include smag libs as well in order to get g2d library; hope to change to smag interface one day... 
+LaGO_LDADD += $(GAMSIO_LIBS) $(GAMSIO_ADDLIBS) $(SMAG_LIBS) $(GAMSIO_OBJDIR)/libGamsGDX.la
 AM_CPPFLAGS += $(GAMSIO_CPPFLAGS)
 
 lib_LTLIBRARIES = libgamspreprocess.la

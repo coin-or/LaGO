@@ -12,6 +12,7 @@ LaGO/configure.ac -text
 LaGO/doc/COINintegration.tex -text
 LaGO/doc/makefile -text
 LaGO/doc/paramdochtml.lex -text
+LaGO/m4/ac_coin_gams.m4 -text
 LaGO/src/LaGO.cc -text
 LaGO/src/LaGOConfig.h -text
 LaGO/src/MINLP.cc -text
