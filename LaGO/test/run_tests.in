@@ -20,7 +20,7 @@ do
 	model=${modelnl/.nl/}
 	modelname=${model//.*\/}
 	echo "Testing model $modelname."
-	if test "@coin_has_gamsio@" = "yes" ; then
+	if test "@COIN_HAS_GAMSIO@" = "yes" ; then
 		gams $model MINLP=LAGO lo=0 > tmpfile 2>&1
 		rm -f $modelname.lst
 	else
