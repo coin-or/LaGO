@@ -25582,6 +25582,8 @@ fi
 
 
 #check on which architecture we are running
+#on Linux we use LEG/LNX if gfortran is used as F77/F90 compiler, otherwise we use LEI/LX3 and hope the user has the Intel Fortran libraries
+#TODO: this could be improved by checking which libs are actually available and setting the linker flags accordingly
 
 GAMSIO_CODE=unsupportedarchitecture
 
@@ -25593,24 +25595,39 @@ if test "${with_gamsio_code+set}" = set; then
 else
   case $build in
       x86_64-*-linux-*)
-        case "$CC" in
-          icpc* | */icpc* | icc* | */icc* | icl* | */icl* )
+        case "$F77" in
+          gfortran* | */gfortran* )
+            GAMSIO_CODE=LEG
+            ;;
+          *)
+            GAMSIO_CODE=LEI
+            ;;
+        esac
+#          icpc* | */icpc* | icc* | */icc* | icl* | */icl* )
+#            GAMSIO_CODE=LEI
+#            ;;
+#          *)
+#            GAMSIO_CODE=LEG
+#            ;;
+#        esac
+      ;;
+      i?86-*-linux-*)
+        case "$F77" in
+          gfortran* | */gfortran* )
             GAMSIO_CODE=LEI
             ;;
           *)
-            GAMSIO_CODE=LEG
-            ;;
-        esac
-      ;;
-      i?86-*-linux-*)
-        case "$CC" in
-          icpc* | */icpc* | icc* | */icc* | icl* | */icl* )
             GAMSIO_CODE=LX3
             ;;
-          *)
-            GAMSIO_CODE=LNX
-            ;;
         esac
+#        case "$CC" in
+#          icpc* | */icpc* | icc* | */icc* | icl* | */icl* )
+#            GAMSIO_CODE=LX3
+#            ;;
+#          *)
+#            GAMSIO_CODE=LNX
+#            ;;
+#        esac
       ;;
       *-cygwin* | *-mingw*)
         GAMSIO_CODE=VIS
@@ -26006,7 +26023,7 @@ echo $ECHO_N "checking whether GAMS/CPLEX licence library is present and working
 coin_save_libs=$LIBS
 coin_save_cppflags=$CPPFLAGS
 CPPFLAGS="$GAMSIO_CPPFLAGS $CPPFLAGS"
-LIBS="$gamsio_srcdir/libgamscplexlice.a $LIBS $CPXLIB $GAMSIO_LIBS"
+LIBS="$gamsio_srcdir/libgamscplexlice.a $LIBS $CPXLIB $GAMSIO_LIBS $GAMSIO_ADDLIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
