@@ -11,6 +11,14 @@ srcdir="@srcdir@"
 
 retval=0
 
+if test "@COIN_HAS_GAMSIO@" = "yes" && test "@GAMS_PATH@" = UNAVAILABLE ; then
+  echo " "
+  echo You have build a LaGO binary with GAMS interface, but do not have a GAMS system.
+  echo Tests are skipped.
+  echo " "
+  exit $retval
+fi
+
 echo " "
 echo Running tests...
 echo " "

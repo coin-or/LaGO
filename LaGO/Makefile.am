@@ -27,7 +27,24 @@ test: all
 
 unitTest: test
 
-.PHONY: test unitTest
+if COIN_HAS_GAMSIO
+if COIN_HAS_GAMSSYSTEM
+gams-install: install
+	echo "Installation of LaGO in GAMS distribution at @GAMS_PATH@."
+	cp $(DESTDIR)$(bindir)/gmsla_.zip @GAMS_PATH@
+	cd @GAMS_PATH@; ./gamsinst -a
+else
+gams-install: 
+	echo "Installation of LaGO in GAMS distribution skipped. No GAMS system available."
+	exit 0
+endif
+else
+gams-install: 
+	echo "Installation of LaGO in GAMS distribution skipped. LaGO was build with AMPL interface."
+	exit 1
+endif
+
+.PHONY: test unitTest gams-install
 
 # Stuff to clean up
 clean-local:

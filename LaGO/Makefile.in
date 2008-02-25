@@ -738,7 +738,18 @@ test: all
 
 unitTest: test
 
-.PHONY: test unitTest
+@COIN_HAS_GAMSIO_TRUE@@COIN_HAS_GAMSSYSTEM_TRUE@gams-install: install
+@COIN_HAS_GAMSIO_TRUE@@COIN_HAS_GAMSSYSTEM_TRUE@	echo "Installation of LaGO in GAMS distribution at @GAMS_PATH@."
+@COIN_HAS_GAMSIO_TRUE@@COIN_HAS_GAMSSYSTEM_TRUE@	cp $(DESTDIR)$(bindir)/gmsla_.zip @GAMS_PATH@
+@COIN_HAS_GAMSIO_TRUE@@COIN_HAS_GAMSSYSTEM_TRUE@	cd @GAMS_PATH@; ./gamsinst -a
+@COIN_HAS_GAMSIO_TRUE@@COIN_HAS_GAMSSYSTEM_FALSE@gams-install: 
+@COIN_HAS_GAMSIO_TRUE@@COIN_HAS_GAMSSYSTEM_FALSE@	echo "Installation of LaGO in GAMS distribution skipped. No GAMS system available."
+@COIN_HAS_GAMSIO_TRUE@@COIN_HAS_GAMSSYSTEM_FALSE@	exit 0
+@COIN_HAS_GAMSIO_FALSE@gams-install: 
+@COIN_HAS_GAMSIO_FALSE@	echo "Installation of LaGO in GAMS distribution skipped. LaGO was build with AMPL interface."
+@COIN_HAS_GAMSIO_FALSE@	exit 1
+
+.PHONY: test unitTest gams-install
 
 # Stuff to clean up
 clean-local:
