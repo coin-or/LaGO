@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cmath>
+#include <cstring>
 #ifdef HAVE_CFLOAT
 #include <cfloat>
 #endif
