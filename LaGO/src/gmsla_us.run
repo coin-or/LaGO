@@ -1,2 +1,2 @@
-#!/bin/csh -f
+#!/bin/sh
 gmsla_ux.out $4
