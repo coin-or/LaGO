@@ -7,6 +7,7 @@
 
 #include "tools.h"
 #include <unistd.h>
+#include <stdlib.h>
 
 extern "C" {
 #include "ranlib.h"
