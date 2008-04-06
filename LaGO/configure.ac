@@ -337,14 +337,8 @@ AC_COIN_HAVE_GAMS
 #if we have gams i/o libraries, then use them
 if test $coin_has_gamsio = yes ; then
   AC_COIN_USE_GAMS
-  if test x$coin_has_cpx = xtrue; then
-    AC_COIN_GAMSCPLEX_LICENCE
-  else
-    AM_CONDITIONAL([COIN_HAS_GAMSCPLEXLICENCE],[test 0 = 1])
-  fi
 else
   AM_CONDITIONAL([COIN_HAS_GAMSIO],[test 0 = 1])
-  AM_CONDITIONAL([COIN_HAS_GAMSCPLEXLICENCE],[test 0 = 1])
 fi
 
 #######################

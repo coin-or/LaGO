@@ -18,9 +18,6 @@
 /* If defined, the FILIB++ is available. */
 #undef COIN_HAS_FILIB
 
-/* If defined, the GAMS/CPLEX licence library is available. */
-#undef COIN_HAS_GAMSCPLEXLICE
-
 /* If defined, the GAMS I/O Library is available. */
 #undef COIN_HAS_GAMSIO
 
