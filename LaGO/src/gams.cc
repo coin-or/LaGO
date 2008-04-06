@@ -33,7 +33,6 @@
 #include "nliolib.h"
 #include "gcprocs.h"
 #include "g2dexports.h"
-#include "clicelib.h"
 
 #ifdef FNAME_LCASE_DECOR
 #define G2DINTERVAL0X g2dinterval0x_
@@ -170,8 +169,8 @@ gams* gamsptr=NULL;
 void gams::init_cplex_licence(int connr, int varnr, int nnz, int nlnz, int ndisc) {
 #ifdef COIN_HAS_CPX
 	licenseInit_t initType=GAMS;
-	if (gamscplexlice(connr, varnr, nnz, nlnz, ndisc, 0, &initType, NULL, NULL, NULL, NULL, NULL, NULL)) {
-		out_err << "Could not initialize CPLEX license" << endl;
+	if (gamscplexlice(0, 0, 0, 0, 0, 0, &initType, NULL, NULL, NULL, NULL, NULL, NULL)) {
+		out_err << "Could not initialize CPLEX license " << initType << endl;
 //		exit(-1);
   } else out_log << "GAMS/CPLEX license accepted: " << initType << endl;
 #endif
