@@ -55,11 +55,16 @@ Pointer<IntervalGradientCut> IntervalGradientCutGenerator::get_cuts(const dvecto
 		Func::CurvatureType ct=prob->con[c]->get_curvature(k);
 		if (ct&Func::CONVEX && ((!prob->con_eq[c]) || ct&Func::CONCAVE)) continue;
 
-//		out_log << "Computing IntervalGradientCut for con " << prob->con_names[c] << endl;
-//		prob->con[c]->print(*out_log_p, prob->var_names);
-
 		double val=prob->con[c]->eval(x_ref, k)+prob->con[c]->c;
+
 		if (!finite(val)) continue;
+		if (val<min_violation && (!prob->con_eq[c] || val>-min_violation)) {
+//			out_log << "Skip IntervalGradientCut for con " << prob->con_names[c] << " with violation " << val << endl;
+			continue; // constraint satisfied -> skip cut
+		}
+
+//		out_log << "Computing IntervalGradientCut for con " << prob->con_names[c] << " with violation " << val << endl;
+		//		prob->con[c]->print(*out_log_p, prob->var_names);
 
 		prob->con[c]->grad(intgrad, X, k);
 		bool finite=true;
@@ -439,7 +444,7 @@ int CutPool::nr_global_cuts() const {
 const double LinearizedConCutGenerator::tol=1E-4;
 
 LinearizedConCutGenerator::LinearizedConCutGenerator(Pointer<MinlpProblem> prob_, Pointer<MINLPData> minlpdata_, Pointer<Reformulation> reform_)
-: prob(prob_), minlpdata(minlpdata_), reform(reform_)
+: prob(prob_), minlpdata(minlpdata_), reform(reform_), max_cuts(-1), min_violation(0.)
 { }
 
 
@@ -515,15 +520,15 @@ int LinearizedConCutGenerator::get_cuts(list<pair<LinearizationCut, pair<int, bo
 			cut.constant+=(xk(i)-lower(i0))*shift*(xk(i)-upper(i0));
 		}
 		
-		double violation=cut.constant;
-		if (tindex>=0) violation-=x(prob->block[k][tindex]);
-		if (violation<tol && violated_polyest_only) continue; // skip constraints where the convex relax. is not violated
+		cut.violation=cut.constant;
+		if (tindex>=0) cut.violation-=x(prob->block[k][tindex]);
+		if (cut.violation<tol && violated_polyest_only) continue; // skip constraints where the convex relax. is not violated
 
 		double maxcoeff=1;
 		for (int i=0; i<cut.coeff->size(); ++i) if (2*fabs((*cut.coeff)(i))>maxcoeff) maxcoeff=2*fabs((*cut.coeff)(i));
 //		out_log << "Constraint " << objcon.name << " violated by " << violation << '\t' << maxcoeff << '\t' << violation/maxcoeff;
-		violation/=maxcoeff;
-		if (violation>max_violation) max_violation=violation;
+		cut.violation/=maxcoeff;
+		if (cut.violation>max_violation) max_violation=cut.violation;
 		
 		cut.constant-=2*(*cut.coeff*xk);
 		cut.coeff->resize(prob->block[k].size()); // resize to extended problem size
@@ -602,16 +607,16 @@ int LinearizedConCutGenerator::get_cuts(list<pair<LinearizationCut, pair<int, bo
 			cut.constant+=(xk(i)-lower(i0))*shift*(xk(i)-upper(i0));
 		}
 
-		double violation=cut.constant;
-		if (tindex>=0) violation+=x(prob->block[k][tindex]);
+		cut.violation=cut.constant;
+		if (tindex>=0) cut.violation+=x(prob->block[k][tindex]);
 
-		if (violation<tol && violated_polyest_only) continue; // skip constraints where the convex relax. is not violated
+		if (cut.violation<tol && violated_polyest_only) continue; // skip constraints where the convex relax. is not violated
 
 		double maxcoeff=1;
 		for (int i=0; i<cut.coeff->size(); ++i) if (2*fabs((*cut.coeff)(i))>maxcoeff) maxcoeff=2*fabs((*cut.coeff)(i));
 //		out_log << "Constraint " << con.name << " violated by " << violation << '\t' << maxcoeff << '\t' << violation/maxcoeff;
-		violation/=maxcoeff;
-		if (violation>max_violation) max_violation=violation;
+		cut.violation/=maxcoeff;
+		if (cut.violation>max_violation) max_violation=cut.violation;
 
 		cut.constant-=2*(*cut.coeff*xk);
 		cut.coeff->resize(prob->block[k].size()); // resize to extended problem size
@@ -632,6 +637,9 @@ int LinearizedConCutGenerator::get_cuts(list<pair<LinearizationCut, pair<int, bo
 	return nr;
 }
 
+bool operator<(const pair<LinearizationCut, pair<int, bool> >& left, pair<LinearizationCut, pair<int, bool> >& right) {
+	return left.first.violation<right.first.violation;
+}
 
 int LinearizedConCutGenerator::get_cuts(list<pair<LinearizationCut, pair<int, bool> > >& cuts, const dvector& x, const dvector& lower, const dvector& upper, bool violated_polyest_only) {
 	int nr=0;
@@ -644,6 +652,28 @@ int LinearizedConCutGenerator::get_cuts(list<pair<LinearizationCut, pair<int, bo
 			nr+=get_cuts(cuts, minlpdata->con[c], c, x, lower, upper, violated_polyest_only);
 		}
 	}
+	
+	if (min_violation) {
+		list<pair<LinearizationCut, pair<int, bool> > >::iterator it(cuts.begin());
+		while (it!=cuts.end()) {
+			if (it->first.violation<min_violation) { it=cuts.erase(it); --nr; }
+			else ++it;
+		}
+	}
+	
+	if (max_cuts>=0 && nr>max_cuts) {
+		cuts.sort();
+		list<pair<LinearizationCut, pair<int, bool> > >::iterator it(cuts.begin());
+		out_log << "sorted " << nr << " cuts: min. violation: " << cuts.front().first.violation << "\t max violation: " << cuts.back().first.violation;
+		while (nr>max_cuts) { cuts.pop_front(); --nr; }
+//		out_log << "\t kept cuts with violation";
+//		for (list<pair<LinearizationCut, pair<int, bool> > >::iterator it(cuts.begin()); it!=cuts.end(); ++it) 
+//			out_log << ' ' << it->first.violation;
+		out_log << endl;
+//		out_log << "\t kept cuts with violation >= " << cuts.begin()->first.violation << endl;
+//		out_log << "new nr: " << nr << '\t' << cuts.size() << endl;
+	}
+	
 	return nr;
 }
 
@@ -703,9 +733,9 @@ Pointer<LinearizationCut> LinearizedConCutGenerator::update_cut(LinearizationCut
 			newcut->constant+=(newcut->x(i)-lower(i))*shift*(newcut->x(i)-upper(i));
 		}
 		
-		double violation=newcut->constant;
-		if (tindex>=0) violation-=newcut->t_value;
-		if (violation<tol) return NULL;		
+		newcut->violation=newcut->constant;
+		if (tindex>=0) newcut->violation-=newcut->t_value;
+		if (newcut->violation<tol) return NULL;		
 		
 		newcut->constant-=2*(*newcut->coeff*newcut->x);
 	
@@ -761,10 +791,10 @@ Pointer<LinearizationCut> LinearizedConCutGenerator::update_cut(LinearizationCut
 			newcut->constant+=(newcut->x(i)-lower(i))*shift*(newcut->x(i)-upper(i));
 		}
 		
-		double violation=newcut->constant;
-		if (tindex>=0) violation+=newcut->t_value;
-		if (violation<tol) return NULL;
-				
+		newcut->violation=newcut->constant;
+		if (tindex>=0) newcut->violation+=newcut->t_value;
+		if (newcut->violation<tol) return NULL;
+
 		newcut->constant-=2*(*newcut->coeff*newcut->x);
 	
 		newcut->coeff->resize(cut.coeff->size()); // resize to extended problem size

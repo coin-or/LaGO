@@ -103,6 +103,10 @@ class LinearizationCut : public SimpleCut {
 		 */
 		double t_value;
 		
+		/** The violation of the reference point x w.r.t. this cut, i.e., how ``much'' do we cut off the ref. point.
+		 */
+		double violation;
+		
 };
 
 
@@ -117,8 +121,10 @@ class IntervalGradientCutGenerator {
 		vector<Pointer<SparsityInfo> > sparsity;
 
 	public:
+		double min_violation;
+		
 		IntervalGradientCutGenerator(Pointer<MinlpProblem> prob_=NULL)
-		: prob(prob_)
+		: prob(prob_), min_violation(1E-4)
 		{ prob->get_sparsity(sparsity); }
 
 		void set_problem(Pointer<MinlpProblem> prob_) { prob=prob_; prob->get_sparsity(sparsity); }
@@ -397,6 +403,14 @@ class LinearizedConCutGenerator {
 		static const double tol;
 
 	public:
+		/** The maximal number of cuts generated in one round.
+		 * -1 if unlimited.
+		 */
+		int max_cuts;
+		/** The minimal violation of a cut to be kept.
+		 */
+		double min_violation;
+		
 		/** The maximum violation of a quadratic underestimator in a reference point.
 		*/
 		double max_violation;	

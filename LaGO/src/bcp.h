@@ -284,7 +284,8 @@ class MinlpBCP : public RelaxationSolver {
 		
 		int subdiv_discrete_emphasis;
 		
-		enum { BestBound, UnfixedDiscrete } nodeselect_type; 
+		enum { Bound, UnfixedDiscrete } nodeselect_type;
+		int alternate_bounds;
 
 		int upper_bound_effort_level;
 
@@ -299,6 +300,7 @@ class MinlpBCP : public RelaxationSolver {
 		/** Maximal number of cutgeneration rounds for each node in improve_LP_bound 
 		 */
 		int max_outerapprox_iter;
+		int max_outerapprox_root_iter;
 
 		/** The number of computations of NLP-bounds or RMP-bounds, which failed, while (R[U]) was solved.
 		*/
@@ -334,6 +336,10 @@ class MinlpBCP : public RelaxationSolver {
 		bool feasibility_check(Pointer<MinlpNode> node);
 		
 		multimap<double, Pointer<MinlpNode> >::iterator select_node();
+		multimap<double, Pointer<MinlpNode> >::iterator select_node_bestbound();
+		multimap<double, Pointer<MinlpNode> >::iterator select_node_worstbound();
+		multimap<double, Pointer<MinlpNode> >::iterator select_node_unfixeddiscrete_bestbound();
+		multimap<double, Pointer<MinlpNode> >::iterator select_node_unfixeddiscrete_worstbound();
 
 		// --------------------- bounding
 
@@ -352,7 +358,7 @@ class MinlpBCP : public RelaxationSolver {
 		int set_RMP_bound(Pointer<MinlpNode> node);
 		int set_LP_bound(Pointer<MinlpNode> node);
 		int set_LP_RMP_bound(Pointer<MinlpNode> node);
-		int improve_LP_bound(Pointer<MinlpNode> node);
+		int improve_LP_bound(Pointer<MinlpNode> node, bool is_root=false);
 
 		/** Improves a lower bound after subdivision
 		    @param k The block number of the branching variable.

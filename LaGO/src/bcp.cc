@@ -38,6 +38,7 @@ MinlpBCP::MinlpBCP(Pointer<MinlpProblem> orig_prob_, Pointer<MinlpProblem> split
 	bound_impr_tol(.1), bound_failed(0), bound_computed(0), lagprob_solves(0), bound_time(0.), init_RMP_time(0), max_time(INFINITY),
 	find_solcand_time(0.), nr_solcand_found(0),
 	subdiv_time(0.), update_ExtremePoints_count(0), nr_subdiv_contvar(0), nr_subdiv_bisect(0),
+	alternate_bounds(0),
 	prob_is_convex(false), timer(new Timer())
 {	set_split_prob(split_prob_);
 	set_linear_relax(linear_relax_);
@@ -99,6 +100,10 @@ void MinlpBCP::init() {
 	lag_cuts=param->get_i("Lagrangian cuts", 1);
 	intgrad_cuts=param->get_i("IntervalGradient cuts", 0);
 	mip_cuts=param->get_i("MIP cuts", 1);
+	
+	linconcutgen.max_cuts=param->get_i("max cuts added", -1);
+	linconcutgen.min_violation=param->get_d("min cut violation", 0.);
+	intgrad_cutgen.min_violation=linconcutgen.min_violation;
 
 	mem_limit=param->get_i("Memory limit", 0);
 
@@ -126,13 +131,16 @@ void MinlpBCP::init() {
 	
 	Pointer<char> nodeselecttype=param->get("BCP node selection typ", "unfixed discrete");
 	if (strcmp(nodeselecttype, "unfixed discrete")==0) nodeselect_type=UnfixedDiscrete;
-	else nodeselect_type=BestBound;
+	else nodeselect_type=Bound;
+	if (param->get("BCP node selection alternating bounds", 0))
+		alternate_bounds=1;
 
 	is_maxcut=param->get_i("maxcut", 0);
 
 	upper_bound_effort_level=param->get_i("BCP upper bound effort", is_maxcut ? 2 : 0);
 
 	max_outerapprox_iter=param->get_i("max outer approximation iterations", 10);
+	max_outerapprox_root_iter=param->get_i("max root outer approximation iterations", max_outerapprox_iter);
 	
 //	conv_rate_cntrl=param.get_i("control convergence rate", 1);
 	conv_rate_cntrl_stopping_rho=param->get_d("stopping rho", 0.1);
@@ -641,7 +649,7 @@ int MinlpBCP::set_LP_bound(Pointer<MinlpNode> node) {
 
 //-----------------------------------------------------------------
 
-int MinlpBCP::improve_LP_bound(Pointer<MinlpNode> node) {
+int MinlpBCP::improve_LP_bound(Pointer<MinlpNode> node, bool is_root) {
 	// generate new linearization cuts, ref_point was updated at end of the subdivision which created this node
 	if (linear_relax->cutlimit_reached()) return 0;
 
@@ -657,10 +665,11 @@ int MinlpBCP::improve_LP_bound(Pointer<MinlpNode> node) {
 
 	Project::project(node->ref_point, node->ref_point, node->lower, node->upper);
 
-	double max_violation=0.;
+//	double max_violation=0.;
 	bool newcuts;
 	int ret=0;
 	int iter=0;
+	int max_iter=is_root ? max_outerapprox_root_iter : max_outerapprox_iter;
 
 	do {
 		newcuts=false;
@@ -694,8 +703,10 @@ int MinlpBCP::improve_LP_bound(Pointer<MinlpNode> node) {
 
 //		out_log << "New reference point: " << node->ref_point;
 
-		if (linconcutgen.max_violation>max_violation) max_violation=linconcutgen.max_violation;
-	} while (newcuts && (linconcutgen.max_violation>.1*max_violation) && max_violation>1E-4 && ret==0 && ++iter<max_outerapprox_iter);
+	} while (newcuts && linconcutgen.max_violation>1E-4 && ret==0 && ++iter<max_iter);
+
+//		if (linconcutgen.max_violation>max_violation) max_violation=linconcutgen.max_violation;
+//	} while (newcuts && (linconcutgen.max_violation>.1*max_violation) && max_violation>1E-4 && ret==0 && ++iter<max_iter);
 
 	return ret;
 }
@@ -800,24 +811,69 @@ bool MinlpBCP::feasibility_check(Pointer<MinlpNode> node) {
 	return true;
 }
 
+multimap<double, Pointer<MinlpNode> >::iterator MinlpBCP::select_node_bestbound() {
+	return bb_tree.begin();
+}
+
+multimap<double, Pointer<MinlpNode> >::iterator MinlpBCP::select_node_worstbound() {
+	return --bb_tree.end();
+}
+
+multimap<double, Pointer<MinlpNode> >::iterator MinlpBCP::select_node_unfixeddiscrete_bestbound() {
+	for (multimap<double, Pointer<MinlpNode> >::iterator it_node(bb_tree.begin()); it_node!=bb_tree.end(); ++it_node) {
+		for (int i=0; i<orig_prob->i_discr.size(); ++i)
+			if (it_node->second->lower(orig_prob->i_discr[i])!=it_node->second->upper(orig_prob->i_discr[i])) { // found a node where not all discrete variables are fixed
+				out_log << "Node selection by discrete-first and best-bound rule: Selecting node with lower bound " << it_node->first << endl;  
+				return it_node;
+			}		
+	}
+	out_log << "Node selection by discrete-first rule: All nodes have all discrete variables fixed. Falling back to best-bound rule." << endl; 
+	return select_node_bestbound();	
+}
+
+multimap<double, Pointer<MinlpNode> >::iterator MinlpBCP::select_node_unfixeddiscrete_worstbound() {
+	multimap<double, Pointer<MinlpNode> >::iterator it_node(bb_tree.end());
+	do {
+		--it_node;
+		for (int i=0; i<orig_prob->i_discr.size(); ++i)
+			if (it_node->second->lower(orig_prob->i_discr[i])!=it_node->second->upper(orig_prob->i_discr[i])) { // found a node where not all discrete variables are fixed
+				out_log << "Node selection by discrete-first and worst-bound rule: Selecting node with lower bound " << it_node->first << endl;  
+				return it_node;
+			}
+	} while (it_node!=bb_tree.begin());
+	
+	out_log << "Node selection by discrete-first rule: All nodes have all discrete variables fixed. Falling back to worst-bound rule." << endl; 
+	return select_node_worstbound();	
+}
+
 multimap<double, Pointer<MinlpNode> >::iterator MinlpBCP::select_node() {
 	switch (nodeselect_type) {
 		case UnfixedDiscrete: {
-			for (multimap<double, Pointer<MinlpNode> >::iterator it_node(bb_tree.begin()); it_node!=bb_tree.end(); ++it_node) {
-				for (int i=0; i<orig_prob->i_discr.size(); ++i)
-					if (it_node->second->lower(orig_prob->i_discr[i])!=it_node->second->upper(orig_prob->i_discr[i])) { // found a node where not all discrete variables are fixed
-						out_log << "Node selection by discrete-first-rule: Selecting node with lower bound " << it_node->first << endl;  
-						return it_node;
-					}		
+			switch(alternate_bounds) {
+				case 1:
+					alternate_bounds=-1;
+					return select_node_unfixeddiscrete_bestbound();
+				case -1:
+					alternate_bounds=1;
+					return select_node_unfixeddiscrete_worstbound();
+				case 0:
+					return select_node_unfixeddiscrete_bestbound();
 			}
-			out_log << "Node selection by discrete-first-rule: All nodes have all discrete variables fixed. Falling back to best-bound rule." << endl; 
-		} // no break here, because we want BestBound now
-		case BestBound: 
+		} break;
+		case Bound: 
 		default:
-			return bb_tree.begin();
-	}	
+			switch(alternate_bounds) {
+				case 1:
+					alternate_bounds=-1;
+					return select_node_bestbound();
+				case -1:
+					alternate_bounds=1;
+					return select_node_worstbound();
+				case 0:
+					return select_node_bestbound();
+			}
+	}
 }
-
 
 int MinlpBCP::update_subdiv_bound(int k, int i, Pointer<MinlpNode> node) {
 //	out_solver_log << "Updating bound after subdivision." << endl;
@@ -1796,15 +1852,18 @@ int MinlpBCP::solve() {
 	bound_type = pre_bb_max_iter ? pre_bound_type : maj_bound_type;
 	ret=0;
 	node1=new MinlpNode(reform ? reform->ext_prob->lower : split_prob->lower, reform ? reform->ext_prob->upper : split_prob->upper);
-	out_solver_log << "Computing lower bound of initial node. Current bound: " << node1->low_bound << endl;
 	if (sol_C && sol_C_is_solution) node1->low_bound=reform ? reform->ext_convex_prob->obj->eval(*sol_C) : convex_prob->obj->eval(*sol_C);
+	out_solver_log << "Computing lower bound of initial node. Current bound: " << node1->low_bound << endl;
 	if (bound_type==RMP_bound || bound_type==LP_RMP_bound)
 		if (init_ExtremePoints(node1))
 			out_solver << "Initialization of Extreme points failed." << endl;
 	if (bound_type==NLP_bound) {
 		if (!(sol_C && sol_C_is_solution)) ret=set_low_bound(node1);
-	} else
+	} else {
 		ret=set_low_bound(node1) && (!(sol_C && sol_C_is_solution));
+		if (!ret)
+			ret=improve_LP_bound(node1, true);
+	}
 //	linear_relax->generate_cuts(NULL);
 	if (ret) {
 		out_solver << "Could not compute lower bound of root node." << endl;
