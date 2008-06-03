@@ -147,6 +147,7 @@ ThirdParty/TNT/INSTALL.TNT -text
 ThirdParty/TNT/get.TNT -text
 ThirdParty/ranlib/INSTALL.ranlib -text
 ThirdParty/ranlib/get.ranlib -text
+conf/nightlytrunk.txt -text
 /config.guess -text
 /config.sub -text
 /configure -text
