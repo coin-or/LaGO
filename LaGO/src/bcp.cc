@@ -1468,7 +1468,7 @@ void MinlpBCP::viol_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Po
 
 	MinlpProblem& ref_prob(quad_prob ? *quad_prob : *split_prob);
 	dvector g(x.dim());
-	int k_star=-1, i_star=-1;
+	int k_star=-1, i_star=-1, c_star=-2;
 
 	double val=ref_prob.obj->eval(x);
 	double val_convexrelax=convex_prob->obj->eval(x);
@@ -1492,6 +1492,7 @@ void MinlpBCP::viol_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Po
 				maxdelta=delta(i0);
 				k_star=k;
 				i_star=i;
+				c_star=-1;
 			}
 		}
 	} else
@@ -1521,6 +1522,7 @@ void MinlpBCP::viol_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Po
 				maxdelta=delta(i0);
 				k_star=k;
 				i_star=i;
+				c_star=c;
 			}
 		}
 	}
@@ -1537,6 +1539,7 @@ void MinlpBCP::viol_subdiv(list<Pointer<MinlpNode> >& nodes, int& subdiv_var, Po
 		// project a bit more inside the box
 		double cut=project(x(i0), node->lower(i0)+.02*dist_local, node->upper(i0)-.02*dist_local);
 		subdiv_var=i0;
+		out_solver_log << "Violation subdivision chooses variable " << ref_prob.var_names[i0] << " because of viol. " << maxviol << " in quad. relax. of " << (c_star>=0 ? (char*)ref_prob.con_names[c_star] : "objective") << endl;
 		rect_subdiv(nodes, node, k_star, i_star, cut);
 	} else {
 		out_solver_log << "No Violation subdivision possible. Falling back to Bisection subdivision." << endl;
