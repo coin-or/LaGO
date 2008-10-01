@@ -543,7 +543,12 @@ int OSISolver::generate_cuts(list<Pointer<SimpleCut> >& rowcuts) {
 //	CglGomory gomory;
 //	CglMixedIntegerRounding mir;
 	OsiCuts cuts;
+	try {
 	cutgenerator->generateCuts(*osisolver, cuts);
+	} catch (CoinError& error) {
+	  out_err << "Cgl cutgenerator failed with error: " << error.message() << endl;
+	  return 0;
+	}
 //	mir.generateCuts(*osisolver, cuts);
 //	cuts.printCuts();
 	int nr=0;
