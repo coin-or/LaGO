@@ -83,7 +83,7 @@ class gams {
 
 		Pointer<MinlpProblem> get_problem(char* gamsfile);
 
-		void write_sol_file(const dvector& sol_point, int model_status, int solver_status, int iter, double time, Pointer<MinlpProblem> prob);
+		void write_sol_file(const dvector& sol_point, int model_status, int solver_status, int iter, double time, Pointer<MinlpProblem> prob, double objest = -INFINITY);
 		void write_sol_set(const set<SolCandidate>& sol_set);
 
 		void write_matlab(const dvector& x, const char* filename, vector<Pointer<char> >& var_names);

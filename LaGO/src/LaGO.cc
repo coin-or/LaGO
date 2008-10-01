@@ -92,7 +92,7 @@ int main(int argc, char** argv) {
 #else
 		int model_status=ret ? 11 : 1;
 		int solver_status=1;
-		interface.write_sol_file(solver->sol_point, model_status, solver_status, solver->iter(), t, prob);
+		interface.write_sol_file(solver->sol_point, model_status, solver_status, solver->iter(), t, prob, solver->low_bound);
 #endif
 	}
 

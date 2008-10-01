@@ -12,6 +12,31 @@ extern "C" {
 #include "ranlib.h"
 }
 
+#ifdef HAVE_CSIGNAL
+#include <csignal>
+#define REGISTER_SIGHANDLER
+#else
+#ifdef HAVE_SIGNAL_H
+#include <signal.h>
+#define REGISTER_SIGHANDLER
+#endif
+#endif
+
+extern "C" {
+static bool ctrlcpressed = false;
+
+#ifdef REGISTER_SIGHANDLER
+void LaGOCtrlChandler(int signr) {
+	if (signr == SIGINT) {
+		ctrlcpressed = true;
+		printf("LaGO catched ^C signal (user interrupt). Finishing up...\n");
+		signal(SIGINT, SIG_DFL);
+	}
+}
+#endif
+
+}
+
 // ----------------------------- ExtremePoint ------------------------------------
 
 void ExtremePoint::set_rmpdata(Pointer<LinearRelax> linear_relax, int k) {
@@ -1845,6 +1870,18 @@ int MinlpBCP::solve() {
 	int ret;
 	iter_=0;
 	double final_gap;
+//	
+//	struct sigaction newaction;
+//	newaction.sa_handler = LaGOCtrlChandler;
+//	newaction.sa_sigaction = NULL;
+//	newaction.sa_flags = SA_RESETHAND;
+//	
+//  sigemptyset(&newaction.sa_mask);
+//  sigaction(SIGINT, &newaction, NULL);
+#ifdef REGISTER_SIGHANDLER
+	signal(SIGINT, LaGOCtrlChandler);
+//  clog << "Registered CtrlC signal handler." << endl;
+#endif
 
 //	for (int i=0; i<split_prob->i_discr.size(); ++i) {
 //		int i0=split_prob->i_discr[i];
@@ -2052,7 +2089,7 @@ double MinlpBCP::start_bb() {
 		}
 
 		if (node1) linear_relax->remove_node(node1);
-	} while (bb_tree.size() && (gap>gap_tol) && iter_<iter_max && (timer->stop()<max_time));
+	} while (bb_tree.size() && (gap>gap_tol) && iter_<iter_max && (timer->stop()<max_time) && !ctrlcpressed);
 	if (pre_bb_max_iter) out_solver << "MinlpBCP preprocessing iterations: " << iter() << endl;
 	if (lower_bound==-INFINITY && bb_tree.size()) lower_bound=bb_tree.begin()->first;
 	out_solver_log << "Final lower bound: " << lower_bound << endl;

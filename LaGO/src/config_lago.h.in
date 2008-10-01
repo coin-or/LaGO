@@ -68,6 +68,9 @@
 /* Define to 1 if you have the <cmath> header file. */
 #undef HAVE_CMATH
 
+/* Define to 1 if you have the <csignal> header file. */
+#undef HAVE_CSIGNAL
+
 /* Define to 1 if you have the <cstdarg> header file. */
 #undef HAVE_CSTDARG
 
@@ -100,6 +103,9 @@
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the <signal.h> header file. */
+#undef HAVE_SIGNAL_H
 
 /* Define to 1 if you have the <stdarg.h> header file. */
 #undef HAVE_STDARG_H

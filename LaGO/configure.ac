@@ -106,6 +106,7 @@ AC_COIN_CHECK_CXX_CHEADER(stdlib)
 AC_COIN_CHECK_CXX_CHEADER(stdarg)
 AC_COIN_CHECK_CXX_CHEADER(float)
 AC_COIN_CHECK_CXX_CHEADER(time)
+AC_COIN_CHECK_CXX_CHEADER(signal)
 
 ###################
 # Function finite #

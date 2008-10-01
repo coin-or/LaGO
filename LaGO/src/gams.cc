@@ -650,7 +650,7 @@ void gams::read_gdx(dvector& x, char* filename) {
 }
 #endif // GDX_AVAILABLE
 
-void gams::write_sol_file(const dvector& sol_point, int model_status, int solver_status, int iter, double time, Pointer<MinlpProblem> prob) {
+void gams::write_sol_file(const dvector& sol_point, int model_status, int solver_status, int iter, double time, Pointer<MinlpProblem> prob, double objest) {
 	if (model_status>2) { // not solved
 		gfwsolflag(0); // not writing a solution
 		gfwsta(model_status, solver_status, iter, time, 0, 0);
@@ -691,6 +691,10 @@ void gams::write_sol_file(const dvector& sol_point, int model_status, int solver
 		if (prob->discr[i]) solver->basind_var[i]=3; // superbasic for discrete variables
 		gfwcol(solver->sol_point(i), solver->duals_var(i), solver->basind_var(i), 0);
 	}
+	
+  gfwbnd(objest);
+  gfcsol();
+
 /*
 #ifdef GDX_AVAILABLE
 	write_gdx(solver->sol_point, "point.gdx", solver->opt_val());

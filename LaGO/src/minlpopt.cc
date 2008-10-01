@@ -1392,6 +1392,8 @@ int MinlpOpt::start_bb() {
 	}
 	sol_cand=bcp.sol_cand;
 
+	low_bound = bcp.lower_bound;
+
 	return ret;
 }
 
