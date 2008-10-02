@@ -10,17 +10,21 @@ AUTOMAKE_OPTIONS = foreign
 
 EXTRA_DIST =
 
+CGCSRCDIR = $(LAGOSRCDIR)/../Cgc/src
+
 lib_LTLIBRARIES = libLaGOBase.la
 libLaGOBase_la_SOURCES = LaGOSparseVector.cpp LaGODenseVector.cpp LaGOSymSparseMatrix.cpp \
   LaGOFunction.cpp LaGORandomNumber.cpp
 
-include_HEADERS = ../../inc/config_lago.h LaGOConfig.h LaGObase.hpp LaGOSmartPtr.hpp \
+includecoindir = $(includedir)/coin
+includecoin_HEADERS = ../../inc/config_lago.h LaGOConfig.h LaGObase.hpp LaGOSmartPtr.hpp \
   LaGODenseVector.hpp LaGOSparseVector.hpp \
   LaGOMatrix.hpp LaGOSymMatrix.hpp LaGOSymSparseMatrix.hpp \
-  LaGOFunction.hpp LaGOScaledFunction.hpp LaGORandomNumber.hpp
+  LaGOFunction.hpp LaGOScaledFunction.hpp LaGORandomNumber.hpp \
+  $(CGCSRCDIR)/DynNet.h $(CGCSRCDIR)/PLess.h $(CGCSRCDIR)/NodeId.h $(CGCSRCDIR)/NodeIdMgr.h
 
 if COIN_HAS_FILIB
-include_HEADERS += LaGOIntervalVector.hpp
+includecoin_HEADERS += LaGOIntervalVector.hpp
 libLaGOBase_la_SOURCES += LaGOIntervalVector.cpp
 endif
 

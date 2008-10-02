@@ -28,6 +28,10 @@ public:
 	: CoinPackedVector(1, &index, &value, false)
 	{ }
 	
+	SparseVector(int n_val, int* indices, double* values)
+	: CoinPackedVector(n_val, indices, values)
+	{ }
+	
 	void scale(double factor);
 	
 	friend ostream& operator<<(ostream& out, const SparseVector& v) {
@@ -36,7 +40,7 @@ public:
 		for (int i=v.getNumElements(); i>0; --i, ++ind, ++el)
 			out << '(' << *ind << ',' << *el << ')' << ' ';
 		return out; 
-	} 
+	}
 	
 }; // class SparseVector
 

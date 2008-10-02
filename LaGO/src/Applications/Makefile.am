@@ -19,6 +19,10 @@ AM_CPPFLAGS = \
  -I`$(CYGPATH_W) $(COINUTILSOBJDIR)/inc` \
  -I`$(CYGPATH_W) $(OSISRCDIR)/src` \
  -I`$(CYGPATH_W) $(OSIOBJDIR)/inc` \
+ -I`$(CYGPATH_W) $(CGLSRCDIR)/src` \
+ -I`$(CYGPATH_W) $(CGLOBJDIR)/inc` \
+ -I`$(CYGPATH_W) $(CBCSRCDIR)/src` \
+ -I`$(CYGPATH_W) $(CBCOBJDIR)/inc` \
  -I`$(CYGPATH_W) $(LAGOSRCDIR)/../Cgc/src` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Interfaces` \
  -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Common` \
@@ -43,7 +47,7 @@ libLaGO_la_LIBADD = ../Algorithms/libLaGOAlgorithms.la ../Interfaces/libLaGOInte
 
 if COIN_HAS_GAMSIO
 bin_PROGRAMS = LaGOGAMS
-LaGOGAMS_SOURCES = LaGOGAMS.cpp
+LaGOGAMS_SOURCES = LaGOGAMS.cpp ../Algorithms/LaGOQuadraticRelaxTest.cpp ../Problem/LaGOQuadraticOrConvexApproximation.cpp
 
 LaGOGAMS_LDADD = ../Interfaces/GAMS/libLaGOInterfaceGams.la libLaGO.la
 

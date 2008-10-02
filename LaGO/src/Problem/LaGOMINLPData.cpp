@@ -151,6 +151,35 @@ bool MINLPData::isConvex() const {
 	return true;
 }
 
+void MINLPData::reserveVariableSpace(int numvar) {
+	var.reserve(numvar);
+}
+
+void MINLPData::reserveConstraintSpace(int numcon) {
+	con.reserve(numcon);
+}
+
+int MINLPData::addVariable(double lower, double upper, bool discrete, bool nonlinear, const string& name) {
+	int index = var.size();
+	var.push_back(Variable(index, lower, upper, discrete, nonlinear, name));
+	if (discrete)
+		discrete_var.push_back(index);
+	return index;
+}
+
+int MINLPData::addConstraint(double lower, double upper, const SmartPtr<Function>& origfuncNL, const SmartPtr<SparseVector>& origfuncLin, double origfuncConstant, const string& name) {
+	con.push_back(Constraint(con.size(), lower, upper, origfuncNL, origfuncLin, origfuncConstant, name));
+	return con.size()-1;
+}
+
+void MINLPData::setObjective(const SmartPtr<Function>& origfuncNL, const SmartPtr<SparseVector>& origfuncLin, double origfuncConstant, const string& name) {
+	obj = Objective(origfuncNL, origfuncLin, origfuncConstant, name);
+}
+
+void MINLPData::addStartingPoint(const DenseVector& x) {
+	start_points.push_back(x);
+}
+
 ostream& operator<<(ostream& out, const MINLPData& data) {
 	out << "MINLP " << data.name << ": ";
 	if (data.isConvex()) out << "is convex";

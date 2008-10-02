@@ -214,6 +214,14 @@ public:
 	 */
 	bool isConvex() const;
 	
+	void reserveVariableSpace(int numvar);
+	void reserveConstraintSpace(int numcon);
+	
+	int addVariable(double lower, double upper, bool discrete, bool nonlinear = true, const string& name = string());
+	int addConstraint(double lower, double upper, const SmartPtr<Function>& origfuncNL = NULL, const SmartPtr<SparseVector>& origfuncLin = NULL, double origfuncConstant = 0., const string& name = string());
+	void setObjective(const SmartPtr<Function>& origfuncNL = NULL, const SmartPtr<SparseVector>& origfuncLin = NULL, double origfuncConstant = 0., const string& name = string());
+	void addStartingPoint(const DenseVector& x);
+
 	friend ostream& operator<<(ostream& out, const MINLPData& data);
 	
 	//TODO: some methods for fast evaluation of jacobian and hessian of lagrangian

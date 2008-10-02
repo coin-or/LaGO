@@ -55,7 +55,7 @@ build_triplet = @build@
 host_triplet = @host@
 @COIN_HAS_FILIB_TRUE@am__append_1 = LaGOIntervalVector.hpp
 @COIN_HAS_FILIB_TRUE@am__append_2 = LaGOIntervalVector.cpp
-DIST_COMMON = $(am__include_HEADERS_DIST) \
+DIST_COMMON = $(am__includecoin_HEADERS_DIST) \
 	$(srcdir)/../../../BuildTools/Makemain.inc \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
 @HAVE_EXTERNALS_TRUE@am__append_3 = Externals
@@ -75,7 +75,7 @@ am__vpath_adj = case $$p in \
     *) f=$$p;; \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
-am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includecoindir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libLaGOBase_la_LIBADD =
@@ -99,14 +99,16 @@ CXXLINK = $(LIBTOOL) --tag=CXX --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(libLaGOBase_la_SOURCES)
 DIST_SOURCES = $(am__libLaGOBase_la_SOURCES_DIST)
-am__include_HEADERS_DIST = ../../inc/config_lago.h LaGOConfig.h \
+am__includecoin_HEADERS_DIST = ../../inc/config_lago.h LaGOConfig.h \
 	LaGObase.hpp LaGOSmartPtr.hpp LaGODenseVector.hpp \
 	LaGOSparseVector.hpp LaGOMatrix.hpp LaGOSymMatrix.hpp \
 	LaGOSymSparseMatrix.hpp LaGOFunction.hpp \
 	LaGOScaledFunction.hpp LaGORandomNumber.hpp \
+	$(CGCSRCDIR)/DynNet.h $(CGCSRCDIR)/PLess.h \
+	$(CGCSRCDIR)/NodeId.h $(CGCSRCDIR)/NodeIdMgr.h \
 	LaGOIntervalVector.hpp
-includeHEADERS_INSTALL = $(INSTALL_HEADER)
-HEADERS = $(include_HEADERS)
+includecoinHEADERS_INSTALL = $(INSTALL_HEADER)
+HEADERS = $(includecoin_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -317,15 +319,19 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST = $(am__append_3)
+CGCSRCDIR = $(LAGOSRCDIR)/../Cgc/src
 lib_LTLIBRARIES = libLaGOBase.la
 libLaGOBase_la_SOURCES = LaGOSparseVector.cpp LaGODenseVector.cpp \
 	LaGOSymSparseMatrix.cpp LaGOFunction.cpp LaGORandomNumber.cpp \
 	$(am__append_2)
-include_HEADERS = ../../inc/config_lago.h LaGOConfig.h LaGObase.hpp \
-	LaGOSmartPtr.hpp LaGODenseVector.hpp LaGOSparseVector.hpp \
-	LaGOMatrix.hpp LaGOSymMatrix.hpp LaGOSymSparseMatrix.hpp \
-	LaGOFunction.hpp LaGOScaledFunction.hpp LaGORandomNumber.hpp \
-	$(am__append_1)
+includecoindir = $(includedir)/coin
+includecoin_HEADERS = ../../inc/config_lago.h LaGOConfig.h \
+	LaGObase.hpp LaGOSmartPtr.hpp LaGODenseVector.hpp \
+	LaGOSparseVector.hpp LaGOMatrix.hpp LaGOSymMatrix.hpp \
+	LaGOSymSparseMatrix.hpp LaGOFunction.hpp \
+	LaGOScaledFunction.hpp LaGORandomNumber.hpp \
+	$(CGCSRCDIR)/DynNet.h $(CGCSRCDIR)/PLess.h \
+	$(CGCSRCDIR)/NodeId.h $(CGCSRCDIR)/NodeIdMgr.h $(am__append_1)
 AM_CPPFLAGS = $(RANLIBC_CPPFLAGS) \
  $(FILIB_CPPFLAGS) \
  -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` \
@@ -447,22 +453,22 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
-install-includeHEADERS: $(include_HEADERS)
+install-includecoinHEADERS: $(includecoin_HEADERS)
 	@$(NORMAL_INSTALL)
-	test -z "$(includedir)" || $(mkdir_p) "$(DESTDIR)$(includedir)"
-	@list='$(include_HEADERS)'; for p in $$list; do \
+	test -z "$(includecoindir)" || $(mkdir_p) "$(DESTDIR)$(includecoindir)"
+	@list='$(includecoin_HEADERS)'; for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  f=$(am__strip_dir) \
-	  echo " $(includeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(includedir)/$$f'"; \
-	  $(includeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(includedir)/$$f"; \
+	  echo " $(includecoinHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(includecoindir)/$$f'"; \
+	  $(includecoinHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(includecoindir)/$$f"; \
 	done
 
-uninstall-includeHEADERS:
+uninstall-includecoinHEADERS:
 	@$(NORMAL_UNINSTALL)
-	@list='$(include_HEADERS)'; for p in $$list; do \
+	@list='$(includecoin_HEADERS)'; for p in $$list; do \
 	  f=$(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(includedir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(includedir)/$$f"; \
+	  echo " rm -f '$(DESTDIR)$(includecoindir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(includecoindir)/$$f"; \
 	done
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
@@ -514,7 +520,7 @@ distclean-tags:
 	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
 
 distdir: $(DISTFILES)
-	$(mkdir_p) $(distdir)/../../../BuildTools $(distdir)/../../inc
+	$(mkdir_p) $(distdir)/$(CGCSRCDIR) $(distdir)/../../../BuildTools $(distdir)/../../inc
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -545,7 +551,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(LTLIBRARIES) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includecoindir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-am
@@ -594,7 +600,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-includeHEADERS
+install-data-am: install-includecoinHEADERS
 
 install-exec-am: install-libLTLIBRARIES
 
@@ -622,7 +628,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-includeHEADERS uninstall-info-am \
+uninstall-am: uninstall-includecoinHEADERS uninstall-info-am \
 	uninstall-libLTLIBRARIES
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
@@ -630,13 +636,13 @@ uninstall-am: uninstall-includeHEADERS uninstall-info-am \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-exec \
-	install-exec-am install-includeHEADERS install-info \
+	install-exec-am install-includecoinHEADERS install-info \
 	install-info-am install-libLTLIBRARIES install-man \
 	install-strip installcheck installcheck-am installdirs \
 	maintainer-clean maintainer-clean-generic mostlyclean \
 	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
 	pdf pdf-am ps ps-am tags uninstall uninstall-am \
-	uninstall-includeHEADERS uninstall-info-am \
+	uninstall-includecoinHEADERS uninstall-info-am \
 	uninstall-libLTLIBRARIES
 
 

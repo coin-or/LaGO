@@ -18,7 +18,8 @@ EXTRA_DIST =
 lib_LTLIBRARIES = libLaGOInterfaces.la
 libLaGOInterfaces_la_SOURCES = LaGOOsiSolver.cpp
 
-include_HEADERS = 
+includecoindir = $(includedir)/coin
+includecoin_HEADERS = 
 
 AM_CPPFLAGS = \
  $(FILIB_CPPFLAGS) \

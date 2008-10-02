@@ -98,8 +98,12 @@ am_libLaGO_la_OBJECTS =
 libLaGO_la_OBJECTS = $(am_libLaGO_la_OBJECTS)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am__LaGOGAMS_SOURCES_DIST = LaGOGAMS.cpp
-@COIN_HAS_GAMSIO_TRUE@am_LaGOGAMS_OBJECTS = LaGOGAMS.$(OBJEXT)
+am__LaGOGAMS_SOURCES_DIST = LaGOGAMS.cpp \
+	../Algorithms/LaGOQuadraticRelaxTest.cpp \
+	../Problem/LaGOQuadraticOrConvexApproximation.cpp
+@COIN_HAS_GAMSIO_TRUE@am_LaGOGAMS_OBJECTS = LaGOGAMS.$(OBJEXT) \
+@COIN_HAS_GAMSIO_TRUE@	LaGOQuadraticRelaxTest.$(OBJEXT) \
+@COIN_HAS_GAMSIO_TRUE@	LaGOQuadraticOrConvexApproximation.$(OBJEXT)
 LaGOGAMS_OBJECTS = $(am_LaGOGAMS_OBJECTS)
 @COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@am__DEPENDENCIES_2 = $(OSIOBJDIR)/src/OsiClp/libOsiClp.la \
 @COIN_HAS_CPX_TRUE@@COIN_HAS_GAMSIO_TRUE@	$(CLPOBJDIR)/src/libClp.la
@@ -356,8 +360,10 @@ AM_CPPFLAGS = $(FILIB_CPPFLAGS) -I`$(CYGPATH_W) $(srcdir)/../Base` \
 	$(COINUTILSSRCDIR)/src` -I`$(CYGPATH_W) \
 	$(COINUTILSOBJDIR)/inc` -I`$(CYGPATH_W) $(OSISRCDIR)/src` \
 	-I`$(CYGPATH_W) $(OSIOBJDIR)/inc` -I`$(CYGPATH_W) \
-	$(LAGOSRCDIR)/../Cgc/src` -I`$(CYGPATH_W) \
-	$(IPOPTSRCDIR)/src/Interfaces` -I`$(CYGPATH_W) \
+	$(CGLSRCDIR)/src` -I`$(CYGPATH_W) $(CGLOBJDIR)/inc` \
+	-I`$(CYGPATH_W) $(CBCSRCDIR)/src` -I`$(CYGPATH_W) \
+	$(CBCOBJDIR)/inc` -I`$(CYGPATH_W) $(LAGOSRCDIR)/../Cgc/src` \
+	-I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Interfaces` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/Common` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/LinAlg` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/Algorithm` -I`$(CYGPATH_W) \
@@ -371,7 +377,7 @@ libLaGO_la_SOURCES =
 libLaGO_la_LIBADD = ../Algorithms/libLaGOAlgorithms.la ../Interfaces/libLaGOInterfaces.la ../Problem/libLaGOProblem.la ../Base/libLaGOBase.la \
  $(RANLIBC_LIB) $(FILIB_LIB)
 
-@COIN_HAS_GAMSIO_TRUE@LaGOGAMS_SOURCES = LaGOGAMS.cpp
+@COIN_HAS_GAMSIO_TRUE@LaGOGAMS_SOURCES = LaGOGAMS.cpp ../Algorithms/LaGOQuadraticRelaxTest.cpp ../Problem/LaGOQuadraticOrConvexApproximation.cpp
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_LDADD = ../Interfaces/GAMS/libLaGOInterfaceGams.la \
 @COIN_HAS_GAMSIO_TRUE@	libLaGO.la \
 @COIN_HAS_GAMSIO_TRUE@	$(BONMINOBJDIR)/src/CbcBonmin/libbonmin.la \
@@ -490,6 +496,8 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOGAMS.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOQuadraticOrConvexApproximation.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOQuadraticRelaxTest.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -511,6 +519,34 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
+
+LaGOQuadraticRelaxTest.o: ../Algorithms/LaGOQuadraticRelaxTest.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT LaGOQuadraticRelaxTest.o -MD -MP -MF "$(DEPDIR)/LaGOQuadraticRelaxTest.Tpo" -c -o LaGOQuadraticRelaxTest.o `test -f '../Algorithms/LaGOQuadraticRelaxTest.cpp' || echo '$(srcdir)/'`../Algorithms/LaGOQuadraticRelaxTest.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/LaGOQuadraticRelaxTest.Tpo" "$(DEPDIR)/LaGOQuadraticRelaxTest.Po"; else rm -f "$(DEPDIR)/LaGOQuadraticRelaxTest.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Algorithms/LaGOQuadraticRelaxTest.cpp' object='LaGOQuadraticRelaxTest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o LaGOQuadraticRelaxTest.o `test -f '../Algorithms/LaGOQuadraticRelaxTest.cpp' || echo '$(srcdir)/'`../Algorithms/LaGOQuadraticRelaxTest.cpp
+
+LaGOQuadraticRelaxTest.obj: ../Algorithms/LaGOQuadraticRelaxTest.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT LaGOQuadraticRelaxTest.obj -MD -MP -MF "$(DEPDIR)/LaGOQuadraticRelaxTest.Tpo" -c -o LaGOQuadraticRelaxTest.obj `if test -f '../Algorithms/LaGOQuadraticRelaxTest.cpp'; then $(CYGPATH_W) '../Algorithms/LaGOQuadraticRelaxTest.cpp'; else $(CYGPATH_W) '$(srcdir)/../Algorithms/LaGOQuadraticRelaxTest.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/LaGOQuadraticRelaxTest.Tpo" "$(DEPDIR)/LaGOQuadraticRelaxTest.Po"; else rm -f "$(DEPDIR)/LaGOQuadraticRelaxTest.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Algorithms/LaGOQuadraticRelaxTest.cpp' object='LaGOQuadraticRelaxTest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o LaGOQuadraticRelaxTest.obj `if test -f '../Algorithms/LaGOQuadraticRelaxTest.cpp'; then $(CYGPATH_W) '../Algorithms/LaGOQuadraticRelaxTest.cpp'; else $(CYGPATH_W) '$(srcdir)/../Algorithms/LaGOQuadraticRelaxTest.cpp'; fi`
+
+LaGOQuadraticOrConvexApproximation.o: ../Problem/LaGOQuadraticOrConvexApproximation.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT LaGOQuadraticOrConvexApproximation.o -MD -MP -MF "$(DEPDIR)/LaGOQuadraticOrConvexApproximation.Tpo" -c -o LaGOQuadraticOrConvexApproximation.o `test -f '../Problem/LaGOQuadraticOrConvexApproximation.cpp' || echo '$(srcdir)/'`../Problem/LaGOQuadraticOrConvexApproximation.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/LaGOQuadraticOrConvexApproximation.Tpo" "$(DEPDIR)/LaGOQuadraticOrConvexApproximation.Po"; else rm -f "$(DEPDIR)/LaGOQuadraticOrConvexApproximation.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Problem/LaGOQuadraticOrConvexApproximation.cpp' object='LaGOQuadraticOrConvexApproximation.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o LaGOQuadraticOrConvexApproximation.o `test -f '../Problem/LaGOQuadraticOrConvexApproximation.cpp' || echo '$(srcdir)/'`../Problem/LaGOQuadraticOrConvexApproximation.cpp
+
+LaGOQuadraticOrConvexApproximation.obj: ../Problem/LaGOQuadraticOrConvexApproximation.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT LaGOQuadraticOrConvexApproximation.obj -MD -MP -MF "$(DEPDIR)/LaGOQuadraticOrConvexApproximation.Tpo" -c -o LaGOQuadraticOrConvexApproximation.obj `if test -f '../Problem/LaGOQuadraticOrConvexApproximation.cpp'; then $(CYGPATH_W) '../Problem/LaGOQuadraticOrConvexApproximation.cpp'; else $(CYGPATH_W) '$(srcdir)/../Problem/LaGOQuadraticOrConvexApproximation.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/LaGOQuadraticOrConvexApproximation.Tpo" "$(DEPDIR)/LaGOQuadraticOrConvexApproximation.Po"; else rm -f "$(DEPDIR)/LaGOQuadraticOrConvexApproximation.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../Problem/LaGOQuadraticOrConvexApproximation.cpp' object='LaGOQuadraticOrConvexApproximation.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o LaGOQuadraticOrConvexApproximation.obj `if test -f '../Problem/LaGOQuadraticOrConvexApproximation.cpp'; then $(CYGPATH_W) '../Problem/LaGOQuadraticOrConvexApproximation.cpp'; else $(CYGPATH_W) '$(srcdir)/../Problem/LaGOQuadraticOrConvexApproximation.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

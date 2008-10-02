@@ -12,7 +12,8 @@ EXTRA_DIST =
 
 lib_LTLIBRARIES = libranlib.c.la
 libranlib_c_la_SOURCES = ranlib.c/src/ranlib.c ranlib.c/src/com.c ranlib.c/linpack/linpack.c
-include_HEADERS = ranlib.c/src/ranlib.h
+includecoindir = $(includedir)/coin
+includecoin_HEADERS = ranlib.c/src/ranlib.h
 
 libranlib_c_la_LDFLAGS = $(LT_LDFLAGS)
 

@@ -12,13 +12,16 @@ EXTRA_DIST =
 
 lib_LTLIBRARIES = libLaGOAlgorithms.la
 libLaGOAlgorithms_la_SOURCES = \
-	LaGOAlgorithm.cpp LaGOQuadraticRelaxTest.cpp \
+	LaGOAlgorithm.cpp \
 	LaGODecomposition.cpp \
 	LaGOSampling.cpp LaGOCurvatureCheck.cpp \
 	LaGOBoxReduction.cpp LaGOConstraintPropagation.cpp \
 	LaGOQuadraticEstimation.cpp LaGOConvexification.cpp
 
-include_HEADERS = 
+includecoindir = $(includedir)/coin
+includecoin_HEADERS = LaGODecomposition.hpp LaGOCurvatureCheck.hpp \
+  LaGOBoxReduction.hpp LaGOConstraintPropagation.hpp \
+  LaGOQuadraticEstimation.hpp LaGOConvexification.hpp
 
 AM_CPPFLAGS = $(FILIB_CPPFLAGS) \
  -I`$(CYGPATH_W) $(srcdir)/../Base` \

@@ -60,7 +60,7 @@ host_triplet = @host@
 @COIN_HAS_CPX_FALSE@ -I`$(CYGPATH_W) $(CLPSRCDIR)/src` \
 @COIN_HAS_CPX_FALSE@ -I`$(CYGPATH_W) $(CLPOBJDIR)/inc`
 
-DIST_COMMON = $(include_HEADERS) \
+DIST_COMMON = $(includecoin_HEADERS) \
 	$(srcdir)/../../../BuildTools/Makemain.inc \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
 @HAVE_EXTERNALS_TRUE@am__append_3 = Externals
@@ -80,15 +80,14 @@ am__vpath_adj = case $$p in \
     *) f=$$p;; \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
-am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includecoindir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libLaGOAlgorithms_la_LIBADD =
 am_libLaGOAlgorithms_la_OBJECTS = LaGOAlgorithm.lo \
-	LaGOQuadraticRelaxTest.lo LaGODecomposition.lo LaGOSampling.lo \
-	LaGOCurvatureCheck.lo LaGOBoxReduction.lo \
-	LaGOConstraintPropagation.lo LaGOQuadraticEstimation.lo \
-	LaGOConvexification.lo
+	LaGODecomposition.lo LaGOSampling.lo LaGOCurvatureCheck.lo \
+	LaGOBoxReduction.lo LaGOConstraintPropagation.lo \
+	LaGOQuadraticEstimation.lo LaGOConvexification.lo
 libLaGOAlgorithms_la_OBJECTS = $(am_libLaGOAlgorithms_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
@@ -102,8 +101,8 @@ CXXLINK = $(LIBTOOL) --tag=CXX --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(libLaGOAlgorithms_la_SOURCES)
 DIST_SOURCES = $(libLaGOAlgorithms_la_SOURCES)
-includeHEADERS_INSTALL = $(INSTALL_HEADER)
-HEADERS = $(include_HEADERS)
+includecoinHEADERS_INSTALL = $(INSTALL_HEADER)
+HEADERS = $(includecoin_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -316,13 +315,17 @@ AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST = $(am__append_3)
 lib_LTLIBRARIES = libLaGOAlgorithms.la
 libLaGOAlgorithms_la_SOURCES = \
-	LaGOAlgorithm.cpp LaGOQuadraticRelaxTest.cpp \
+	LaGOAlgorithm.cpp \
 	LaGODecomposition.cpp \
 	LaGOSampling.cpp LaGOCurvatureCheck.cpp \
 	LaGOBoxReduction.cpp LaGOConstraintPropagation.cpp \
 	LaGOQuadraticEstimation.cpp LaGOConvexification.cpp
 
-include_HEADERS = 
+includecoindir = $(includedir)/coin
+includecoin_HEADERS = LaGODecomposition.hpp LaGOCurvatureCheck.hpp \
+  LaGOBoxReduction.hpp LaGOConstraintPropagation.hpp \
+  LaGOQuadraticEstimation.hpp LaGOConvexification.hpp
+
 AM_CPPFLAGS = $(FILIB_CPPFLAGS) -I`$(CYGPATH_W) $(srcdir)/../Base` \
 	-I`$(CYGPATH_W) $(srcdir)/../Problem` -I`$(CYGPATH_W) \
 	$(srcdir)/../Interfaces` -I`$(CYGPATH_W) \
@@ -421,7 +424,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOCurvatureCheck.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGODecomposition.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOQuadraticEstimation.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOQuadraticRelaxTest.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOSampling.Plo@am__quote@
 
 .cpp.o:
@@ -454,22 +456,22 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
-install-includeHEADERS: $(include_HEADERS)
+install-includecoinHEADERS: $(includecoin_HEADERS)
 	@$(NORMAL_INSTALL)
-	test -z "$(includedir)" || $(mkdir_p) "$(DESTDIR)$(includedir)"
-	@list='$(include_HEADERS)'; for p in $$list; do \
+	test -z "$(includecoindir)" || $(mkdir_p) "$(DESTDIR)$(includecoindir)"
+	@list='$(includecoin_HEADERS)'; for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  f=$(am__strip_dir) \
-	  echo " $(includeHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(includedir)/$$f'"; \
-	  $(includeHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(includedir)/$$f"; \
+	  echo " $(includecoinHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(includecoindir)/$$f'"; \
+	  $(includecoinHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(includecoindir)/$$f"; \
 	done
 
-uninstall-includeHEADERS:
+uninstall-includecoinHEADERS:
 	@$(NORMAL_UNINSTALL)
-	@list='$(include_HEADERS)'; for p in $$list; do \
+	@list='$(includecoin_HEADERS)'; for p in $$list; do \
 	  f=$(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(includedir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(includedir)/$$f"; \
+	  echo " rm -f '$(DESTDIR)$(includecoindir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(includecoindir)/$$f"; \
 	done
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
@@ -552,7 +554,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(LTLIBRARIES) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includecoindir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-am
@@ -601,7 +603,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-includeHEADERS
+install-data-am: install-includecoinHEADERS
 
 install-exec-am: install-libLTLIBRARIES
 
@@ -629,7 +631,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-includeHEADERS uninstall-info-am \
+uninstall-am: uninstall-includecoinHEADERS uninstall-info-am \
 	uninstall-libLTLIBRARIES
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
@@ -637,13 +639,13 @@ uninstall-am: uninstall-includeHEADERS uninstall-info-am \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-exec \
-	install-exec-am install-includeHEADERS install-info \
+	install-exec-am install-includecoinHEADERS install-info \
 	install-info-am install-libLTLIBRARIES install-man \
 	install-strip installcheck installcheck-am installdirs \
 	maintainer-clean maintainer-clean-generic mostlyclean \
 	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
 	pdf pdf-am ps ps-am tags uninstall uninstall-am \
-	uninstall-includeHEADERS uninstall-info-am \
+	uninstall-includecoinHEADERS uninstall-info-am \
 	uninstall-libLTLIBRARIES
 
 

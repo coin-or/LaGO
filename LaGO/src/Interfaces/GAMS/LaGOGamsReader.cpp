@@ -11,6 +11,8 @@
 
 //#include <dlfcn.h>
 
+#include <string>
+
 namespace LaGO {
 
 #define CNAMES
@@ -25,7 +27,7 @@ namespace LaGO {
 #include "nliolib.h"
 //#include "gcprocs.h"
 #include "g2dexports.h"
-#include "clicelib.h"
+//#include "clicelib.h"
 
 extern "C" {
 #if defined(COIN_HAS_CPX)
@@ -163,7 +165,7 @@ char* GamsReader::getColName (struct dictRec* dict, int gj, char *name, int bufL
   return name;
 }
 
-#if defined(COIN_HAS_CPX) && defined(COIN_HAS_GAMSCPLEXLICE)
+#if defined(COIN_HAS_CPX)
 void GamsReader::initCPLEXLicense(int connr, int varnr, int nnz, int nlnz, int ndisc) const {
 	licenseInit_t initType;
 	if (gamscplexlice(connr, varnr, nnz, nlnz, ndisc, 1, &initType, NULL, NULL, NULL, NULL, NULL, NULL)) {
@@ -209,8 +211,8 @@ SmartPtr<MINLPData> GamsReader::getProblem(char* cntr_file) {
 	cout << "Columns: " << numcol << endl;
   
 	reformed&=(info.kgv[14]==1); // reformable, when objective var appears linear in objective
-	prob->var.reserve(numcol);
-	prob->con.reserve(numrow);
+	prob->reserveVariableSpace(numcol);
+	prob->reserveConstraintSpace(numrow);
 
 	// reading row informations
 	vector<double> conlhs(numrow, -getInfinity()); // lower bounds of constraints
@@ -297,10 +299,12 @@ SmartPtr<MINLPData> GamsReader::getProblem(char* cntr_file) {
 			if (index-1==objcon && i==objvar) reformed&=(nltyp==0); // objective variable appears linear
 		}
 
-		prob->var.push_back(MINLPData::Variable(i, low, up, coldata.idata[3], isnonlinear, name));
-		if (coldata.idata[3]) prob->discrete_var.push_back(i);  
+		int lagoindex = prob->addVariable(low, up, coldata.idata[3], isnonlinear, name);
+		assert(lagoindex == i);
+//		prob->var.push_back(MINLPData::Variable(i, low, up, coldata.idata[3], isnonlinear, name));
+//		if (coldata.idata[3]) prob->discrete_var.push_back(i);  
 	}
-	cout << "Discrete variables: " << prob->discrete_var.size() << endl;
+	cout << "Discrete variables: " << prob->numDiscrVariables() << endl;
 
 	cout << "Reformable: " << (reformed ? "yes" : "no") << endl;
 
@@ -321,18 +325,19 @@ SmartPtr<MINLPData> GamsReader::getProblem(char* cntr_file) {
 			double& objvar_coeff(conLin[c][objvar]);
 			obj_factor*=-objvar_coeff;
 			objvar_coeff=0.;
-			prob->obj=MINLPData::Objective(NULL, new SparseVector(conLin[c]), -conrhs[c], name);
+			prob->setObjective(NULL, new SparseVector(conLin[c]), -conrhs[c], name);
 			
 			if (obj_factor!=1) {
 				assert(obj_factor!=0);
 				*prob->obj.origfuncLin/=obj_factor;
 				prob->obj.origfuncConstant/=obj_factor;
 			}
-		} else
-			prob->con.push_back(MINLPData::Constraint(prob->con.size(), conlhs[c], conrhs[c], NULL, new SparseVector(conLin[c]), 0., name));
+		} else {
+			prob->addConstraint(conlhs[c], conrhs[c], NULL, new SparseVector(conLin[c]), 0., name);
+		}
 	}
 	if (!reformed) {
-		prob->obj=MINLPData::Objective(NULL, new SparseVector(objvar, obj_factor), 0, objcon_name);
+		prob->setObjective(NULL, new SparseVector(objvar, obj_factor), 0, objcon_name);
 		if (objcon_name) free(objcon_name);
 	}
 
