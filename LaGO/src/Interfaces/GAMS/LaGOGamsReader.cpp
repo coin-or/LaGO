@@ -28,7 +28,7 @@ namespace LaGO {
 #include "clicelib.h"
 
 extern "C" {
-#if defined(COIN_HAS_CPX) && defined(COIN_HAS_GAMSCPLEXLICE)
+#if defined(COIN_HAS_CPX)
 #include "gamscplexlice.h"
 #endif
 
@@ -191,7 +191,7 @@ SmartPtr<MINLPData> GamsReader::getProblem(char* cntr_file) {
 	// open status file
 	gfopst();
 
-#if defined(COIN_HAS_CPX) && defined(COIN_HAS_GAMSCPLEXLICE)
+#if defined(COIN_HAS_CPX)
 	initCPLEXLicense(iolib.nrows, iolib.ncols, iolib.nnz, iolib.nlnz, iolib.ndisc);
 #endif
 

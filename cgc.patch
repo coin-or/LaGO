@@ -1,7 +1,7 @@
 Index: Cgc/src/DynNet.h
 ===================================================================
---- Cgc/src/DynNet.h	(revision 14)
-+++ Cgc/src/DynNet.h	(working copy)
+--- Cgc/src/DynNet.h	(Revision 21)
++++ Cgc/src/DynNet.h	(Arbeitskopie)
 @@ -91,17 +91,17 @@
      {
          typedef typename DynNetArcTypes<NodeInfo, ArcInfo >::ArcBag MyArcBag;
@@ -182,7 +182,7 @@ Index: Cgc/src/DynNet.h
              if(atEnd() && otherIter.atEnd())
                  return false;
              if(atEnd()||otherIter.atEnd())
-@@ -405,8 +406,8 @@
+@@ -408,8 +409,8 @@
              :net(&thenet),nodeIter(node)
          { if(node != net->end()) arcIter=(*node).begin(); }
  
@@ -193,7 +193,7 @@ Index: Cgc/src/DynNet.h
              const MyNodeArcIterator &arc)
              :net(&thenet),nodeIter(node),arcIter(arc)
          { }
-@@ -439,7 +440,7 @@
+@@ -442,7 +443,7 @@
  
          DynNetArcIterator operator++()
          {
@@ -202,7 +202,7 @@ Index: Cgc/src/DynNet.h
              if(!atEnd())
              {
                  if(arcIter!=(*nodeIter).end())
-@@ -467,13 +468,13 @@
+@@ -470,13 +471,13 @@
          /*
          inline friend bool operator==(const DynNetArcIterator<NetType,NodeInfo,ArcInfo> &rep1,
          const DynNetArcIterator<NetType,NodeInfo,ArcInfo> &rep2);
@@ -220,7 +220,7 @@ Index: Cgc/src/DynNet.h
          &rep2);
          */
          //friend class NetType;
-@@ -514,23 +515,23 @@
+@@ -517,23 +518,23 @@
          {exit(1);}
  
          const_iterator begin()const
@@ -249,7 +249,7 @@ Index: Cgc/src/DynNet.h
              // go find the node..
              iterator nodeIt = find(nodeId);
  
-@@ -541,10 +542,10 @@
+@@ -544,10 +545,10 @@
              Node &node = const_cast<Node &>(*nodeIt);
              node.disconnect();
              // remove the node
@@ -262,7 +262,7 @@ Index: Cgc/src/DynNet.h
              // have to maintain arcSize manually...the node deletes the arcs
              arcSize-=(*nodeIt).size();
              arcSize-=(*nodeIt).back_size();
-@@ -552,7 +553,7 @@
+@@ -555,7 +556,7 @@
              Node &node=const_cast<Node &>((*nodeIt));
              node.disconnect();
              // remove the node
@@ -271,7 +271,7 @@ Index: Cgc/src/DynNet.h
          }
          void arc_erase(const arc_iterator &start, const arc_iterator &finish)
          {
-@@ -575,25 +576,25 @@
+@@ -578,25 +579,25 @@
              }
          }
          void erase(const iterator &first, const iterator &second)
@@ -302,7 +302,7 @@ Index: Cgc/src/DynNet.h
          }
  
          size_t size()const{ return nodes.size();}
-@@ -601,13 +602,13 @@
+@@ -604,13 +605,13 @@
  
          Cgc::NodeId getNodeId(const iterator &nodeIt)const{ return (*nodeIt).getNodeId();}
  
@@ -319,7 +319,7 @@ Index: Cgc/src/DynNet.h
                  arcIt( node.insert(__ArcType<NodeInfo, ArcInfo >(tail,
                  info,
                  head)));
-@@ -615,7 +616,7 @@
+@@ -618,7 +619,7 @@
              return arc_iterator(*this, tail, arcIt);
          }
          arc_iterator arc_begin()
@@ -328,7 +328,7 @@ Index: Cgc/src/DynNet.h
              if(size())
              {
                  iterator nodeWithSize;
-@@ -632,8 +633,8 @@
+@@ -635,8 +636,8 @@
              return arc_iterator(*this,begin());
          }
          const_arc_iterator arc_begin()const
@@ -339,7 +339,7 @@ Index: Cgc/src/DynNet.h
                  const_cast< DynNet<NodeInfo, ArcInfo> * >(this);
              if(size())
              {
-@@ -653,15 +654,15 @@
+@@ -656,15 +657,15 @@
  
  
          const_arc_iterator arc_end()const
@@ -358,7 +358,7 @@ Index: Cgc/src/DynNet.h
                  const_cast< DynNet<NodeInfo,ArcInfo> * >(this);
              const_iterator tail=find(tailId);
              /*
-@@ -685,10 +686,10 @@
+@@ -688,10 +689,10 @@
                  return arc_end();
              else
                  return arc_iterator(*netpnt,tail,arcFound);
@@ -371,7 +371,7 @@ Index: Cgc/src/DynNet.h
                  const_cast< DynNet<NodeInfo,ArcInfo> * >(this);
              const_iterator tail=find(tailId);
              //if(tail!=end())
-@@ -709,6 +710,17 @@
+@@ -712,6 +713,17 @@
              else
                  return arc_iterator(*netpnt,tail,arcFound);
          }
@@ -389,7 +389,7 @@ Index: Cgc/src/DynNet.h
  
          const_iterator find(const NodeId &id)const
          {
-@@ -737,7 +749,7 @@
+@@ -740,7 +752,7 @@
          }
  
          /*
@@ -398,7 +398,7 @@ Index: Cgc/src/DynNet.h
          const DynNet<NodeInfo, ArcInfo > &net);
          */
  
-@@ -747,7 +759,7 @@
+@@ -750,7 +762,7 @@
          {
              //const_iterator nodeIt;
              os<<"NetClass:Undir>"<<size()<<' '<<arc_size()<<std::endl;
@@ -407,7 +407,7 @@ Index: Cgc/src/DynNet.h
                  const_cast<DynNet<NodeInfo,ArcInfo> *>(this);
              for(const_iterator nodeIt = netpnt->begin();
                  nodeIt != netpnt->end();nodeIt++)
-@@ -787,7 +799,7 @@
+@@ -790,7 +802,7 @@
              {
                  is>>id>>numAdj;
                  maxId=std::max(id,maxId);
@@ -416,7 +416,7 @@ Index: Cgc/src/DynNet.h
  
                  // may have been early insert item..so must check
                  nodeIt = nodes.find(nodeIn);
-@@ -801,8 +813,8 @@
+@@ -804,8 +816,8 @@
                      if(hdIter==nodes.end())
                      {
                          // do a pre-insert...need it now!
@@ -427,7 +427,7 @@ Index: Cgc/src/DynNet.h
                      }
                      arc_insert(nodeIt,defaultInfo,hdIter);
                  }
-@@ -813,54 +825,54 @@
+@@ -816,54 +828,54 @@
                  std::cerr<<"Didn't get the last line right!"<<std::endl;
              return is;
          }
@@ -495,7 +495,7 @@ Index: Cgc/src/DynNet.h
          }
          /*  */
          return os;
-@@ -868,12 +880,12 @@
+@@ -871,12 +883,12 @@
  
      template <class NodeInfo, class ArcInfo >
      typename __NodeType<NodeInfo,ArcInfo>::iterator __NodeType<NodeInfo,ArcInfo>::insert(const __ArcType<NodeInfo,ArcInfo> &newArc)
@@ -511,7 +511,7 @@ Index: Cgc/src/DynNet.h
              = const_cast< __NodeType<NodeInfo,ArcInfo> &>((*lclArc->head()));
          node.back_insert(lclArc);
          return ArcIterator<NodeInfo,ArcInfo>(ait);
-@@ -881,13 +893,13 @@
+@@ -884,13 +896,13 @@
  
      template <class NodeInfo, class ArcInfo >
      void __NodeType<NodeInfo,ArcInfo>::back_insert(const __ArcType<NodeInfo,ArcInfo> *newArc)
@@ -528,7 +528,7 @@ Index: Cgc/src/DynNet.h
  #endif
      }
  
-@@ -895,23 +907,23 @@
+@@ -898,23 +910,23 @@
      void __NodeType<NodeInfo,ArcInfo>::back_erase(const __ArcType<NodeInfo,
          ArcInfo> *arcToErase)
  
@@ -558,7 +558,7 @@ Index: Cgc/src/DynNet.h
          //cout<<"comparing arcs.."<<std::endl;
          //cout<<"arc1="<<&(*arc1.hd)<<"+"<<&(*arc1.tl)<<std::endl;
          //cout<<"arc2="<<&(*arc2.hd)<<"+"<<&(*arc2.tl)<<std::endl;
-@@ -930,7 +942,7 @@
+@@ -933,7 +945,7 @@
          //if(static_cast<int>(arc1.tl) > static_cast<int>(arc2.tl))
          //return false;
          //if(&(*arc1.tl) >  &(*arc2.tl)) -----> breaks arc_find
@@ -567,7 +567,7 @@ Index: Cgc/src/DynNet.h
          */
      }
  
-@@ -949,14 +961,14 @@
+@@ -952,14 +964,14 @@
      }
      template < class NodeInfo, class ArcInfo>
      std::ostream &operator<<(std::ostream &os, const __NodeType<NodeInfo, ArcInfo > &node)
@@ -585,7 +585,7 @@ Index: Cgc/src/DynNet.h
      }
  
      template < class NodeInfo, class ArcInfo >
-@@ -964,6 +976,6 @@
+@@ -967,6 +979,6 @@
      {
          return (*n1) != (*n2);
      }
@@ -595,8 +595,8 @@ Index: Cgc/src/DynNet.h
  #endif
 Index: Cgc/src/NodeId.h
 ===================================================================
---- Cgc/src/NodeId.h	(revision 14)
-+++ Cgc/src/NodeId.h	(working copy)
+--- Cgc/src/NodeId.h	(Revision 21)
++++ Cgc/src/NodeId.h	(Arbeitskopie)
 @@ -18,13 +18,13 @@
      bool operator>(const NodeId &id1, const NodeId &id2);
      bool operator==(const NodeId &id1, const NodeId &id2);
@@ -657,8 +657,8 @@ Index: Cgc/src/NodeId.h
  #endif
 Index: Cgc/src/NodeIdMgr.h
 ===================================================================
---- Cgc/src/NodeIdMgr.h	(revision 14)
-+++ Cgc/src/NodeIdMgr.h	(working copy)
+--- Cgc/src/NodeIdMgr.h	(Revision 21)
++++ Cgc/src/NodeIdMgr.h	(Arbeitskopie)
 @@ -17,13 +17,13 @@
      class NodeIdMgr
      {
@@ -679,8 +679,8 @@ Index: Cgc/src/NodeIdMgr.h
 +#endif
 Index: Cgc/src/PLess.h
 ===================================================================
---- Cgc/src/PLess.h	(revision 14)
-+++ Cgc/src/PLess.h	(working copy)
+--- Cgc/src/PLess.h	(Revision 21)
++++ Cgc/src/PLess.h	(Arbeitskopie)
 @@ -17,5 +17,5 @@
      struct PLess : std::binary_function<T, T, bool> {
          bool operator()(const T& x, const T& y) const { return *x < *y; }
