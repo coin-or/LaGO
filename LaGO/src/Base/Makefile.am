@@ -12,7 +12,7 @@ EXTRA_DIST =
 
 CGCSRCDIR = $(LAGOSRCDIR)/../Cgc/src
 
-lib_LTLIBRARIES = libLaGOBase.la
+noinst_LTLIBRARIES = libLaGOBase.la
 libLaGOBase_la_SOURCES = LaGOSparseVector.cpp LaGODenseVector.cpp LaGOSymSparseMatrix.cpp \
   LaGOFunction.cpp LaGORandomNumber.cpp
 

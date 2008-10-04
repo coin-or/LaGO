@@ -11,7 +11,7 @@ AUTOMAKE_OPTIONS = foreign
 
 EXTRA_DIST =
 
-lib_LTLIBRARIES = libprim.la
+noinst_LTLIBRARIES = libprim.la
 libprim_la_SOURCES = ieee/primitive.cpp bsd/strtod.c  interval/stdfun/filib_consts.cpp \
 	fp_traits/fp_traits_double_setup.cpp \
 	fp_traits/fp_traits_float_setup.cpp \

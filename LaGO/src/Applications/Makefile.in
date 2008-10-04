@@ -90,10 +90,6 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libLaGO_la_DEPENDENCIES = ../Algorithms/libLaGOAlgorithms.la \
-	../Interfaces/libLaGOInterfaces.la \
-	../Problem/libLaGOProblem.la ../Base/libLaGOBase.la \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_libLaGO_la_OBJECTS =
 libLaGO_la_OBJECTS = $(am_libLaGO_la_OBJECTS)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
@@ -115,14 +111,14 @@ LaGOGAMS_OBJECTS = $(am_LaGOGAMS_OBJECTS)
 @COIN_HAS_GAMSIO_TRUE@	$(CBCOBJDIR)/src/libCbc.la \
 @COIN_HAS_GAMSIO_TRUE@	$(CGLOBJDIR)/src/libCgl.la \
 @COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/libOsi.la \
-@COIN_HAS_GAMSIO_TRUE@	$(COINUTILSOBJDIR)/src/libCoinUtils.la \
 @COIN_HAS_GAMSIO_TRUE@	$(IPOPTOBJDIR)/src/Interfaces/libipopt.la \
 @COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_1) \
 @COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_1) \
 @COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_1) \
 @COIN_HAS_GAMSIO_TRUE@	$(GAMSIO_OBJDIR)/libGamsGDX.la \
 @COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_2) \
-@COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_3)
+@COIN_HAS_GAMSIO_TRUE@	$(am__DEPENDENCIES_3) \
+@COIN_HAS_GAMSIO_TRUE@	$(COINUTILSOBJDIR)/src/libCoinUtils.la
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -377,19 +373,24 @@ libLaGO_la_SOURCES =
 libLaGO_la_LIBADD = ../Algorithms/libLaGOAlgorithms.la ../Interfaces/libLaGOInterfaces.la ../Problem/libLaGOProblem.la ../Base/libLaGOBase.la \
  $(RANLIBC_LIB) $(FILIB_LIB)
 
+libLaGO_la_DEPENDENCIES = ../Algorithms/libLaGOAlgorithms.la ../Interfaces/libLaGOInterfaces.la ../Problem/libLaGOProblem.la ../Base/libLaGOBase.la \
+ $(RANLIBC_LIB) $(FILIB_LIB)
+
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_SOURCES = LaGOGAMS.cpp ../Algorithms/LaGOQuadraticRelaxTest.cpp ../Problem/LaGOQuadraticOrConvexApproximation.cpp
+
+#CoinUtils need to come after Clp
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_LDADD = ../Interfaces/GAMS/libLaGOInterfaceGams.la \
 @COIN_HAS_GAMSIO_TRUE@	libLaGO.la \
 @COIN_HAS_GAMSIO_TRUE@	$(BONMINOBJDIR)/src/CbcBonmin/libbonmin.la \
 @COIN_HAS_GAMSIO_TRUE@	$(CBCOBJDIR)/src/libCbc.la \
 @COIN_HAS_GAMSIO_TRUE@	$(CGLOBJDIR)/src/libCgl.la \
 @COIN_HAS_GAMSIO_TRUE@	$(OSIOBJDIR)/src/libOsi.la \
-@COIN_HAS_GAMSIO_TRUE@	$(COINUTILSOBJDIR)/src/libCoinUtils.la \
 @COIN_HAS_GAMSIO_TRUE@	$(IPOPTOBJDIR)/src/Interfaces/libipopt.la \
 @COIN_HAS_GAMSIO_TRUE@	$(GAMSIO_LIBS) $(SMAG_LIBS) \
 @COIN_HAS_GAMSIO_TRUE@	$(GAMSIO_ADDLIBS) \
 @COIN_HAS_GAMSIO_TRUE@	$(GAMSIO_OBJDIR)/libGamsGDX.la \
-@COIN_HAS_GAMSIO_TRUE@	$(am__append_4) $(am__append_5)
+@COIN_HAS_GAMSIO_TRUE@	$(am__append_4) $(am__append_5) \
+@COIN_HAS_GAMSIO_TRUE@	$(COINUTILSOBJDIR)/src/libCoinUtils.la
 @COIN_HAS_GAMSIO_TRUE@LaGOGAMS_LDFLAGS = $(ADDLIBS) -rpath $(libdir)
 DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
 DISTCLEANFILES = $(am__append_9) $(VPATH_DISTCLEANFILES)

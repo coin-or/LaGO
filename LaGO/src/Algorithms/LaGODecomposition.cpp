@@ -12,6 +12,10 @@
 namespace LaGO {
 
 void Decomposition::decompose() {
+	if (data.start_points.empty()) {
+		cout << "Warning: No starting point given. ";
+		cout << "Trying decomposition with box middle point as reference point" << endl;
+	}
 	decompose(data.obj);
 	for (int c=0; c<data.numConstraints(); ++c)
 		decompose(data.con[c]); 
@@ -39,14 +43,22 @@ void Decomposition::decompose(MINLPData::ObjCon& objcon) {
 	data.getBox(lower, upper, nonzeros);
 
 	// generate sample points (w.r.t. origfuncNL->sparsity)
-	assert(!data.start_points.empty());
+//	assert(!data.start_points.empty());
+	DenseVector refpoint;
+	if (data.start_points.empty()) {
+//		cout << "Warning: No starting point given. ";
+//		cout << "Trying decomposition with box middle point as reference point" << endl;
+		data.getBoxMidpoint(refpoint);
+	} else {
+		refpoint = data.start_points.front();
+	}
 
 	bool allfixed=true;
 	for (int i=0; i<(int)nonzeros.size() && allfixed; ++i)
 		if (lower[i]!=upper[i]) allfixed=false;
 	if (allfixed) {
 		cout << "Warning: All variables in nonlinear part of function " << objcon.name << " are fixed. Replacing with constant." << endl;
-		objcon.origfuncConstant+=objcon.origfuncNL->eval(data.start_points.front());
+		objcon.origfuncConstant+=objcon.origfuncNL->eval(refpoint);
 		objcon.origfuncNL=NULL;
 		objcon.decompfuncLin=objcon.origfuncLin;
 		objcon.decompfuncConstant=objcon.origfuncConstant;
@@ -54,14 +66,14 @@ void Decomposition::decompose(MINLPData::ObjCon& objcon) {
 		return;
 	}
 
-	SampleSet samplepoints; 
+	SampleSet samplepoints;
 	samplepoints.addVector(data.start_points, true);
 	
 	// compute sparsity graph
 	list<int> lin_nonzeros; // list of variables in nonzeros which turn out to be linear
 	if (IsNull(objcon.sparsitygraph)) {
 		Sampling sampling;
-		sampling.monteCarlo(samplepoints, data.start_points.front(), nonzeros, lower, upper, 20); 
+		sampling.monteCarlo(samplepoints, refpoint, nonzeros, lower, upper, 20); 
 		computeSparsityGraph(objcon, lin_nonzeros, samplepoints, nonzeros, allfixed);
 	} else {
 		cerr << "Not implemented yet: Filling of lin_nonzeros = nonzeros - nodes in graph" << endl;
@@ -87,7 +99,7 @@ void Decomposition::decompose(MINLPData::ObjCon& objcon) {
 	}
 
 	// decompose function
-	createDecomposedFunctions(objcon, data.start_points.front(), nonzeros, lin_nonzeros, component_isnonquad, have_quadratic_component); 
+	createDecomposedFunctions(objcon, refpoint, nonzeros, lin_nonzeros, component_isnonquad, have_quadratic_component); 
 }
 
 
@@ -252,8 +264,8 @@ void Decomposition::createDecomposedFunctions(MINLPData::ObjCon& objcon, const D
 	if (nr_nonquad_components!=1) {
 		double val=objcon.origfuncNL->eval(myrefpoint);
 		if (nr_nonquad_components==0) { // function is quadratic
-			objcon.decompfuncConstant-=val;
-		} else { // function has more then one nonquadratic block
+			objcon.decompfuncConstant+=val;
+		} else { // function has more than one nonquadratic block
 			objcon.decompfuncConstant-=(nr_nonquad_components-1)*val;
 		}
 	}

@@ -7,7 +7,7 @@
 #ifndef LAGOSMARTPTR_HPP_
 #define LAGOSMARTPTR_HPP_
 
-#include "LaGObase.hpp"
+#include "LaGOConfig.h"
 // get SmartPtr from Ipopt
 #include "IpSmartPtr.hpp"
 

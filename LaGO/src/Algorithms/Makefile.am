@@ -10,7 +10,7 @@ AUTOMAKE_OPTIONS = foreign
 
 EXTRA_DIST =
 
-lib_LTLIBRARIES = libLaGOAlgorithms.la
+noinst_LTLIBRARIES = libLaGOAlgorithms.la
 libLaGOAlgorithms_la_SOURCES = \
 	LaGOAlgorithm.cpp \
 	LaGODecomposition.cpp \

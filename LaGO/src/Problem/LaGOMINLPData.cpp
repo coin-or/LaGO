@@ -8,6 +8,24 @@
 
 namespace LaGO {
 
+double MINLPData::Variable::getMiddle() const {
+	if (lower > -getInfinity() && upper < getInfinity())
+		return (lower+upper)/2;
+	if (lower <=- getInfinity())
+		return CoinMin(upper, 0.);
+	// upper == infty
+	return CoinMax(lower, 0.);
+}
+
+ostream& operator<<(ostream& out, const MINLPData::Variable& var) {
+	out << var.index << ": " << var.name << " [" << var.lower << ", " << var.upper << "] ";
+	if (var.nonlinear) out << "nonlinear ";
+	else out << "linear ";
+	if (var.discrete) out << "discrete";
+	out << endl;
+	return out;	
+}
+
 MINLPData::ObjCon::ObjCon(const SmartPtr<Function>& origfuncNL_, const SmartPtr<SparseVector>& origfuncLin_, double origfuncConstant_, const string& name_)
 : name(name_), origfuncNL(origfuncNL_), origfuncLin(origfuncLin_), origfuncConstant(origfuncConstant_)
 { }
@@ -77,15 +95,6 @@ ostream& operator<<(ostream& out, const MINLPData::ObjCon& objcon) {
 	return out;
 }
 
-ostream& operator<<(ostream& out, const MINLPData::Variable& var) {
-	out << var.index << ": " << var.name << " [" << var.lower << ", " << var.upper << "] ";
-	if (var.nonlinear) out << "nonlinear ";
-	else out << "linear ";
-	if (var.discrete) out << "discrete";
-	out << endl;
-	return out;	
-}
-
 double MINLPData::Constraint::getInfeasibility(const DenseVector& x) const {
 	double val=eval(x);
 	if (val<lower) return lower-val;
@@ -138,6 +147,13 @@ void MINLPData::getBoxDiameter(DenseVector& diameter, const vector<int>& indices
 	}
 }
 
+void MINLPData::getBoxMidpoint(DenseVector& boxmid) const {
+	boxmid.resize(var.size());
+	for (unsigned int i=0; i<var.size(); ++i) {
+		boxmid[i]=var[i].getMiddle();
+	}
+	
+}
 
 bool MINLPData::isConvex() const {
 	if (!(obj.getCurvature() & CONVEX)) return false;

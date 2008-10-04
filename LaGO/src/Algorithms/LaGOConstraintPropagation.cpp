@@ -66,6 +66,7 @@ void ConstraintPropagation::initDependencyGraph() {
 				else if (con.lower>-getInfinity() && con.upper<getInfinity()) wb=ANY;
 				else if (con.lower>-getInfinity()) wb=(linvar_el[i_linvar]<0 ? LOWER : UPPER);
 				else if (con.upper< getInfinity()) wb=(linvar_el[i_linvar]<0 ? UPPER : LOWER);
+				else continue; // free constraint
 
 				DependencyGraph::arc_iterator arc=depgraph.arc_find(nodes[i], nodes[linvar[i_linvar2]]);
 				if (arc==depgraph.arc_end()) // new arc

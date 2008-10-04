@@ -15,7 +15,7 @@ endif
 
 EXTRA_DIST =
 
-lib_LTLIBRARIES = libLaGOInterfaces.la
+noinst_LTLIBRARIES = libLaGOInterfaces.la
 libLaGOInterfaces_la_SOURCES = LaGOOsiSolver.cpp
 
 includecoindir = $(includedir)/coin

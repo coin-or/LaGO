@@ -72,6 +72,7 @@ public:
 		
 		double getLower() const { return lower; }
 		double getUpper() const { return upper; }
+		double getMiddle() const;
 		
 		const string& getName() const { return name; }
 		
@@ -212,6 +213,8 @@ public:
 	 * The MINLP is convex, if each constraint by its own is convex.
 	 * If the curvature of some constraints is not known, false is returned.  
 	 */
+	void getBoxMidpoint(DenseVector& boxmid) const;
+	
 	bool isConvex() const;
 	
 	void reserveVariableSpace(int numvar);

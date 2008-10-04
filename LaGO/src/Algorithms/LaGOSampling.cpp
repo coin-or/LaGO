@@ -23,7 +23,7 @@ void Sampling::monteCarlo(SampleSet& samplepoints, const DenseVector& basisvecto
 	assert(lower.size()==upper.size());
 	DenseVector point(basisvector);
 	for (int i=0; i<nr; ++i) {
-		for (unsigned int j=0; j<indices.size(); ++j) 
+		for (unsigned int j=0; j<indices.size(); ++j)
 			point[indices[j]]=getRandom(lower(j), upper(j));
 		samplepoints.insert(point);
 	}

@@ -9,10 +9,11 @@ AUTOMAKE_OPTIONS = foreign
 
 EXTRA_DIST =
 
-lib_LTLIBRARIES = libLaGOInterfaceGams.la
+noinst_LTLIBRARIES = libLaGOInterfaceGams.la
 libLaGOInterfaceGams_la_SOURCES = LaGOGamsReader.cpp LaGOGamsFunction.cpp LaGOGamsSolver.cpp
 
-include_HEADERS = LaGOGamsFunction.hpp LaGOGamsReader.hpp
+includecoindir = $(includedir)/coin
+includecoin_HEADERS = LaGOGamsFunction.hpp LaGOGamsReader.hpp
 
 AM_CPPFLAGS = $(GAMSIO_CPPFLAGS) \
  $(FILIB_CPPFLAGS) \

@@ -10,7 +10,7 @@ AUTOMAKE_OPTIONS = foreign
 
 EXTRA_DIST =
 
-lib_LTLIBRARIES = libranlib.c.la
+noinst_LTLIBRARIES = libranlib.c.la
 libranlib_c_la_SOURCES = ranlib.c/src/ranlib.c ranlib.c/src/com.c ranlib.c/linpack/linpack.c
 includecoindir = $(includedir)/coin
 includecoin_HEADERS = ranlib.c/src/ranlib.h

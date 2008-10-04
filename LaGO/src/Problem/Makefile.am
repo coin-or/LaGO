@@ -10,7 +10,7 @@ AUTOMAKE_OPTIONS = foreign
 
 EXTRA_DIST =
 
-lib_LTLIBRARIES = libLaGOProblem.la
+noinst_LTLIBRARIES = libLaGOProblem.la
 libLaGOProblem_la_SOURCES = LaGOMINLPData.cpp LaGOSparsity.cpp LaGOSampleSet.cpp \
   LaGOBlockFunction.cpp LaGOSimpleBlockFunction.cpp LaGOSumFunction.cpp LaGORestrictedFunction.cpp LaGOQuadraticFunction.cpp \
   LaGOBoxMinimizationProblem.cpp

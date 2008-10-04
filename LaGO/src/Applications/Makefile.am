@@ -44,6 +44,8 @@ lib_LTLIBRARIES = libLaGO.la
 libLaGO_la_SOURCES =
 libLaGO_la_LIBADD = ../Algorithms/libLaGOAlgorithms.la ../Interfaces/libLaGOInterfaces.la ../Problem/libLaGOProblem.la ../Base/libLaGOBase.la \
  $(RANLIBC_LIB) $(FILIB_LIB)
+libLaGO_la_DEPENDENCIES = ../Algorithms/libLaGOAlgorithms.la ../Interfaces/libLaGOInterfaces.la ../Problem/libLaGOProblem.la ../Base/libLaGOBase.la \
+ $(RANLIBC_LIB) $(FILIB_LIB)
 
 if COIN_HAS_GAMSIO
 bin_PROGRAMS = LaGOGAMS
@@ -56,7 +58,6 @@ $(BONMINOBJDIR)/src/CbcBonmin/libbonmin.la \
 $(CBCOBJDIR)/src/libCbc.la \
 $(CGLOBJDIR)/src/libCgl.la \
 $(OSIOBJDIR)/src/libOsi.la \
-$(COINUTILSOBJDIR)/src/libCoinUtils.la \
 $(IPOPTOBJDIR)/src/Interfaces/libipopt.la \
 $(GAMSIO_LIBS) $(SMAG_LIBS) $(GAMSIO_ADDLIBS) $(GAMSIO_OBJDIR)/libGamsGDX.la
 
@@ -70,6 +71,9 @@ else
 LaGOGAMS_LDADD += $(OSIOBJDIR)/src/OsiClp/libOsiClp.la $(CLPOBJDIR)/src/libClp.la
 ADDLIBS += `cat $(CLPOBJDIR)/clp_addlibs.txt`
 endif
+
+#CoinUtils need to come after Clp
+LaGOGAMS_LDADD += $(COINUTILSOBJDIR)/src/libCoinUtils.la
 
 ADDLIBS += `cat $(COINUTILSOBJDIR)/coinutils_addlibs.txt $(CGLOBJDIR)/cgl_addlibs.txt $(CBCOBJDIR)/cbc_addlibs.txt $(OSIOBJDIR)/osi_addlibs.txt $(IPOPTOBJDIR)/src/Interfaces/ipopt_addlibs_cpp.txt`
 
