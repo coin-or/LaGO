@@ -17,6 +17,22 @@ double MINLPData::Variable::getMiddle() const {
 	return CoinMax(lower, 0.);
 }
 
+void MINLPData::setVariableLower(int i, double lower) {
+	assert(i < (int)var.size());
+	var[i].lower = lower;
+}
+
+void MINLPData::setVariableUpper(int i, double upper) {
+	assert(i < (int)var.size());
+	var[i].upper = upper;
+}
+
+void MINLPData::setVariableBounds(int i, double lower, double upper) {
+	assert( i < (int)var.size());
+	var[i].lower = lower;
+	var[i].upper = upper;
+}
+
 ostream& operator<<(ostream& out, const MINLPData::Variable& var) {
 	out << var.index << ": " << var.name << " [" << var.lower << ", " << var.upper << "] ";
 	if (var.nonlinear) out << "nonlinear ";

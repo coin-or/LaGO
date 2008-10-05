@@ -39,6 +39,7 @@ public:
 		friend class GamsReader;
 		friend class ConstraintPropagation;
 		friend class BoxReductionGuessing;
+		friend class MINLPData;
 	private:
 		/** Index of variable in problem.
 		 */
@@ -198,6 +199,7 @@ public:
 	
 	const Variable& getVariable(int index) const { return var.at(index); }
 	const Constraint& getConstraint(int index) const { return con.at(index); }
+	Constraint& getConstraint(int index) { return con.at(index); } // TODO: hack, should be removed
 	const Objective& getObjective() const { return obj; }
 	const vector<int>& getDiscrVariables() const { return discrete_var; }
 	const vector<DenseVector>& getStartPoints() const { return start_points; }
@@ -224,6 +226,10 @@ public:
 	int addConstraint(double lower, double upper, const SmartPtr<Function>& origfuncNL = NULL, const SmartPtr<SparseVector>& origfuncLin = NULL, double origfuncConstant = 0., const string& name = string());
 	void setObjective(const SmartPtr<Function>& origfuncNL = NULL, const SmartPtr<SparseVector>& origfuncLin = NULL, double origfuncConstant = 0., const string& name = string());
 	void addStartingPoint(const DenseVector& x);
+	
+	void setVariableLower(int i, double lower);
+	void setVariableUpper(int i, double upper);
+	void setVariableBounds(int i, double lower, double upper);
 
 	friend ostream& operator<<(ostream& out, const MINLPData& data);
 	

@@ -19,7 +19,7 @@ noinst_LTLIBRARIES = libLaGOInterfaces.la
 libLaGOInterfaces_la_SOURCES = LaGOOsiSolver.cpp
 
 includecoindir = $(includedir)/coin
-includecoin_HEADERS = 
+includecoin_HEADERS = LaGOOsiSolver.hpp
 
 AM_CPPFLAGS = \
  $(FILIB_CPPFLAGS) \
