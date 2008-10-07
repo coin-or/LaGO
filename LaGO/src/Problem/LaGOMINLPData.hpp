@@ -123,6 +123,7 @@ public:
 		Curvature getCurvature() const;
 		
 		double eval(const DenseVector& x) const;
+		interval<double> eval(const IntervalVector& x) const;
 		
 		void print(ostream& out, const vector<MINLPData::Variable>& var) const;
 

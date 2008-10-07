@@ -66,6 +66,17 @@ double MINLPData::ObjCon::eval(const DenseVector& x) const {
 	return val;
 }
 
+interval<double> MINLPData::ObjCon::eval(const IntervalVector& x) const {
+	interval<double> val(origfuncConstant);
+	if (IsValid(origfuncLin)) {
+		val += x**origfuncLin;
+	}
+	if (IsValid(origfuncNL)) {
+		val += origfuncNL->eval(x);
+	}
+	return val;
+}
+
 void printSparseVector(ostream& out, const SparseVector& v, const vector<MINLPData::Variable>& var) {
 	for (int i=0; i<v.getNumElements(); ++i) {
 		double coeff=v.getElements()[i];
