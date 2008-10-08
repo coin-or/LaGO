@@ -53,9 +53,6 @@ public:
 	typedef Cgc::DynNet<NodeInfo, EdgeInfo> DependencyGraph;
 
 private:
-	static int funceval_limit;
-	static double min_impr;
-
 	DependencyGraph depgraph;
 
 	BoxReductionStatistics run(DenseVector& newlow, DenseVector& newup, const DenseVector& oldlow, const DenseVector& oldup, set<pair<const DependencyGraph::Node*, BoundType> >& nodeset);
@@ -63,14 +60,19 @@ private:
 	
 public:
 	int print_level;
+	int funceval_limit;
+	double min_impr;
 
 	ConstraintPropagation(MINLPData& data_)
-	: data(data_), depgraph(data_.numVariables(), 3*data_.numVariables()), print_level(1)
+	: data(data_), depgraph(data_.numVariables(), 3*data_.numVariables()), print_level(1),
+	  funceval_limit(10000), min_impr(0.01)
 	{ }
 
 	void initDependencyGraph();
 	
 	BoxReductionStatistics reduceBox();
+
+	BoxReductionStatistics run(DenseVector& newlow, DenseVector& newup, const DenseVector& oldlow, const DenseVector& oldup);
 
 }; // class ConstraintPropagation
 

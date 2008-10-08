@@ -21,9 +21,6 @@ ostream& operator<<(ostream& out, const ConstraintPropagation::EdgeInfo& edge) {
 	return out; 
 }
 
-int ConstraintPropagation::funceval_limit=10000;
-double ConstraintPropagation::min_impr=0.01;
-
 void ConstraintPropagation::initDependencyGraph() {
 	assert(depgraph.size()==0);
 
@@ -295,13 +292,22 @@ BoxReductionStatistics ConstraintPropagation::run(DenseVector& newlow, DenseVect
 	statistics.avg_reduction/=data.numVariables();
 
 	if (print_level)
-		clog << "\t avg_reduction: " << statistics.avg_reduction << endl;
+		clog << "\t avg_reduction: " << statistics.avg_reduction << "\t max_reduction: " << statistics.max_reduction << endl;
 #else
 	newlow=oldlow;
 	newup=oldup;
 #endif // COIN_HAS_FILIB
 	return statistics;
 }
+
+BoxReductionStatistics ConstraintPropagation::run(DenseVector& newlow, DenseVector& newup, const DenseVector& oldlow, const DenseVector& oldup) {
+	set<pair<const DependencyGraph::Node*, BoundType> > nodeset;
+	for (DependencyGraph::iterator it(depgraph.begin()); it!=depgraph.end(); ++it)
+		nodeset.insert(pair<const DependencyGraph::Node*, BoundType>(&*it, ANY));
+
+	return run(newlow, newup, oldlow, oldup, nodeset);
+}
+
 
 BoxReductionStatistics ConstraintPropagation::reduceBox() {
 	set<pair<const DependencyGraph::Node*, BoundType> > nodeset;
