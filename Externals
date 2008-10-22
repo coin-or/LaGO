@@ -4,7 +4,7 @@ ThirdParty/HSL https://projects.coin-or.org/svn/BuildTools/ThirdParty/HSL/stable
 ThirdParty/Mumps https://projects.coin-or.org/svn/BuildTools/ThirdParty/Mumps/stable/1.1
 ThirdParty/Blas https://projects.coin-or.org/svn/BuildTools/ThirdParty/Blas/stable/1.0
 ThirdParty/Lapack https://projects.coin-or.org/svn/BuildTools/ThirdParty/Lapack/stable/1.0
-ThirdParty/GAMSIO https://projects.coin-or.org/svn/GAMSlinks/trunk/ThirdParty/GAMSIO
+ThirdParty/GAMSIO https://projects.coin-or.org/svn/GAMSlinks/stable/0.4/ThirdParty/GAMSIO
 CoinUtils     https://projects.coin-or.org/svn/CoinUtils/stable/2.3/CoinUtils
 Clp           https://projects.coin-or.org/svn/Clp/stable/1.8/Clp
 Cgl           https://projects.coin-or.org/svn/Cgl/stable/0.53/Cgl
