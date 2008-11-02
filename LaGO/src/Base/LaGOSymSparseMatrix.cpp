@@ -76,6 +76,24 @@ void SymSparseMatrixCreator::cleanTinyElements(double tol) {
 	}	
 }
 
+bool SymSparseMatrixCreator::operator==(const SymSparseMatrixCreator& mat) const {
+	if (mat.size() != size())
+		return false;
+	
+	const_iterator it1(begin());
+	const_iterator it2(mat.begin());
+	while (it1!=end()) {
+//		cout << it1->second << '=' << it2->second << '\t';
+		if (it1->first != it2->first)
+			return false;
+		if (CoinAbs(it1->second - it2->second)>1e-6)
+			return false;
+		++it1;
+		++it2;
+	}
+//	cout << endl;
+	return true;
+}
 
 SymSparseMatrix::~SymSparseMatrix() {
 	delete[] value;

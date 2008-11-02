@@ -47,6 +47,8 @@ public:
 	void cleanUpperDiagonal();
 	
 	void cleanTinyElements(double tol=getTinyTol());
+	
+	bool operator==(const SymSparseMatrixCreator& mat) const;
 
 }; // SymSparseMatrixCreator
 
