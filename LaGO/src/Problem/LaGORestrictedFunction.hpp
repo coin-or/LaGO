@@ -39,6 +39,8 @@ public:
 
 	void hessianVectorProduct(DenseVector& product, const DenseVector& x, const DenseVector& factor) const;
 
+	void fullHessian(SymSparseMatrixCreator& hessian, const DenseVector& x) const;
+
 #ifdef COIN_HAS_FILIB
 	bool canIntervalEvaluation() const { return f->canIntervalEvaluation(); }
 	
