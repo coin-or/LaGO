@@ -189,7 +189,7 @@ void GamsFunction::evalAndGradient(interval<double>& value, IntervalVector& grad
 	ymin_=ymin;
 	ymax_=ymax;
 	interval<double>* grad_=grad.getElements();
-	for (int i=x.getNumElements(); i>0; --i) {
+	for (int i=x.getNumElements(); i>0; --i, ++ymin_, ++ymax_, ++grad_) {
 		if (*ymin_==-1E+20) *ymin_=filib::fp_traits<double>::ninfinity();
 		if (*ymax_==1E+20)  *ymax_=filib::fp_traits<double>::infinity();
 		*grad_=interval<double>(*ymin_, *ymax_);

@@ -29,8 +29,13 @@ void ConstraintPropagation::initDependencyGraph() {
 		nodes[i]=depgraph.insert(NodeInfo(i));
 	DependencyGraph::iterator dummy_node(depgraph.insert(NodeInfo(data.numVariables())));
 
+	cout << "Setting up dependency graph for constraint propagation." << endl;
+	
 	for (int c=0; c<data.numConstraints(); ++c) {
 		const MINLPData::Constraint& con(data.getConstraint(c));
+		
+		if (IsNull(con.decompfuncLin))
+			continue;
 
 		const int* linvar=con.decompfuncLin->getIndices();
 		const double* linvar_el=con.decompfuncLin->getElements();
@@ -47,7 +52,9 @@ void ConstraintPropagation::initDependencyGraph() {
 		assert(con.decompfuncNL.empty() || (int)con.decompmapping.size()==data.numVariables());
 		
 		int i_linvar=0; // runs over linear variables in con.decompfuncLin
-		for (int i=0; i<data.numVariables(); ++i) { 
+//		int nr_arcs = 0;
+		for (int i=0; i<data.numVariables(); ++i) {
+//			if (nr_arcs > 1000) break; //TODO something more elegant
 			if (i_linvar<con.decompfuncLin->getNumElements()-1 && linvar[i_linvar]<i) {
 				++i_linvar;
 				assert(linvar[i_linvar-1]<linvar[i_linvar]);
@@ -55,6 +62,7 @@ void ConstraintPropagation::initDependencyGraph() {
 			if ((i_linvar>=con.decompfuncLin->getNumElements() || linvar[i_linvar]!=i) && (con.decompfuncNL.empty() || con.decompmapping[i].empty())) continue; // variable not in function
 			
 			for (int i_linvar2=0; i_linvar2<con.decompfuncLin->getNumElements(); ++i_linvar2) {
+//				if (nr_arcs > 1000) break;
 				if (linvar[i_linvar2]==i) continue;
 				
 				BoundType wb;
@@ -66,9 +74,10 @@ void ConstraintPropagation::initDependencyGraph() {
 				else continue; // free constraint
 
 				DependencyGraph::arc_iterator arc=depgraph.arc_find(nodes[i], nodes[linvar[i_linvar2]]);
-				if (arc==depgraph.arc_end()) // new arc
+				if (arc==depgraph.arc_end()) { // new arc
 					depgraph.arc_insert(nodes[i], EdgeInfo(c, wb, linvar_el[i_linvar2]), nodes[linvar[i_linvar2]]);
-				else
+//					++nr_arcs;
+				} else
 					(**arc).add(c, wb, linvar_el[i_linvar2]);
 			}			
 		}
