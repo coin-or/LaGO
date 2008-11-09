@@ -229,14 +229,13 @@ BoxReductionStatistics ConstraintPropagation::run(DenseVector& newlow, DenseVect
 				}
 				
 				if (data.getVariable(index).isDiscrete()) {
-					if (newbounds.inf()>oldbounds.inf()+getTinyTol()) {
-						newbounds=interval<double>(roundUp(newbounds.inf()), newbounds.sup());
+					newbounds=interval<double>(
+						newbounds.inf()>oldbounds.inf()+getTinyTol() ? roundUp(newbounds.inf())   : oldbounds.inf(),
+						newbounds.sup()<oldbounds.sup()-getTinyTol() ? roundDown(newbounds.sup()) : oldbounds.sup()
+					);
+					if (oldbounds!=newbounds)
 						++statistics.shrinked_integer_var;
-					} else if (newbounds.sup()<oldbounds.sup()-getTinyTol()) {
-						newbounds=interval<double>(newbounds.inf(), roundDown(newbounds.sup()));
-						++statistics.shrinked_integer_var;
-					} else newbounds=oldbounds; // no tiny tol's in bounds of discrete variables please
-				} 
+				}
 
 				box[index]=newbounds;
 	
