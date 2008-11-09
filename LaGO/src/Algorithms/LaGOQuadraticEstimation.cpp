@@ -13,7 +13,7 @@
 namespace LaGO {
 	
 QuadraticEstimation::QuadraticEstimation()
-: eps(1E-4), iter_max(100)
+: eps(1E-5), iter_max(100)
 {
 //	ipopt.Options()->SetStringValue("hessian_approximation", "limited-memory");
 	ipopt.Options()->SetNumericValue("tol", eps);
@@ -58,13 +58,11 @@ int QuadraticEstimation::computeEstimators(MINLPData& data, MINLPData::ObjCon& o
 		BlockFunctionWrapper funcwrap(func);
 
 		pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > estimators=computeFirstEstimator(funcwrap, lower, upper, do_lower, do_upper);
-		if (do_lower) {
-			assert(IsValid(estimators.first));
+		if (do_lower && IsValid(estimators.first)) {
 			func.underestimators.push_back(new QuadraticEstimator(estimators.first));
 			++count;
 		}
-		if (do_upper) {
-			assert(IsValid(estimators.second));
+		if (do_upper && IsValid(estimators.second)) {
 			func.overestimators.push_back(new QuadraticEstimator(estimators.second));
 			++count;
 		}
@@ -121,15 +119,13 @@ int QuadraticEstimation::computeImprovingEstimators(MINLPData& data, MINLPData::
 		BlockFunctionWrapper funcwrap(func);
 
 		pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > estimators=computeAdditionalEstimator(funcwrap, lower, upper, refpoint_it, do_lower, do_upper);
-		if (do_lower) {
-			assert(IsValid(estimators.first));
+		if (do_lower && IsValid(estimators.first)) {
 			func.underestimators.push_back(new QuadraticEstimator(estimators.first));
 			double lowerest=func.evalUnderEstimator(refpoint_block);
 			clog << "new lower est.: " << lowerest << '\t';
 			++count;
 		}
-		if (do_upper) {
-			assert(IsValid(estimators.second));
+		if (do_upper && IsValid(estimators.second)) {
 			func.overestimators.push_back(new QuadraticEstimator(estimators.second));
 //			double upperest=func.evalOverEstimator(refpoint_block);
 			double upperest=estimators.second->eval(refpoint_block);
@@ -400,7 +396,10 @@ SparseVector* QuadraticEstimation::constructRow(NonconvexFunction& func, const D
 	SparseVector* row=new SparseVector;
 	row->assignVector(rownz, indices, elements, false);
 	
+//	scale = 1.;
 	scale=row->infNorm();
+//	printf("scale: %g\n", scale);
+//	cout << *row << endl;
 	if (scale<1.) scale=1.;
 	if (scale>1.) *row/=scale; // scale row
 
@@ -457,8 +456,10 @@ SmartPtr<QuadraticFunction> QuadraticEstimation::getEstimator(NonconvexFunction&
 				break;
 			} else {
 				lp.writeMps("U3_fail");
-				cerr << " Aborting." << endl;
-				exit(EXIT_FAILURE);
+				lp.writeLp("U3_fail");
+				cerr << " Computation of quad. estimator failed!" << endl;
+				return NULL;
+//				exit(EXIT_FAILURE);
 			}
 		}
 		double U3_val=lp.getObjValue();
