@@ -92,14 +92,14 @@ int QuadraticEstimation::computeImprovingEstimators(MINLPData& data, MINLPData::
 			double lowerest=func.evalUnderEstimator(refpoint_block);
 			clog << "lower est.: " << lowerest << '\t';
 			// skip new underestimator if gap is small
-			if ((origval-lowerest)<.1*CoinAbs(origval)) do_lower=false;
+//			if ((origval-lowerest)<.01*CoinAbs(origval)) do_lower=false;
 		}
 		
 		if (do_upper) {
 			double upperest=func.evalOverEstimator(refpoint_block);			
 			clog << "upper est.: " << upperest << '\t';
 			// skip new overestimator if gap is small
-			if ((upperest-origval)<.1*CoinAbs(origval)) do_upper=false;
+//			if ((upperest-origval)<.01*CoinAbs(origval)) do_upper=false;
 		}
 		
 		if ((!do_lower) && (!do_upper)) {
@@ -210,7 +210,7 @@ pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > QuadraticEstimat
 			SparseVector* row=constructRow(func, *enforce_tightness, -1, scale);
 
 			double rhs=enforce_tightness->funcvalue/scale;
-			double lhs=rhs-eps*fabs(rhs);
+			double lhs=rhs; //-eps*fabs(rhs);
 
 			lp.addRow(*row, lhs, rhs);
 			delete row;
@@ -343,7 +343,7 @@ int QuadraticEstimation::initLP(NonconvexFunction& func, const SampleSet::iterat
 		rows[samplepoint_index]=row;
 
 		if (it==enforce_tightness) {
-			colub[nr_coeff+samplepoint_index]=eps*CoinAbs(it->funcvalue/scale);
+			colub[nr_coeff+samplepoint_index]=0; // eps*CoinAbs(it->funcvalue/scale);
 			sampleset_newsort.push_front(SampleSetItem(*it, nr_coeff+samplepoint_index, samplepoint_index, scale));
 			enforce_tightness_index=nr_coeff+samplepoint_index;
 		} else {
@@ -514,7 +514,7 @@ SmartPtr<QuadraticFunction> QuadraticEstimation::getEstimator(NonconvexFunction&
 
 			if (maxviol>viol1) { maxviol=viol1; maxviol_unscaled=errormaxprob->getOptimalValue(); }
 
-			if (viol1<-1E-2 && viol2<-1E-2) { // too large, add point to sample set and LP and restart
+			if (viol1<-1E-4 && viol2<-1E-4) { // too large, add point to sample set and LP and restart
 				pair<set<SamplePoint>::iterator, bool> newpoint(func.getSamplePoints().insert(errormaxprob->getSolution()));
 				if (newpoint.second) {
 					newpoint.first->funcvalue=f_val;
