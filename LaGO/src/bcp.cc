@@ -2121,6 +2121,7 @@ bool MinlpBCP::add_sol_candidate(const dvector& x) {
 	if (conv) { // adding linearization cuts
 		list<pair<LinearizationCut, pair<int, bool> > > cuts;
 
+		linconcutgen.max_violation = 0.;
 		linconcutgen.get_cuts(cuts, x, lower, upper);
 
 		int local_cuts_nr=0, global_cuts_nr=0;

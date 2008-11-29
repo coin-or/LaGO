@@ -444,7 +444,7 @@ int CutPool::nr_global_cuts() const {
 const double LinearizedConCutGenerator::tol=1E-4;
 
 LinearizedConCutGenerator::LinearizedConCutGenerator(Pointer<MinlpProblem> prob_, Pointer<MINLPData> minlpdata_, Pointer<Reformulation> reform_)
-: prob(prob_), minlpdata(minlpdata_), reform(reform_), max_cuts(-1), min_violation(0.)
+: prob(prob_), minlpdata(minlpdata_), reform(reform_), max_cuts(-1), min_violation(0.), max_violation(0.)
 { }
 
 
