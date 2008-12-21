@@ -237,6 +237,10 @@ class MinlpOpt : public Solver {
 		/** Indicates, whether the problem is convex.
 		*/
 		bool prob_is_convex;
+		
+		/** Indicates, whether the quadratic/convex relaxation is convex.
+		*/
+		bool quad_prob_is_convex;
 
 		/** To remember, which constants were added to the objective during computation of (Q).
 		*/

@@ -480,7 +480,8 @@ LevelCutHandler::~LevelCutHandler() { };
 
 MinlpOpt::MinlpOpt(Pointer<MinlpProblem> prob, Pointer<Param> param_, bool is_gams_prob_, Pointer<ostream> out_solver_p, Pointer<ostream> out_solver_log_p)
 : Solver(prob->dim(), out_solver_p, out_solver_log_p),
-	orig_prob(prob), param(param_), is_gams_prob(is_gams_prob_), ineq_index(prob->con.size()), prob_is_convex(false), boxreduce_time(0.), low_bound(-INFINITY), timer(new Timer())
+	orig_prob(prob), param(param_), is_gams_prob(is_gams_prob_), ineq_index(prob->con.size()),
+	prob_is_convex(false), quad_prob_is_convex(false), boxreduce_time(0.), low_bound(-INFINITY), timer(new Timer())
 {	tol=1E-4;
 	boxreduce_effort=param->get_i("Boxreduce effort", 1);
 
@@ -701,8 +702,8 @@ void MinlpOpt::quad_relax() {
 		}
 	}
 
-	prob_is_convex=check_convex(quad_prob ? *quad_prob : *split_prob);
-	out_out << "Quadratic problem is convex: " << prob_is_convex << endl;
+	quad_prob_is_convex=check_convex(quad_prob ? *quad_prob : *split_prob);
+	out_out << "Quadratic problem is convex: " << quad_prob_is_convex << endl;
 }
 
 void MinlpOpt::convex_relax() {
@@ -728,7 +729,7 @@ void MinlpOpt::convex_relax() {
 
 	convex_prob->obj=new SepQcFunc(*convex_prob->obj);
 	for (int c=0; c<convex_prob->con.size(); c++) convex_prob->con[c]=new SepQcFunc(*convex_prob->con[c]);
-	if (!prob_is_convex) {
+	if (!quad_prob_is_convex) {
 		Convexify convexify(param);
 		if (!quad_prob) ineq_index.resize(orig_prob->con.size());
 
