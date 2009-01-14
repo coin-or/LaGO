@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2008 Stefan Vigerske
+# Copyright (C) 2007-2009 Stefan Vigerske
 # All Rights Reserved.
 # This file is distributed under the Common Public License.
 #
@@ -12,10 +12,10 @@
 
 AC_PREREQ(2.59)
 
-AC_INIT([LaGO],[0.4],[http://projects.coin-or.org/LaGO/newticket])
+AC_INIT([LaGO],[devel],[http://projects.coin-or.org/LaGO/newticket])
 
 AC_COPYRIGHT([
-Copyright 2007-2008 Stefan Vigerske
+Copyright 2007-2009 Stefan Vigerske
 All Rights Reserved.
 This file is part of the open source package LaGO which is distributed
 under the Common Public License.])
@@ -64,10 +64,10 @@ AC_COIN_PROG_CXX
 # AC_COIN_CXXLIBS
 
 # Get the name of the Fortran compiler and appropriate compiler options
-#AC_COIN_PROG_F77
+AC_COIN_PROG_F77
 
 # Find out how to call Fortran from C and determine Fortran runtime libraries
-#AC_COIN_F77_WRAPPERS
+AC_COIN_F77_WRAPPERS
 
 # Initialize automake and libtool
 AC_COIN_INIT_AUTO_TOOLS
@@ -82,10 +82,10 @@ AC_COIN_HAS_PROJECT(CoinUtils)
 AC_COIN_HAS_PROJECT(Osi)
 # later: this one is optional, if SNOPT is there
 AC_COIN_HAS_PROJECT(Ipopt)
-# later: this one is optional, if, e.g., CPLEX is there
 AC_COIN_HAS_PROJECT(Clp)
 AC_COIN_HAS_PROJECT(Cbc)
 AC_COIN_HAS_PROJECT(Bonmin)
+AC_COIN_HAS_PROJECT(Couenne)
 
 ############################################################################
 ############################################################################
@@ -108,97 +108,6 @@ AC_COIN_CHECK_CXX_CHEADER(stdlib)
 AC_COIN_CHECK_CXX_CHEADER(stdarg)
 AC_COIN_CHECK_CXX_CHEADER(float)
 AC_COIN_CHECK_CXX_CHEADER(time)
-
-###################
-# Function finite #
-###################
-
-# First check for a few headers
-
-case $build in
-  *-cygwin*) ;;
-  *) AC_COIN_CHECK_CXX_CHEADER([ieeefp]) ;;
-esac
-
-# now try to guess the correct name of the finite function
-
-MY_C_FINITE=
-AC_CHECK_DECL([finite],[MY_C_FINITE=finite],,[
-#ifdef HAVE_CMATH
-# include <cmath>
-#else
-# ifdef HAVE_MATH_H
-#  include <math.h>
-# endif
-#endif
-#ifdef HAVE_CFLOAT
-# include <cfloat>
-#else
-# ifdef HAVE_FLOAT_H
-#  include <float.h>
-# endif
-#endif
-#ifdef HAVE_CIEEEFP
-# include <cieeefp>
-#else
-# ifdef HAVE_IEEEFP_H
-#  include <ieeefp.h>
-# endif
-#endif])
-if test -z "$MY_C_FINITE"; then
-  AC_CHECK_DECL([_finite],[MY_C_FINITE=_finite],,[
-#ifdef HAVE_CMATH
-# include <cmath>
-#else
-# ifdef HAVE_MATH_H
-#  include <math.h>
-# endif
-#endif
-#ifdef HAVE_CFLOAT
-# include <cfloat>
-#else
-# ifdef HAVE_FLOAT_H
-#  include <float.h>
-# endif
-#endif
-#ifdef HAVE_CIEEEFP
-# include <cieeefp>
-#else
-# ifdef HAVE_IEEEFP_H
-#  include <ieeefp.h>
-# endif
-#endif])
-  if test -z "$MY_C_FINITE"; then
-    AC_CHECK_DECL([isfinite],[MY_C_FINITE=isfinite],,[
-#ifdef HAVE_CMATH
-# include <cmath>
-#else
-# ifdef HAVE_MATH_H
-#  include <math.h>
-# endif
-#endif
-#ifdef HAVE_CFLOAT
-# include <cfloat>
-#else
-# ifdef HAVE_FLOAT_H
-#  include <float.h>
-# endif
-#endif
-#ifdef HAVE_CIEEEFP
-# include <cieeefp>
-#else
-# ifdef HAVE_IEEEFP_H
-#  include <ieeefp.h>
-# endif
-#endif])
-  fi
-fi
-if test -z "$MY_C_FINITE"; then
-  AC_MSG_WARN(Cannot find C-function for checking NaN and Inf.  Check will be disabled)
-else
-  AC_DEFINE_UNQUOTED([MY_C_FINITE],[$MY_C_FINITE],
-                     [Define to be the name of C-function for NaNInf check])
-fi
 
 ##########################################################################
 
@@ -308,15 +217,30 @@ AC_COIN_HAVE_GAMS
 #if we have gams i/o libraries, then use them
 if test $coin_has_gamsio = yes ; then
   AC_COIN_USE_GAMS
-#  if test x$coin_has_cpx = xtrue; then
-#    AC_COIN_GAMSCPLEX_LICENCE
-#  else
-#    AM_CONDITIONAL([COIN_HAS_GAMSCPLEXLICENCE],[test 0 = 1])
-#  fi
 else
   AM_CONDITIONAL([COIN_HAS_GAMSIO],[test 0 = 1])
-#  AM_CONDITIONAL([COIN_HAS_GAMSCPLEXLICENCE],[test 0 = 1])
 fi
+
+# define the fortran name mangling scheme as used in the GAMS G2D library
+# this is needed to use the g2dexports.h in LaGOG2DFunction.cpp 
+case $ac_cv_f77_mangling in
+  "lower case, no underscore"*)
+    FORTRAN_NAMEMANGLING_CFLAG="-DFNAME_LCASE_NODECOR"
+  ;;
+  "lower case, underscore"*)
+    FORTRAN_NAMEMANGLING_CFLAG="-DFNAME_LCASE_DECOR"
+  ;;
+  "upper case, no underscore"*)
+    FORTRAN_NAMEMANGLING_CFLAG="-DFNAME_UCASE_NODECOR"
+  ;;
+  "upper case, underscore"*)
+    FORTRAN_NAMEMANGLING_CFLAG="-DFNAME_UCASE_DECOR"
+  ;;
+  *)
+    AC_MSG_ERROR("cannot handle name mangling scheme '$ac_cv_f77_mangling'. Compilation of LaGOG2DFunction.cpp likely to fail.")
+  ;;
+esac
+AC_SUBST(FORTRAN_NAMEMANGLING_CFLAG)
 
 #######################
 # AMPL SOLVER LIBRARY #
@@ -324,20 +248,12 @@ fi
 
 #LIBS="$LIBS_without_ADDLIBS"
 
-#if test "$coin_has_gamsio" = "no"; then
-#  AC_COIN_HAS_ASL
+#AC_COIN_HAS_ASL
 	
-#	if test "$coin_has_asl" = "no"; then
-#		AC_MSG_ERROR([Either GAMS I/O libraries or AMPL Solver Library (ASL) needed for LaGO])
-#	fi
-	
-#	CPPFLAGS="$ASL_CPPFLAGS $CPPFLAGS"
-#	ADDLIBS="$ASLLIB $ADDLIBS"
-#else
-#  AC_MSG_NOTICE([skip test for AMPL solver library because GAMS I/O libraries are working])
+#CPPFLAGS="$ASL_CPPFLAGS $CPPFLAGS"
+#ADDLIBS="$ASLLIB $ADDLIBS"
 
-#	AM_CONDITIONAL([COIN_HAS_ASL],[test a=b])
-#fi
+#AM_CONDITIONAL([COIN_HAS_ASL],[test a=b])
 
 ############
 # END PART #

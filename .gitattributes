@@ -55,6 +55,8 @@ LaGO/src/Base/LaGOSymSparseMatrix.hpp -text
 LaGO/src/Base/LaGObase.hpp -text
 LaGO/src/Base/Makefile.am -text
 LaGO/src/Base/Makefile.in -text
+LaGO/src/Interfaces/GAMS/LaGOG2DFunction.cpp -text
+LaGO/src/Interfaces/GAMS/LaGOG2DFunction.hpp -text
 LaGO/src/Interfaces/GAMS/LaGOGamsFunction.cpp -text
 LaGO/src/Interfaces/GAMS/LaGOGamsFunction.hpp -text
 LaGO/src/Interfaces/GAMS/LaGOGamsReader.cpp -text

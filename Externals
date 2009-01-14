@@ -3,6 +3,7 @@ ThirdParty/HSL https://projects.coin-or.org/svn/BuildTools/ThirdParty/HSL/stable
 ThirdParty/Mumps https://projects.coin-or.org/svn/BuildTools/ThirdParty/Mumps/stable/1.1
 ThirdParty/Blas https://projects.coin-or.org/svn/BuildTools/ThirdParty/Blas/stable/1.0
 ThirdParty/Lapack https://projects.coin-or.org/svn/BuildTools/ThirdParty/Lapack/stable/1.0
+ThirdParty/ASL https://projects.coin-or.org/svn/BuildTools/ThirdParty/ASL/stable/1.0
 ThirdParty/GAMSIO https://projects.coin-or.org/svn/GAMSlinks/stable/0.4/ThirdParty/GAMSIO
 CoinUtils     https://projects.coin-or.org/svn/CoinUtils/stable/2.3/CoinUtils
 Cgl           https://projects.coin-or.org/svn/Cgl/stable/0.53/Cgl
@@ -11,4 +12,5 @@ Cbc           https://projects.coin-or.org/svn/Cbc/stable/2.2/Cbc
 Ipopt         https://projects.coin-or.org/svn/Ipopt/stable/3.5/Ipopt
 Osi           https://projects.coin-or.org/svn/Osi/stable/0.99/Osi
 Cgc           https://projects.coin-or.org/svn/Cgc/trunk/Cgc
-Bonmin        https://projects.coin-or.org/svn/Bonmin/stable/0.100/Bonmin
+Bonmin        https://projects.coin-or.org/svn/Bonmin/stable/1.0/Bonmin
+Couenne       https://projects.coin-or.org/svn/Couenne/trunk/Couenne

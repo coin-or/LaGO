@@ -1,4 +1,4 @@
-# Copyright (C) 2007 Stefan Vigerske
+# Copyright (C) 2007-2009 Stefan Vigerske
 # All Rights Reserved.
 # This file is distributed under the Common Public License.
 #

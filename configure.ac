@@ -1,4 +1,4 @@
-# Copyright (C) 2006 Ivo Nowak and Stefan Vigerske
+# Copyright (C) 2007-2009 Stefan Vigerske
 # All Rights Reserved.
 # This file is distributed under the Common Public License.
 #
@@ -13,10 +13,10 @@
 
 AC_PREREQ(2.59)
 
-AC_INIT([LaGO],[0.4],[http://projects.coin-or.org/LaGO/newticket])
+AC_INIT([LaGO],[devel],[http://projects.coin-or.org/LaGO/newticket])
 
 AC_COPYRIGHT([
-Copyright 2007 Ivo Nowak and Stefan Vigerske
+Copyright 2007-2009 Stefan Vigerske
 All Rights Reserved.
 This file is part of the open source package LaGO which is distributed
 under the Common Public License.])
@@ -44,7 +44,7 @@ AC_COIN_CREATE_LIBTOOL
 #############################################################################
 
 AC_COIN_THIRDPARTY_SUBDIRS([GAMSIO],[ThirdParty/GAMSIO],[get.GAMSIO])
-#AC_COIN_THIRDPARTY_SUBDIRS([ASL],[ThirdParty/ASL],[solvers/asl.h])
+AC_COIN_THIRDPARTY_SUBDIRS([ASL],[ThirdParty/ASL],[solvers/asl.h])
 AC_COIN_THIRDPARTY_SUBDIRS([Blas],[ThirdParty/Blas],[daxpy.f])
 AC_COIN_THIRDPARTY_SUBDIRS([Lapack],[ThirdParty/Lapack],[LAPACK/SRC/dlarf.f])
 AC_COIN_THIRDPARTY_SUBDIRS([HSL],[ThirdParty/HSL],[configure.ac])
@@ -63,6 +63,7 @@ AC_COIN_MAIN_SUBDIRS(Clp)
 AC_COIN_MAIN_SUBDIRS(Cbc)
 AC_COIN_MAIN_SUBDIRS(Ipopt)
 AC_COIN_MAIN_SUBDIRS(Bonmin)
+AC_COIN_MAIN_SUBDIRS(Couenne)
 #AC_COIN_MAIN_SUBDIRS(Cgc)
 AC_COIN_MAIN_SUBDIRS(LaGO)
 

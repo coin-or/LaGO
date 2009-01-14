@@ -10,11 +10,6 @@
 #include <fstream>
 
 #define CNAMES
-#ifdef NOUNDERSCORE
-#define FNAME_LCASE_NODECOR
-#else
-#define FNAME_LCASE_DECOR
-#endif
 
 #include "iolib.h"
 //#include "dict.h"

@@ -14,7 +14,7 @@
 
 @SET_MAKE@
 
-# Copyright (C) 2007 Stefan Vigerske
+# Copyright (C) 2007-2009 Stefan Vigerske
 # All Rights Reserved.
 
 # Author:  Stefan Vigerske
@@ -52,11 +52,27 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+@COIN_HAS_COUENNE_TRUE@am__append_1 = -I`$(CYGPATH_W) $(COUENNESRCDIR)/inc` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(COUENNESRCDIR)/src/expression` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(COUENNESRCDIR)/src/expression/operators` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(COUENNESRCDIR)/src/problem` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(COUENNESRCDIR)/src/branch` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(OSISRCDIR)/src` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(OSIOBJDIR)/inc` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(CGLSRCDIR)/src` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(CGLOBJDIR)/inc` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(CBCSRCDIR)/src` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(CBCOBJDIR)/inc` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(BONMINSRCDIR)/src/Algorithms` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(BONMINSRCDIR)/src/CbcBonmin` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(BONMINSRCDIR)/src/Interfaces` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(BONMINOBJDIR)/inc`
+
 DIST_COMMON = $(includecoin_HEADERS) \
 	$(srcdir)/../../../../BuildTools/Makemain.inc \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
-@HAVE_EXTERNALS_TRUE@am__append_1 = Externals
-@HAVE_EXTERNALS_TRUE@am__append_2 = .Externals-stamp
+@HAVE_EXTERNALS_TRUE@am__append_2 = Externals
+@HAVE_EXTERNALS_TRUE@am__append_3 = .Externals-stamp
 subdir = src/Interfaces/GAMS
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ac_coin_gams.m4 \
@@ -69,7 +85,7 @@ CONFIG_CLEAN_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libLaGOInterfaceGams_la_LIBADD =
 am_libLaGOInterfaceGams_la_OBJECTS = LaGOGamsReader.lo \
-	LaGOGamsFunction.lo LaGOGamsSolver.lo
+	LaGOGamsFunction.lo LaGOG2DFunction.lo LaGOGamsSolver.lo
 libLaGOInterfaceGams_la_OBJECTS =  \
 	$(am_libLaGOInterfaceGams_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
@@ -100,6 +116,7 @@ ACLOCAL = @ACLOCAL@
 ADDLIBS = @ADDLIBS@
 ADD_CFLAGS = @ADD_CFLAGS@
 ADD_CXXFLAGS = @ADD_CXXFLAGS@
+ADD_FFLAGS = @ADD_FFLAGS@
 ALWAYS_FALSE_FALSE = @ALWAYS_FALSE_FALSE@
 ALWAYS_FALSE_TRUE = @ALWAYS_FALSE_TRUE@
 AMDEP_FALSE = @AMDEP_FALSE@
@@ -141,6 +158,8 @@ COIN_HAS_CLP_FALSE = @COIN_HAS_CLP_FALSE@
 COIN_HAS_CLP_TRUE = @COIN_HAS_CLP_TRUE@
 COIN_HAS_COINUTILS_FALSE = @COIN_HAS_COINUTILS_FALSE@
 COIN_HAS_COINUTILS_TRUE = @COIN_HAS_COINUTILS_TRUE@
+COIN_HAS_COUENNE_FALSE = @COIN_HAS_COUENNE_FALSE@
+COIN_HAS_COUENNE_TRUE = @COIN_HAS_COUENNE_TRUE@
 COIN_HAS_CPX_FALSE = @COIN_HAS_CPX_FALSE@
 COIN_HAS_CPX_TRUE = @COIN_HAS_CPX_TRUE@
 COIN_HAS_FILIB_FALSE = @COIN_HAS_FILIB_FALSE@
@@ -156,6 +175,9 @@ COIN_HAS_LAGO_FALSE = @COIN_HAS_LAGO_FALSE@
 COIN_HAS_LAGO_TRUE = @COIN_HAS_LAGO_TRUE@
 COIN_HAS_OSI_FALSE = @COIN_HAS_OSI_FALSE@
 COIN_HAS_OSI_TRUE = @COIN_HAS_OSI_TRUE@
+COUENNEDOCDIR = @COUENNEDOCDIR@
+COUENNEOBJDIR = @COUENNEOBJDIR@
+COUENNESRCDIR = @COUENNESRCDIR@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CPXINCDIR = @CPXINCDIR@
@@ -168,6 +190,7 @@ CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DBG_CFLAGS = @DBG_CFLAGS@
 DBG_CXXFLAGS = @DBG_CXXFLAGS@
+DBG_FFLAGS = @DBG_FFLAGS@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 ECHO = @ECHO@
@@ -181,6 +204,7 @@ FADDLIBS = @FADDLIBS@
 FFLAGS = @FFLAGS@
 FILIB_CPPFLAGS = @FILIB_CPPFLAGS@
 FILIB_LIB = @FILIB_LIB@
+FLIBS = @FLIBS@
 FORTRAN_NAMEMANGLING_CFLAG = @FORTRAN_NAMEMANGLING_CFLAG@
 GAMSIO_ADDLIBS = @GAMSIO_ADDLIBS@
 GAMSIO_CIA = @GAMSIO_CIA@
@@ -224,9 +248,11 @@ MAINTAINER_MODE_TRUE = @MAINTAINER_MODE_TRUE@
 MAKEINFO = @MAKEINFO@
 MPICC = @MPICC@
 MPICXX = @MPICXX@
+MPIF77 = @MPIF77@
 OBJEXT = @OBJEXT@
 OPT_CFLAGS = @OPT_CFLAGS@
 OPT_CXXFLAGS = @OPT_CXXFLAGS@
+OPT_FFLAGS = @OPT_FFLAGS@
 OSIDOCDIR = @OSIDOCDIR@
 OSIOBJDIR = @OSIOBJDIR@
 OSISRCDIR = @OSISRCDIR@
@@ -302,26 +328,24 @@ sol_cc_compiler = @sol_cc_compiler@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
-EXTRA_DIST = $(am__append_1)
+EXTRA_DIST = $(am__append_2)
 noinst_LTLIBRARIES = libLaGOInterfaceGams.la
-libLaGOInterfaceGams_la_SOURCES = LaGOGamsReader.cpp LaGOGamsFunction.cpp LaGOGamsSolver.cpp
+libLaGOInterfaceGams_la_SOURCES = LaGOGamsReader.cpp LaGOGamsFunction.cpp LaGOG2DFunction.cpp LaGOGamsSolver.cpp
 includecoindir = $(includedir)/coin
-includecoin_HEADERS = LaGOGamsFunction.hpp LaGOGamsReader.hpp
-AM_CPPFLAGS = $(GAMSIO_CPPFLAGS) \
- $(FILIB_CPPFLAGS) \
- -I`$(CYGPATH_W) $(srcdir)/../../Base` \
- -I`$(CYGPATH_W) $(srcdir)/../../Problem` \
- -I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` \
- -I`$(CYGPATH_W) $(COINUTILSOBJDIR)/inc` \
- -I`$(CYGPATH_W) $(LAGOSRCDIR)/../Cgc/src` \
- -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Interfaces` \
- -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Common` \
- -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/LinAlg` \
- -I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Algorithm` \
- -I`$(CYGPATH_W) $(IPOPTOBJDIR)/inc`
-
+includecoin_HEADERS = LaGOGamsFunction.hpp LaGOG2DFunction.hpp LaGOGamsReader.hpp
+AM_CPPFLAGS = $(GAMSIO_CPPFLAGS) $(FILIB_CPPFLAGS) \
+	$(FORTRAN_NAMEMANGLING_CFLAG) -I`$(CYGPATH_W) \
+	$(srcdir)/../../Base` -I`$(CYGPATH_W) $(srcdir)/../../Problem` \
+	-I`$(CYGPATH_W) $(COINUTILSSRCDIR)/src` -I`$(CYGPATH_W) \
+	$(COINUTILSOBJDIR)/inc` -I`$(CYGPATH_W) \
+	$(LAGOSRCDIR)/../Cgc/src` -I`$(CYGPATH_W) \
+	$(IPOPTSRCDIR)/src/Interfaces` -I`$(CYGPATH_W) \
+	$(IPOPTSRCDIR)/src/Common` -I`$(CYGPATH_W) \
+	$(IPOPTSRCDIR)/src/LinAlg` -I`$(CYGPATH_W) \
+	$(IPOPTSRCDIR)/src/Algorithm` -I`$(CYGPATH_W) \
+	$(IPOPTOBJDIR)/inc` $(am__append_1)
 DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
-DISTCLEANFILES = $(am__append_2) $(VPATH_DISTCLEANFILES)
+DISTCLEANFILES = $(am__append_3) $(VPATH_DISTCLEANFILES)
 DocFiles = README AUTHORS LICENSE
 DocInstallDir = $(prefix)/share/doc/coin/$(PACKAGE_NAME)
 all: all-am
@@ -375,6 +399,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOG2DFunction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOGamsFunction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOGamsReader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOGamsSolver.Plo@am__quote@
