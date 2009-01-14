@@ -4,11 +4,6 @@
 namespace LaGO {
 
 #define CNAMES
-#ifdef NOUNDERSCORE
-#define FNAME_LCASE_NODECOR
-#else
-#define FNAME_LCASE_DECOR
-#endif
 
 #include "g2dexports.h"
 
