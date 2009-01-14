@@ -9,7 +9,7 @@ AUTOMAKE_OPTIONS = foreign
 
 EXTRA_DIST =
 
-noinst_LTLIBRARIES = libLaGOInterfaceGams.la
+lib_LTLIBRARIES = libLaGOInterfaceGams.la
 libLaGOInterfaceGams_la_SOURCES = LaGOGamsReader.cpp LaGOGamsFunction.cpp LaGOG2DFunction.cpp LaGOGamsSolver.cpp
 
 includecoindir = $(includedir)/coin
