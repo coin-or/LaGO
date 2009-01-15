@@ -14,11 +14,10 @@
 
 @SET_MAKE@
 
-# Copyright (C) 2007 Stefan Vigerske
+# Copyright (C) 2009 Stefan Vigerske
 # All Rights Reserved.
-# This file is distributed under the Common Public License.
 
-# Author: Stefan Vigerske
+# Author:  Stefan Vigerske
 
 # Copyright (C) 2006, 2007 International Business Machines and others.
 # All Rights Reserved.
@@ -37,7 +36,7 @@ VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
-top_builddir = ../..
+top_builddir = ../../..
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 INSTALL = @INSTALL@
 install_sh_DATA = $(install_sh) -c -m 644
@@ -53,19 +52,28 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@COIN_HAS_CPX_TRUE@am__append_1 = -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiCpx` \
-@COIN_HAS_CPX_TRUE@ -I`$(CYGPATH_W) $(CPXINCDIR)`
-
-@COIN_HAS_CPX_FALSE@am__append_2 = -I`$(CYGPATH_W) $(OSISRCDIR)/src/OsiClp` \
-@COIN_HAS_CPX_FALSE@ -I`$(CYGPATH_W) $(CLPSRCDIR)/src` \
-@COIN_HAS_CPX_FALSE@ -I`$(CYGPATH_W) $(CLPOBJDIR)/inc`
+@COIN_HAS_COUENNE_TRUE@am__append_1 = -I`$(CYGPATH_W) $(COUENNESRCDIR)/inc` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(COUENNESRCDIR)/src/expression` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(COUENNESRCDIR)/src/expression/operators` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(COUENNESRCDIR)/src/problem` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(COUENNESRCDIR)/src/branch` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(OSISRCDIR)/src` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(OSIOBJDIR)/inc` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(CGLSRCDIR)/src` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(CGLOBJDIR)/inc` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(CBCSRCDIR)/src` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(CBCOBJDIR)/inc` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(BONMINSRCDIR)/src/Algorithms` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(BONMINSRCDIR)/src/CbcBonmin` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(BONMINSRCDIR)/src/Interfaces` \
+@COIN_HAS_COUENNE_TRUE@  -I`$(CYGPATH_W) $(BONMINOBJDIR)/inc`
 
 DIST_COMMON = $(includecoin_HEADERS) \
-	$(srcdir)/../../../BuildTools/Makemain.inc \
+	$(srcdir)/../../../../BuildTools/Makemain.inc \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
-@HAVE_EXTERNALS_TRUE@am__append_3 = Externals
-@HAVE_EXTERNALS_TRUE@am__append_4 = .Externals-stamp
-subdir = src/Algorithms
+@HAVE_EXTERNALS_TRUE@am__append_2 = Externals
+@HAVE_EXTERNALS_TRUE@am__append_3 = .Externals-stamp
+subdir = src/Interfaces/OS
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ac_coin_gams.m4 \
 	$(top_srcdir)/acinclude.m4 $(top_srcdir)/configure.ac
@@ -74,13 +82,18 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/inc/config_lago.h
 CONFIG_CLEAN_FILES =
-LTLIBRARIES = $(noinst_LTLIBRARIES)
-libLaGOAlgorithms_la_LIBADD =
-am_libLaGOAlgorithms_la_OBJECTS = LaGOAlgorithm.lo \
-	LaGODecomposition.lo LaGOSampling.lo LaGOCurvatureCheck.lo \
-	LaGOBoxReduction.lo LaGOConstraintPropagation.lo \
-	LaGOQuadraticEstimation.lo LaGOConvexification.lo
-libLaGOAlgorithms_la_OBJECTS = $(am_libLaGOAlgorithms_la_OBJECTS)
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includecoindir)"
+libLTLIBRARIES_INSTALL = $(INSTALL)
+LTLIBRARIES = $(lib_LTLIBRARIES)
+libLaGOInterfaceOS_la_LIBADD =
+am_libLaGOInterfaceOS_la_OBJECTS = LaGOOSFunction.lo
+libLaGOInterfaceOS_la_OBJECTS = $(am_libLaGOInterfaceOS_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/../depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -91,15 +104,8 @@ LTCXXCOMPILE = $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) \
 CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(libLaGOAlgorithms_la_SOURCES)
-DIST_SOURCES = $(libLaGOAlgorithms_la_SOURCES)
-am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
-am__vpath_adj = case $$p in \
-    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
-    *) f=$$p;; \
-  esac;
-am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
-am__installdirs = "$(DESTDIR)$(includecoindir)"
+SOURCES = $(libLaGOInterfaceOS_la_SOURCES)
+DIST_SOURCES = $(libLaGOInterfaceOS_la_SOURCES)
 includecoinHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(includecoin_HEADERS)
 ETAGS = etags
@@ -335,47 +341,34 @@ sol_cc_compiler = @sol_cc_compiler@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
-EXTRA_DIST = $(am__append_3)
-noinst_LTLIBRARIES = libLaGOAlgorithms.la
-libLaGOAlgorithms_la_SOURCES = \
-	LaGOAlgorithm.cpp \
-	LaGODecomposition.cpp \
-	LaGOSampling.cpp LaGOCurvatureCheck.cpp \
-	LaGOBoxReduction.cpp LaGOConstraintPropagation.cpp \
-	LaGOQuadraticEstimation.cpp LaGOConvexification.cpp
-
+EXTRA_DIST = $(am__append_2)
+lib_LTLIBRARIES = libLaGOInterfaceOS.la
+libLaGOInterfaceOS_la_SOURCES = LaGOOSFunction.cpp
 includecoindir = $(includedir)/coin
-includecoin_HEADERS = LaGODecomposition.hpp LaGOCurvatureCheck.hpp \
-  LaGOBoxReduction.hpp LaGOConstraintPropagation.hpp \
-  LaGOQuadraticEstimation.hpp LaGOConvexification.hpp
-
-AM_CPPFLAGS = $(FILIB_CPPFLAGS) -I`$(CYGPATH_W) $(srcdir)/../Base` \
-	-I`$(CYGPATH_W) $(srcdir)/../Problem` -I`$(CYGPATH_W) \
-	$(srcdir)/../Interfaces` -I`$(CYGPATH_W) \
+includecoin_HEADERS = LaGOOSFunction.hpp
+AM_CPPFLAGS = $(FILIB_CPPFLAGS) -I`$(CYGPATH_W) $(srcdir)/../../Base` \
+	-I`$(CYGPATH_W) $(srcdir)/../../Problem` -I`$(CYGPATH_W) \
 	$(COINUTILSSRCDIR)/src` -I`$(CYGPATH_W) \
-	$(COINUTILSOBJDIR)/inc` -I`$(CYGPATH_W) $(OSISRCDIR)/src` \
-	-I`$(CYGPATH_W) $(OSIOBJDIR)/inc` -I`$(CYGPATH_W) \
-	$(CGLSRCDIR)/src` -I`$(CYGPATH_W) $(CGLOBJDIR)/inc` \
-	-I`$(CYGPATH_W) $(CBCSRCDIR)/src` -I`$(CYGPATH_W) \
-	$(CBCOBJDIR)/inc` -I`$(CYGPATH_W) $(LAGOSRCDIR)/../Cgc/src` \
-	-I`$(CYGPATH_W) $(IPOPTSRCDIR)/src/Interfaces` -I`$(CYGPATH_W) \
+	$(COINUTILSOBJDIR)/inc` -I`$(CYGPATH_W) \
+	$(LAGOSRCDIR)/../Cgc/src` -I`$(CYGPATH_W) \
+	$(IPOPTSRCDIR)/src/Interfaces` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/Common` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/LinAlg` -I`$(CYGPATH_W) \
 	$(IPOPTSRCDIR)/src/Algorithm` -I`$(CYGPATH_W) \
-	$(IPOPTOBJDIR)/inc` -I`$(CYGPATH_W) \
-	$(BONMINSRCDIR)/src/Interfaces` -I`$(CYGPATH_W) \
-	$(BONMINSRCDIR)/src/Algorithms` -I`$(CYGPATH_W) \
-	$(BONMINSRCDIR)/src/CbcBonmin` -I`$(CYGPATH_W) \
-	$(BONMINOBJDIR)/inc` $(am__append_1) $(am__append_2)
+	$(IPOPTOBJDIR)/inc` -I`$(CYGPATH_W) $(OSOBJDIR)/inc` \
+	-I`$(CYGPATH_W) $(OSSRCDIR)/src` -I`$(CYGPATH_W) \
+	$(OSSRCDIR)/src/OSCommonInterfaces` -I`$(CYGPATH_W) \
+	$(OSSRCDIR)/src/OSUtils` -I`$(CYGPATH_W) $(CPPADSRCDIR)` \
+	$(am__append_1)
 DEFAULT_INCLUDES = -I. -I`$(CYGPATH_W) $(srcdir)` -I$(top_builddir)/inc
-DISTCLEANFILES = $(am__append_4) $(VPATH_DISTCLEANFILES)
+DISTCLEANFILES = $(am__append_3) $(VPATH_DISTCLEANFILES)
 DocFiles = README AUTHORS LICENSE
 DocInstallDir = $(prefix)/share/doc/coin/$(PACKAGE_NAME)
 all: all-am
 
 .SUFFIXES:
 .SUFFIXES: .cpp .lo .o .obj
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/../../../BuildTools/Makemain.inc $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/../../../../BuildTools/Makemain.inc $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -384,9 +377,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(srcdir)/..
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  src/Algorithms/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  src/Interfaces/OS/Makefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign  src/Algorithms/Makefile
+	  $(AUTOMAKE) --foreign  src/Interfaces/OS/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -404,17 +397,35 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	test -z "$(libdir)" || $(mkdir_p) "$(DESTDIR)$(libdir)"
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    f=$(am__strip_dir) \
+	    echo " $(LIBTOOL) --mode=install $(libLTLIBRARIES_INSTALL) $(INSTALL_STRIP_FLAG) '$$p' '$(DESTDIR)$(libdir)/$$f'"; \
+	    $(LIBTOOL) --mode=install $(libLTLIBRARIES_INSTALL) $(INSTALL_STRIP_FLAG) "$$p" "$(DESTDIR)$(libdir)/$$f"; \
+	  else :; fi; \
+	done
 
-clean-noinstLTLIBRARIES:
-	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
-	@list='$(noinst_LTLIBRARIES)'; for p in $$list; do \
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	@set -x; list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  p=$(am__strip_dir) \
+	  echo " $(LIBTOOL) --mode=uninstall rm -f '$(DESTDIR)$(libdir)/$$p'"; \
+	  $(LIBTOOL) --mode=uninstall rm -f "$(DESTDIR)$(libdir)/$$p"; \
+	done
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
 	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
 	  test "$$dir" != "$$p" || dir=.; \
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
-libLaGOAlgorithms.la: $(libLaGOAlgorithms_la_OBJECTS) $(libLaGOAlgorithms_la_DEPENDENCIES) 
-	$(CXXLINK)  $(libLaGOAlgorithms_la_LDFLAGS) $(libLaGOAlgorithms_la_OBJECTS) $(libLaGOAlgorithms_la_LIBADD) $(LIBS)
+libLaGOInterfaceOS.la: $(libLaGOInterfaceOS_la_OBJECTS) $(libLaGOInterfaceOS_la_DEPENDENCIES) 
+	$(CXXLINK) -rpath $(libdir) $(libLaGOInterfaceOS_la_LDFLAGS) $(libLaGOInterfaceOS_la_OBJECTS) $(libLaGOInterfaceOS_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -422,14 +433,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOAlgorithm.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOBoxReduction.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOConstraintPropagation.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOConvexification.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOCurvatureCheck.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGODecomposition.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOQuadraticEstimation.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOSampling.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LaGOOSFunction.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -528,7 +532,7 @@ distclean-tags:
 	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
 
 distdir: $(DISTFILES)
-	$(mkdir_p) $(distdir)/../../../BuildTools
+	$(mkdir_p) $(distdir)/../../../../BuildTools
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -559,7 +563,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(LTLIBRARIES) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(includecoindir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includecoindir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-am
@@ -589,7 +593,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libtool clean-noinstLTLIBRARIES \
+clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 	mostlyclean-am
 
 distclean: distclean-am
@@ -610,7 +614,7 @@ info-am:
 
 install-data-am: install-includecoinHEADERS
 
-install-exec-am:
+install-exec-am: install-libLTLIBRARIES
 
 install-info: install-info-am
 
@@ -636,20 +640,22 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-includecoinHEADERS uninstall-info-am
+uninstall-am: uninstall-includecoinHEADERS uninstall-info-am \
+	uninstall-libLTLIBRARIES
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-noinstLTLIBRARIES ctags distclean \
+	clean-libLTLIBRARIES clean-libtool ctags distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-exec \
 	install-exec-am install-includecoinHEADERS install-info \
-	install-info-am install-man install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-includecoinHEADERS \
-	uninstall-info-am
+	install-info-am install-libLTLIBRARIES install-man \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags uninstall uninstall-am \
+	uninstall-includecoinHEADERS uninstall-info-am \
+	uninstall-libLTLIBRARIES
 
 
 install-doc: $(DocFiles)

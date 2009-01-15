@@ -80,12 +80,14 @@ AC_COIN_HAS_PROJECT(LaGO)
 AC_COIN_HAS_PROJECT(Cgl)
 AC_COIN_HAS_PROJECT(CoinUtils)
 AC_COIN_HAS_PROJECT(Osi)
-# later: this one is optional, if SNOPT is there
+# later: this one is optional, if another NLP solver is there
 AC_COIN_HAS_PROJECT(Ipopt)
 AC_COIN_HAS_PROJECT(Clp)
 AC_COIN_HAS_PROJECT(Cbc)
 AC_COIN_HAS_PROJECT(Bonmin)
 AC_COIN_HAS_PROJECT(Couenne)
+AC_COIN_HAS_PROJECT(cppad)
+AC_COIN_HAS_PROJECT(OS)
 
 ############################################################################
 ############################################################################
@@ -264,6 +266,7 @@ AC_CONFIG_FILES([Makefile
                  src/Algorithms/Makefile
                  src/Interfaces/Makefile
                  src/Interfaces/GAMS/Makefile
+                 src/Interfaces/OS/Makefile
                  src/Applications/Makefile
                 ])
 

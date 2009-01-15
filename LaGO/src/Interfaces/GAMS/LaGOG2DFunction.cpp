@@ -1,3 +1,9 @@
+// Copyright (C) Stefan Vigerske 2009
+// All Rights Reserved.
+// This code is published under the Common Public License.
+
+// $Id$
+
 // have to be above LaGO because LaGO gets the std namespace, giving a conflict with Couenne's unary_function
 #include "LaGOConfig.h"
 #ifdef COIN_HAS_COUENNE

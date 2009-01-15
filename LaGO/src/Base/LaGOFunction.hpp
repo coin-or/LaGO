@@ -1,4 +1,4 @@
-// Copyright (C) Stefan Vigerske 2007
+// Copyright (C) Stefan Vigerske 2007-2009
 // All Rights Reserved.
 // This code is published under the Common Public License.
 
@@ -9,6 +9,12 @@
 
 #include "LaGObase.hpp"
 #include "CoinError.hpp"
+
+#ifdef COIN_HAS_COUENNE
+class expression;
+class exprVar;
+class Domain;
+#endif
 
 namespace LaGO {
 
@@ -60,11 +66,16 @@ public:
 	/** Returns a list of variable indices that appear in this function.
 	 * You can only rely on the result of this function if haveSparsity() returns true.
 	 */ 	
-	virtual const vector<int>& getSparsity() const { throw CoinError("sparsity information not available", "getSparsity()", "Function"); }
+	virtual const std::vector<int>& getSparsity() const { throw CoinError("sparsity information not available", "getSparsity()", "Function"); }
 	
 	virtual void print(ostream& out) const=0;	
 
 	friend ostream& operator<<(ostream& out, const Function& f) { f.print(out); return out; }
+
+#ifdef COIN_HAS_COUENNE
+	virtual expression* getAsCouenneExpression(std::vector<exprVar*>& vars, Domain* domain) const { return NULL; }
+#endif
+
 }; // class Function
 	
 } // namespace LaGO

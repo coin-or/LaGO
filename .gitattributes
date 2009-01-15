@@ -69,6 +69,10 @@ LaGO/src/Interfaces/LaGOOsiSolver.cpp -text
 LaGO/src/Interfaces/LaGOOsiSolver.hpp -text
 LaGO/src/Interfaces/Makefile.am -text
 LaGO/src/Interfaces/Makefile.in -text
+LaGO/src/Interfaces/OS/LaGOOSFunction.cpp -text
+LaGO/src/Interfaces/OS/LaGOOSFunction.hpp -text
+LaGO/src/Interfaces/OS/Makefile.am -text
+LaGO/src/Interfaces/OS/Makefile.in -text
 LaGO/src/Makefile.am -text
 LaGO/src/Makefile.in -text
 LaGO/src/Problem/LaGOBlockFunction.cpp -text
