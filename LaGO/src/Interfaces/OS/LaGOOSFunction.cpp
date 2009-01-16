@@ -55,10 +55,9 @@ double OSFunction::eval(const DenseVector& x) const
 	try
 	{
 		return exptree->calculateFunction(const_cast<double*>(x.getElements()), true);
-		
-	} catch (const ErrorClass& error)
+	}
+	catch (const ErrorClass& error)
 	{
-		
 		throw FunctionEvaluationError(error.errormsg, "OSFunction", "eval");
 	}
 	
@@ -67,41 +66,61 @@ double OSFunction::eval(const DenseVector& x) const
 
 void OSFunction::gradient(DenseVector& grad, const DenseVector& x) const
 {
-	::SparseVector* vec;
-	try
-	{
-		vec = osinstance->calculateConstraintFunctionGradient(const_cast<double*>(x.getElements()), osconidx, true);
-	}
-	catch (const ErrorClass& error)
-	{
-		throw FunctionEvaluationError(error.errormsg, "OSFunction", "gradient");
-	}
-
+//	cout << "x: " << x << endl;
 	grad.clear();
-	assert(vec);
-	for (int i = 0; i < vec->number; ++i)
-		grad[vec->indexes[i]] = vec->values[i];
-
-	// OS puts the coefficients from the linear variables into the gradient
-	// we don't want this, so we delete them again
 	if (osconidx >= 0)
-	{ // regular constraint
+	{ // be constraint
+		::SparseVector* vec;
+		try
+		{
+			vec = osinstance->calculateConstraintFunctionGradient(const_cast<double*>(x.getElements()), osconidx, true);
+		}
+		catch (const ErrorClass& error)
+		{
+			throw FunctionEvaluationError(error.errormsg, "OSFunction", "gradient");
+		}
+
+		assert(vec);
+		for (int i = 0; i < vec->number; ++i) {
+			if (!(vec->values[i] == vec->values[i]))
+				throw FunctionEvaluationError("nan in gradient", "OSFunction", "gradient");
+			grad[vec->indexes[i]] = vec->values[i];
+		}
+
+		// OS puts the coefficients from the linear variables into the gradient
+		// we don't want this, so we delete them again
 		SparseMatrix* lincoeff = osinstance->getLinearConstraintCoefficientsInRowMajor();
 		for (int j = lincoeff->starts[osconidx]; j < lincoeff->starts[osconidx+1]; ++j)
 			grad[lincoeff->indexes[j]] -= lincoeff->values[j];
 	}
 	else
-	{ // objective
+	{ // be objective
+		double* osgrad;
+		try
+		{
+			osgrad = osinstance->calculateObjectiveFunctionGradient(const_cast<double*>(x.getElements()), osconidx, true);
+		}
+		catch (const ErrorClass& error)
+		{
+			throw FunctionEvaluationError(error.errormsg, "OSFunction", "gradient");
+		}
+		CoinMemcpyN(osgrad, osinstance->getVariableNumber(), grad.getElements());
+
+//		cout << "grad before: " << grad << endl;
+		
+		// OS puts the coefficients from the linear variables into the gradient
+		// we don't want this, so we delete them again
 		::SparseVector* lincoeff = osinstance->getObjectiveCoefficients()[0];
 		for (int j = 0; j < lincoeff->number; ++j)
 			grad[lincoeff->indexes[j]] -= lincoeff->values[j];		
 	}
+//	cout << "grad: " << grad << endl;
 
 #ifndef NDEBUG
 	map<int, int>* varmap = exptree->getVariableIndiciesMap();
-	for (int i = 0; i < vec->number; ++i)
+	for (int i = 0; i < grad.getNumElements(); ++i)
 		assert(varmap->count(i) || fabs(grad[i]) < 1e-12); // variables not in expression tree should have no gradient
-#endif
+#endif	
 }
 
 void OSFunction::evalAndGradient(double& value, DenseVector& grad, const DenseVector& x) const
@@ -125,7 +144,11 @@ void OSFunction::hessianVectorProduct(DenseVector& product, const DenseVector& x
 	
 	product.clear();
 	for (int i = 0; i < hessian->hessDimension; ++i)
+	{
+		if (!(hessian->hessValues[i] == hessian->hessValues[i]))
+			throw FunctionEvaluationError("nan in hessian", "OSFunction", "gradient");
 		product[hessian->hessRowIdx[i]] += hessian->hessValues[i] * factor[hessian->hessColIdx[i]];
+	}
 }
 
 void OSFunction::fullHessian(SymSparseMatrixCreator& hessian, const DenseVector& x) const
@@ -142,7 +165,11 @@ void OSFunction::fullHessian(SymSparseMatrixCreator& hessian, const DenseVector&
 	}
 
 	for (int i = 0; i < oshessian->hessDimension; ++i)
+	{
+		if (!(oshessian->hessValues[i] == oshessian->hessValues[i]))
+			throw FunctionEvaluationError("nan in hessian", "OSFunction", "gradient");
 		hessian.insert(oshessian->hessColIdx[i], oshessian->hessRowIdx[i], oshessian->hessValues[i]);
+	}
 }
 
 
