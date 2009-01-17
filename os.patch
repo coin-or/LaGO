@@ -1,0 +1,48 @@
+Index: OS/src/OSCommonInterfaces/OSInstance.cpp
+===================================================================
+--- OS/src/OSCommonInterfaces/OSInstance.cpp	(Revision 2400)
++++ OS/src/OSCommonInterfaces/OSInstance.cpp	(Arbeitskopie)
+@@ -958,6 +958,15 @@
+ 	return m_iNonlinearExpressionNumber;
+ }//getNumberOfNonlinearExpressions
+ 
++void OSInstance::notifyVariableChange() {
++	if(m_bProcessVariables) {
++		delete[] m_mcVariableTypes;
++		delete[] m_msVariableNames;
++		delete[] m_mdVariableLowerBounds;
++		delete[] m_mdVariableUpperBounds;
++		m_bProcessVariables = false;
++	}	
++}
+ 
+ 
+ bool OSInstance::processVariables() {
+Index: OS/src/OSCommonInterfaces/OSOption.cpp
+===================================================================
+--- OS/src/OSCommonInterfaces/OSOption.cpp	(Revision 2396)
++++ OS/src/OSCommonInterfaces/OSOption.cpp	(Arbeitskopie)
+@@ -15,7 +15,7 @@
+  */
+ 
+ #ifndef DEBUG
+-#define DEBUG
++//#define DEBUG
+ #endif
+ #include "OSOption.h"
+ #include "OSParameters.h"
+Index: OS/src/OSCommonInterfaces/OSInstance.h
+===================================================================
+--- OS/src/OSCommonInterfaces/OSInstance.h	(Revision 2396)
++++ OS/src/OSCommonInterfaces/OSInstance.h	(Arbeitskopie)
+@@ -1381,7 +1381,9 @@
+ 	
+ public:
+ 
+-	/**
++	void notifyVariableChange();
++
++		/**
+ 	 * Get instance name. 
+ 	 * @return instance name. Null or empty std::string ("") if there is no instance name. 
+ 	 */

@@ -129,3 +129,4 @@ doxydoc/doxygen.conf -text
 /install-sh -text
 /ltmain.sh -text
 /missing -text
+/os.patch -text
