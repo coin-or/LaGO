@@ -52,22 +52,26 @@ OSFunction::~OSFunction()
 
 double OSFunction::eval(const DenseVector& x) const
 {
+	double val;
 	try
 	{
-		return exptree->calculateFunction(const_cast<double*>(x.getElements()), true);
+		val = exptree->calculateFunction(const_cast<double*>(x.getElements()), true);
 	}
 	catch (const ErrorClass& error)
 	{
 		throw FunctionEvaluationError(error.errormsg, "OSFunction", "eval");
 	}
+	if (!CoinFinite(val))
+		throw FunctionEvaluationError("function value not finite", "OSFunction", "eval");
 	
-//	return 0.;
+//	cout << "eval in " << x << " gives " << val << endl;
+	
+	return val;
 }
 
 void OSFunction::gradient(DenseVector& grad, const DenseVector& x) const
 {
 //	cout << "x: " << x << endl;
-	grad.clear();
 	if (osconidx >= 0)
 	{ // be constraint
 		::SparseVector* vec;
@@ -80,10 +84,11 @@ void OSFunction::gradient(DenseVector& grad, const DenseVector& x) const
 			throw FunctionEvaluationError(error.errormsg, "OSFunction", "gradient");
 		}
 
+		grad.clear();
 		assert(vec);
 		for (int i = 0; i < vec->number; ++i) {
-			if (!(vec->values[i] == vec->values[i]))
-				throw FunctionEvaluationError("nan in gradient", "OSFunction", "gradient");
+			if (!CoinFinite(vec->values[i]))
+				throw FunctionEvaluationError("gradient entry not finite", "OSFunction", "gradient");
 			grad[vec->indexes[i]] = vec->values[i];
 		}
 
@@ -104,7 +109,15 @@ void OSFunction::gradient(DenseVector& grad, const DenseVector& x) const
 		{
 			throw FunctionEvaluationError(error.errormsg, "OSFunction", "gradient");
 		}
-		CoinMemcpyN(osgrad, osinstance->getVariableNumber(), grad.getElements());
+		int i = 0;
+		for (; i < osinstance->getVariableNumber(); ++i) {
+			if (!CoinFinite(osgrad[i]))
+				throw FunctionEvaluationError("gradient entry not finite", "OSFunction", "gradient");
+			grad.getElements()[i] = osgrad[i];
+		}
+		// in case we have more variables than OS knows about
+		for (; i < grad.getNumElements(); ++i)
+			grad.getElements()[i] = 0.;
 
 //		cout << "grad before: " << grad << endl;
 		
@@ -114,7 +127,11 @@ void OSFunction::gradient(DenseVector& grad, const DenseVector& x) const
 		for (int j = 0; j < lincoeff->number; ++j)
 			grad[lincoeff->indexes[j]] -= lincoeff->values[j];		
 	}
+
+	
 //	cout << "grad: " << grad << endl;
+//	for (int i = 0; i < osinstance->getVariableNumber(); ++i)
+//		cout << osinstance->getVariableNames()[i] << ": " << grad[i] << endl;
 
 #ifndef NDEBUG
 	map<int, int>* varmap = exptree->getVariableIndiciesMap();
@@ -126,7 +143,8 @@ void OSFunction::gradient(DenseVector& grad, const DenseVector& x) const
 void OSFunction::evalAndGradient(double& value, DenseVector& grad, const DenseVector& x) const
 {
 	gradient(grad, x);
-	value = exptree->calculateFunction(const_cast<double*>(x.getElements()), false);
+	value = exptree->calculateFunction(const_cast<double*>(x.getElements()), true); // putting false here does not seem to work
+//	cout << "value in " << x << ": " << value << endl;
 }
 
 void OSFunction::hessianVectorProduct(DenseVector& product, const DenseVector& x, const DenseVector& factor) const
@@ -145,8 +163,8 @@ void OSFunction::hessianVectorProduct(DenseVector& product, const DenseVector& x
 	product.clear();
 	for (int i = 0; i < hessian->hessDimension; ++i)
 	{
-		if (!(hessian->hessValues[i] == hessian->hessValues[i]))
-			throw FunctionEvaluationError("nan in hessian", "OSFunction", "gradient");
+		if (!CoinFinite(hessian->hessValues[i]))
+			throw FunctionEvaluationError("hessian entry not finite", "OSFunction", "gradient");
 		product[hessian->hessRowIdx[i]] += hessian->hessValues[i] * factor[hessian->hessColIdx[i]];
 	}
 }
@@ -166,8 +184,8 @@ void OSFunction::fullHessian(SymSparseMatrixCreator& hessian, const DenseVector&
 
 	for (int i = 0; i < oshessian->hessDimension; ++i)
 	{
-		if (!(oshessian->hessValues[i] == oshessian->hessValues[i]))
-			throw FunctionEvaluationError("nan in hessian", "OSFunction", "gradient");
+		if (!CoinFinite(oshessian->hessValues[i]))
+			throw FunctionEvaluationError("hessian entry not finite", "OSFunction", "gradient");
 		hessian.insert(oshessian->hessColIdx[i], oshessian->hessRowIdx[i], oshessian->hessValues[i]);
 	}
 }
@@ -205,7 +223,7 @@ expression* OSFunction::createCouenneExpression(OSnLNode* node, std::vector<expr
     	 return new exprMul(createCouenneExpression(node->m_mChildren[0], vars, domain), createCouenneExpression(node->m_mChildren[1], vars, domain));
      case OS_DIVIDE :
     	 // couenne does not like expressions of the form exp1/exp2 with exp1 a constant, so we write them as exp1 * 1/exp2
-    	 if (node->m_mChildren[1]->inodeInt == OS_NUMBER)
+    	 if (node->m_mChildren[0]->inodeInt == OS_NUMBER)
       	 return new exprMul(createCouenneExpression(node->m_mChildren[0], vars, domain), new exprInv(createCouenneExpression(node->m_mChildren[1], vars, domain)));
     	 else
     		 return new exprDiv(createCouenneExpression(node->m_mChildren[0], vars, domain), createCouenneExpression(node->m_mChildren[1], vars, domain));
