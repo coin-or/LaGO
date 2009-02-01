@@ -1105,6 +1105,8 @@ int gamsLocOpt::solve(dvector& start) {
 	sprintf(iolib.flnsol, "%soqsol.scr", iolib.gscrdr);
 
 	if (iolib.ilog==0 || iolib.ilog==1 || iolib.ilog==3) {
+		if (!out_solver_log_p)
+			iolib.ilog = 0; // no output
 /*		fprintf(gfiolog, "\n");
 		fflush(gfiolog);
 */	} else {
