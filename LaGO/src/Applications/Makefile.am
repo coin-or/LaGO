@@ -54,10 +54,13 @@ LaGOGAMS_SOURCES = LaGOGAMS.cpp ../Algorithms/LaGOQuadraticRelaxTest.cpp ../Prob
 LaGOGAMS_LDADD = ../Interfaces/GAMS/libLaGOInterfaceGams.la libLaGO.la
 
 if COIN_HAS_COUENNE
-LaGOGAMS_LDADD += $(COUENNEOBJDIR)/src/libCouenne.la \
+LaGOGAMS_LDADD += $(COUENNEOBJDIR)/src/libCouenne.la
+if COIN_HAS_ASL
+LaGOGAMS_LDADD += \
   $(BONMINOBJDIR)/src/Interfaces/Ampl/libbonamplinterface.la \
   $(IPOPTOBJDIR)/src/Apps/AmplSolver/libamplinterface.la \
   $(ASLLIB)
+endif
 endif
 
 LaGOGAMS_LDADD += \
