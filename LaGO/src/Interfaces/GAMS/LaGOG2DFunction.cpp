@@ -766,13 +766,13 @@ expression* G2DFunction::getAsCouenneExpression(std::vector<exprVar*>& vars, Dom
 						if (debugoutput) std::clog << "log10 = ln * 1/ln(10)" << std::endl;
 						
 						expression* term = stack.back(); stack.pop_back();
-						exp = new exprMul(term, new exprConst(1./log(10.)));
+						exp = new exprMul(new exprLog(term), new exprConst(1./log(10.)));
 					} break;
 					case fnlog2 : {
 						if (debugoutput) std::clog << "log2 = ln * 1/ln(2)" << std::endl;
 
 						expression* term = stack.back(); stack.pop_back();
-						exp = new exprMul(term, new exprConst(1./log(2.)));
+						exp = new exprMul(new exprLog(term), new exprConst(1./log(2.)));
 					} break;
 					case fnsqrt: {
 						if (debugoutput) std::clog << "sqrt" << std::endl;
