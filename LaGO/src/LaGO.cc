@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 	out_out << "LaGO " << LAGOVERSION() << endl;
 	if (argc<2) {
 #ifdef COIN_HAS_ASL
-		out_out << "usage: " << argv[0] << " stubfile (without .nl) [<parameter-file>]" << endl;
+		out_out << "usage: " << argv[0] << " <stubfile (without .nl)> -AMPL [<parameter-file>]" << endl;
 #else
 #ifdef COIN_HAS_GAMSIO
 		out_out << "usage: " << argv[0] << " <gams-file> [<parameter-file>]" << endl;
@@ -42,13 +42,17 @@ int main(int argc, char** argv) {
 	}
 
 	Pointer<Param> param;
-	if (argc>2) {	
-		out_out << "Reading parameter file " << argv[2] << endl;
-		param=new Param(argv[2], NULL);
+#ifdef COIN_HAS_ASL
+	if (argc>3) {	
+		out_out << "Reading parameter file " << argv[3] << endl;
+		param=new Param(argv[3], NULL);
 		param->read();
 	} else {
 		param=new Param(NULL, NULL);
 	}
+#else
+	param = new Param(NULL, NULL);
+#endif
 	
 // 	cout << "Reading problem-file " << argv[1] << endl;
 #ifdef COIN_HAS_ASL
