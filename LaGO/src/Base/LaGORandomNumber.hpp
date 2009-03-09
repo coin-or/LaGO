@@ -7,13 +7,9 @@
 #ifndef LAGORANDOMNUMBER_HPP_
 #define LAGORANDOMNUMBER_HPP_
 
-#include "LaGObase.hpp"
-
 namespace LaGO {
 
-inline int getRandom(int lb, int ub) {
-   return lb+(int)((ub-lb+0.99) * CoinDrand48()); // as suggested in the rand()-manual
-}
+int getRandom(int lb, int ub);
 
 double getRandom(double lb, double ub);
 

@@ -5,6 +5,7 @@
 // $Id$
 
 #include "LaGORandomNumber.hpp"
+#include "LaGObase.hpp"
 
 extern "C" {
 #include "ranlib.h"
@@ -15,6 +16,10 @@ extern "C" {
 //double genunf(double a, double b) { return 0; }
 
 namespace LaGO {
+
+int getRandom(int lb, int ub) {
+   return lb+(int)((ub-lb+0.99) * CoinDrand48()); // as suggested in the rand()-manual
+}
 
 double getRandom(double lb, double ub) {
 	if (lb<=-getInfinity() && ub>=getInfinity()) return gennor(0., 1.);
