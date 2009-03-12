@@ -18,7 +18,8 @@ QuadraticEstimation::QuadraticEstimation()
 //	ipopt.Options()->SetStringValue("hessian_approximation", "limited-memory");
 	ipopt.Options()->SetNumericValue("tol", eps);
 	ipopt.Options()->SetNumericValue("dual_inf_tol", eps);
-	ipopt.Options()->SetIntegerValue("print_level", 0);
+	ipopt.Options()->SetIntegerValue("print_level", Ipopt::J_STRONGWARNING);
+	//ipopt.Options()->SetStringValue("derivative_test", "second-order");
 	//	ipopt.Initialize(); // this reads ipopt.opt
 	ipopt.Initialize("");
 }
@@ -137,6 +138,51 @@ int QuadraticEstimation::computeImprovingEstimators(MINLPData& data, MINLPData::
 	}
 	
 	return count;
+}
+
+
+SmartPtr<QuadraticFunction> QuadraticEstimation::computeEstimator(NonconvexFunction& func, const DenseVector& lower, const DenseVector& upper, const DenseVector& refpoint, bool as_underestimator)
+{
+	if (func.getSamplePoints().empty())
+	{
+		Sampling sampling;
+		sampling.addVertices(func.getSamplePoints(), lower, upper, 64);
+		sampling.monteCarlo(func.getSamplePoints(), lower, upper, 36);
+		assert(!func.getSamplePoints().empty());
+
+		SampleSet::iterator it_sp(func.getSamplePoints().begin());
+		while (it_sp != func.getSamplePoints().end()) {
+			try {
+				it_sp->funcvalue = func.getFunction()->eval(*it_sp);
+			} catch (FunctionEvaluationError error) {
+				cerr << "QuadraticEstimation::computeEstimator: Error evaluation function in sample point, skipping point. " << error << endl;
+				it_sp = func.getSamplePoints().eraseAndGetNext(it_sp);
+				continue;
+			}
+			++it_sp;
+		}
+		
+		if (func.getSamplePoints().empty())
+			return NULL;
+	}
+	
+	SampleSet::iterator enforce_tightness = func.getSamplePoints().insert(refpoint).first;
+	try {
+		enforce_tightness->funcvalue = func.getFunction()->eval(refpoint);
+	} catch (FunctionEvaluationError error) {
+		cerr << "QuadraticEstimation::computeEstimator: Error evaluation function in reference point, skipping point. " << error << endl;
+		func.getSamplePoints().erase(enforce_tightness);
+		enforce_tightness = func.getSamplePoints().begin();
+		assert(enforce_tightness != func.getSamplePoints().end());		
+	}
+
+	// initialize the LP which we use to generate our quad. underestimator
+	/*int enforce_tightness_index =*/ initLP(func, enforce_tightness);
+
+	// and set the right-hand-side such that we get an underestimator 
+	updateLP(as_underestimator);
+
+	return getEstimator(func, as_underestimator, lower, upper);
 }
 
 

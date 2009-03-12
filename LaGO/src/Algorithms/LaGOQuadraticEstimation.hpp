@@ -119,6 +119,16 @@ public:
 	pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > computeFirstEstimator(NonconvexFunction& func, const DenseVector& lower, const DenseVector& upper, bool do_lower, bool do_upper);
 
 	pair<SmartPtr<QuadraticFunction>, SmartPtr<QuadraticFunction> > computeAdditionalEstimator(NonconvexFunction& func, const DenseVector& lower, const DenseVector& upper, SampleSet::iterator enforce_tightness, bool do_lower, bool do_upper);
+
+	/** Computes a quadratic under- or overestimators of a given nonconvex function.
+	 * @param func The nonconvex function.
+	 * @param lower Lower bounds on variables.
+	 * @param upper Upper bounds on variables.
+	 * @param refpoint The reference point where the estimator should be exact.
+	 * @param as_underestimator Whether an underestimator (=true) or an overestimator (=false) should be computed.
+	 * @return The quadratic under- or overestimators, if computed. 
+	 */
+	SmartPtr<QuadraticFunction> computeEstimator(NonconvexFunction& func, const DenseVector& lower, const DenseVector& upper, const DenseVector& refpoint, bool as_understimator);
 	
 	void testEstimators(const MINLPData& data) const;
 	

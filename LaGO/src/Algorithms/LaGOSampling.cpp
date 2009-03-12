@@ -10,7 +10,7 @@
 
 namespace LaGO {
 	
-void Sampling::monteCarlo(SampleSet& samplepoints, DenseVector& lower, DenseVector& upper, int nr) {
+void Sampling::monteCarlo(SampleSet& samplepoints, const DenseVector& lower, const DenseVector& upper, int nr) {
 	DenseVector point;
 	for (int i=0; i<nr; ++i) {
 		point.setRandom(lower, upper);

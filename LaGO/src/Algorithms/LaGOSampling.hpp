@@ -16,7 +16,7 @@ class SparsityGraph;
 
 class Sampling {
 public:
-	void monteCarlo(SampleSet& samplepoints, DenseVector& lower, DenseVector& upper, int nr);
+	void monteCarlo(SampleSet& samplepoints, const DenseVector& lower, const DenseVector& upper, int nr);
 
 	/** Generates points where some of their components are randomly generated.
 	 * @param samplepoints Where to add the generated points.
