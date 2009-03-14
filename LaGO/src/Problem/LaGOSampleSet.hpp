@@ -27,6 +27,10 @@ public:
 	 * Infinity if not computed.
 	 */
 	mutable double funcvalue;
+	
+	static void setTolerance(double newtol) {
+		tol = newtol;
+	}
 
 	SamplePoint(const DenseVector& point_, bool is_startpoint_=false)
 	: two_norm(point_.twoNorm()), point(point_), is_startpoint(is_startpoint_), funcvalue(getInfinity())
@@ -38,14 +42,14 @@ public:
 	operator const DenseVector&() const { return point; }
 	
 	bool operator<(const SamplePoint& p) const {
-		assert(point.getNumElements()==p.getPoint().getNumElements());
-		if (two_norm<p.two_norm-tol*(CoinAbs(two_norm)+1)) return true;
-		if (two_norm>p.two_norm+tol*(CoinAbs(two_norm)+1)) return false;
-		const double* el=point.getElements();
-		const double* pel=p.getPoint().getElements();
-		for (int i=point.getNumElements(); i>0; --i, ++el, ++pel)
-			if (CoinAbs(*el-*pel)>tol*(CoinAbs(*el)+1)) // points are differnt
-				return *el<*pel;
+		assert(point.getNumElements() == p.getPoint().getNumElements());
+//		if (two_norm<p.two_norm-tol*(CoinAbs(two_norm)+1)) return true;
+//		if (two_norm>p.two_norm+tol*(CoinAbs(two_norm)+1)) return false;
+		const double* el  = point.getElements();
+		const double* pel = p.getPoint().getElements();
+		for (int i = point.getNumElements(); i > 0; --i, ++el, ++pel)
+			if (CoinAbs(*el-*pel) > tol*(CoinAbs(*el)+1)) // points are differnt
+				return *el < *pel;
 		return false; // points are equal
 	}
 	

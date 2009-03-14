@@ -1,4 +1,4 @@
-// Copyright (C) Stefan Vigerske 2007
+// Copyright (C) Stefan Vigerske 2007-2009
 // All Rights Reserved.
 // This code is published under the Common Public License.
 
@@ -43,8 +43,12 @@ private:
 	int nr_auxvars; // number of sample points that have an extra column in the LP; set by initLP
 	Ipopt::IpoptApplication ipopt;
 	
-	double eps;
+	double eps;  // epsilon 
+	double opttol;  // optimality tolerance for NLP solver 
+	double acttol;  // activity tolerance: we say a sample point is active if the distance between f and p is below this tolerance
+	double maxshift;  // maximal amount the final underestimator is allowed to be shifted
 	int iter_max;
+	bool scalerows; // whether to scale rows of the LP
 	
 	class SampleSetItem {
 	public:
@@ -96,6 +100,12 @@ private:
 
 public:
 	QuadraticEstimation();
+	
+	void setEpsilon(double neweps);
+	void setOptimalityTolerance(double newopttol);
+	void setMaxShift(double newmaxshift);
+	void setMaxIterations(int newitermax);
+	void setRowScaling(bool newscalerows);
 	
 	int computeEstimators(MINLPData& data);
 	
