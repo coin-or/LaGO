@@ -147,7 +147,7 @@ SmartPtr<QuadraticFunction> QuadraticEstimation::computeEstimator(NonconvexFunct
 	{
 		Sampling sampling;
 		sampling.addVertices(func.getSamplePoints(), lower, upper, 64);
-		sampling.monteCarlo(func.getSamplePoints(), lower, upper, 36);
+		sampling.monteCarlo(func.getSamplePoints(), lower, upper, 100);
 		assert(!func.getSamplePoints().empty());
 
 		SampleSet::iterator it_sp(func.getSamplePoints().begin());
@@ -177,6 +177,7 @@ SmartPtr<QuadraticFunction> QuadraticEstimation::computeEstimator(NonconvexFunct
 	}
 
 	// initialize the LP which we use to generate our quad. underestimator
+	lp.reset();
 	/*int enforce_tightness_index =*/ initLP(func, enforce_tightness);
 
 	// and set the right-hand-side such that we get an underestimator 
