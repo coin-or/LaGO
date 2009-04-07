@@ -54,7 +54,7 @@ LaGOGAMS_SOURCES = LaGOGAMS.cpp ../Algorithms/LaGOQuadraticRelaxTest.cpp ../Prob
 LaGOGAMS_LDADD = ../Interfaces/GAMS/libLaGOInterfaceGams.la libLaGO.la
 
 if COIN_HAS_COUENNE
-LaGOGAMS_LDADD += $(COUENNEOBJDIR)/src/libCouenne.la
+LaGOGAMS_LDADD += $(COUENNEOBJDIR)/src/readnl/libCouenneReadnl.la $(COUENNEOBJDIR)/src/main/libBonCouenne.la $(COUENNEOBJDIR)/src/libCouenne.la
 if COIN_HAS_ASL
 LaGOGAMS_LDADD += \
   $(BONMINOBJDIR)/src/Interfaces/Ampl/libbonamplinterface.la \
