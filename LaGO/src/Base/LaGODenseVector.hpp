@@ -38,7 +38,7 @@ public:
 		}
 	}
 	
-	DenseVector(const DenseVector& v, const vector<int>& indices)
+	DenseVector(const DenseVector& v, const std::vector<int>& indices)
 	{ setToBlock(v, indices);
 	}
 	
@@ -47,7 +47,7 @@ public:
 		return getElements()[index];
 	}
 	
-	void setToBlock(const DenseVector& v, const vector<int>& indices) {
+	void setToBlock(const DenseVector& v, const std::vector<int>& indices) {
 		unsigned int N=indices.size();
 		resize(N);
 		double* elem=getElements();
@@ -55,7 +55,7 @@ public:
 			*elem=v(indices[i]);
 	}
 	
-	void setElementsOfBlock(const DenseVector& v, const vector<int>& indices) {
+	void setElementsOfBlock(const DenseVector& v, const std::vector<int>& indices) {
 		int N=indices.size();
 		assert(v.getNumElements()==N);
 		const double* v_elem=v.getElements();

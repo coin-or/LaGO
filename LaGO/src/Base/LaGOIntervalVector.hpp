@@ -79,7 +79,7 @@ public:
 			*el=interval<double>(translateNInftyCoin2Filib(*low_),translatePInftyCoin2Filib(*up_));	
 	}
 	
-	IntervalVector(const IntervalVector& v, const vector<int>& indices)
+	IntervalVector(const IntervalVector& v, const std::vector<int>& indices)
 	: CoinDenseVector<interval<double> >(indices.size())
 	{	interval<double>* el=getElements();
 		for (int i=0; i<getNumElements(); ++i, ++el) {
@@ -95,7 +95,7 @@ public:
 		return getElements()[index];
 	}
 	
-	void setToBlock(const IntervalVector& v, const vector<int>& indices) {
+	void setToBlock(const IntervalVector& v, const std::vector<int>& indices) {
 		unsigned int N=indices.size();
 		resize(N);
 		interval<double>* elem=getElements();
@@ -103,7 +103,7 @@ public:
 			*elem=v(indices[i]);
 	}
 	
-	void setElementsOfBlock(const IntervalVector& v, const vector<int>& indices) {
+	void setElementsOfBlock(const IntervalVector& v, const std::vector<int>& indices) {
 		int N=indices.size();
 		assert(v.getNumElements()==N);
 		const interval<double>* v_elem=v.getElements();

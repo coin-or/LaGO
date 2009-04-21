@@ -4,6 +4,8 @@
 
 // $Id$
 
+#include "OSInstance.h"
+
 #include "LaGOConfig.h"
 // have to be above LaGObase because LaGO gets the std namespace, giving a conflict with Couenne's unary_function
 #ifdef COIN_HAS_COUENNE
@@ -30,7 +32,6 @@
 
 #include <sstream>
 
-#include "OSInstance.h"
 #include "OSErrorClass.h"
 
 namespace LaGO {

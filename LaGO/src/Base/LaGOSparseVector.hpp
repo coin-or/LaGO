@@ -56,7 +56,7 @@ public:
 	
 	void add(const SparseVector& v);
 
-	void addBlockVector(const SparseVector& v, const vector<int>& indices);
+	void addBlockVector(const SparseVector& v, const std::vector<int>& indices);
 };	
 
 	
