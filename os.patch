@@ -1,8 +1,8 @@
 Index: OS/src/OSCommonInterfaces/OSInstance.cpp
 ===================================================================
---- OS/src/OSCommonInterfaces/OSInstance.cpp	(Revision 2532)
-+++ OS/src/OSCommonInterfaces/OSInstance.cpp	(Arbeitskopie)
-@@ -4313,3 +4313,12 @@
+--- OS/src/OSCommonInterfaces/OSInstance.cpp	(revision 2645)
++++ OS/src/OSCommonInterfaces/OSInstance.cpp	(working copy)
+@@ -4698,3 +4698,12 @@
  }//end getADSparsityHessian()
  
  
@@ -17,16 +17,13 @@ Index: OS/src/OSCommonInterfaces/OSInstance.cpp
 +}
 Index: OS/src/OSCommonInterfaces/OSInstance.h
 ===================================================================
---- OS/src/OSCommonInterfaces/OSInstance.h	(Revision 2532)
-+++ OS/src/OSCommonInterfaces/OSInstance.h	(Arbeitskopie)
-@@ -1374,7 +1374,9 @@
- 	
+--- OS/src/OSCommonInterfaces/OSInstance.h	(revision 2645)
++++ OS/src/OSCommonInterfaces/OSInstance.h	(working copy)
+@@ -740,6 +740,7 @@
+  */
+ class OSInstance {
  public:
++        void notifyVariableChange();
  
--	/**
-+	void notifyVariableChange();
-+
-+		/**
- 	 * Get instance name. 
- 	 * @return instance name. Null or empty std::string ("") if there is no instance name. 
- 	 */
+ 	/** The OSInstance class constructor */
+ 	OSInstance(); 

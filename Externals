@@ -9,7 +9,7 @@ CoinUtils     https://projects.coin-or.org/svn/CoinUtils/stable/2.3/CoinUtils
 Cgl           https://projects.coin-or.org/svn/Cgl/stable/0.53/Cgl
 Clp           https://projects.coin-or.org/svn/Clp/stable/1.8/Clp
 Cbc           https://projects.coin-or.org/svn/Cbc/stable/2.2/Cbc
-Ipopt         https://projects.coin-or.org/svn/Ipopt/stable/3.5/Ipopt
+Ipopt         https://projects.coin-or.org/svn/Ipopt/stable/3.6/Ipopt
 Osi           https://projects.coin-or.org/svn/Osi/stable/0.99/Osi
 Cgc           https://projects.coin-or.org/svn/Cgc/trunk/Cgc
 Bonmin        https://projects.coin-or.org/svn/Bonmin/trunk/Bonmin
