@@ -31,6 +31,7 @@
 ########################################################################
 #                    Documentation installation                        #
 ########################################################################
+
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
@@ -53,7 +54,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-DIST_COMMON = README $(am__configure_deps) \
+DIST_COMMON = README $(am__configure_deps) $(includecoin_HEADERS) \
 	$(srcdir)/../BuildTools/Makemain.inc $(srcdir)/../config.guess \
 	$(srcdir)/../config.sub $(srcdir)/../install-sh \
 	$(srcdir)/../ltmain.sh $(srcdir)/../missing \
@@ -81,6 +82,15 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-recursive installcheck-recursive installdirs-recursive \
 	pdf-recursive ps-recursive uninstall-info-recursive \
 	uninstall-recursive
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
+am__installdirs = "$(DESTDIR)$(includecoindir)"
+includecoinHEADERS_INSTALL = $(INSTALL_HEADER)
+HEADERS = $(includecoin_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DIST_SUBDIRS = $(SUBDIRS)
@@ -334,6 +344,20 @@ EXTRA_DIST = README INSTALL LICENSE AUTHORS $(am__append_1)
 
 # tmpdir = tmpdir
 
+#for using IpoptCalculatedQuantities
+includecoindir = $(includedir)/coin
+includecoin_HEADERS = \
+  $(IPOPTSRCDIR)/src/Algorithm/IpIpoptCalculatedQuantities.hpp \
+  $(IPOPTSRCDIR)/src/Algorithm/IpIpoptNLP.hpp \
+  $(IPOPTSRCDIR)/src/Algorithm/IpIpoptData.hpp \
+  $(IPOPTSRCDIR)/src/Algorithm/IpNLPScaling.hpp \
+  $(IPOPTSRCDIR)/src/Algorithm/IpIteratesVector.hpp \
+  $(IPOPTSRCDIR)/src/Algorithm/IpTimingStatistics.hpp \
+  $(IPOPTSRCDIR)/src/LinAlg/IpScaledMatrix.hpp \
+  $(IPOPTSRCDIR)/src/LinAlg/IpSymScaledMatrix.hpp \
+  $(IPOPTSRCDIR)/src/LinAlg/IpCompoundVector.hpp
+
+
 ########################################################################
 #                  Installation of the addlibs file                    #
 ########################################################################
@@ -413,6 +437,23 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
+install-includecoinHEADERS: $(includecoin_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(includecoindir)" || $(mkdir_p) "$(DESTDIR)$(includecoindir)"
+	@list='$(includecoin_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(includecoinHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(includecoindir)/$$f'"; \
+	  $(includecoinHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(includecoindir)/$$f"; \
+	done
+
+uninstall-includecoinHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(includecoin_HEADERS)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(includecoindir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(includecoindir)/$$f"; \
+	done
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -549,7 +590,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/.. $(distdir)/../BuildTools $(distdir)/inc $(distdir)/m4
+	$(mkdir_p) $(distdir)/$(IPOPTSRCDIR)/src/Algorithm $(distdir)/$(IPOPTSRCDIR)/src/LinAlg $(distdir)/.. $(distdir)/../BuildTools $(distdir)/inc $(distdir)/m4
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -690,9 +731,12 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-recursive
-all-am: Makefile
+all-am: Makefile $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
+	for dir in "$(DESTDIR)$(includecoindir)"; do \
+	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
+	done
 install: install-recursive
 install-exec: install-exec-recursive
 install-data: install-data-recursive
@@ -738,7 +782,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am:
+install-data-am: install-includecoinHEADERS
 
 install-exec-am:
 
@@ -766,7 +810,7 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-info-am
+uninstall-am: uninstall-includecoinHEADERS uninstall-info-am
 
 uninstall-info: uninstall-info-recursive
 
@@ -778,12 +822,14 @@ uninstall-info: uninstall-info-recursive
 	distclean-recursive distclean-tags distcleancheck distdir \
 	distuninstallcheck dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-exec \
-	install-exec-am install-info install-info-am install-man \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
-	maintainer-clean-recursive mostlyclean mostlyclean-generic \
-	mostlyclean-libtool mostlyclean-recursive pdf pdf-am ps ps-am \
-	tags tags-recursive uninstall uninstall-am uninstall-info-am
+	install-exec-am install-includecoinHEADERS install-info \
+	install-info-am install-man install-strip installcheck \
+	installcheck-am installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic maintainer-clean-recursive \
+	mostlyclean mostlyclean-generic mostlyclean-libtool \
+	mostlyclean-recursive pdf pdf-am ps ps-am tags tags-recursive \
+	uninstall uninstall-am uninstall-includecoinHEADERS \
+	uninstall-info-am
 
 
 .PHONY:

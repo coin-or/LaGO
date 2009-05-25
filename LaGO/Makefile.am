@@ -25,6 +25,19 @@ EXTRA_DIST = \
 
 # tmpdir = tmpdir
 
+#for using IpoptCalculatedQuantities
+includecoindir = $(includedir)/coin
+includecoin_HEADERS = \
+  $(IPOPTSRCDIR)/src/Algorithm/IpIpoptCalculatedQuantities.hpp \
+  $(IPOPTSRCDIR)/src/Algorithm/IpIpoptNLP.hpp \
+  $(IPOPTSRCDIR)/src/Algorithm/IpIpoptData.hpp \
+  $(IPOPTSRCDIR)/src/Algorithm/IpNLPScaling.hpp \
+  $(IPOPTSRCDIR)/src/Algorithm/IpIteratesVector.hpp \
+  $(IPOPTSRCDIR)/src/Algorithm/IpTimingStatistics.hpp \
+  $(IPOPTSRCDIR)/src/LinAlg/IpScaledMatrix.hpp \
+  $(IPOPTSRCDIR)/src/LinAlg/IpSymScaledMatrix.hpp \
+  $(IPOPTSRCDIR)/src/LinAlg/IpCompoundVector.hpp
+
 ########################################################################
 #                  Installation of the addlibs file                    #
 ########################################################################
