@@ -1,7 +1,13 @@
 #!/bin/bash
 
+rm -rf metis-4.0
+
 wget http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/metis-4.0.tar.gz
 
 tar xzf metis-4.0.tar.gz
+rm -f metis-4.0.tar.gz
+
+patch -p0 < metis.patch
+
 cd metis-4.0
 make

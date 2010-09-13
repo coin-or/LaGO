@@ -20,6 +20,8 @@ tarball and unpack it in this directory.
 
 tar xzf metis-4.0.tar.gz
 
+patch -p0 < metis.patch
+
 As last step, compile METIS via 
 
 cd metis-4.0
